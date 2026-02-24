@@ -1,0 +1,25 @@
+<p-card>
+    <p-tabs [value]="activeTab()" (valueChange)="onTabChange($event)">
+        <p-tablist>
+            <p-tab value="perfil">
+                <i class="pi pi-user mr-2"></i>
+                <span>Perfil</span>
+            </p-tab>
+            <p-tab value="empresa">
+                <i class="pi pi-building mr-2"></i>
+                <span>Empresa</span>
+            </p-tab>
+            <p-tab value="plan-facturacion">
+                <i class="pi pi-credit-card mr-2"></i>
+                <span>Plan y Facturación</span>
+            </p-tab>
+            <p-tab value="parametros-analisis">
+                <i class="pi pi-chart-bar mr-2"></i>
+                <span>Parámetros de Análisis</span>
+            </p-tab>
+        </p-tablist>
+    </p-tabs>
+    <div class="mt-4">
+        <router-outlet />
+    </div>
+</p-card>

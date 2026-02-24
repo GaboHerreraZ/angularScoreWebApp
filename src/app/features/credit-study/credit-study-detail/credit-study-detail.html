@@ -1,0 +1,812 @@
+<p-confirmDialog />
+<div class="flex flex-col gap-6">
+    <!-- Header -->
+    @if (loading()) {
+    <p-card>
+        <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <p-skeleton shape="circle" size="2.5rem" />
+                <p-skeleton width="15rem" height="2rem" />
+            </div>
+            <div class="flex gap-2">
+                <p-skeleton width="8rem" height="2.5rem" borderRadius="6px" />
+                <p-skeleton width="8rem" height="2.5rem" borderRadius="6px" />
+            </div>
+        </div>
+    </p-card>
+    } @else {
+    <p-card>
+        <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <p-button icon="pi pi-arrow-left" [rounded]="true" [text]="true" severity="secondary" (onClick)="onCancel()" />
+                <h2 class="text-2xl font-semibold m-0">Nuevo Estudio de Crédito</h2>
+            </div>
+            <div class="flex gap-2">
+                <p-button label="Cancelar" icon="pi pi-times" severity="secondary" [outlined]="true" (onClick)="onCancel()" />
+                <p-button label="Guardar" icon="pi pi-check" severity="success" (onClick)="onSave()" />
+            </div>
+        </div>
+    </p-card>
+    }
+
+    <!-- Main Card -->
+    @if (loading()) {
+    <p-card class="mt-2">
+        <div class="flex flex-col gap-6">
+            <!-- Skeleton para step header -->
+            <div class="flex items-center gap-4 pb-4 border-b border-gray-200">
+                <p-skeleton shape="circle" size="2rem" />
+                <p-skeleton width="12rem" height="1.5rem" />
+            </div>
+
+            <!-- Skeleton para formulario Step 1 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-5">
+                <div class="flex flex-col gap-2">
+                    <p-skeleton width="8rem" height="1rem" />
+                    <p-skeleton width="100%" height="3rem" borderRadius="6px" />
+                </div>
+                <div class="flex flex-col gap-2">
+                    <p-skeleton width="10rem" height="1rem" />
+                    <p-skeleton width="100%" height="3rem" borderRadius="6px" />
+                </div>
+                <div class="flex flex-col gap-2">
+                    <p-skeleton width="12rem" height="1rem" />
+                    <p-skeleton width="100%" height="3rem" borderRadius="6px" />
+                </div>
+                <div class="flex flex-col gap-2">
+                    <p-skeleton width="14rem" height="1rem" />
+                    <p-skeleton width="100%" height="3rem" borderRadius="6px" />
+                </div>
+                <div class="flex flex-col gap-2 md:col-span-2">
+                    <p-skeleton width="10rem" height="1rem" />
+                    <p-skeleton width="100%" height="5rem" borderRadius="6px" />
+                </div>
+            </div>
+
+            <!-- Skeleton para botón siguiente -->
+            <div class="py-6">
+                <p-skeleton width="8rem" height="2.5rem" borderRadius="6px" />
+            </div>
+        </div>
+    </p-card>
+    } @else {
+    <p-card class="mt-2">
+        <p-stepper [value]="activeStep">
+            <p-step-item [value]="1">
+                <p-step>
+                    <span>Información del Cupo</span>
+                    @if (isStepInvalid(step1Form)) {
+                    <p-badge [value]="getInvalidCount(step1Form).toString()" severity="danger" class="ml-2" />
+                    }
+                </p-step>
+                <p-step-panel>
+                    <ng-template #content let-activateCallback="activateCallback">
+                        <form [formGroup]="step1Form">
+                            <p-fluid>
+                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-5">
+                                    @if (!isEditMode()) {
+                                    <div class="flex flex-col gap-1">
+                                        <p-floatlabel variant="on">
+                                            <app-auto-complete
+                                                id="customerId"
+                                                endpointKey="customers"
+                                                [urlParams]="customerUrlParams()"
+                                                placeholder="Buscar cliente..."
+                                                formControlName="customerId"
+                                                [styleClass]="isInvalid(step1Form, 'customerId') ? 'w-full ng-invalid ng-dirty' : 'w-full'"
+                                            />
+                                            <label for="customerId">Cliente *</label>
+                                        </p-floatlabel>
+                                        @if (isInvalid(step1Form, 'customerId')) {
+                                        <small class="text-red-500">{{ getErrorMessage(step1Form, 'customerId') }}</small>
+                                        }
+                                    </div>
+                                    } @else {
+                                    <div class="flex flex-col gap-1">
+                                        <p-floatlabel variant="on">
+                                            <input pInputText id="customerName" formControlName="customerName" class="w-full" />
+                                            <label for="customerName">Cliente</label>
+                                        </p-floatlabel>
+                                    </div>
+                                    }
+
+                                    <div class="flex flex-col gap-1">
+                                        <p-floatlabel variant="on">
+                                            <p-datepicker id="studyDate" formControlName="studyDate" dateFormat="yy-mm-dd" [invalid]="isInvalid(step1Form, 'studyDate')" />
+                                            <label for="studyDate">Fecha del Estudio *</label>
+                                        </p-floatlabel>
+                                        @if (isInvalid(step1Form, 'studyDate')) {
+                                        <small class="text-red-500">{{ getErrorMessage(step1Form, 'studyDate') }}</small>
+                                        }
+                                    </div>
+
+                                    <div class="flex flex-col gap-1">
+                                        <p-floatlabel variant="on">
+                                            <p-inputnumber id="requestedTerm" formControlName="requestedTerm" [invalid]="isInvalid(step1Form, 'requestedTerm')" [useGrouping]="false" />
+                                            <label for="requestedTerm">Plazo Solicitado (meses) *</label>
+                                        </p-floatlabel>
+                                        @if (isInvalid(step1Form, 'requestedTerm')) {
+                                        <small class="text-red-500">{{ getErrorMessage(step1Form, 'requestedTerm') }}</small>
+                                        }
+                                    </div>
+
+                                    <div class="flex flex-col gap-1">
+                                        <p-floatlabel variant="on">
+                                            <p-inputnumber
+                                                id="requestedMonthlyCreditLine"
+                                                formControlName="requestedMonthlyCreditLine"
+                                                [invalid]="isInvalid(step1Form, 'requestedMonthlyCreditLine')"
+                                                mode="currency"
+                                                currency="COP"
+                                                locale="es-CO"
+                                                [minFractionDigits]="0"
+                                                [maxFractionDigits]="0"
+                                            />
+                                            <label for="requestedMonthlyCreditLine">Cupo Mensual Solicitado *</label>
+                                        </p-floatlabel>
+                                        @if (isInvalid(step1Form, 'requestedMonthlyCreditLine')) {
+                                        <small class="text-red-500">{{ getErrorMessage(step1Form, 'requestedMonthlyCreditLine') }}</small>
+                                        }
+                                    </div>
+
+                                    <div class="flex flex-col gap-1 md:col-span-2">
+                                        <p-floatlabel variant="on">
+                                            <textarea pTextarea id="notes" formControlName="notes" rows="3" [autoResize]="true" class="w-full" style="min-height: 5rem"></textarea>
+                                            <label for="notes">Observaciones *</label>
+                                        </p-floatlabel>
+                                        @if (isInvalid(step1Form, 'notes')) {
+                                        <small class="text-red-500">{{ getErrorMessage(step1Form, 'notes') }}</small>
+                                        }
+                                    </div>
+                                </div>
+                            </p-fluid>
+                        </form>
+                        <div class="py-6">
+                            <p-button label="Siguiente" (onClick)="activateCallback(2)" />
+                        </div>
+                    </ng-template>
+                </p-step-panel>
+            </p-step-item>
+            <p-step-item [value]="2">
+                <p-step>
+                    <span>Datos Financieros del Cliente</span>
+                    @if (isStepInvalid(step2Form)) {
+                    <p-badge [value]="getInvalidCount(step2Form).toString()" severity="danger" class="ml-2" />
+                    }
+                </p-step>
+                <p-step-panel>
+                    <ng-template #content let-activateCallback="activateCallback">
+                        <form [formGroup]="step2Form">
+                            <p-fluid>
+                                <!-- Activos Corrientes -->
+                                <h4 class="text-sm font-semibold text-muted-color mb-4">Activos Corrientes</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-5 mb-6">
+                                    <div class="flex flex-col gap-1">
+                                        <p-floatlabel variant="on">
+                                            <p-inputnumber
+                                                id="cashAndEquivalents"
+                                                formControlName="cashAndEquivalents"
+                                                [invalid]="isInvalid(step2Form, 'cashAndEquivalents')"
+                                                mode="currency"
+                                                currency="COP"
+                                                locale="es-CO"
+                                                [minFractionDigits]="0"
+                                                [maxFractionDigits]="0"
+                                            />
+                                            <label for="cashAndEquivalents">Efectivo y Equivalentes *</label>
+                                        </p-floatlabel>
+                                        @if (isInvalid(step2Form, 'cashAndEquivalents')) {
+                                        <small class="text-red-500">{{ getErrorMessage(step2Form, 'cashAndEquivalents') }}</small>
+                                        }
+                                    </div>
+
+                                    <div class="flex flex-col gap-1">
+                                        <p-floatlabel variant="on">
+                                            <p-inputnumber
+                                                id="accountsReceivable1"
+                                                formControlName="accountsReceivable1"
+                                                [invalid]="isInvalid(step2Form, 'accountsReceivable1')"
+                                                mode="currency"
+                                                currency="COP"
+                                                locale="es-CO"
+                                                [minFractionDigits]="0"
+                                                [maxFractionDigits]="0"
+                                            />
+                                            <label for="accountsReceivable1">Cuentas por Cobrar 1 *</label>
+                                        </p-floatlabel>
+                                        @if (isInvalid(step2Form, 'accountsReceivable1')) {
+                                        <small class="text-red-500">{{ getErrorMessage(step2Form, 'accountsReceivable1') }}</small>
+                                        }
+                                    </div>
+
+                                    <div class="flex flex-col gap-1">
+                                        <p-floatlabel variant="on">
+                                            <p-inputnumber
+                                                id="accountsReceivable2"
+                                                formControlName="accountsReceivable2"
+                                                [invalid]="isInvalid(step2Form, 'accountsReceivable2')"
+                                                mode="currency"
+                                                currency="COP"
+                                                locale="es-CO"
+                                                [minFractionDigits]="0"
+                                                [maxFractionDigits]="0"
+                                            />
+                                            <label for="accountsReceivable2">Cuentas por Cobrar 2 *</label>
+                                        </p-floatlabel>
+                                        @if (isInvalid(step2Form, 'accountsReceivable2')) {
+                                        <small class="text-red-500">{{ getErrorMessage(step2Form, 'accountsReceivable2') }}</small>
+                                        }
+                                    </div>
+
+                                    <div class="flex flex-col gap-1">
+                                        <p-floatlabel variant="on">
+                                            <p-inputnumber
+                                                id="inventories1"
+                                                formControlName="inventories1"
+                                                [invalid]="isInvalid(step2Form, 'inventories1')"
+                                                mode="currency"
+                                                currency="COP"
+                                                locale="es-CO"
+                                                [minFractionDigits]="0"
+                                                [maxFractionDigits]="0"
+                                            />
+                                            <label for="inventories1">Inventarios Año 1 *</label>
+                                        </p-floatlabel>
+                                        @if (isInvalid(step2Form, 'inventories1')) {
+                                        <small class="text-red-500">{{ getErrorMessage(step2Form, 'inventories1') }}</small>
+                                        }
+                                    </div>
+
+                                    <div class="flex flex-col gap-1">
+                                        <p-floatlabel variant="on">
+                                            <p-inputnumber
+                                                id="inventories2"
+                                                formControlName="inventories2"
+                                                [invalid]="isInvalid(step2Form, 'inventories2')"
+                                                mode="currency"
+                                                currency="COP"
+                                                locale="es-CO"
+                                                [minFractionDigits]="0"
+                                                [maxFractionDigits]="0"
+                                            />
+                                            <label for="inventories2">Inventarios Año 2 *</label>
+                                        </p-floatlabel>
+                                        @if (isInvalid(step2Form, 'inventories2')) {
+                                        <small class="text-red-500">{{ getErrorMessage(step2Form, 'inventories2') }}</small>
+                                        }
+                                    </div>
+
+                                    <div class="flex flex-col gap-1">
+                                        <p-floatlabel variant="on">
+                                            <p-inputnumber
+                                                id="totalCurrentAssets"
+                                                formControlName="totalCurrentAssets"
+                                                [invalid]="isInvalid(step2Form, 'totalCurrentAssets')"
+                                                mode="currency"
+                                                currency="COP"
+                                                locale="es-CO"
+                                                [minFractionDigits]="0"
+                                                [maxFractionDigits]="0"
+                                            />
+                                            <label for="totalCurrentAssets">Total Activos Corrientes *</label>
+                                        </p-floatlabel>
+                                        @if (isInvalid(step2Form, 'totalCurrentAssets')) {
+                                        <small class="text-red-500">{{ getErrorMessage(step2Form, 'totalCurrentAssets') }}</small>
+                                        }
+                                    </div>
+                                </div>
+
+                                <!-- Activos No Corrientes -->
+                                <h4 class="text-sm font-semibold text-muted-color mb-4">Activos No Corrientes</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-5 mb-6">
+                                    <div class="flex flex-col gap-1">
+                                        <p-floatlabel variant="on">
+                                            <p-inputnumber
+                                                id="fixedAssetsProperty"
+                                                formControlName="fixedAssetsProperty"
+                                                [invalid]="isInvalid(step2Form, 'fixedAssetsProperty')"
+                                                mode="currency"
+                                                currency="COP"
+                                                locale="es-CO"
+                                                [minFractionDigits]="0"
+                                                [maxFractionDigits]="0"
+                                            />
+                                            <label for="fixedAssetsProperty">Activos Fijos / Propiedad *</label>
+                                        </p-floatlabel>
+                                        @if (isInvalid(step2Form, 'fixedAssetsProperty')) {
+                                        <small class="text-red-500">{{ getErrorMessage(step2Form, 'fixedAssetsProperty') }}</small>
+                                        }
+                                    </div>
+
+                                    <div class="flex flex-col gap-1">
+                                        <p-floatlabel variant="on">
+                                            <p-inputnumber
+                                                id="totalNonCurrentAssets"
+                                                formControlName="totalNonCurrentAssets"
+                                                [invalid]="isInvalid(step2Form, 'totalNonCurrentAssets')"
+                                                mode="currency"
+                                                currency="COP"
+                                                locale="es-CO"
+                                                [minFractionDigits]="0"
+                                                [maxFractionDigits]="0"
+                                            />
+                                            <label for="totalNonCurrentAssets">Total Activos No Corrientes *</label>
+                                        </p-floatlabel>
+                                        @if (isInvalid(step2Form, 'totalNonCurrentAssets')) {
+                                        <small class="text-red-500">{{ getErrorMessage(step2Form, 'totalNonCurrentAssets') }}</small>
+                                        }
+                                    </div>
+
+                                    <div class="flex flex-col gap-1">
+                                        <p-floatlabel variant="on">
+                                            <p-inputnumber
+                                                id="balanceSheet"
+                                                formControlName="balanceSheet"
+                                                [invalid]="isInvalid(step2Form, 'balanceSheet')"
+                                                mode="currency"
+                                                currency="COP"
+                                                locale="es-CO"
+                                                [minFractionDigits]="0"
+                                                [maxFractionDigits]="0"
+                                            />
+                                            <label for="balanceSheet">Total Balance General *</label>
+                                        </p-floatlabel>
+                                        @if (isInvalid(step2Form, 'balanceSheet')) {
+                                        <small class="text-red-500">{{ getErrorMessage(step2Form, 'balanceSheet') }}</small>
+                                        }
+                                    </div>
+                                </div>
+
+                                <!-- Pasivos Corrientes -->
+                                <h4 class="text-sm font-semibold text-muted-color mb-4">Pasivos Corrientes</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-5 mb-6">
+                                    <div class="flex flex-col gap-1">
+                                        <p-floatlabel variant="on">
+                                            <p-inputnumber
+                                                id="shortTermFinancialLiabilities"
+                                                formControlName="shortTermFinancialLiabilities"
+                                                [invalid]="isInvalid(step2Form, 'shortTermFinancialLiabilities')"
+                                                mode="currency"
+                                                currency="COP"
+                                                locale="es-CO"
+                                                [minFractionDigits]="0"
+                                                [maxFractionDigits]="0"
+                                            />
+                                            <label for="shortTermFinancialLiabilities">Obligaciones Financieras CP *</label>
+                                        </p-floatlabel>
+                                        @if (isInvalid(step2Form, 'shortTermFinancialLiabilities')) {
+                                        <small class="text-red-500">{{ getErrorMessage(step2Form, 'shortTermFinancialLiabilities') }}</small>
+                                        }
+                                    </div>
+
+                                    <div class="flex flex-col gap-1">
+                                        <p-floatlabel variant="on">
+                                            <p-inputnumber id="suppliers1" formControlName="suppliers1" [invalid]="isInvalid(step2Form, 'suppliers1')" mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0" [maxFractionDigits]="0" />
+                                            <label for="suppliers1">Proveedores Año 1 *</label>
+                                        </p-floatlabel>
+                                        @if (isInvalid(step2Form, 'suppliers1')) {
+                                        <small class="text-red-500">{{ getErrorMessage(step2Form, 'suppliers1') }}</small>
+                                        }
+                                    </div>
+
+                                    <div class="flex flex-col gap-1">
+                                        <p-floatlabel variant="on">
+                                            <p-inputnumber id="suppliers2" formControlName="suppliers2" [invalid]="isInvalid(step2Form, 'suppliers2')" mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0" [maxFractionDigits]="0" />
+                                            <label for="suppliers2">Proveedores Año 2 *</label>
+                                        </p-floatlabel>
+                                        @if (isInvalid(step2Form, 'suppliers2')) {
+                                        <small class="text-red-500">{{ getErrorMessage(step2Form, 'suppliers2') }}</small>
+                                        }
+                                    </div>
+
+                                    <div class="flex flex-col gap-1">
+                                        <p-floatlabel variant="on">
+                                            <p-inputnumber
+                                                id="totalCurrentLiabilities"
+                                                formControlName="totalCurrentLiabilities"
+                                                [invalid]="isInvalid(step2Form, 'totalCurrentLiabilities')"
+                                                mode="currency"
+                                                currency="COP"
+                                                locale="es-CO"
+                                                [minFractionDigits]="0"
+                                                [maxFractionDigits]="0"
+                                            />
+                                            <label for="totalCurrentLiabilities">Total Pasivos Corrientes *</label>
+                                        </p-floatlabel>
+                                        @if (isInvalid(step2Form, 'totalCurrentLiabilities')) {
+                                        <small class="text-red-500">{{ getErrorMessage(step2Form, 'totalCurrentLiabilities') }}</small>
+                                        }
+                                    </div>
+                                </div>
+
+                                <!-- Pasivos No Corrientes -->
+                                <h4 class="text-sm font-semibold text-muted-color mb-4">Pasivos No Corrientes</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-5 mb-6">
+                                    <div class="flex flex-col gap-1">
+                                        <p-floatlabel variant="on">
+                                            <p-inputnumber
+                                                id="longTermFinancialLiabilities"
+                                                formControlName="longTermFinancialLiabilities"
+                                                [invalid]="isInvalid(step2Form, 'longTermFinancialLiabilities')"
+                                                mode="currency"
+                                                currency="COP"
+                                                locale="es-CO"
+                                                [minFractionDigits]="0"
+                                                [maxFractionDigits]="0"
+                                            />
+                                            <label for="longTermFinancialLiabilities">Obligaciones Financieras LP *</label>
+                                        </p-floatlabel>
+                                        @if (isInvalid(step2Form, 'longTermFinancialLiabilities')) {
+                                        <small class="text-red-500">{{ getErrorMessage(step2Form, 'longTermFinancialLiabilities') }}</small>
+                                        }
+                                    </div>
+
+                                    <div class="flex flex-col gap-1">
+                                        <p-floatlabel variant="on">
+                                            <p-inputnumber
+                                                id="totalNonCurrentLiabilities"
+                                                formControlName="totalNonCurrentLiabilities"
+                                                [invalid]="isInvalid(step2Form, 'totalNonCurrentLiabilities')"
+                                                mode="currency"
+                                                currency="COP"
+                                                locale="es-CO"
+                                                [minFractionDigits]="0"
+                                                [maxFractionDigits]="0"
+                                            />
+                                            <label for="totalNonCurrentLiabilities">Total Pasivos No Corrientes *</label>
+                                        </p-floatlabel>
+                                        @if (isInvalid(step2Form, 'totalNonCurrentLiabilities')) {
+                                        <small class="text-red-500">{{ getErrorMessage(step2Form, 'totalNonCurrentLiabilities') }}</small>
+                                        }
+                                    </div>
+                                </div>
+
+                                <!-- Patrimonio -->
+                                <h4 class="text-sm font-semibold text-muted-color mb-4">Patrimonio</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-5 mb-6">
+                                    <div class="flex flex-col gap-1">
+                                        <p-floatlabel variant="on">
+                                            <p-inputnumber
+                                                id="retainedEarnings"
+                                                formControlName="retainedEarnings"
+                                                [invalid]="isInvalid(step2Form, 'retainedEarnings')"
+                                                mode="currency"
+                                                currency="COP"
+                                                locale="es-CO"
+                                                [minFractionDigits]="0"
+                                                [maxFractionDigits]="0"
+                                            />
+                                            <label for="retainedEarnings">Utilidades Retenidas *</label>
+                                        </p-floatlabel>
+                                        @if (isInvalid(step2Form, 'retainedEarnings')) {
+                                        <small class="text-red-500">{{ getErrorMessage(step2Form, 'retainedEarnings') }}</small>
+                                        }
+                                    </div>
+                                    <div class="flex flex-col gap-1">
+                                        <p-floatlabel variant="on">
+                                            <p-inputnumber id="netIncome" formControlName="netIncome" [invalid]="isInvalid(step2Form, 'netIncome')" mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0" [maxFractionDigits]="0" />
+                                            <label for="netIncome">Utilidad Neta *</label>
+                                        </p-floatlabel>
+                                        @if (isInvalid(step2Form, 'netIncome')) {
+                                        <small class="text-red-500">{{ getErrorMessage(step2Form, 'netIncome') }}</small>
+                                        }
+                                    </div>
+                                </div>
+
+                                <!-- Estado de Resultados -->
+                                <h4 class="text-sm font-semibold text-muted-color mb-4">Estado de Resultados</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-5">
+                                    <div class="flex flex-col gap-1">
+                                        <p-floatlabel variant="on">
+                                            <p-select id="incomeStatementId" formControlName="incomeStatementId" [options]="periods()" optionLabel="label" [invalid]="isInvalid(step2Form, 'incomeStatementId')" styleClass="w-full" />
+                                            <label for="incomeStatementId">Período *</label>
+                                        </p-floatlabel>
+                                        @if (isInvalid(step2Form, 'incomeStatementId')) {
+                                        <small class="text-red-500">{{ getErrorMessage(step2Form, 'incomeStatementId') }}</small>
+                                        }
+                                    </div>
+
+                                    <div class="flex flex-col gap-1">
+                                        <p-floatlabel variant="on">
+                                            <p-inputnumber
+                                                id="ordinaryActivityRevenue"
+                                                formControlName="ordinaryActivityRevenue"
+                                                [invalid]="isInvalid(step2Form, 'ordinaryActivityRevenue')"
+                                                mode="currency"
+                                                currency="COP"
+                                                locale="es-CO"
+                                                [minFractionDigits]="0"
+                                                [maxFractionDigits]="0"
+                                            />
+                                            <label for="ordinaryActivityRevenue">Ingresos Actividad Ordinaria *</label>
+                                        </p-floatlabel>
+                                        @if (isInvalid(step2Form, 'ordinaryActivityRevenue')) {
+                                        <small class="text-red-500">{{ getErrorMessage(step2Form, 'ordinaryActivityRevenue') }}</small>
+                                        }
+                                    </div>
+
+                                    <div class="flex flex-col gap-1">
+                                        <p-floatlabel variant="on">
+                                            <p-inputnumber id="costOfSales" formControlName="costOfSales" [invalid]="isInvalid(step2Form, 'costOfSales')" mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0" [maxFractionDigits]="0" />
+                                            <label for="costOfSales">Costo de Ventas *</label>
+                                        </p-floatlabel>
+                                        @if (isInvalid(step2Form, 'costOfSales')) {
+                                        <small class="text-red-500">{{ getErrorMessage(step2Form, 'costOfSales') }}</small>
+                                        }
+                                    </div>
+
+                                    <div class="flex flex-col gap-1">
+                                        <p-floatlabel variant="on">
+                                            <p-inputnumber
+                                                id="administrativeExpenses"
+                                                formControlName="administrativeExpenses"
+                                                [invalid]="isInvalid(step2Form, 'administrativeExpenses')"
+                                                mode="currency"
+                                                currency="COP"
+                                                locale="es-CO"
+                                                [minFractionDigits]="0"
+                                                [maxFractionDigits]="0"
+                                            />
+                                            <label for="administrativeExpenses">Gastos Administrativos *</label>
+                                        </p-floatlabel>
+                                        @if (isInvalid(step2Form, 'administrativeExpenses')) {
+                                        <small class="text-red-500">{{ getErrorMessage(step2Form, 'administrativeExpenses') }}</small>
+                                        }
+                                    </div>
+
+                                    <div class="flex flex-col gap-1">
+                                        <p-floatlabel variant="on">
+                                            <p-inputnumber
+                                                id="sellingExpenses"
+                                                formControlName="sellingExpenses"
+                                                [invalid]="isInvalid(step2Form, 'sellingExpenses')"
+                                                mode="currency"
+                                                currency="COP"
+                                                locale="es-CO"
+                                                [minFractionDigits]="0"
+                                                [maxFractionDigits]="0"
+                                            />
+                                            <label for="sellingExpenses">Gastos de Ventas *</label>
+                                        </p-floatlabel>
+                                        @if (isInvalid(step2Form, 'sellingExpenses')) {
+                                        <small class="text-red-500">{{ getErrorMessage(step2Form, 'sellingExpenses') }}</small>
+                                        }
+                                    </div>
+
+                                    <div class="flex flex-col gap-1">
+                                        <p-floatlabel variant="on">
+                                            <p-inputnumber
+                                                id="depreciationAmortization"
+                                                formControlName="depreciationAmortization"
+                                                [invalid]="isInvalid(step2Form, 'depreciationAmortization')"
+                                                mode="currency"
+                                                currency="COP"
+                                                locale="es-CO"
+                                                [minFractionDigits]="0"
+                                                [maxFractionDigits]="0"
+                                            />
+                                            <label for="depreciationAmortization">Depreciación y Amortización *</label>
+                                        </p-floatlabel>
+                                        @if (isInvalid(step2Form, 'depreciationAmortization')) {
+                                        <small class="text-red-500">{{ getErrorMessage(step2Form, 'depreciationAmortization') }}</small>
+                                        }
+                                    </div>
+
+                                    <div class="flex flex-col gap-1">
+                                        <p-floatlabel variant="on">
+                                            <p-inputnumber
+                                                id="financialExpenses"
+                                                formControlName="financialExpenses"
+                                                [invalid]="isInvalid(step2Form, 'financialExpenses')"
+                                                mode="currency"
+                                                currency="COP"
+                                                locale="es-CO"
+                                                [minFractionDigits]="0"
+                                                [maxFractionDigits]="0"
+                                            />
+                                            <label for="financialExpenses">Gastos Financieros *</label>
+                                        </p-floatlabel>
+                                        @if (isInvalid(step2Form, 'financialExpenses')) {
+                                        <small class="text-red-500">{{ getErrorMessage(step2Form, 'financialExpenses') }}</small>
+                                        }
+                                    </div>
+
+                                    <div class="flex flex-col gap-1">
+                                        <p-floatlabel variant="on">
+                                            <p-inputnumber id="taxes" formControlName="taxes" [invalid]="isInvalid(step2Form, 'taxes')" mode="currency" currency="COP" locale="es-CO" [minFractionDigits]="0" [maxFractionDigits]="0" />
+                                            <label for="taxes">Impuestos *</label>
+                                        </p-floatlabel>
+                                        @if (isInvalid(step2Form, 'taxes')) {
+                                        <small class="text-red-500">{{ getErrorMessage(step2Form, 'taxes') }}</small>
+                                        }
+                                    </div>
+                                </div>
+                            </p-fluid>
+                        </form>
+                        <div class="flex py-6 gap-2">
+                            <p-button label="Volver" severity="secondary" (onClick)="activateCallback(1)" />
+                            <p-button label="Siguiente" (onClick)="activateCallback(3)" />
+                        </div>
+                    </ng-template>
+                </p-step-panel>
+            </p-step-item>
+            <p-step-item [value]="3">
+                <p-step>Estudio de Crédito</p-step>
+                <p-step-panel>
+                    <ng-template #content let-activateCallback="activateCallback">
+                        <p-message severity="info" text="Verifique los indicadores y ajuste los parámetros antes de ejecutar el análisis." class="mb-4" />
+
+                        <h4 class="text-sm font-semibold text-muted-color mb-4 mt-4">Indicadores Calculados</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <div class="flex items-center justify-between bg-gray-50 rounded-lg px-4 py-3">
+                                <span class="text-sm text-muted-color">Total Activos</span>
+                                <span class="font-semibold">{{ totalAssets() | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</span>
+                            </div>
+                            <div class="flex items-center justify-between bg-gray-50 rounded-lg px-4 py-3">
+                                <span class="text-sm text-muted-color">Total Pasivos</span>
+                                <span class="font-semibold">{{ totalLiabilities() | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</span>
+                            </div>
+                            <div class="flex items-center justify-between bg-gray-50 rounded-lg px-4 py-3">
+                                <span class="text-sm text-muted-color">Patrimonio</span>
+                                <span class="font-semibold">{{ equity() | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</span>
+                            </div>
+                            <div class="flex items-center justify-between bg-gray-50 rounded-lg px-4 py-3">
+                                <span class="text-sm text-muted-color">Utilidad Bruta</span>
+                                <span class="font-semibold">{{ grossProfit() | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</span>
+                            </div>
+                        </div>
+                        <div class="flex py-6 gap-2">
+                            <p-button label="Volver" severity="secondary" (onClick)="activateCallback(2)" />
+                            @if (isEditMode()) {
+                            <p-button label="Realizar Estudio" icon="pi pi-bolt" severity="success" (onClick)="onPerformStudy(activateCallback)" [disabled]="!canPerformStudy()" [loading]="performingStudy()" />
+                            } @else {
+                            <p-button label="Guardar" icon="pi pi-check" severity="success" (onClick)="onSave()" [disabled]="!canSaveStudy()" />
+                            }
+                        </div>
+                    </ng-template>
+                </p-step-panel>
+            </p-step-item>
+
+            <p-step-item [value]="4">
+                <p-step>
+                    <span>Resultado del Estudio</span>
+                </p-step>
+                <p-step-panel>
+                    <ng-template #content let-activateCallback="activateCallback">
+                        @if (studyCompleted()) {
+                        <div class="flex flex-col gap-6">
+                            <!-- Banner de estado -->
+                            <div class="rounded-xl border p-6 flex flex-col items-center gap-3" [ngClass]="[scoreStatus().bg, scoreStatus().border]">
+                                <div class="w-14 h-14 rounded-full flex items-center justify-center text-white text-2xl" [ngClass]="scoreStatus().iconBg">
+                                    <i [ngClass]="scoreStatus().icon"></i>
+                                </div>
+                                <h3 class="text-xl font-bold m-0" [ngClass]="scoreStatus().titleColor">{{ scoreStatus().title }}</h3>
+                                <p class="text-sm text-muted-color m-0 text-center max-w-lg">{{ scoreStatus().description }}</p>
+
+                                <!-- Métricas -->
+                                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 w-full mt-4 pt-4 border-t" [ngClass]="scoreStatus().border">
+                                    <div class="flex flex-col items-center gap-1">
+                                        <span class="text-sm font-bold text-muted-color">Monto Solicitado</span>
+                                        <span class="font-semibold text-base">{{ studyResult()?.requestedMonthlyCreditLine | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</span>
+                                    </div>
+                                    <div class="flex flex-col items-center gap-1">
+                                        <span class="text-sm font-bold text-muted-color">Capacidad Pago Anual</span>
+                                        <span class="font-semibold text-base">{{ studyResult()?.annualPaymentCapacity | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</span>
+                                    </div>
+                                    <div class="flex flex-col items-center gap-1">
+                                        <span class="text-sm font-bold text-muted-color">Capacidad Pago Mensual</span>
+                                        <span class="font-semibold text-base">{{ studyResult()?.monthlyPaymentCapacity | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</span>
+                                    </div>
+                                    <div class="flex flex-col items-center gap-1">
+                                        <span class="text-sm font-bold text-muted-color">Plazo Solicitado</span>
+                                        <span class="font-semibold text-base">{{ studyResult()?.requestedTerm }} meses</span>
+                                    </div>
+                                    <div class="flex flex-col items-center gap-1">
+                                        <span class="text-sm font-bold text-muted-color">Score</span>
+                                        <span class="font-bold text-base" [ngClass]="scoreStatus().titleColor">{{ scorePercentage() }} / 100</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Cards de detalle -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <!-- Score Crediticio -->
+                                <p-card>
+                                    <h6 class="font-bold text-base mb-4 m-0">Score Crediticio</h6>
+                                    <div class="text-center mb-2">
+                                        <span class="text-4xl font-bold" [ngClass]="scoreStatus().titleColor">{{ scorePercentage() }}</span>
+                                        <span class="text-muted-color text-lg"> / 100</span>
+                                    </div>
+                                    <div class="h-3 rounded-md bg-surface-200 overflow-hidden my-3">
+                                        <div class="h-full rounded-md" [style.width.%]="scorePercentage()" style="background: linear-gradient(90deg, #ef4444 0%, #f59e0b 40%, #22c55e 70%, #16a34a 100%)"></div>
+                                    </div>
+                                    <div class="flex justify-between text-sm text-muted-color mt-1">
+                                        <span>Alto Riesgo</span>
+                                        <span>Bajo Riesgo</span>
+                                    </div>
+                                    <div class="mt-4 p-3 rounded-lg" [ngClass]="scoreStatus().bg">
+                                        <div class="text-sm font-semibold mb-1">Interpretación:</div>
+                                        <div class="text-sm text-muted-color">{{ scoreStatus().interpretation }}</div>
+                                    </div>
+                                </p-card>
+
+                                <!-- Factores Evaluados -->
+                                <p-card>
+                                    <h6 class="font-bold text-base mb-4 m-0">Factores Evaluados</h6>
+                                    <div class="flex justify-between items-center py-3 border-b border-surface-200">
+                                        <span class="text-sm">Capacidad de pago</span>
+                                        <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-green-50 text-green-600">Buena</span>
+                                    </div>
+                                    <div class="flex justify-between items-center py-3 border-b border-surface-200">
+                                        <span class="text-sm">Nivel de endeudamiento</span>
+                                        <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-green-50 text-green-600">Bajo</span>
+                                    </div>
+                                    <div class="flex justify-between items-center py-3 border-b border-surface-200">
+                                        <span class="text-sm">Relación ingresos/cupo</span>
+                                        <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-green-50 text-green-600">Adecuada</span>
+                                    </div>
+                                </p-card>
+                            </div>
+
+                            <!-- Resumen del Cupo -->
+                            <p-card>
+                                <h6 class="font-bold text-base mb-4 m-0">Resumen del Cupo</h6>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div class="flex flex-col gap-3">
+                                        <div class="flex justify-between items-center py-2 border-b border-surface-200">
+                                            <span class="text-sm text-muted-color">Cliente:</span>
+                                            <span class="text-sm font-semibold">{{ studyCustomer()?.businessName ?? '-' }}</span>
+                                        </div>
+                                        <div class="flex justify-between items-center py-2 border-b border-surface-200">
+                                            <span class="text-sm text-muted-color">NIT:</span>
+                                            <span class="text-sm font-semibold">{{ company().nit }}</span>
+                                        </div>
+                                        <div class="flex justify-between items-center py-2 border-b border-surface-200">
+                                            <span class="text-sm text-muted-color">Ciudad:</span>
+                                            <span class="text-sm font-semibold">{{ company().city }}</span>
+                                        </div>
+                                        <div class="flex justify-between items-center py-2">
+                                            <span class="text-sm text-muted-color">Cupo Solicitado:</span>
+                                            <span class="text-sm font-semibold">{{ studyResult()?.requestedMonthlyCreditLine | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-col gap-3">
+                                        <div class="flex justify-between items-center py-2 border-b border-surface-200">
+                                            <span class="text-sm text-muted-color">Fecha del Estudio:</span>
+                                            <span class="text-sm font-semibold">{{ studyResult()?.studyDate | date:'d \'de\' MMMM \'de\' yyyy':'':'es-CO' }}</span>
+                                        </div>
+                                        <div class="flex justify-between items-center py-2 border-b border-surface-200">
+                                            <span class="text-sm text-muted-color">Fecha de Resolución:</span>
+                                            <span class="text-sm font-semibold">{{ studyResult()?.resolutionDate | date:'d \'de\' MMMM \'de\' yyyy':'':'es-CO' }}</span>
+                                        </div>
+                                        <div class="flex justify-between items-center py-2 border-b border-surface-200">
+                                            <span class="text-sm text-muted-color">Plazo:</span>
+                                            <span class="text-sm font-semibold">{{ studyResult()?.requestedTerm }} meses</span>
+                                        </div>
+                                        <div class="flex justify-between items-center py-2">
+                                            <span class="text-sm text-muted-color">Estado:</span>
+                                            <span class="text-xs font-semibold px-2.5 py-1 rounded-full" [ngClass]="[scoreStatus().bg, scoreStatus().titleColor]">{{ scoreStatus().title }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </p-card>
+
+                            <div class="py-2">
+                                <p-button label="Volver" severity="secondary" (onClick)="activateCallback(3)" />
+                            </div>
+                        </div>
+                        } @else {
+                        <div class="flex flex-col gap-4">
+                            <p-message severity="warn" text="Debe realizar el estudio de crédito en el paso 3 antes de ver los resultados." />
+                            <div class="py-6">
+                                <p-button label="Ir al Paso 3" severity="primary" (onClick)="activateCallback(3)" />
+                            </div>
+                        </div>
+                        }
+                    </ng-template>
+                </p-step-panel>
+            </p-step-item>
+        </p-stepper>
+    </p-card>
+    }
+</div>

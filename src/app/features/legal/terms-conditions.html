@@ -1,0 +1,209 @@
+<div class="bg-surface-0 dark:bg-surface-950 min-h-screen w-screen">
+    <header-widget />
+    <main class="bg-surface-0 dark:bg-surface-950">
+        <div class="max-w-4xl mx-auto px-6 sm:px-10 py-16">
+
+            <!-- Encabezado -->
+            <div class="mb-12">
+                <a [routerLink]="['/inicio']" class="inline-flex items-center gap-2 text-muted-color hover:text-primary transition-colors duration-200 mb-8 cursor-pointer">
+                    <i class="pi pi-arrow-left text-sm"></i>
+                    <span class="text-sm font-medium">Volver al inicio</span>
+                </a>
+                <h1 class="text-4xl font-bold text-color mt-4 mb-3">Términos y Condiciones</h1>
+                <p class="text-muted-color text-sm">Vigentes a partir del 18 de febrero de 2026</p>
+            </div>
+
+            <!-- Intro -->
+            <section class="mb-10">
+                <p class="text-color leading-relaxed">
+                    Los presentes Términos y Condiciones (en adelante "los Términos") regulan el acceso y uso de <strong>Verona</strong>, plataforma de análisis crediticio inteligente (en adelante "la Plataforma" o "el Servicio"), operada desde Colombia. Al registrarse o utilizar la Plataforma, usted acepta quedar vinculado por estos Términos.
+                </p>
+                <p class="text-color leading-relaxed mt-4">
+                    Si no está de acuerdo con alguno de los términos aquí establecidos, le pedimos que no use la Plataforma.
+                </p>
+            </section>
+
+            <!-- Sección 1 -->
+            <section class="mb-10">
+                <h2 class="text-xl font-semibold text-color mb-4 pb-2 border-b border-surface">1. Descripción del Servicio</h2>
+                <p class="text-color leading-relaxed mb-3">
+                    Verona es una plataforma SaaS (Software as a Service) diseñada para empresas colombianas que necesitan:
+                </p>
+                <ul class="list-disc pl-6 text-muted-color leading-relaxed flex flex-col gap-2">
+                    <li>Gestionar y consultar información de clientes.</li>
+                    <li>Realizar estudios de crédito basados en parámetros configurables.</li>
+                    <li>Tomar decisiones de financiamiento de forma más ágil y fundamentada.</li>
+                    <li>Administrar el ciclo de vida de sus solicitudes de crédito.</li>
+                </ul>
+                <p class="text-muted-color leading-relaxed mt-4">
+                    El Servicio se presta mediante suscripción mensual o anual, según el plan seleccionado por el usuario.
+                </p>
+            </section>
+
+            <!-- Sección 2 -->
+            <section class="mb-10">
+                <h2 class="text-xl font-semibold text-color mb-4 pb-2 border-b border-surface">2. Registro y Cuenta de Usuario</h2>
+                <p class="text-color leading-relaxed mb-3">Para usar la Plataforma debe:</p>
+                <ul class="list-disc pl-6 text-muted-color leading-relaxed flex flex-col gap-2">
+                    <li>Ser mayor de edad (18 años o más) o representar legalmente a una persona jurídica.</li>
+                    <li>Proporcionar información veraz, completa y actualizada durante el registro.</li>
+                    <li>Mantener la confidencialidad de sus credenciales de acceso.</li>
+                    <li>Notificarnos de inmediato ante cualquier acceso no autorizado a su cuenta.</li>
+                </ul>
+                <p class="text-muted-color leading-relaxed mt-4">
+                    Usted es responsable de todas las acciones realizadas bajo su cuenta. Verona no se hace responsable por pérdidas derivadas del uso no autorizado de su cuenta cuando éste sea atribuible a su negligencia.
+                </p>
+            </section>
+
+            <!-- Sección 3 -->
+            <section class="mb-10">
+                <h2 class="text-xl font-semibold text-color mb-4 pb-2 border-b border-surface">3. Uso Aceptable</h2>
+                <p class="text-color leading-relaxed mb-4">Al usar la Plataforma, usted se compromete a:</p>
+                <ul class="list-disc pl-6 text-muted-color leading-relaxed flex flex-col gap-2 mb-6">
+                    <li>Utilizar el Servicio únicamente para fines lícitos y conforme a estos Términos.</li>
+                    <li>Contar con las autorizaciones necesarias para ingresar datos de terceros.</li>
+                    <li>No compartir su cuenta con terceros no autorizados.</li>
+                    <li>No interferir con el funcionamiento técnico de la Plataforma.</li>
+                </ul>
+
+                <h3 class="text-base font-semibold text-color mb-3">Usos prohibidos</h3>
+                <p class="text-muted-color leading-relaxed mb-3">Está expresamente prohibido:</p>
+                <ul class="list-disc pl-6 text-muted-color leading-relaxed flex flex-col gap-2">
+                    <li>Usar la Plataforma para actividades fraudulentas, ilegales o que vulneren derechos de terceros.</li>
+                    <li>Realizar ingeniería inversa, descompilar o desensamblar el software.</li>
+                    <li>Revender, sublicenciar o transferir el acceso a la Plataforma sin autorización expresa.</li>
+                    <li>Cargar contenido malicioso (virus, malware, etc.).</li>
+                    <li>Realizar ataques de denegación de servicio (DoS/DDoS) o pruebas de intrusión sin autorización.</li>
+                    <li>Scraping o extracción masiva de datos de la Plataforma.</li>
+                </ul>
+            </section>
+
+            <!-- Sección 4 -->
+            <section class="mb-10">
+                <h2 class="text-xl font-semibold text-color mb-4 pb-2 border-b border-surface">4. Planes y Pagos</h2>
+                <p class="text-color leading-relaxed mb-4">
+                    El acceso al Servicio está sujeto al pago de una suscripción según el plan elegido. Los planes disponibles, precios y características se describen en la página de <a [routerLink]="['/inicio']" fragment="pricing" class="text-primary hover:underline">Planes</a>.
+                </p>
+                <ul class="list-disc pl-6 text-muted-color leading-relaxed flex flex-col gap-2">
+                    <li>Los precios están expresados en pesos colombianos (COP) e incluyen IVA cuando aplique.</li>
+                    <li>El pago se procesa de forma recurrente (mensual o anual) según el plan seleccionado.</li>
+                    <li>La falta de pago puede ocasionar la suspensión temporal o cancelación del acceso.</li>
+                    <li>Los reembolsos se evalúan caso a caso dentro de los primeros <strong>7 días calendario</strong> tras el cobro.</li>
+                    <li>Verona se reserva el derecho de ajustar precios con un aviso previo de al menos <strong>30 días</strong>.</li>
+                </ul>
+            </section>
+
+            <!-- Sección 5 -->
+            <section class="mb-10">
+                <h2 class="text-xl font-semibold text-color mb-4 pb-2 border-b border-surface">5. Propiedad Intelectual</h2>
+                <p class="text-color leading-relaxed mb-3">
+                    Todo el contenido, diseño, código fuente, marcas, logotipos, algoritmos e interfaces de la Plataforma son propiedad exclusiva de Verona o de sus licenciantes. Estos elementos están protegidos por las leyes colombianas e internacionales de propiedad intelectual.
+                </p>
+                <p class="text-color leading-relaxed">
+                    Se le concede una licencia limitada, no exclusiva, intransferible y revocable para usar la Plataforma exclusivamente con fines propios del Servicio contratado. Esta licencia no implica la cesión de ningún derecho de propiedad intelectual.
+                </p>
+            </section>
+
+            <!-- Sección 6 -->
+            <section class="mb-10">
+                <h2 class="text-xl font-semibold text-color mb-4 pb-2 border-b border-surface">6. Datos Ingresados por el Usuario</h2>
+                <p class="text-color leading-relaxed mb-3">
+                    Usted conserva la propiedad sobre los datos que ingresa en la Plataforma. Al hacerlo, nos otorga una licencia limitada para procesar dichos datos con el único fin de prestar el Servicio.
+                </p>
+                <p class="text-color leading-relaxed">
+                    Usted es el único responsable de garantizar que cuenta con las autorizaciones legales necesarias para tratar los datos de sus clientes o terceros ingresados en la Plataforma, conforme a la Ley 1581 de 2012.
+                </p>
+            </section>
+
+            <!-- Sección 7 -->
+            <section class="mb-10">
+                <h2 class="text-xl font-semibold text-color mb-4 pb-2 border-b border-surface">7. Disponibilidad y Soporte</h2>
+                <p class="text-color leading-relaxed mb-3">
+                    Nos esforzamos por mantener la Plataforma disponible de forma continua. Sin embargo, podemos realizar mantenimientos programados o enfrentar interrupciones no planificadas. En estos casos, informaremos a los usuarios con la mayor anticipación posible.
+                </p>
+                <p class="text-color leading-relaxed">
+                    El soporte técnico se presta a través de los canales indicados en la Plataforma, en horario hábil colombiano (lunes a viernes, 8:00 a.m. – 6:00 p.m. COT).
+                </p>
+            </section>
+
+            <!-- Sección 8 -->
+            <section class="mb-10">
+                <h2 class="text-xl font-semibold text-color mb-4 pb-2 border-b border-surface">8. Limitación de Responsabilidad</h2>
+                <p class="text-color leading-relaxed mb-3">En la máxima medida permitida por la ley colombiana, Verona no será responsable por:</p>
+                <ul class="list-disc pl-6 text-muted-color leading-relaxed flex flex-col gap-2">
+                    <li>Decisiones de crédito tomadas por el usuario con base en los análisis de la Plataforma.</li>
+                    <li>Pérdidas de datos ocasionadas por fuerza mayor o causas ajenas a nuestro control.</li>
+                    <li>Daños indirectos, lucro cesante o perjuicios derivados del uso o imposibilidad de uso del Servicio.</li>
+                    <li>Información incorrecta ingresada por el usuario o por fuentes externas de datos.</li>
+                </ul>
+                <p class="text-muted-color leading-relaxed mt-4">
+                    La responsabilidad total de Verona ante el usuario no excederá el monto pagado por el Servicio durante los últimos 3 meses.
+                </p>
+            </section>
+
+            <!-- Sección 9 -->
+            <section class="mb-10">
+                <h2 class="text-xl font-semibold text-color mb-4 pb-2 border-b border-surface">9. Modificaciones del Servicio y los Términos</h2>
+                <p class="text-color leading-relaxed mb-3">
+                    Verona se reserva el derecho de modificar, suspender o descontinuar cualquier aspecto del Servicio en cualquier momento, con o sin previo aviso, aunque procuraremos notificar cambios significativos con al menos <strong>15 días de anticipación</strong>.
+                </p>
+                <p class="text-color leading-relaxed">
+                    Los presentes Términos también pueden actualizarse. La versión vigente estará siempre disponible en esta página. El uso continuado del Servicio tras la publicación de cambios implica la aceptación de los nuevos Términos.
+                </p>
+            </section>
+
+            <!-- Sección 10 -->
+            <section class="mb-10">
+                <h2 class="text-xl font-semibold text-color mb-4 pb-2 border-b border-surface">10. Cancelación de la Cuenta</h2>
+                <p class="text-color leading-relaxed mb-3">
+                    Usted puede cancelar su cuenta en cualquier momento desde la sección de administración de la Plataforma o solicitándolo a través de nuestros canales de soporte.
+                </p>
+                <p class="text-color leading-relaxed">
+                    Verona puede suspender o cancelar cuentas que incumplan estos Términos, con o sin previo aviso dependiendo de la gravedad de la infracción. Tras la cancelación, los datos del usuario serán tratados conforme a la <a [routerLink]="['/legal/privacidad']" class="text-primary hover:underline">Política de Privacidad</a>.
+                </p>
+            </section>
+
+            <!-- Sección 11 -->
+            <section class="mb-10">
+                <h2 class="text-xl font-semibold text-color mb-4 pb-2 border-b border-surface">11. Ley Aplicable y Resolución de Disputas</h2>
+                <p class="text-color leading-relaxed mb-3">
+                    Los presentes Términos se rigen por las leyes de la <strong>República de Colombia</strong>. Cualquier controversia derivada de estos Términos o del uso de la Plataforma será resuelta en primera instancia mediante conciliación directa entre las partes.
+                </p>
+                <p class="text-color leading-relaxed">
+                    Si no se llega a un acuerdo, las partes se someterán a los jueces y tribunales competentes de la ciudad de <strong>Bogotá D.C., Colombia</strong>, renunciando a cualquier otro fuero que pudiera corresponderles.
+                </p>
+            </section>
+
+            <!-- Sección 12 -->
+            <section class="mb-16">
+                <h2 class="text-xl font-semibold text-color mb-4 pb-2 border-b border-surface">12. Contacto</h2>
+                <p class="text-color leading-relaxed mb-4">
+                    Para consultas sobre estos Términos o el Servicio, puede contactarnos a través de:
+                </p>
+                <div class="bg-surface-100 dark:bg-surface-800 rounded-xl p-6 flex flex-col gap-3">
+                    <div class="flex items-center gap-3">
+                        <i class="pi pi-envelope text-primary"></i>
+                        <span class="text-color">soporte&#64;verona.app</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <i class="pi pi-map-marker text-primary"></i>
+                        <span class="text-color">Colombia</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Links relacionados -->
+            <div class="border-t border-surface pt-10 flex flex-col sm:flex-row gap-4">
+                <a [routerLink]="['/legal/privacidad']" class="inline-flex items-center gap-2 text-primary hover:underline cursor-pointer">
+                    <i class="pi pi-lock text-sm"></i>
+                    <span>Política de Privacidad</span>
+                </a>
+                <a [routerLink]="['/legal/habeas-data']" class="inline-flex items-center gap-2 text-primary hover:underline cursor-pointer">
+                    <i class="pi pi-shield text-sm"></i>
+                    <span>Tratamiento de Datos (Habeas Data)</span>
+                </a>
+            </div>
+        </div>
+    </main>
+    <footer-widget />
+</div>

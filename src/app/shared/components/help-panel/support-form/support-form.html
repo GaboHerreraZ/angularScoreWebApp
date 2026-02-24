@@ -1,0 +1,81 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col gap-5 pt-2">
+
+    <!-- Datos del solicitante (solo lectura) -->
+    <div class="rounded-lg bg-surface-100 dark:bg-surface-800 p-4 flex flex-col gap-1">
+        <p class="text-xs font-semibold uppercase tracking-wider text-surface-400 mb-2">Solicitante</p>
+        <p class="text-sm font-medium">{{ profile?.name }} {{ profile?.lastName }}</p>
+        <p class="text-xs text-surface-500">{{ profile?.email }}</p>
+    </div>
+
+    <!-- Categoría -->
+    <div class="flex flex-col gap-2">
+        <label class="text-sm font-medium" for="category">
+            Categoría <span class="text-red-500">*</span>
+        </label>
+        <p-select
+            inputId="category"
+            formControlName="category"
+            [options]="categoryOptions"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Selecciona una categoría"
+            [fluid]="true"
+            [ngClass]="{ 'ng-invalid ng-dirty': isInvalid('category') }"
+        />
+        @if (isInvalid('category')) {
+            <small class="text-red-500 text-xs">La categoría es requerida.</small>
+        }
+    </div>
+
+    <!-- Asunto -->
+    <div class="flex flex-col gap-2">
+        <label class="text-sm font-medium" for="subject">
+            Asunto <span class="text-red-500">*</span>
+        </label>
+        <input
+            id="subject"
+            type="text"
+            pInputText
+            formControlName="subject"
+            placeholder="Resumen breve del problema o consulta"
+            [ngClass]="{ 'ng-invalid ng-dirty': isInvalid('subject') }"
+        />
+        @if (isInvalid('subject')) {
+            <small class="text-red-500 text-xs">El asunto debe tener entre 5 y 100 caracteres.</small>
+        }
+    </div>
+
+    <!-- Descripción -->
+    <div class="flex flex-col gap-2">
+        <label class="text-sm font-medium" for="description">
+            Descripción <span class="text-red-500">*</span>
+        </label>
+        <textarea
+            id="description"
+            pTextarea
+            formControlName="description"
+            placeholder="Describe con detalle tu problema o consulta..."
+            rows="5"
+            [autoResize]="false"
+            [ngClass]="{ 'ng-invalid ng-dirty': isInvalid('description') }"
+        ></textarea>
+        <div class="flex justify-between">
+            @if (isInvalid('description')) {
+                <small class="text-red-500 text-xs">La descripción debe tener al menos 20 caracteres.</small>
+            } @else {
+                <span></span>
+            }
+            <small class="text-surface-400 text-xs">{{ descriptionLength }}/1000</small>
+        </div>
+    </div>
+
+    <!-- Botón enviar -->
+    <p-button
+        type="submit"
+        label="Enviar Solicitud"
+        icon="pi pi-send"
+        [loading]="submitting()"
+        [fluid]="true"
+        severity="primary"
+    />
+</form>

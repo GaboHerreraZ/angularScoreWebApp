@@ -1,0 +1,59 @@
+<svg width="400" height="500" viewBox="0 0 400 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background decorative circles -->
+  <circle cx="200" cy="250" r="180" stroke="white" stroke-opacity="0.08" stroke-width="1"/>
+  <circle cx="200" cy="250" r="140" stroke="white" stroke-opacity="0.06" stroke-width="1"/>
+  <circle cx="200" cy="250" r="100" stroke="white" stroke-opacity="0.04" stroke-width="1"/>
+
+  <!-- Phone illustration -->
+  <rect x="140" y="120" width="120" height="220" rx="20" fill="white" fill-opacity="0.15" stroke="white" stroke-opacity="0.3" stroke-width="2"/>
+  <rect x="155" y="145" width="90" height="160" rx="4" fill="white" fill-opacity="0.08"/>
+
+  <!-- Phone notch -->
+  <rect x="175" y="128" width="50" height="6" rx="3" fill="white" fill-opacity="0.3"/>
+
+  <!-- Phone screen content - OTP dots -->
+  <circle cx="168" cy="220" r="8" fill="white" fill-opacity="0.4"/>
+  <circle cx="190" cy="220" r="8" fill="white" fill-opacity="0.4"/>
+  <circle cx="212" cy="220" r="8" fill="white" fill-opacity="0.4"/>
+  <circle cx="234" cy="220" r="8" fill="white" fill-opacity="0.4"/>
+
+  <!-- Checkmark circle -->
+  <circle cx="200" cy="270" r="16" fill="white" fill-opacity="0.2" stroke="white" stroke-opacity="0.4" stroke-width="1.5"/>
+  <path d="M191 270L197 276L210 263" stroke="white" stroke-opacity="0.6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Signal waves coming from phone -->
+  <path d="M270 180C280 180 290 190 290 200" stroke="white" stroke-opacity="0.2" stroke-width="2" stroke-linecap="round" fill="none"/>
+  <path d="M275 170C295 170 310 185 310 205" stroke="white" stroke-opacity="0.15" stroke-width="2" stroke-linecap="round" fill="none"/>
+  <path d="M280 160C310 160 330 180 330 210" stroke="white" stroke-opacity="0.1" stroke-width="2" stroke-linecap="round" fill="none"/>
+
+  <!-- SMS bubble -->
+  <rect x="260" y="195" width="80" height="40" rx="10" fill="white" fill-opacity="0.15"/>
+  <path d="M270 235L260 245L280 235" fill="white" fill-opacity="0.15"/>
+  <text x="300" y="220" text-anchor="middle" fill="white" fill-opacity="0.5" font-family="monospace" font-size="16" font-weight="bold">1 2 3 4</text>
+
+  <!-- Lock icon at top -->
+  <rect x="185" y="380" width="30" height="24" rx="4" fill="white" fill-opacity="0.2" stroke="white" stroke-opacity="0.3" stroke-width="1.5"/>
+  <path d="M191 380V374C191 369 195 365 200 365C205 365 209 369 209 374V380" stroke="white" stroke-opacity="0.3" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+  <circle cx="200" cy="392" r="3" fill="white" fill-opacity="0.4"/>
+
+  <!-- Decorative dots pattern -->
+  <circle cx="60" cy="140" r="3" fill="white" fill-opacity="0.15"/>
+  <circle cx="80" cy="140" r="3" fill="white" fill-opacity="0.15"/>
+  <circle cx="100" cy="140" r="3" fill="white" fill-opacity="0.15"/>
+  <circle cx="60" cy="160" r="3" fill="white" fill-opacity="0.15"/>
+  <circle cx="80" cy="160" r="3" fill="white" fill-opacity="0.15"/>
+  <circle cx="100" cy="160" r="3" fill="white" fill-opacity="0.15"/>
+  <circle cx="60" cy="180" r="3" fill="white" fill-opacity="0.15"/>
+  <circle cx="80" cy="180" r="3" fill="white" fill-opacity="0.15"/>
+  <circle cx="100" cy="180" r="3" fill="white" fill-opacity="0.15"/>
+
+  <circle cx="300" cy="340" r="3" fill="white" fill-opacity="0.15"/>
+  <circle cx="320" cy="340" r="3" fill="white" fill-opacity="0.15"/>
+  <circle cx="340" cy="340" r="3" fill="white" fill-opacity="0.15"/>
+  <circle cx="300" cy="360" r="3" fill="white" fill-opacity="0.15"/>
+  <circle cx="320" cy="360" r="3" fill="white" fill-opacity="0.15"/>
+  <circle cx="340" cy="360" r="3" fill="white" fill-opacity="0.15"/>
+  <circle cx="300" cy="380" r="3" fill="white" fill-opacity="0.15"/>
+  <circle cx="320" cy="380" r="3" fill="white" fill-opacity="0.15"/>
+  <circle cx="340" cy="380" r="3" fill="white" fill-opacity="0.15"/>
+</svg>

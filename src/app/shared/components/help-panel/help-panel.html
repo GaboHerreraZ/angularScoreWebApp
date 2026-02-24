@@ -1,0 +1,16 @@
+<p-drawer [(visible)]="helpPanelVisible" position="right" [styleClass]="drawerStyleClass" header="Centro de Ayuda" [transitionOptions]="'.3s cubic-bezier(0, 0, 0.2, 1)'">
+    <p-tabs [(value)]="activeTab">
+        <p-tablist>
+            <p-tab [value]="0"> <i class="pi pi-book mr-2"></i>Preguntas Frecuentes </p-tab>
+            <p-tab [value]="1"> <i class="pi pi-headphones mr-2"></i>Soporte </p-tab>
+        </p-tablist>
+        <p-tabpanels>
+            <p-tabpanel [value]="0">
+                <app-help-faq />
+            </p-tabpanel>
+            <p-tabpanel [value]="1">
+                <app-help-support-form (formSubmitted)="onSupportSubmitted()" />
+            </p-tabpanel>
+        </p-tabpanels>
+    </p-tabs>
+</p-drawer>

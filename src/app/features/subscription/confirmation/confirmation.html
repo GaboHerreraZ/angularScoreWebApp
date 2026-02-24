@@ -1,0 +1,90 @@
+<app-configurator [simple]="true" />
+
+<div class="h-screen w-screen flex items-center justify-center bg-surface-100 dark:bg-surface-950 p-6">
+    <p-card styleClass="w-full max-w-md shadow-md">
+        <div class="flex flex-col items-center text-center gap-4 py-4">
+
+            <!-- Loading -->
+            @if (state() === 'loading') {
+            <p-progressSpinner strokeWidth="4" styleClass="w-16 h-16" />
+            <h2 class="text-xl font-bold m-0">Verificando tu pago...</h2>
+            <p class="text-muted-color text-sm m-0">Esto tomará solo un momento.</p>
+            }
+
+            <!-- Pending -->
+            @if (state() === 'pending') {
+            <p-progressSpinner strokeWidth="4" styleClass="w-16 h-16" />
+            <h2 class="text-xl font-bold m-0">Procesando tu pago...</h2>
+            <p class="text-muted-color text-sm m-0">Esto puede tomar unos momentos. No cierres esta ventana.</p>
+            }
+
+            <!-- Approved -->
+            @if (state() === 'approved') {
+            <div class="w-20 h-20 rounded-full bg-green-500/10 flex items-center justify-center">
+                <i class="pi pi-check-circle text-green-500 text-5xl"></i>
+            </div>
+            <h2 class="text-xl font-bold m-0">¡Pago exitoso!</h2>
+            <p class="text-muted-color text-sm m-0">Tu suscripción ha sido activada correctamente.</p>
+
+            @if (transaction()?.subscription) {
+            <div class="bg-surface-50 dark:bg-surface-800 rounded-lg p-4 w-full text-left">
+                <div class="flex justify-between text-sm mb-2">
+                    <span class="text-muted-color">Plan</span>
+                    <span class="font-semibold">{{ transaction()!.subscription!.name }}</span>
+                </div>
+                <div class="flex justify-between text-sm mb-2">
+                    <span class="text-muted-color">Referencia</span>
+                    <span class="font-semibold">{{ transaction()!.paymentId }}</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                    <span class="text-muted-color">Válido hasta</span>
+                    <span class="font-semibold">{{ transaction()!.endDate }}</span>
+                </div>
+            </div>
+            }
+
+            <p-button
+                label="Ir al panel"
+                icon="pi pi-arrow-right"
+                styleClass="w-full mt-2"
+                (onClick)="goToDashboard()"
+            />
+            }
+
+            <!-- Declined -->
+            @if (state() === 'declined') {
+            <div class="w-20 h-20 rounded-full bg-red-500/10 flex items-center justify-center">
+                <i class="pi pi-times-circle text-red-500 text-5xl"></i>
+            </div>
+            <h2 class="text-xl font-bold m-0">Pago rechazado</h2>
+            <p class="text-muted-color text-sm m-0">No se pudo procesar tu pago. Verifica los datos de tu medio de pago e intenta nuevamente.</p>
+
+            <p-button
+                label="Intentar de nuevo"
+                icon="pi pi-refresh"
+                styleClass="w-full mt-2"
+                (onClick)="retryPayment()"
+            />
+            }
+
+            <!-- Error -->
+            @if (state() === 'error') {
+            <div class="w-20 h-20 rounded-full bg-orange-500/10 flex items-center justify-center">
+                <i class="pi pi-exclamation-triangle text-orange-500 text-5xl"></i>
+            </div>
+            <h2 class="text-xl font-bold m-0">Algo salió mal</h2>
+            <p class="text-muted-color text-sm m-0">No pudimos verificar el estado de tu pago. Intenta de nuevo o contacta soporte.</p>
+
+            <div class="flex gap-3 w-full mt-2">
+                <p-button
+                    label="Intentar de nuevo"
+                    icon="pi pi-refresh"
+                    styleClass="flex-1"
+                    (onClick)="retryPayment()"
+                />
+            </div>
+            }
+
+        </div>
+    </p-card>
+</div>

@@ -1,0 +1,80 @@
+<app-configurator [simple]="true" />
+
+<div class="h-screen w-screen flex flex-col lg:flex-row overflow-hidden">
+    <!-- Panel izquierdo: Ilustracion -->
+    <div class="hidden lg:flex lg:w-1/2 items-center justify-center relative overflow-hidden" style="background: linear-gradient(135deg, var(--p-primary-600), var(--p-primary-400))">
+        <!-- Elementos decorativos de fondo -->
+        <div class="absolute inset-0 opacity-10">
+            <div class="absolute top-20 left-10 w-32 h-32 rounded-full border border-white"></div>
+            <div class="absolute bottom-32 right-16 w-48 h-48 rounded-full border border-white"></div>
+            <div class="absolute top-1/3 right-1/4 w-20 h-20 rounded-full border border-white"></div>
+        </div>
+
+        <div class="flex flex-col items-center z-10 px-12 text-center">
+            <img src="logo/verona-login.svg" alt="Verona" class="w-64 h-auto mb-10 drop-shadow-lg" />
+            <h2 class="text-white text-4xl font-bold mb-4 tracking-tight">VERONA</h2>
+            <p class="text-white/70 text-lg max-w-sm leading-relaxed">Accede a tu cuenta de forma segura con verificacion por SMS.</p>
+        </div>
+    </div>
+
+    <!-- Panel derecho: Formulario de login -->
+    <div class="w-full lg:w-1/2 flex items-center justify-center bg-surface-100 dark:bg-surface-950 p-6 sm:p-12">
+        <p-card styleClass="w-full max-w-md shadow-md">
+            <div class="flex items-center gap-3 mb-2">
+                <i class="pi pi-phone text-primary-500 text-3xl"></i>
+                <h1 class="font-bold text-2xl m-0">VERONA</h1>
+            </div>
+
+            <!-- PASO 1: Numero de telefono -->
+            @if (step() === 'phone') {
+            <p class="text-muted-color mb-6">Ingresa tu numero de telefono para recibir un codigo de verificacion por SMS.</p>
+
+            <form [formGroup]="phoneForm" (ngSubmit)="sendOtp()">
+                <app-phone-input
+                    inputId="phone-number"
+                    styleClass="mb-2"
+                    [formControl]="phoneForm.controls.phone"
+                />
+
+                @if (phoneForm.controls.phone.touched && phoneForm.controls.phone.errors) {
+                <small class="text-red-500 mb-4 block"> Ingresa un numero de telefono valido (7 a 15 digitos). </small>
+                }
+
+                <div class="mb-6"></div>
+
+                @if (errorMessage()) {
+                <p-message severity="error" [text]="errorMessage()!" styleClass="mb-4 w-full" />
+                }
+
+                <p-button type="submit" label="Enviar codigo" styleClass="w-full" [loading]="sending()" [disabled]="phoneForm.invalid || sending()" icon="pi pi-send" />
+            </form>
+            }
+
+            <!-- PASO 2: Verificacion OTP -->
+            @if (step() === 'otp') {
+            <p class="text-muted-color mb-1">Ingresa el codigo de 6 digitos enviado a</p>
+            <p class="font-semibold text-lg mb-6 text-primary-500">{{ fullPhoneNumber }}</p>
+
+            <div class="mb-6">
+                <app-otp-input (otpComplete)="onOtpComplete($event)" />
+            </div>
+
+            @if (errorMessage()) {
+            <p-message severity="error" [text]="errorMessage()!" styleClass="mb-4 w-full" />
+            }
+
+            <p-button label="Verificar" styleClass="w-full mb-6" [loading]="verifying()" [disabled]="otpCode().length !== 6 || verifying()" (onClick)="submitOtp()" icon="pi pi-check-circle" />
+
+            <div class="flex items-center justify-between">
+                <button type="button" class="text-primary-500 font-semibold cursor-pointer bg-transparent border-0 p-0 text-sm" (click)="goBackToPhone()"><i class="pi pi-arrow-left mr-1"></i> Cambiar numero</button>
+
+                @if (resendTimer() > 0) {
+                <span class="text-muted-color text-sm"> Reenviar en {{ resendTimer() }}s </span>
+                } @else {
+                <button type="button" class="text-primary-500 font-semibold cursor-pointer bg-transparent border-0 p-0 text-sm" (click)="resendOtp()" [disabled]="sending()">Reenviar codigo</button>
+                }
+            </div>
+            }
+        </p-card>
+    </div>
+</div>

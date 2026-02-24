@@ -1,0 +1,110 @@
+<div class="flex flex-col gap-6">
+    @if (saving()) {
+    <!-- Skeleton Loading -->
+    <p-card>
+        <div class="flex flex-col items-center mb-6">
+            <p-skeleton shape="circle" size="4rem" />
+            <p-skeleton width="12rem" height="0.75rem" styleClass="mt-3" />
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+            <p-skeleton height="2.5rem" />
+            <p-skeleton height="2.5rem" />
+            <p-skeleton height="2.5rem" />
+            <p-skeleton height="2.5rem" />
+        </div>
+    </p-card>
+    <p-card>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+            <p-skeleton height="2.5rem" />
+            <p-skeleton height="2.5rem" />
+        </div>
+    </p-card>
+    } @else {
+    <p-fluid>
+        <!-- Avatar e Información Personal -->
+        <p-card>
+            <ng-template #title>
+                <div class="flex items-center gap-2">
+                    <i class="pi pi-id-card text-primary"></i>
+                    <span>Información Personal</span>
+                </div>
+            </ng-template>
+
+            <div class="flex flex-col items-center mb-6">
+                <p-avatar [label]="(form.controls.name.value.charAt(0) || 'U') + (form.controls.lastName.value.charAt(0) || '')" size="xlarge" shape="circle" styleClass="text-2xl font-semibold bg-primary text-primary-contrast" />
+                <p class="text-muted-color mt-2 mb-0 text-sm">Completa tu información personal</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+                <div class="flex flex-col gap-1">
+                    <p-floatlabel variant="on">
+                        <input pInputText id="name" [formControl]="form.controls.name" [invalid]="isInvalid('name')" />
+                        <label for="name">Nombre *</label>
+                    </p-floatlabel>
+                    @if (isInvalid('name')) {
+                    <small class="text-red-500">{{ getErrorMessage('name') }}</small>
+                    }
+                </div>
+
+                <div class="flex flex-col gap-1">
+                    <p-floatlabel variant="on">
+                        <input pInputText id="lastName" [formControl]="form.controls.lastName" [invalid]="isInvalid('lastName')" />
+                        <label for="lastName">Apellido *</label>
+                    </p-floatlabel>
+                    @if (isInvalid('lastName')) {
+                    <small class="text-red-500">{{ getErrorMessage('lastName') }}</small>
+                    }
+                </div>
+
+                <div class="flex flex-col gap-1">
+                    <p-floatlabel variant="on">
+                        <input pInputText id="email" [formControl]="form.controls.email" [invalid]="isInvalid('email')" />
+                        <label for="email">Correo Electrónico *</label>
+                    </p-floatlabel>
+                    @if (isInvalid('email')) {
+                    <small class="text-red-500">{{ getErrorMessage('email') }}</small>
+                    }
+                </div>
+
+                <div class="flex flex-col gap-1">
+                    <app-phone-input inputId="phone" label="Teléfono *" variant="on" [formControl]="form.controls.phone" [invalid]="isInvalid('phone')" />
+                    @if (isInvalid('phone')) {
+                    <small class="text-red-500">{{ getErrorMessage('phone') }}</small>
+                    }
+                </div>
+            </div>
+        </p-card>
+
+        <!-- Información Laboral -->
+        <p-card class="mt-6">
+            <ng-template #title>
+                <div class="flex items-center gap-2">
+                    <i class="pi pi-briefcase text-primary"></i>
+                    <span>Información Laboral</span>
+                </div>
+            </ng-template>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5 mt-2">
+                <div class="flex flex-col gap-1">
+                    <p-floatlabel variant="on">
+                        <input pInputText id="role" [formControl]="form.controls.position" />
+                        <label for="role">Cargo en la Empresa</label>
+                    </p-floatlabel>
+                </div>
+
+                <div class="flex flex-col gap-1">
+                    <p-floatlabel variant="on">
+                        <input pInputText id="on_position" [formControl]="form.controls.roleName" />
+                        <label for="on_position">Rol en el sistema</label>
+                    </p-floatlabel>
+                </div>
+            </div>
+        </p-card>
+    </p-fluid>
+
+    <!-- Footer con botón guardar -->
+    <div class="flex justify-end">
+        <p-button [label]="isEditing() ? 'Actualizar' : 'Guardar'" icon="pi pi-check" severity="success" [loading]="saving()" (onClick)="onSave()" />
+    </div>
+    }
+</div>

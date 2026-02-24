@@ -1,0 +1,7 @@
+<app-custom-table
+    [tableSettings]="tableSettings"
+    [data]="creditStudies()"
+    [loading]="loading()"
+    (addClick)="onAddClick()"
+    (actionClick)="onActionClick($event)"
+/>

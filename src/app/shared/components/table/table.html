@@ -1,0 +1,128 @@
+<div class="card">
+    <div class="flex items-center mb-4">
+        @if (title()) {
+        <div class="flex items-center gap-2 font-semibold text-xl">
+            @if (titleIcon()) {
+            <i [class]="titleIcon()! + ' text-primary'"></i>
+            }
+            <span>{{ title() }}</span>
+        </div>
+        } @if (addButton()) {
+        <button pButton class="ml-auto" [label]="addButton()!.label" [icon]="addButton()!.icon" [severity]="addButton()!.severity ?? 'success'" [disabled]="addButton()!.disabled ?? false" (click)="onAddClick()"></button>
+        }
+    </div>
+
+    <p-table
+        #dt
+        [value]="data()"
+        [dataKey]="dataKey()"
+        [rows]="rows()"
+        [loading]="loading()"
+        [rowHover]="rowHover()"
+        [showGridlines]="showGridlines()"
+        [paginator]="true"
+        [rowsPerPageOptions]="rowsPerPageOptions()"
+        [globalFilterFields]="globalFilterFields()"
+        (onPage)="onPageChange($event)"
+        responsiveLayout="scroll"
+    >
+        @if (showSearch()) {
+        <ng-template #caption>
+            <div class="flex justify-between items-center flex-col sm:flex-row">
+                <button pButton label="Limpiar" class="p-button-outlined mb-2" icon="pi pi-filter-slash" (click)="clearSearch(dt)"></button>
+                <p-iconfield iconPosition="left" class="ml-auto">
+                    <p-inputicon>
+                        <i class="pi pi-search"></i>
+                    </p-inputicon>
+                    <input pInputText type="text" [value]="searchValue()" (input)="onGlobalFilter(dt, $event)" [placeholder]="searchPlaceholder()" />
+                </p-iconfield>
+            </div>
+        </ng-template>
+        }
+
+        <ng-template #header>
+            <tr>
+                @for (col of columns(); track col.field) {
+                <th [style.min-width]="col.minWidth ?? 'auto'">
+                    <div class="flex justify-between items-center">
+                        {{ col.header }} @if (showColumnFilters() && col.filterable !== false) { @switch (col.type) { @case ('text') {
+                        <p-columnFilter type="text" [field]="col.field" display="menu" />
+                        } @case ('number') {
+                        <p-columnFilter type="numeric" [field]="col.field" display="menu" />
+                        } @case ('currency') {
+                        <p-columnFilter type="numeric" [field]="col.field" display="menu" [currency]="col.currencyCode ?? 'USD'" />
+                        } @case ('date') {
+                        <p-columnFilter type="date" [field]="col.field" display="menu" />
+                        } @case ('boolean') {
+                        <p-columnFilter type="boolean" [field]="col.field" display="menu" />
+                        } @case ('status') {
+                        <p-columnFilter [field]="col.field" matchMode="equals" display="menu">
+                            <ng-template #filter let-value let-filter="filterCallback">
+                                <p-select [ngModel]="value" [options]="col.filterOptions ?? []" (onChange)="filter($event.value)" placeholder="Cualquiera" [style]="{ 'min-width': '12rem' }">
+                                    <ng-template let-option #item>
+                                        <p-tag [value]="option.label" [severity]="getSeverity(option.value, col)" />
+                                    </ng-template>
+                                </p-select>
+                            </ng-template>
+                        </p-columnFilter>
+                        } @case ('avatar') {
+                        <p-columnFilter type="text" [field]="col.textField ?? col.field" display="menu" />
+                        } @case ('image') {
+                        <p-columnFilter type="text" [field]="col.textField ?? col.field" display="menu" />
+                        } } }
+                    </div>
+                </th>
+                } @if (hasActions()) {
+                <th>{{ actionsHeader() }}</th>
+                }
+            </tr>
+        </ng-template>
+
+        <ng-template #body let-row>
+            <tr>
+                @for (col of columns(); track col.field) {
+                <td>
+                    @switch (col.type) { @case ('text') { {{ resolveField(row, col.field) }} } @case ('number') { {{ resolveField(row, col.field) }} } @case ('currency') { {{ resolveField(row, col.field) | currency: (col.currencyCode ?? 'USD') :
+                    'symbol' }} } @case ('date') { {{ resolveField(row, col.field) | date: (col.dateFormat ?? 'MM/dd/yyyy') }} } @case ('avatar') {
+                    <div class="flex items-center gap-2">
+                        <img [alt]="getImageText(row, col)" [src]="getImageSrc(row, col)" [width]="col.imageWidth ?? 32" style="vertical-align: middle" />
+                        <span>{{ getImageText(row, col) }}</span>
+                    </div>
+                    } @case ('image') {
+                    <div class="flex items-center gap-2">
+                        <img [src]="getImageSrc(row, col)" [class]="getImageClass(row, col)" [width]="col.imageWidth ?? 30" />
+                        <span>{{ getImageText(row, col) }}</span>
+                    </div>
+                    } @case ('status') {
+                    <p-tag [value]="resolveField(row, col.field)" [severity]="getSeverity(resolveField(row, col.field), col)" />
+                    } @case ('boolean') {
+                    <span class="flex items-center">
+                        <i
+                            class="pi"
+                            [class.text-green-500]="resolveField(row, col.field)"
+                            [class.pi-check-circle]="resolveField(row, col.field)"
+                            [class.text-red-500]="!resolveField(row, col.field)"
+                            [class.pi-times-circle]="!resolveField(row, col.field)"
+                        ></i>
+                    </span>
+                    } }
+                </td>
+                } @if (hasActions()) {
+                <td>
+                    <div class="flex items-center gap-1">
+                        @for (action of actions(); track action.id) { @if (!action.visibleField || resolveField(row, action.visibleField)) {
+                        <button pButton [rounded]="true" [text]="true" [icon]="action.icon" [severity]="action.severity ?? 'secondary'" [pTooltip]="action.tooltip ?? ''" (click)="onAction(action, row)"></button>
+                        } }
+                    </div>
+                </td>
+                }
+            </tr>
+        </ng-template>
+
+        <ng-template #emptymessage>
+            <tr>
+                <td [attr.colspan]="totalColumns()" class="text-center text-xl bold py-8" style="text-align: center">{{ emptyMessage() }}</td>
+            </tr>
+        </ng-template>
+    </p-table>
+</div>

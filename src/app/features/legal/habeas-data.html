@@ -1,0 +1,332 @@
+<div class="bg-surface-0 dark:bg-surface-950 min-h-screen w-screen">
+    <header-widget />
+    <main class="bg-surface-0 dark:bg-surface-950">
+        <div class="max-w-4xl mx-auto px-6 sm:px-10 py-16">
+
+            <!-- Encabezado -->
+            <div class="mb-12">
+                <a [routerLink]="['/inicio']" class="inline-flex items-center gap-2 text-muted-color hover:text-primary transition-colors duration-200 mb-8 cursor-pointer">
+                    <i class="pi pi-arrow-left text-sm"></i>
+                    <span class="text-sm font-medium">Volver al inicio</span>
+                </a>
+                <h1 class="text-4xl font-bold text-color mt-4 mb-3">Política de Tratamiento de Datos Personales</h1>
+                <p class="text-color text-lg font-medium mt-1 mb-1">Habeas Data — Ley 1581 de 2012</p>
+                <p class="text-muted-color text-sm">Vigente a partir del 18 de febrero de 2026</p>
+            </div>
+
+            <!-- Marco normativo -->
+            <div class="bg-primary/5 border border-primary/20 rounded-xl p-6 mb-10">
+                <div class="flex items-start gap-4">
+                    <i class="pi pi-info-circle text-primary text-xl mt-1"></i>
+                    <div>
+                        <h3 class="text-color font-semibold mb-2 mt-0">Marco Normativo Colombiano</h3>
+                        <p class="text-muted-color leading-relaxed m-0">
+                            Este documento se elabora en cumplimiento de la <strong class="text-color">Ley 1581 de 2012</strong> (Estatuto General de Protección de Datos Personales), el <strong class="text-color">Decreto 1377 de 2013</strong> y demás normas que los reglamenten o sustituyan, expedidos por el Congreso de la República y el Gobierno Nacional de Colombia.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sección 1 -->
+            <section class="mb-10">
+                <h2 class="text-xl font-semibold text-color mb-4 pb-2 border-b border-surface">1. Responsable del Tratamiento</h2>
+                <p class="text-color leading-relaxed mb-4">
+                    De conformidad con el artículo 3, literal e) de la Ley 1581 de 2012, el <strong>Responsable del Tratamiento</strong> de los datos personales es:
+                </p>
+                <div class="bg-surface-100 dark:bg-surface-800 rounded-xl p-6">
+                    <p class="text-color m-0"><strong>Empresa:</strong> Verona</p>
+                    <p class="text-color m-0 mt-2"><strong>País:</strong> Colombia</p>
+                    <p class="text-color m-0 mt-2"><strong>Correo de datos:</strong> habeasdata&#64;verona.app</p>
+                    <p class="text-color m-0 mt-2"><strong>Sitio web:</strong> verona.app</p>
+                    <p class="text-color m-0 mt-2"><strong>Horario de atención:</strong> Lunes a Viernes, 8:00 a.m. – 6:00 p.m. (Hora de Colombia – COT)</p>
+                </div>
+            </section>
+
+            <!-- Sección 2 -->
+            <section class="mb-10">
+                <h2 class="text-xl font-semibold text-color mb-4 pb-2 border-b border-surface">2. Datos Personales Tratados</h2>
+                <p class="text-color leading-relaxed mb-4">
+                    Verona trata las siguientes categorías de datos personales, conforme a los principios de finalidad, necesidad y proporcionalidad establecidos en el artículo 4 de la Ley 1581 de 2012:
+                </p>
+
+                <div class="flex flex-col gap-4">
+                    <div class="border border-surface rounded-xl p-5">
+                        <h3 class="text-base font-semibold text-color mb-3 mt-0">Datos de usuarios de la plataforma</h3>
+                        <ul class="list-disc pl-6 text-muted-color leading-relaxed flex flex-col gap-1 m-0">
+                            <li>Nombre completo, correo electrónico, número de teléfono</li>
+                            <li>Datos de empresa (nombre, NIT)</li>
+                            <li>Cargo y rol en la organización</li>
+                            <li>Información de acceso (usuario y contraseña cifrada)</li>
+                        </ul>
+                    </div>
+
+                    <div class="border border-surface rounded-xl p-5">
+                        <h3 class="text-base font-semibold text-color mb-3 mt-0">Datos de clientes o solicitantes de crédito (ingresados por el usuario)</h3>
+                        <ul class="list-disc pl-6 text-muted-color leading-relaxed flex flex-col gap-1 m-0">
+                            <li>Datos de identificación: nombre, cédula de ciudadanía o NIT</li>
+                            <li>Información de contacto: teléfono, correo electrónico, dirección</li>
+                            <li>Información financiera: ingresos, egresos, historial crediticio</li>
+                            <li>Datos de actividad económica</li>
+                        </ul>
+                    </div>
+
+                    <div class="border border-surface rounded-xl p-5">
+                        <h3 class="text-base font-semibold text-color mb-3 mt-0">Datos de navegación y uso técnico</h3>
+                        <ul class="list-disc pl-6 text-muted-color leading-relaxed flex flex-col gap-1 m-0">
+                            <li>Dirección IP, tipo de dispositivo y navegador</li>
+                            <li>Registro de accesos y actividades en la plataforma</li>
+                            <li>Preferencias de configuración</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <p class="text-muted-color leading-relaxed mt-4 text-sm">
+                    <strong class="text-color">Nota:</strong> Verona no trata datos sensibles en los términos del artículo 5 de la Ley 1581 de 2012 (origen racial, orientación política, convicciones religiosas, datos de salud, etc.), salvo que sean estrictamente necesarios y cuente con autorización expresa del titular.
+                </p>
+            </section>
+
+            <!-- Sección 3 -->
+            <section class="mb-10">
+                <h2 class="text-xl font-semibold text-color mb-4 pb-2 border-b border-surface">3. Finalidades del Tratamiento</h2>
+                <p class="text-color leading-relaxed mb-4">
+                    Con fundamento en el artículo 13 de la Ley 1581 de 2012, los datos personales son tratados para:
+                </p>
+                <ul class="list-disc pl-6 text-muted-color leading-relaxed flex flex-col gap-2">
+                    <li>Gestionar el registro y la cuenta del usuario en la Plataforma.</li>
+                    <li>Prestar los servicios de análisis crediticio contratados.</li>
+                    <li>Generar reportes y estudios de crédito para los usuarios.</li>
+                    <li>Enviar notificaciones relacionadas con el servicio (alertas, resultados, actualizaciones).</li>
+                    <li>Gestionar el cobro de suscripciones y la facturación.</li>
+                    <li>Cumplir obligaciones legales ante autoridades colombianas competentes.</li>
+                    <li>Atender peticiones, quejas, reclamos y solicitudes (PQRS).</li>
+                    <li>Mejorar la funcionalidad y seguridad de la Plataforma.</li>
+                    <li>Enviar comunicaciones comerciales, previo consentimiento expreso del titular.</li>
+                </ul>
+            </section>
+
+            <!-- Sección 4 -->
+            <section class="mb-10">
+                <h2 class="text-xl font-semibold text-color mb-4 pb-2 border-b border-surface">4. Derechos del Titular</h2>
+                <p class="text-color leading-relaxed mb-4">
+                    De conformidad con el artículo 8 de la Ley 1581 de 2012, usted como titular de los datos tiene los siguientes derechos:
+                </p>
+
+                <div class="flex flex-col gap-3">
+                    <div class="flex items-start gap-4 p-4 bg-surface-50 dark:bg-surface-900 rounded-lg">
+                        <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
+                            <i class="pi pi-eye text-primary text-sm"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-color m-0 mb-1">Acceso y Conocimiento</h4>
+                            <p class="text-muted-color m-0 text-sm leading-relaxed">Conocer, actualizar y rectificar sus datos personales. Solicitar prueba de la autorización otorgada.</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-4 p-4 bg-surface-50 dark:bg-surface-900 rounded-lg">
+                        <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
+                            <i class="pi pi-pencil text-primary text-sm"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-color m-0 mb-1">Rectificación</h4>
+                            <p class="text-muted-color m-0 text-sm leading-relaxed">Solicitar la corrección de datos inexactos, incompletos o erróneos.</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-4 p-4 bg-surface-50 dark:bg-surface-900 rounded-lg">
+                        <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
+                            <i class="pi pi-times-circle text-primary text-sm"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-color m-0 mb-1">Supresión (Derecho al Olvido)</h4>
+                            <p class="text-muted-color m-0 text-sm leading-relaxed">Solicitar la eliminación de sus datos cuando no sean necesarios para la finalidad que motivó su recopilación, o cuando haya revocado el consentimiento.</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-4 p-4 bg-surface-50 dark:bg-surface-900 rounded-lg">
+                        <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
+                            <i class="pi pi-ban text-primary text-sm"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-color m-0 mb-1">Revocación del Consentimiento</h4>
+                            <p class="text-muted-color m-0 text-sm leading-relaxed">Revocar en cualquier momento la autorización para el tratamiento de datos, cuando no exista una obligación legal o contractual que lo impida.</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-4 p-4 bg-surface-50 dark:bg-surface-900 rounded-lg">
+                        <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
+                            <i class="pi pi-shield text-primary text-sm"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-color m-0 mb-1">Presentar Quejas</h4>
+                            <p class="text-muted-color m-0 text-sm leading-relaxed">Presentar ante la <strong>Superintendencia de Industria y Comercio (SIC)</strong> quejas por infracciones a la Ley 1581 de 2012, una vez agotado el trámite de consulta o reclamo ante el Responsable.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Sección 5 -->
+            <section class="mb-10">
+                <h2 class="text-xl font-semibold text-color mb-4 pb-2 border-b border-surface">5. Procedimiento para Ejercer sus Derechos</h2>
+                <p class="text-color leading-relaxed mb-6">
+                    Para ejercer cualquiera de los derechos listados, el titular o su representante legal deberá:
+                </p>
+
+                <ol class="list-none p-0 m-0 flex flex-col gap-4">
+                    <li class="flex items-start gap-4">
+                        <span class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-bold text-sm shrink-0">1</span>
+                        <div class="pt-1">
+                            <strong class="text-color">Enviar solicitud escrita</strong>
+                            <p class="text-muted-color m-0 mt-1 text-sm leading-relaxed">Dirigirla al correo <strong>habeasdata&#64;verona.app</strong>, indicando: nombre completo, documento de identidad, descripción del derecho que desea ejercer y los datos de contacto para la respuesta.</p>
+                        </div>
+                    </li>
+                    <li class="flex items-start gap-4">
+                        <span class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-bold text-sm shrink-0">2</span>
+                        <div class="pt-1">
+                            <strong class="text-color">Acuse de recibo</strong>
+                            <p class="text-muted-color m-0 mt-1 text-sm leading-relaxed">Recibirá confirmación de la solicitud dentro de los <strong>2 días hábiles</strong> siguientes a su radicación.</p>
+                        </div>
+                    </li>
+                    <li class="flex items-start gap-4">
+                        <span class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-bold text-sm shrink-0">3</span>
+                        <div class="pt-1">
+                            <strong class="text-color">Plazos de respuesta</strong>
+                            <p class="text-muted-color m-0 mt-1 text-sm leading-relaxed">
+                                Conforme a la Ley 1581 de 2012:
+                                <br />• <strong>Consultas:</strong> máximo <strong>10 días hábiles</strong>, prorrogables por 5 días adicionales con justificación.
+                                <br />• <strong>Reclamos:</strong> máximo <strong>15 días hábiles</strong>, prorrogables por 8 días adicionales con justificación.
+                            </p>
+                        </div>
+                    </li>
+                </ol>
+            </section>
+
+            <!-- Sección 6 -->
+            <section class="mb-10">
+                <h2 class="text-xl font-semibold text-color mb-4 pb-2 border-b border-surface">6. Autorización para el Tratamiento</h2>
+                <p class="text-color leading-relaxed mb-3">
+                    De acuerdo con el artículo 9 de la Ley 1581 de 2012, el tratamiento de datos personales requiere la autorización previa, expresa e informada del titular, salvo en los casos previstos en el artículo 10 de la misma ley.
+                </p>
+                <p class="text-color leading-relaxed mb-3">
+                    Al registrarse en Verona y aceptar estos términos, el usuario otorga su autorización para el tratamiento de sus datos personales conforme a las finalidades descritas en esta Política.
+                </p>
+                <p class="text-color leading-relaxed">
+                    Para los datos de terceros (clientes o solicitantes de crédito) ingresados por el usuario en la Plataforma, el usuario es responsable de haber obtenido previamente la autorización de dichos titulares conforme a la ley.
+                </p>
+            </section>
+
+            <!-- Sección 7 -->
+            <section class="mb-10">
+                <h2 class="text-xl font-semibold text-color mb-4 pb-2 border-b border-surface">7. Medidas de Seguridad</h2>
+                <p class="text-color leading-relaxed mb-3">
+                    En cumplimiento del artículo 17, literal d) de la Ley 1581 de 2012, Verona implementa las siguientes medidas técnicas y organizativas para garantizar la seguridad de los datos personales:
+                </p>
+                <ul class="list-disc pl-6 text-muted-color leading-relaxed flex flex-col gap-2">
+                    <li>Cifrado de datos en tránsito mediante protocolo <strong class="text-color">TLS/HTTPS</strong>.</li>
+                    <li>Cifrado de datos en reposo en la infraestructura de <strong class="text-color">Supabase</strong>.</li>
+                    <li>Control de acceso basado en roles y niveles de seguridad (Row Level Security - RLS).</li>
+                    <li>Contraseñas almacenadas con hash seguro (bcrypt).</li>
+                    <li>Registro de auditoría de accesos y modificaciones de datos.</li>
+                    <li>Copias de seguridad periódicas y planes de recuperación.</li>
+                    <li>Capacitación del personal sobre protección de datos personales.</li>
+                </ul>
+            </section>
+
+            <!-- Sección 8 -->
+            <section class="mb-10">
+                <h2 class="text-xl font-semibold text-color mb-4 pb-2 border-b border-surface">8. Transferencia y Transmisión de Datos</h2>
+                <p class="text-color leading-relaxed mb-3">
+                    Los datos personales podrán ser transferidos o transmitidos en los siguientes casos:
+                </p>
+                <ul class="list-disc pl-6 text-muted-color leading-relaxed flex flex-col gap-2">
+                    <li><strong class="text-color">Proveedores de infraestructura:</strong> Supabase (almacenamiento y base de datos), con garantías de seguridad equivalentes a la legislación colombiana.</li>
+                    <li><strong class="text-color">Autoridades competentes:</strong> cuando exista obligación legal o requerimiento de autoridad judicial o administrativa.</li>
+                    <li><strong class="text-color">Terceros con consentimiento:</strong> únicamente si el titular ha otorgado autorización expresa.</li>
+                </ul>
+                <p class="text-muted-color leading-relaxed mt-4">
+                    Toda transferencia internacional se realiza bajo las condiciones establecidas en el artículo 26 de la Ley 1581 de 2012, garantizando niveles adecuados de protección.
+                </p>
+            </section>
+
+            <!-- Sección 9 -->
+            <section class="mb-10">
+                <h2 class="text-xl font-semibold text-color mb-4 pb-2 border-b border-surface">9. Conservación de Datos</h2>
+                <p class="text-color leading-relaxed mb-3">
+                    Los datos personales serán conservados durante el tiempo necesario para cumplir con las finalidades que motivaron su recopilación y mientras exista una relación contractual vigente con el usuario.
+                </p>
+                <p class="text-color leading-relaxed">
+                    Una vez finalizada la relación contractual o revocado el consentimiento, los datos serán eliminados o anonimizados en un plazo máximo de <strong>90 días calendario</strong>, salvo que exista obligación legal de conservarlos por un período mayor.
+                </p>
+            </section>
+
+            <!-- Sección 10 -->
+            <section class="mb-10">
+                <h2 class="text-xl font-semibold text-color mb-4 pb-2 border-b border-surface">10. Vigencia y Actualización de la Política</h2>
+                <p class="text-color leading-relaxed mb-3">
+                    La presente Política entra en vigor el <strong>18 de febrero de 2026</strong> y permanecerá vigente hasta que sea modificada o sustituida por una versión actualizada.
+                </p>
+                <p class="text-color leading-relaxed">
+                    Cualquier cambio sustancial será comunicado a los titulares con al menos <strong>15 días de antelación</strong> mediante aviso en la Plataforma y/o correo electrónico. La versión vigente siempre estará disponible en <a [routerLink]="['/legal/habeas-data']" class="text-primary hover:underline">verona.app/legal/habeas-data</a>.
+                </p>
+            </section>
+
+            <!-- Sección 11 -->
+            <section class="mb-10">
+                <h2 class="text-xl font-semibold text-color mb-4 pb-2 border-b border-surface">11. Autoridad de Control</h2>
+                <div class="bg-surface-100 dark:bg-surface-800 rounded-xl p-6">
+                    <p class="text-color leading-relaxed m-0 mb-3">
+                        La autoridad de protección de datos personales en Colombia es la <strong>Superintendencia de Industria y Comercio (SIC)</strong>. Si considera que sus derechos han sido vulnerados, puede presentar una queja ante dicha entidad:
+                    </p>
+                    <div class="flex flex-col gap-2">
+                        <div class="flex items-center gap-3">
+                            <i class="pi pi-globe text-primary"></i>
+                            <span class="text-color text-sm">www.sic.gov.co</span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <i class="pi pi-phone text-primary"></i>
+                            <span class="text-color text-sm">Línea gratuita: 01 8000 910 165</span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <i class="pi pi-map-marker text-primary"></i>
+                            <span class="text-color text-sm">Carrera 13 No. 27-00, Bogotá D.C., Colombia</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Sección 12 -->
+            <section class="mb-16">
+                <h2 class="text-xl font-semibold text-color mb-4 pb-2 border-b border-surface">12. Canal de Contacto</h2>
+                <p class="text-color leading-relaxed mb-4">
+                    Para ejercer sus derechos o para cualquier consulta relacionada con el tratamiento de sus datos personales:
+                </p>
+                <div class="bg-surface-100 dark:bg-surface-800 rounded-xl p-6 flex flex-col gap-3">
+                    <div class="flex items-center gap-3">
+                        <i class="pi pi-envelope text-primary"></i>
+                        <span class="text-color">habeasdata&#64;verona.app</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <i class="pi pi-clock text-primary"></i>
+                        <span class="text-color">Lunes a Viernes, 8:00 a.m. – 6:00 p.m. (COT)</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <i class="pi pi-map-marker text-primary"></i>
+                        <span class="text-color">Colombia</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Links relacionados -->
+            <div class="border-t border-surface pt-10 flex flex-col sm:flex-row gap-4">
+                <a [routerLink]="['/legal/privacidad']" class="inline-flex items-center gap-2 text-primary hover:underline cursor-pointer">
+                    <i class="pi pi-lock text-sm"></i>
+                    <span>Política de Privacidad</span>
+                </a>
+                <a [routerLink]="['/legal/terminos']" class="inline-flex items-center gap-2 text-primary hover:underline cursor-pointer">
+                    <i class="pi pi-file-edit text-sm"></i>
+                    <span>Términos y Condiciones</span>
+                </a>
+            </div>
+        </div>
+    </main>
+    <footer-widget />
+</div>

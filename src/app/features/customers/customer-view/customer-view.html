@@ -1,0 +1,38 @@
+<div class="flex flex-col gap-6">
+    <!-- Header -->
+    <p-card>
+        <div class="flex items-center gap-3">
+            <p-button icon="pi pi-arrow-left" [rounded]="true" [text]="true" severity="secondary" (onClick)="onBack()" />
+            @if (loading()) {
+            <div class="flex flex-col gap-1">
+                <p-skeleton width="16rem" height="1.75rem" />
+                <p-skeleton width="10rem" height="1rem" />
+            </div>
+            } @else if (customer()) {
+            <div>
+                <h2 class="text-2xl font-semibold m-0">{{ customer()!.businessName }}</h2>
+                <span class="text-muted-color text-sm">{{ customer()!.identificationNumber }}</span>
+            </div>
+            }
+        </div>
+    </p-card>
+
+    <!-- Tabs -->
+    <p-card>
+        <p-tabs [value]="activeTab()" (valueChange)="onTabChange($event)">
+            <p-tablist>
+                <p-tab value="informacion">
+                    <i class="pi pi-file-edit mr-2"></i>
+                    <span>Información</span>
+                </p-tab>
+                <p-tab value="estudios-credito">
+                    <i class="pi pi-chart-line mr-2"></i>
+                    <span>Estudios de Crédito</span>
+                </p-tab>
+            </p-tablist>
+        </p-tabs>
+        <div class="mt-4">
+            <router-outlet />
+        </div>
+    </p-card>
+</div>

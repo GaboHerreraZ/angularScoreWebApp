@@ -1,0 +1,164 @@
+<div class="flex flex-col gap-6">
+    @if (plansResource.isLoading()) {
+    <!-- Skeleton -->
+    <div class="flex flex-col gap-4">
+        <div class="flex items-center justify-between">
+            <p-skeleton width="14rem" height="1.75rem" />
+            <p-skeleton width="12rem" height="2.5rem" borderRadius="2rem" />
+        </div>
+        <p-skeleton width="22rem" height="1rem" />
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-2">
+            @for (_ of [1, 2]; track $index) {
+            <div class="flex flex-col gap-4 rounded-xl border border-surface p-6">
+                <p-skeleton width="8rem" height="1.5rem" />
+                <p-skeleton width="100%" height="1rem" />
+                <p-skeleton width="10rem" height="2.5rem" />
+                <p-skeleton width="100%" height="1px" />
+                <p-skeleton width="100%" height="1rem" />
+                <p-skeleton width="100%" height="1rem" />
+                <p-skeleton width="100%" height="1rem" />
+                <p-skeleton width="100%" height="1rem" />
+                <p-skeleton width="100%" height="1rem" />
+                <p-skeleton width="100%" height="1px" />
+                <p-skeleton width="100%" height="1rem" />
+                <p-skeleton width="100%" height="1rem" />
+                <p-skeleton width="100%" height="1rem" />
+                <p-skeleton width="100%" height="1rem" />
+            </div>
+            }
+        </div>
+    </div>
+    } @else {
+
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div>
+            <h2 class="text-2xl font-bold m-0 flex items-center gap-2">
+                <i class="pi pi-credit-card text-primary"></i>
+                Planes disponibles
+            </h2>
+            <p class="text-muted-color text-sm mt-1 mb-0">Selecciona el plan que mejor se adapte a las necesidades de tu empresa.</p>
+        </div>
+
+        <!-- Billing toggle -->
+        @if (hasAnnualPlans()) {
+        <div class="flex items-center gap-2 bg-surface-100 dark:bg-surface-800 rounded-full p-1 cursor-pointer select-none">
+            <span
+                class="px-4 py-2 rounded-full text-sm font-medium transition-all duration-300"
+                [ngClass]="billingCycle() === 'monthly' ? 'bg-primary text-primary-contrast shadow-sm' : 'text-muted-color hover:text-color'"
+                (click)="billingCycle.set('monthly')"
+            >
+                Mensual
+            </span>
+            <span
+                class="px-4 py-2 rounded-full text-sm font-medium transition-all duration-300"
+                [ngClass]="billingCycle() === 'annual' ? 'bg-primary text-primary-contrast shadow-sm' : 'text-muted-color hover:text-color'"
+                (click)="billingCycle.set('annual')"
+            >
+                Anual
+            </span>
+        </div>
+        }
+    </div>
+
+    <!-- Plans grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        @for (plan of plans(); track plan.id) {
+        <div
+            class="relative flex flex-col rounded-xl border-2 p-6 transition-all duration-300 ease-in-out"
+            [ngClass]="{
+                'border-green-500 shadow-[0_0_20px_rgba(34,197,94,0.15)]': plan.isCurrent,
+                'border-surface hover:border-primary/50 hover:shadow-lg hover:-translate-y-1': !plan.isCurrent
+            }"
+        >
+            <!-- Current plan badge -->
+            @if (plan.isCurrent) {
+            <div class="absolute -top-3 left-1/2 -translate-x-1/2">
+                <p-tag value="Plan actual" severity="success" [rounded]="true" icon="pi pi-check-circle" />
+            </div>
+            }
+
+            <!-- Plan header -->
+            <div class="flex flex-col gap-2 mb-4" [class.mt-2]="plan.isCurrent">
+                <h3 class="text-xl font-bold m-0">{{ plan.name }}</h3>
+                <p class="text-muted-color text-sm m-0">{{ plan.description }}</p>
+            </div>
+
+            <!-- Price -->
+            <div class="flex items-baseline gap-2">
+                <span class="text-4xl font-extrabold">{{ plan.price | number:'1.0-0' }}</span>
+                <span class="text-muted-color text-sm">COP / {{ plan.isMonthly ? 'mes' : 'año' }}</span>
+            </div>
+
+            <p-divider />
+
+            <!-- Limits -->
+            <div class="flex flex-col gap-3 mb-4">
+                <span class="text-sm font-semibold text-muted-color uppercase tracking-wide">Límites</span>
+
+                <div class="flex items-center gap-3">
+                    <i class="pi pi-users text-primary w-5 text-center"></i>
+                    <span class="text-sm">Hasta <strong>{{ plan.maxUsers }}</strong> usuarios</span>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <i class="pi pi-building text-primary w-5 text-center"></i>
+                    <span class="text-sm">Hasta <strong>{{ plan.maxCompanies }}</strong> {{ plan.maxCompanies === 1 ? 'empresa' : 'empresas' }}</span>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <i class="pi pi-address-book text-primary w-5 text-center"></i>
+                    <span class="text-sm"> @if (plan.maxCustomers === null) { Clientes <strong>ilimitados</strong> } @else { Hasta <strong>{{ plan.maxCustomers }}</strong> clientes } </span>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <i class="pi pi-file-check text-primary w-5 text-center"></i>
+                    <span class="text-sm"> @if (plan.maxStudiesPerMonth === null) { Estudios <strong>ilimitados</strong> / mes } @else { Hasta <strong>{{ plan.maxStudiesPerMonth }}</strong> estudios / mes } </span>
+                </div>
+            </div>
+
+            <p-divider />
+
+            <!-- Features -->
+            <div class="flex flex-col gap-3 mb-5">
+                <span class="text-sm font-semibold text-muted-color uppercase tracking-wide">Características</span>
+
+                <div class="flex items-center gap-3">
+                    <i class="pi w-5 text-center" [ngClass]="plan.excelReports ? 'pi-check-circle text-green-500' : 'pi-times-circle text-red-400'"></i>
+                    <span class="text-sm">Reportes Excel</span>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <i class="pi w-5 text-center" [ngClass]="plan.emailNotifications ? 'pi-check-circle text-green-500' : 'pi-times-circle text-red-400'"></i>
+                    <span class="text-sm">Notificaciones por correo</span>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <i class="pi w-5 text-center" [ngClass]="plan.themeCustomization ? 'pi-check-circle text-green-500' : 'pi-times-circle text-red-400'"></i>
+                    <span class="text-sm">Personalización de tema</span>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <i class="pi pi-chart-bar text-primary w-5 text-center"></i>
+                    <span class="text-sm">Dashboard <strong>{{ dashboardLevelLabel(plan.dashboardLevel.label) }}</strong></span>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <i class="pi pi-headphones text-primary w-5 text-center"></i>
+                    <span class="text-sm">Soporte <strong>{{ supportLevelLabel(plan.supportLevel.label) }}</strong></span>
+                </div>
+            </div>
+
+            <!-- Action -->
+            <div class="mt-auto">
+                @if (plan.isCurrent) {
+                <p-button label="Plan actual" icon="pi pi-check" severity="success" [outlined]="true" [disabled]="true" styleClass="w-full" />
+                } @else {
+                <p-button label="Cambiar a este plan" icon="pi pi-arrow-up-right" styleClass="w-full" (onClick)="onUpgrade(plan)" />
+                }
+            </div>
+        </div>
+        }
+    </div>
+    }
+</div>

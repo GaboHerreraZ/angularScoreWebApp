@@ -1,0 +1,329 @@
+<div class="flex flex-col gap-6">
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <p-button icon="pi pi-arrow-left" [rounded]="true" [text]="true" severity="secondary" (onClick)="onCancel()" />
+            <h2 class="text-2xl font-semibold m-0">{{ customerId() ? 'Editar Cliente' : 'Nuevo Cliente' }}</h2>
+        </div>
+        <div class="flex gap-2">
+            <p-button label="Cancelar" icon="pi pi-times" severity="secondary" [outlined]="true" (onClick)="onCancel()" />
+            <p-button label="Guardar" icon="pi pi-check" severity="success" (onClick)="onSave()" [disabled]="loading()" />
+        </div>
+    </div>
+
+    <!-- Skeleton Loading -->
+    @if (loading()) {
+    <p-fluid>
+        <!-- Información General Skeleton -->
+        <p-card>
+            <ng-template #title>
+                <div class="flex items-center gap-2">
+                    <i class="pi pi-building text-primary"></i>
+                    <span>Información General</span>
+                </div>
+            </ng-template>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-5">
+                <p-skeleton height="3rem" />
+                <p-skeleton height="3rem" />
+                <p-skeleton height="3rem" />
+                <p-skeleton height="3rem" />
+                <p-skeleton height="3rem" />
+            </div>
+        </p-card>
+
+        <!-- Representante Legal Skeleton -->
+        <p-card class="mt-6">
+            <ng-template #title>
+                <div class="flex items-center gap-2">
+                    <i class="pi pi-user-edit text-primary"></i>
+                    <span>Representante Legal</span>
+                </div>
+            </ng-template>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+                <p-skeleton height="3rem" />
+                <p-skeleton height="3rem" />
+            </div>
+        </p-card>
+
+        <!-- Información de Contacto Skeleton -->
+        <p-card class="mt-6">
+            <ng-template #title>
+                <div class="flex items-center gap-2">
+                    <i class="pi pi-phone text-primary"></i>
+                    <span>Información de Contacto</span>
+                </div>
+            </ng-template>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-5">
+                <p-skeleton height="3rem" />
+                <p-skeleton height="3rem" />
+                <p-skeleton height="3rem" />
+                <p-skeleton height="3rem" />
+                <div class="md:col-span-2">
+                    <p-skeleton height="3rem" />
+                </div>
+            </div>
+        </p-card>
+
+        <!-- Referencias Comerciales Skeleton -->
+        <p-card class="mt-6">
+            <ng-template #title>
+                <div class="flex items-center gap-2">
+                    <i class="pi pi-briefcase text-primary"></i>
+                    <span>Referencias Comerciales</span>
+                </div>
+            </ng-template>
+
+            <div class="mb-5">
+                <p-skeleton width="8rem" height="1.5rem" styleClass="mb-4" />
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-5">
+                    <p-skeleton height="3rem" />
+                    <p-skeleton height="3rem" />
+                    <p-skeleton height="3rem" />
+                </div>
+            </div>
+
+            <div>
+                <p-skeleton width="8rem" height="1.5rem" styleClass="mb-4" />
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-5">
+                    <p-skeleton height="3rem" />
+                    <p-skeleton height="3rem" />
+                    <p-skeleton height="3rem" />
+                </div>
+            </div>
+        </p-card>
+
+        <!-- Observaciones Skeleton -->
+        <p-card class="mt-6">
+            <ng-template #title>
+                <div class="flex items-center gap-2">
+                    <i class="pi pi-file-edit text-primary"></i>
+                    <span>Observaciones</span>
+                </div>
+            </ng-template>
+
+            <p-skeleton height="6rem" />
+        </p-card>
+    </p-fluid>
+    } @else {
+    <p-fluid>
+        <!-- Información General -->
+        <p-card>
+            <ng-template #title>
+                <div class="flex items-center gap-2">
+                    <i class="pi pi-building text-primary"></i>
+                    <span>Información General</span>
+                </div>
+            </ng-template>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-5">
+                <div class="flex flex-col gap-1">
+                    <p-floatlabel variant="on">
+                        <p-select id="personTypeId" [options]="personTypes()" optionLabel="label" [formControl]="form.controls.personTypeId" [invalid]="isInvalid('personTypeId')" />
+                        <label for="personTypeId">Tipo de Persona *</label>
+                    </p-floatlabel>
+                    @if (isInvalid('personTypeId')) {
+                    <small class="text-red-500">{{ getErrorMessage('personTypeId') }}</small>
+                    }
+                </div>
+
+                <div class="flex flex-col gap-1">
+                    <p-floatlabel variant="on">
+                        <input pInputText id="businessName" [formControl]="form.controls.businessName" [invalid]="isInvalid('businessName')" />
+                        <label for="businessName">Razón Social / Nombre *</label>
+                    </p-floatlabel>
+                    @if (isInvalid('businessName')) {
+                    <small class="text-red-500">{{ getErrorMessage('businessName') }}</small>
+                    }
+                </div>
+
+                <div class="flex flex-col gap-1">
+                    <p-floatlabel variant="on">
+                        <input pInputText id="identificationNumber" [formControl]="form.controls.identificationNumber" [invalid]="isInvalid('identificationNumber')" />
+                        <label for="identificationNumber">Número de Identificación *</label>
+                    </p-floatlabel>
+                    @if (isInvalid('identificationNumber')) {
+                    <small class="text-red-500">{{ getErrorMessage('identificationNumber') }}</small>
+                    }
+                </div>
+
+                <div class="flex flex-col gap-1">
+                    <p-floatlabel variant="on">
+                        <p-select id="economicActivity" [options]="sectorTypes()" optionLabel="label" [formControl]="form.controls.economicActivityId" [invalid]="isInvalid('economicActivityId')" />
+                        <label for="economicActivity">Actividad Económica *</label>
+                    </p-floatlabel>
+                    @if (isInvalid('economicActivityId')) {
+                    <small class="text-red-500">{{ getErrorMessage('economicActivityId') }}</small>
+                    }
+                </div>
+
+                <div class="flex flex-col gap-1">
+                    <p-floatlabel variant="on">
+                        <p-inputnumber id="seniority" [formControl]="form.controls.seniority" [invalid]="isInvalid('seniority')" [min]="0" [showButtons]="true" />
+                        <label for="seniority">Antigüedad (años) *</label>
+                    </p-floatlabel>
+                    @if (isInvalid('seniority')) {
+                    <small class="text-red-500">{{ getErrorMessage('seniority') }}</small>
+                    }
+                </div>
+            </div>
+        </p-card>
+
+        <!-- Representante Legal -->
+        <p-card class="mt-6">
+            <ng-template #title>
+                <div class="flex items-center gap-2">
+                    <i class="pi pi-user-edit text-primary"></i>
+                    <span>Representante Legal</span>
+                </div>
+            </ng-template>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+                <div class="flex flex-col gap-1">
+                    <p-floatlabel variant="on">
+                        <input pInputText id="legalRepName" [formControl]="form.controls.legalRepName" />
+                        <label for="legalRepName">Nombre del Representante</label>
+                    </p-floatlabel>
+                </div>
+
+                <div class="flex flex-col gap-1">
+                    <p-floatlabel variant="on">
+                        <input pInputText id="legalRepId" [formControl]="form.controls.legalRepId" />
+                        <label for="legalRepId">Identificación del Representante</label>
+                    </p-floatlabel>
+                </div>
+            </div>
+        </p-card>
+
+        <!-- Información de Contacto -->
+        <p-card class="mt-6">
+            <ng-template #title>
+                <div class="flex items-center gap-2">
+                    <i class="pi pi-phone text-primary"></i>
+                    <span>Información de Contacto</span>
+                </div>
+            </ng-template>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-5">
+                <div class="flex flex-col gap-1">
+                    <p-floatlabel variant="on">
+                        <input pInputText id="email" [formControl]="form.controls.email" [invalid]="isInvalid('email')" />
+                        <label for="email">Correo Electrónico *</label>
+                    </p-floatlabel>
+                    @if (isInvalid('email')) {
+                    <small class="text-red-500">{{ getErrorMessage('email') }}</small>
+                    }
+                </div>
+
+                <div class="flex flex-col gap-1">
+                    <app-phone-input inputId="phone" label="Teléfono Principal *" variant="on" [formControl]="form.controls.phone" [invalid]="isInvalid('phone')" />
+                    @if (isInvalid('phone')) {
+                    <small class="text-red-500">{{ getErrorMessage('phone') }}</small>
+                    }
+                </div>
+
+                <div class="flex flex-col gap-1">
+                    <app-phone-input inputId="secondaryPhone" label="Teléfono Secundario" variant="on" [formControl]="form.controls.secondaryPhone" />
+                </div>
+
+                <div class="flex flex-col gap-1">
+                    <p-floatlabel variant="on">
+                        <input pInputText id="city" [formControl]="form.controls.city" [invalid]="isInvalid('city')" />
+                        <label for="city">Ciudad *</label>
+                    </p-floatlabel>
+                    @if (isInvalid('city')) {
+                    <small class="text-red-500">{{ getErrorMessage('city') }}</small>
+                    }
+                </div>
+
+                <div class="flex flex-col gap-1 md:col-span-2">
+                    <p-floatlabel variant="on">
+                        <input pInputText id="address" [formControl]="form.controls.address" [invalid]="isInvalid('address')" />
+                        <label for="address">Dirección *</label>
+                    </p-floatlabel>
+                    @if (isInvalid('address')) {
+                    <small class="text-red-500">{{ getErrorMessage('address') }}</small>
+                    }
+                </div>
+            </div>
+        </p-card>
+
+        <!-- Referencias Comerciales -->
+        <p-card class="mt-6">
+            <ng-template #title>
+                <div class="flex items-center gap-2">
+                    <i class="pi pi-briefcase text-primary"></i>
+                    <span>Referencias Comerciales</span>
+                </div>
+            </ng-template>
+
+            <!-- Referencia 1 -->
+            <div class="mb-5">
+                <h4 class="text-sm font-semibold text-muted-color mb-4">Referencia 1</h4>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-5">
+                    <div class="flex flex-col gap-1">
+                        <p-floatlabel variant="on">
+                            <input pInputText id="commercialRef1Name" [formControl]="form.controls.commercialRef1Name" />
+                            <label for="commercialRef1Name">Nombre / Empresa</label>
+                        </p-floatlabel>
+                    </div>
+
+                    <div class="flex flex-col gap-1">
+                        <p-floatlabel variant="on">
+                            <input pInputText id="commercialRef1Contact" [formControl]="form.controls.commercialRef1Contact" />
+                            <label for="commercialRef1Contact">Contacto</label>
+                        </p-floatlabel>
+                    </div>
+
+                    <div class="flex flex-col gap-1">
+                        <app-phone-input inputId="commercialRef1Phone" label="Teléfono" variant="on" [formControl]="form.controls.commercialRef1Phone" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- Referencia 2 -->
+            <div>
+                <h4 class="text-sm font-semibold text-muted-color mb-4">Referencia 2</h4>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-5">
+                    <div class="flex flex-col gap-1">
+                        <p-floatlabel variant="on">
+                            <input pInputText id="commercialRef2Name" [formControl]="form.controls.commercialRef2Name" />
+                            <label for="commercialRef2Name">Nombre / Empresa</label>
+                        </p-floatlabel>
+                    </div>
+
+                    <div class="flex flex-col gap-1">
+                        <p-floatlabel variant="on">
+                            <input pInputText id="commercialRef2Contact" [formControl]="form.controls.commercialRef2Contact" />
+                            <label for="commercialRef2Contact">Contacto</label>
+                        </p-floatlabel>
+                    </div>
+
+                    <div class="flex flex-col gap-1">
+                        <app-phone-input inputId="commercialRef2Phone" label="Teléfono" variant="on" [formControl]="form.controls.commercialRef2Phone" />
+                    </div>
+                </div>
+            </div>
+        </p-card>
+
+        <!-- Observaciones -->
+        <p-card class="mt-6">
+            <ng-template #title>
+                <div class="flex items-center gap-2">
+                    <i class="pi pi-file-edit text-primary"></i>
+                    <span>Observaciones</span>
+                </div>
+            </ng-template>
+
+            <div class="flex flex-col gap-1">
+                <p-floatlabel variant="on">
+                    <textarea pTextarea id="observations" [formControl]="form.controls.observations" rows="4" [autoResize]="true"></textarea>
+                    <label for="observations">Observaciones</label>
+                </p-floatlabel>
+            </div>
+        </p-card>
+    </p-fluid>
+    }
+</div>

@@ -1,0 +1,40 @@
+<div class="flex flex-col gap-4 pt-2">
+    <p-icon-field>
+        <p-inputicon class="pi pi-search" />
+        <input
+            type="text"
+            pInputText
+            placeholder="Buscar en preguntas frecuentes..."
+            [(ngModel)]="searchQuery"
+            class="w-full"
+        />
+    </p-icon-field>
+
+    @if (filteredFaqs().length === 0) {
+        <div class="flex flex-col items-center justify-center gap-3 py-10 text-center text-surface-500">
+            <i class="pi pi-search text-4xl"></i>
+            <p class="text-sm">No se encontraron resultados para <strong>"{{ searchQuery() }}"</strong></p>
+            <p class="text-xs">Intenta con otras palabras o usa el formulario de soporte para resolver tu duda.</p>
+        </div>
+    } @else {
+        @for (category of visibleCategories(); track category) {
+            <div class="flex flex-col gap-2">
+                <div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-surface-400">
+                    <span class="h-px flex-1 bg-surface-200 dark:bg-surface-700"></span>
+                    <span>{{ category }}</span>
+                    <span class="h-px flex-1 bg-surface-200 dark:bg-surface-700"></span>
+                </div>
+                <p-accordion>
+                    @for (faq of faqsByCategory(category); track faq.question) {
+                        <p-accordion-panel [value]="faq.question">
+                            <p-accordion-header>{{ faq.question }}</p-accordion-header>
+                            <p-accordion-content>
+                                <p class="text-sm leading-relaxed text-surface-600 dark:text-surface-300">{{ faq.answer }}</p>
+                            </p-accordion-content>
+                        </p-accordion-panel>
+                    }
+                </p-accordion>
+            </div>
+        }
+    }
+</div>

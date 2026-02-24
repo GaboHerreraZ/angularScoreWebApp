@@ -1,0 +1,16 @@
+<p-floatlabel [variant]="variant()">
+    <p-select
+        [id]="inputId()"
+        [formControl]="innerControl"
+        [options]="citiesResource.value() ?? []"
+        optionLabel="name"
+        [filter]="true"
+        filterBy="name"
+        [invalid]="invalid()"
+        [loading]="citiesResource.isLoading()"
+        [disabled]="!departmentId()"
+        (onBlur)="onBlur()"
+        styleClass="w-full"
+    />
+    <label [for]="inputId()">{{ label() }}</label>
+</p-floatlabel>

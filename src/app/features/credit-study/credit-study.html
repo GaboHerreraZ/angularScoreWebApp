@@ -1,0 +1,10 @@
+<app-custom-table
+    [tableSettings]="tableSettings"
+    [data]="creditStudyService.creditStudies()"
+    [totalRecords]="creditStudyService.totalRecords()"
+    [loading]="creditStudyService.loading()"
+    (pageChange)="onPageChange($event)"
+    (search)="onSearch($event)"
+    (actionClick)="onActionClick($event)"
+    (addClick)="onAdd()"
+/>

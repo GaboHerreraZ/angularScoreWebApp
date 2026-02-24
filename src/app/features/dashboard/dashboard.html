@@ -1,0 +1,379 @@
+<div class="flex flex-col gap-6 p-4">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div>
+            <h1 class="text-2xl font-bold text-surface-800 dark:text-surface-100">Dashboard</h1>
+            <p class="text-surface-500 text-sm mt-1">Resumen de actividad de la empresa</p>
+        </div>
+    </div>
+
+    @if (loading()) {
+    <!-- Skeleton -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        @for (i of [1,2,3,4]; track i) {
+        <p-card styleClass="h-full">
+            <p-skeleton height="1rem" width="60%" styleClass="mb-2" />
+            <p-skeleton height="2rem" width="40%" styleClass="mb-1" />
+            <p-skeleton height="0.75rem" width="80%" />
+        </p-card>
+        }
+    </div>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        @for (i of [1,2,3]; track i) {
+        <p-card styleClass="h-full">
+            <p-skeleton height="280px" />
+        </p-card>
+        }
+    </div>
+
+    } @else if (basicData(); as d) {
+
+    <!-- ══════════════════════════════════════════════════════════
+             SECCIÓN 1 — KPI Cards: Resumen General
+        ════════════════════════════════════════════════════════════ -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        <p-card styleClass="h-full">
+            <div class="flex items-center gap-3">
+                <div class="flex items-center justify-center w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-900/30">
+                    <i class="pi pi-users text-blue-600 dark:text-blue-400 text-xl"></i>
+                </div>
+                <div>
+                    <p class="text-surface-500 text-sm">Total clientes</p>
+                    <p class="text-2xl font-bold text-surface-800 dark:text-surface-100">{{ d.summary.totalCustomers }}</p>
+                </div>
+            </div>
+        </p-card>
+
+        <p-card styleClass="h-full">
+            <div class="flex items-center gap-3">
+                <div class="flex items-center justify-center w-12 h-12 rounded-xl bg-purple-100 dark:bg-purple-900/30">
+                    <i class="pi pi-file-edit text-purple-600 dark:text-purple-400 text-xl"></i>
+                </div>
+                <div>
+                    <p class="text-surface-500 text-sm">Total estudios</p>
+                    <p class="text-2xl font-bold text-surface-800 dark:text-surface-100">{{ d.summary.totalStudies }}</p>
+                </div>
+            </div>
+        </p-card>
+
+        <p-card styleClass="h-full">
+            <div class="flex items-center gap-3">
+                <div class="flex items-center justify-center w-12 h-12 rounded-xl bg-green-100 dark:bg-green-900/30">
+                    <i class="pi pi-calendar text-green-600 dark:text-green-400 text-xl"></i>
+                </div>
+                <div>
+                    <p class="text-surface-500 text-sm">Estudios este mes</p>
+                    <p class="text-2xl font-bold text-surface-800 dark:text-surface-100">{{ d.summary.studiesThisMonth }}</p>
+                </div>
+            </div>
+        </p-card>
+
+        <p-card styleClass="h-full">
+            <div class="flex items-center gap-3">
+                <div class="flex items-center justify-center w-12 h-12 rounded-xl bg-orange-100 dark:bg-orange-900/30">
+                    <i class="pi pi-user-plus text-orange-600 dark:text-orange-400 text-xl"></i>
+                </div>
+                <div>
+                    <p class="text-surface-500 text-sm">Usuarios activos</p>
+                    <p class="text-2xl font-bold text-surface-800 dark:text-surface-100">{{ d.summary.activeUsers }}</p>
+                </div>
+            </div>
+        </p-card>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════
+             SECCIÓN 4 — KPI Cards: Totales de Cupo
+        ════════════════════════════════════════════════════════════ -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <p-card styleClass="h-full">
+            <div class="flex items-center gap-3">
+                <div class="flex items-center justify-center w-12 h-12 rounded-xl bg-teal-100 dark:bg-teal-900/30">
+                    <i class="pi pi-dollar text-teal-600 dark:text-teal-400 text-xl"></i>
+                </div>
+                <div>
+                    <p class="text-surface-500 text-sm">Cupo total solicitado (mes)</p>
+                    <p class="text-xl font-bold text-surface-800 dark:text-surface-100">{{ d.creditSummary.totalRequestedThisMonth | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</p>
+                </div>
+            </div>
+        </p-card>
+
+        <p-card styleClass="h-full">
+            <div class="flex items-center gap-3">
+                <div class="flex items-center justify-center w-12 h-12 rounded-xl bg-cyan-100 dark:bg-cyan-900/30">
+                    <i class="pi pi-chart-bar text-cyan-600 dark:text-cyan-400 text-xl"></i>
+                </div>
+                <div>
+                    <p class="text-surface-500 text-sm">Cupo promedio (mes)</p>
+                    <p class="text-xl font-bold text-surface-800 dark:text-surface-100">{{ d.creditSummary.avgRequestedThisMonth | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</p>
+                </div>
+            </div>
+        </p-card>
+
+        <p-card styleClass="h-full">
+            <div class="flex items-center gap-3">
+                <div class="flex items-center justify-center w-12 h-12 rounded-xl bg-pink-100 dark:bg-pink-900/30">
+                    <i class="pi pi-clock text-pink-600 dark:text-pink-400 text-xl"></i>
+                </div>
+                <div>
+                    <p class="text-surface-500 text-sm">Plazo promedio</p>
+                    <p class="text-2xl font-bold text-surface-800 dark:text-surface-100">{{ d.creditSummary.avgRequestedTerm }} <span class="text-sm font-normal text-surface-500">meses</span></p>
+                </div>
+            </div>
+        </p-card>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════
+             SECCIÓN 2 & 3 & 5 — Gráficos básicos
+        ════════════════════════════════════════════════════════════ -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        @if (studiesByStatusChart(); as chart) {
+        <p-card styleClass="h-full">
+            <ng-template pTemplate="header">
+                <div class="px-4 pt-4">
+                    <h3 class="text-base font-semibold text-surface-700 dark:text-surface-200">Estudios por Estado</h3>
+                </div>
+            </ng-template>
+            <div class="h-80">
+                <p-chart type="doughnut" [data]="chart.data" [options]="chart.options" styleClass="h-full w-full" />
+            </div>
+        </p-card>
+        } @if (studiesByMonthChart(); as chart) {
+        <p-card styleClass="h-full lg:col-span-2">
+            <ng-template pTemplate="header">
+                <div class="px-4 pt-4">
+                    <h3 class="text-base font-semibold text-surface-700 dark:text-surface-200">Estudios por Mes</h3>
+                </div>
+            </ng-template>
+            <div class="h-64">
+                <p-chart type="bar" [data]="chart.data" [options]="chart.options" styleClass="h-full w-full" />
+            </div>
+        </p-card>
+        }
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        @if (customersByPersonTypeChart(); as chart) {
+        <p-card styleClass="h-full">
+            <ng-template pTemplate="header">
+                <div class="px-4 pt-4">
+                    <h3 class="text-base font-semibold text-surface-700 dark:text-surface-200">Clientes por Tipo de Persona</h3>
+                </div>
+            </ng-template>
+            <div class="h-80">
+                <p-chart type="pie" [data]="chart.data" [options]="chart.options" styleClass="h-full w-full" />
+            </div>
+        </p-card>
+        }
+        <p-card styleClass="h-full lg:col-span-2">
+            <ng-template pTemplate="header">
+                <div class="px-4 pt-4">
+                    <h3 class="text-base font-semibold text-surface-700 dark:text-surface-200">Estudios Recientes</h3>
+                </div>
+            </ng-template>
+            <p-table [value]="d.recentStudies" [rows]="5" styleClass="p-datatable-sm">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>Cliente</th>
+                        <th>Fecha</th>
+                        <th>Estado</th>
+                        <th class="text-right">Cupo solicitado</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-study>
+                    <tr>
+                        <td class="font-medium text-sm">{{ study.customerName }}</td>
+                        <td class="text-sm text-surface-500">{{ study.studyDate | date:'dd/MM/yyyy' }}</td>
+                        <td>
+                            <p-tag [value]="study.statusLabel" [severity]="getStatusSeverity(study.statusLabel)" />
+                        </td>
+                        <td class="text-right text-sm font-semibold">{{ study.requestedMonthlyCreditLine | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="4" class="text-center text-surface-400 py-4">No hay estudios recientes.</td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </p-card>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════
+             SECCIÓN AVANZADA — Solo cuando hay datos avanzados
+        ════════════════════════════════════════════════════════════ -->
+    @if (dashboardLevel() === 'advanced' && advancedData(); as adv) {
+
+    <!-- KPIs Financieros -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        <p-card styleClass="h-full">
+            <div class="flex items-center gap-3">
+                <div class="flex items-center justify-center w-12 h-12 rounded-xl bg-emerald-100 dark:bg-emerald-900/30">
+                    <i class="pi pi-chart-line text-emerald-600 dark:text-emerald-400 text-xl"></i>
+                </div>
+                <div>
+                    <p class="text-surface-500 text-sm">EBITDA promedio</p>
+                    <p class="text-lg font-bold text-surface-800 dark:text-surface-100">{{ formatCompactCurrency(adv.financialIndicators.avgEbitda) }}</p>
+                </div>
+            </div>
+        </p-card>
+
+        <p-card styleClass="h-full">
+            <div class="flex items-center gap-3">
+                <div class="flex items-center justify-center w-12 h-12 rounded-xl bg-violet-100 dark:bg-violet-900/30">
+                    <i class="pi pi-wallet text-violet-600 dark:text-violet-400 text-xl"></i>
+                </div>
+                <div>
+                    <p class="text-surface-500 text-sm">Cap. pago mensual prom.</p>
+                    <p class="text-lg font-bold text-surface-800 dark:text-surface-100">{{ formatCompactCurrency(adv.financialIndicators.avgMonthlyPaymentCapacity) }}</p>
+                </div>
+            </div>
+        </p-card>
+
+        <p-card styleClass="h-full">
+            <div class="flex items-center gap-3">
+                <div class="flex items-center justify-center w-12 h-12 rounded-xl bg-amber-100 dark:bg-amber-900/30">
+                    <i class="pi pi-shield text-amber-600 dark:text-amber-400 text-xl"></i>
+                </div>
+                <div>
+                    <p class="text-surface-500 text-sm">Factor estabilidad prom.</p>
+                    <p class="text-2xl font-bold text-surface-800 dark:text-surface-100">{{ adv.financialIndicators.avgStabilityFactor | number:'1.2-2' }}</p>
+                </div>
+            </div>
+        </p-card>
+
+        <p-card styleClass="h-full">
+            <div class="flex items-center gap-3">
+                <div class="flex items-center justify-center w-12 h-12 rounded-xl bg-rose-100 dark:bg-rose-900/30">
+                    <i class="pi pi-calendar-times text-rose-600 dark:text-rose-400 text-xl"></i>
+                </div>
+                <div>
+                    <p class="text-surface-500 text-sm">Plazo máx. pago prom.</p>
+                    <p class="text-2xl font-bold text-surface-800 dark:text-surface-100">{{ adv.financialIndicators.avgMaxPaymentTime }} <span class="text-sm font-normal text-surface-500">días</span></p>
+                </div>
+            </div>
+        </p-card>
+    </div>
+
+    <!-- Distribución estabilidad + Evolución cap. pago -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        @if (stabilityDistributionChart(); as chart) {
+        <p-card styleClass="h-full">
+            <ng-template pTemplate="header">
+                <div class="px-4 pt-4">
+                    <h3 class="text-base font-semibold text-surface-700 dark:text-surface-200">Distribución Factor de Estabilidad</h3>
+                    <p class="text-xs text-surface-400 mt-0.5">Bandas Altman Z-Score</p>
+                </div>
+            </ng-template>
+            <div class="h-80">
+                <p-chart type="doughnut" [data]="chart.data" [options]="chart.options" styleClass="h-full w-full" />
+            </div>
+        </p-card>
+        } @if (paymentCapacityTrendChart(); as chart) {
+        <p-card styleClass="h-full lg:col-span-2">
+            <ng-template pTemplate="header">
+                <div class="px-4 pt-4">
+                    <h3 class="text-base font-semibold text-surface-700 dark:text-surface-200">Evolución Capacidad de Pago</h3>
+                    <p class="text-xs text-surface-400 mt-0.5">Promedio mensual últimos 12 meses</p>
+                </div>
+            </ng-template>
+            <div class="h-64">
+                <p-chart type="line" [data]="chart.data" [options]="chart.options" styleClass="h-full w-full" />
+            </div>
+        </p-card>
+        }
+    </div>
+
+    <!-- Indicadores de rotación + Top clientes -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        @if (turnoverIndicatorsChart(); as chart) {
+        <p-card styleClass="h-full">
+            <ng-template pTemplate="header">
+                <div class="px-4 pt-4">
+                    <h3 class="text-base font-semibold text-surface-700 dark:text-surface-200">Indicadores de Rotación Promedio</h3>
+                    <p class="text-xs text-surface-400 mt-0.5">Días promedio del portafolio</p>
+                </div>
+            </ng-template>
+            <div class="h-72">
+                <p-chart type="bar" [data]="chart.data" [options]="chart.options" styleClass="h-full w-full" />
+            </div>
+        </p-card>
+        } @if (topCustomersChart(); as chart) {
+        <p-card styleClass="h-full">
+            <ng-template pTemplate="header">
+                <div class="px-4 pt-4">
+                    <h3 class="text-base font-semibold text-surface-700 dark:text-surface-200">Top 10 Clientes por Cupo</h3>
+                </div>
+            </ng-template>
+            <div class="h-72">
+                <p-chart type="bar" [data]="chart.data" [options]="chart.options" styleClass="h-full w-full" />
+            </div>
+        </p-card>
+        }
+    </div>
+
+    <!-- Ingresos vs Utilidad + Estructura de deuda -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        @if (revenueVsNetIncomeChart(); as chart) {
+        <p-card styleClass="h-full lg:col-span-2">
+            <ng-template pTemplate="header">
+                <div class="px-4 pt-4">
+                    <h3 class="text-base font-semibold text-surface-700 dark:text-surface-200">Ingresos vs Utilidad Neta por Mes</h3>
+                    <p class="text-xs text-surface-400 mt-0.5">Promedios del portafolio</p>
+                </div>
+            </ng-template>
+            <div class="h-64">
+                <p-chart type="bar" [data]="chart.data" [options]="chart.options" styleClass="h-full w-full" />
+            </div>
+        </p-card>
+        } @if (debtStructureChart(); as chart) {
+        <p-card styleClass="h-full">
+            <ng-template pTemplate="header">
+                <div class="px-4 pt-4">
+                    <h3 class="text-base font-semibold text-surface-700 dark:text-surface-200">Estructura de Endeudamiento</h3>
+                    <div class="mt-1 text-xs text-surface-400">
+                        Deuda/Patrimonio:
+                        <span class="font-semibold text-surface-600 dark:text-surface-300">{{ adv.avgDebtStructure.debtToEquityRatio | number:'1.2-2' }}x</span>
+                    </div>
+                </div>
+            </ng-template>
+            <div class="h-90">
+                <p-chart type="doughnut" [data]="chart.data" [options]="chart.options" styleClass="h-full w-full" />
+            </div>
+        </p-card>
+        }
+    </div>
+
+    <!-- Estudios por Analista + Clientes por Actividad Económica -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        @if (analystChart(); as chart) {
+        <p-card styleClass="h-full">
+            <ng-template pTemplate="header">
+                <div class="px-4 pt-4">
+                    <h3 class="text-base font-semibold text-surface-700 dark:text-surface-200">Estudios por Analista</h3>
+                </div>
+            </ng-template>
+            <div class="h-60">
+                <p-chart type="bar" [data]="chart.data" [options]="chart.options" styleClass="h-full w-full" />
+            </div>
+        </p-card>
+        } @if (economicActivityChart(); as chart) {
+        <p-card styleClass="h-full">
+            <ng-template pTemplate="header">
+                <div class="px-4 pt-4">
+                    <h3 class="text-base font-semibold text-surface-700 dark:text-surface-200">Clientes por Actividad Económica</h3>
+                </div>
+            </ng-template>
+            <div class="h-60">
+                <p-chart type="bar" [data]="chart.data" [options]="chart.options" styleClass="h-full w-full" />
+            </div>
+        </p-card>
+        }
+    </div>
+
+    } } @else {
+    <div class="flex flex-col items-center justify-center py-20 gap-3 text-surface-400">
+        <i class="pi pi-chart-bar text-5xl"></i>
+        <p class="text-lg">No se pudieron cargar los datos del dashboard.</p>
+    </div>
+    }
+</div>
