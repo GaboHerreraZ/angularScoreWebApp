@@ -1,5 +1,5 @@
 {
-    "buildCommand": "bash scripts/set-env.sh && ng build --configuration production",
+    "buildCommand": "node scripts/set-env.js && ng build --configuration production",
     "outputDirectory": "dist/verona-ng/browser",
     "framework": null,
     "rewrites": [
