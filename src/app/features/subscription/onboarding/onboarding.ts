@@ -159,7 +159,15 @@ export class Onboarding {
                     return;
                 }
 
-                this.router.navigate(['/']);
+                const hasActiveSubscription = company.company.companySubscriptions.some(
+                    sub => sub.isCurrent && sub.status?.code === 'activa'
+                );
+
+                if (hasActiveSubscription) {
+                    this.router.navigate(['/']);
+                } else {
+                    this.activeStep.set(3);
+                }
 
             } else {
                 this.activeStep.set(1);

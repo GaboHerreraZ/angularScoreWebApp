@@ -51,16 +51,14 @@ export class Confirmation implements OnInit, OnDestroy {
 
     private mapStatusCode(code: string): ConfirmationState {
         switch (code) {
-            case 'aprobado':
-            case 'activo':
+            case 'activa':
                 return 'approved';
-            case 'rechazado':
-            case 'cancelado':
-                return 'declined';
             case 'pendiente':
                 return 'pending';
+            case 'rechazada':
+                return 'declined';
             default:
-                return 'error';
+                return 'declined';
         }
     }
 

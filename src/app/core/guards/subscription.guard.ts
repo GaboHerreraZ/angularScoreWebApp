@@ -22,6 +22,13 @@ export const subscriptionGuard: CanActivateFn = async () => {
         return router.createUrlTree(['/suscripcion/registro']);
     }
 
+    const activeSubscription = company.companySubscriptions.find(
+        sub => sub.isCurrent && sub.status?.code === 'activa'
+    );
+
+    if (!activeSubscription) {
+        return router.createUrlTree(['/suscripcion/registro']);
+    }
 
     return true;
 };

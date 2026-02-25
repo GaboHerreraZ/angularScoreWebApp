@@ -43,6 +43,11 @@ interface Subscription {
   startDate: Date;
   endDate: Date;
   isCurrent: boolean;
+  status: {
+    id: number;
+    code: string;
+    label: string;
+  };
   subscription: {
     id: string;
     name: string;
