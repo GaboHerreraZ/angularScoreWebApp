@@ -29,7 +29,7 @@ import { Configurator } from '@/app/layout/components/configurator/configurator'
                     <p-password id="password" placeholder="Confirm Password" [(ngModel)]="value2" styleClass="w-full" [inputStyle]="{ paddingLeft: '2.5rem' }" inputStyleClass="w-full" [toggleMask]="true"></p-password>
                 </p-icon-field>
 
-                <p-button [routerLink]="['/']" styleClass="w-full" label="Submit"></p-button>
+                <p-button [routerLink]="['/app']" styleClass="w-full" label="Submit"></p-button>
             </div>
         </div>
     `

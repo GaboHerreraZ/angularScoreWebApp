@@ -14,7 +14,7 @@ import { Configurator } from '@/app/layout/components/configurator/configurator'
                 <h1 class="font-bold text-2xl mt-0 mb-2">ACCESS DENIED</h1>
                 <p class="text-muted-color mb-6">You are not authorized to access this resource..</p>
                 <img src="/demo/images/pages/auth/access-denied.svg" alt="access-denied" class="mb-6 self-center" />
-                <p-button label="Go to Dashboard" routerLink="/" severity="warn" styleClass="w-full" />
+                <p-button label="Go to Dashboard" routerLink="/app" severity="warn" styleClass="w-full" />
             </div>
         </div>`
 })

@@ -109,7 +109,7 @@ export class Login implements OnDestroy {
         }
 
         this.verifying.set(false);
-        this.router.navigate(['/']);
+        this.router.navigate(['/app']);
     }
 
     async resendOtp(): Promise<void> {

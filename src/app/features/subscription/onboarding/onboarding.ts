@@ -164,7 +164,7 @@ export class Onboarding {
                 );
 
                 if (hasActiveSubscription) {
-                    this.router.navigate(['/']);
+                    this.router.navigate(['/app']);
                 } else {
                     this.activeStep.set(3);
                 }
@@ -273,7 +273,7 @@ export class Onboarding {
 
             if (plan.price === 0) {
                 await this.authService.loadProfile(this.user!.id as string);
-                this.router.navigate(['/']);
+                this.router.navigate(['/app']);
             } else {
                 this.wompiService.openCheckout(transaction);
             }

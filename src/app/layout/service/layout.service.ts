@@ -185,7 +185,7 @@ export class LayoutService {
                     this.router.navigate(currentTabs[index + 1].routerLink || []);
                 }
             } else {
-                this.router.navigate(['/']);
+                this.router.navigate(['/app']);
             }
         }
 

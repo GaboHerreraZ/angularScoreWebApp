@@ -57,6 +57,8 @@ export class WompiService {
             signature: { integrity: transaction.integrityHash },
         });
 
-        checkout.open(() => {});
+        checkout.open((transction) => {
+            console.log('transaction', transaction)
+        });
     }
 }

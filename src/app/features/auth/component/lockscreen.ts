@@ -33,7 +33,7 @@ import { Configurator } from '@/app/layout/components/configurator/configurator'
                     <input pInputText type="password" placeholder="Password" class="w-full" />
                 </p-icon-field>
 
-                <button [routerLink]="['/']" pButton pRipple label="Unlock"></button>
+                <button [routerLink]="['/app']" pButton pRipple label="Unlock"></button>
             </div>
         </div>`
 })

@@ -21,7 +21,7 @@ import { Configurator } from '@/app/layout/components/configurator/configurator'
                     <input pInputText type="text" placeholder="Email" class="w-full" />
                 </p-icon-field>
 
-                <p-button [routerLink]="['/']" label="Send Recovery Mail" styleClass="w-full"></p-button>
+                <p-button [routerLink]="['/app']" label="Send Recovery Mail" styleClass="w-full"></p-button>
             </div>
         </div>`
 })

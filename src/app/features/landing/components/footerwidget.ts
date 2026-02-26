@@ -24,7 +24,9 @@ import { RouterModule } from '@angular/router';
                         <ul class="list-none p-0 m-0 flex flex-col gap-3">
                             <li><a class="cursor-pointer text-gray-400 hover:text-white transition-colors duration-300" (click)="scrollTo('features')">Características</a></li>
                             <li><a class="cursor-pointer text-gray-400 hover:text-white transition-colors duration-300" (click)="scrollTo('how-it-works')">Cómo Funciona</a></li>
+                            <li><a class="cursor-pointer text-gray-400 hover:text-white transition-colors duration-300" (click)="scrollTo('security')">Seguridad</a></li>
                             <li><a class="cursor-pointer text-gray-400 hover:text-white transition-colors duration-300" (click)="scrollTo('pricing')">Planes</a></li>
+                            <li><a class="cursor-pointer text-gray-400 hover:text-white transition-colors duration-300" (click)="scrollTo('faq')">Preguntas Frecuentes</a></li>
                         </ul>
                     </div>
 

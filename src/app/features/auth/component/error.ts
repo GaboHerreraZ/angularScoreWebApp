@@ -14,7 +14,7 @@ import { Configurator } from '@/app/layout/components/configurator/configurator'
                 <h1 class="font-bold text-2xl mt-0 mb-2">ERROR</h1>
                 <p class="text-muted-color mb-6">Unexpected error happened. Resource is not available.</p>
                 <img src="/demo/images/pages/auth/error.svg" alt="error" class="mb-6 self-center" />
-                <p-button label="Go to Dashboard" [routerLink]="['/']" styleClass="w-full" />
+                <p-button label="Go to Dashboard" [routerLink]="['/app']" styleClass="w-full" />
             </div>
         </div>`
 })

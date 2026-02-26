@@ -29,7 +29,7 @@ import { Configurator } from '@/app/layout/components/configurator/configurator'
                     <p-password id="password" placeholder="Password" styleClass="w-full" [(ngModel)]="value" [inputStyle]="{ paddingLeft: '2.5rem' }" inputStyleClass="w-full" [toggleMask]="true"></p-password>
                 </p-icon-field>
 
-                <p-button [routerLink]="['/']" label="Sign Up" class="mb-4" styleClass="w-full"></p-button>
+                <p-button [routerLink]="['/app']" label="Sign Up" class="mb-4" styleClass="w-full"></p-button>
 
                 <span class="text-muted-color text-center mb-6">or sign up with below</span>
 

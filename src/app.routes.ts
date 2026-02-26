@@ -4,8 +4,9 @@ import { authGuard } from '@/app/core/guards/auth.guard';
 import { subscriptionGuard } from '@/app/core/guards/subscription.guard';
 
 export const appRoutes: Routes = [
+    { path: '', loadComponent: () => import('@/app/features/landing/landing').then((c) => c.Landing) },
     {
-        path: '',
+        path: 'app',
         component: Layout,
         canActivate: [authGuard, subscriptionGuard],
         children: [
@@ -18,7 +19,7 @@ export const appRoutes: Routes = [
     },
     { path: 'auth', loadChildren: () => import('@/app/features/auth/auth.routes') },
     { path: 'suscripcion', loadChildren: () => import('@/app/features/subscription/subscription.routes') },
-    { path: 'inicio', loadComponent: () => import('@/app/features/landing/landing').then((c) => c.Landing) },
+    { path: 'inicio', redirectTo: '/', pathMatch: 'full' },
     { path: 'legal/privacidad', loadComponent: () => import('@/app/features/legal/privacy-policy').then((c) => c.PrivacyPolicy) },
     { path: 'legal/terminos', loadComponent: () => import('@/app/features/legal/terms-conditions').then((c) => c.TermsConditions) },
     { path: 'legal/habeas-data', loadComponent: () => import('@/app/features/legal/habeas-data').then((c) => c.HabeasData) },

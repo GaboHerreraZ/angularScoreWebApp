@@ -14,36 +14,36 @@ export class Menu {
         {
             label: 'Dashboard',
             icon: 'pi pi-home',
-            path: '/panel',
+            path: '/app/panel',
             items: [
                 {
                     label: 'Dashboard',
                     icon: 'pi pi-desktop',
-                    routerLink: ['/panel']
+                    routerLink: ['/app/panel']
                 }
             ]
         },
-          {
+        {
             label: 'Clientes',
             icon: 'pi pi-building-columns',
-            path: '/clientes',
+            path: '/app/clientes',
             items: [
                 {
                     label: 'Gestión de Clientes',
                     icon: 'pi pi-building-columns',
-                    routerLink: ['/clientes']
+                    routerLink: ['/app/clientes']
                 }
             ]
         },
         {
             label: 'Créditos',
             icon: 'pi pi-credit-card',
-            path: '/estudio-credito',
+            path: '/app/estudio-credito',
             items: [
                 {
                     label: 'Estudios de Crédito',
                     icon: 'pi pi-credit-card',
-                    routerLink: ['/estudio-credito']
+                    routerLink: ['/app/estudio-credito']
                 }
             ]
         }

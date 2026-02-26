@@ -35,7 +35,7 @@ export const noAuthGuard: CanActivateFn = async () => {
     }
 
     if (supabaseService.isAuthenticated()) {
-        return router.createUrlTree(['/']);
+        return router.createUrlTree(['/app']);
     }
 
     return true;

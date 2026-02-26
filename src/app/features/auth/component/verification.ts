@@ -23,7 +23,7 @@ import { Configurator } from '@/app/layout/components/configurator/configurator'
                     <p-inputNumber #input4 inputStyleClass="w-full text-center" [maxlength]="1"></p-inputNumber>
                 </div>
 
-                <button [routerLink]="['/']" pButton pRipple label="Verify" class="mb-4"></button>
+                <button [routerLink]="['/app']" pButton pRipple label="Verify" class="mb-4"></button>
                 <span class="text-muted-color text-center">If you didn't get the mail? <span class="font-bold text-primary-500">Send code again</span></span>
             </div>
         </div>`

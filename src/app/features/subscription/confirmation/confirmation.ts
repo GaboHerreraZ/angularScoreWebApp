@@ -131,7 +131,7 @@ export class Confirmation implements OnInit, OnDestroy {
     }
 
     goToDashboard(): void {
-        this.router.navigate(['/']);
+        this.router.navigate(['/app']);
     }
 
     retryPayment(): void {
