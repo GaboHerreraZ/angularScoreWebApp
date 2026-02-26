@@ -126,6 +126,62 @@ supabase/
 5. La funcion envia el SMS usando la API de Infobip
 6. El usuario recibe el codigo y lo verifica para completar el login
 
+## Despliegue en Vercel
+
+La aplicacion se despliega automaticamente en **Vercel** con cada push a `main`.
+
+### Requisitos
+
+- Cuenta en [Vercel](https://vercel.com)
+- Repositorio conectado al proyecto de Vercel
+
+### Variables de entorno
+
+Los archivos `src/environments/environment.ts` y `environment.prod.ts` estan en `.gitignore` y se generan durante el build mediante el script `scripts/set-env.js`.
+
+Configura las siguientes variables en **Vercel > Settings > Environment Variables**:
+
+| Variable | Descripcion | Ejemplo |
+|---|---|---|
+| `SUPABASE_URL` | URL del proyecto Supabase | `https://xxxxx.supabase.co` |
+| `SUPABASE_KEY` | Anon key de Supabase | `eyJhbGci...` |
+| `API_URL` | URL del backend (Railway) | `https://xxx.up.railway.app/api` |
+| `WOMPI_PUBLIC_KEY` | Llave publica de Wompi | `pub_test_xxx` o `pub_prod_xxx` |
+
+> Asegurate de marcar el checkbox de **Production**, **Preview** y **Development** para cada variable.
+
+### Configuracion de Vercel
+
+El archivo `vercel.json` en la raiz del proyecto configura:
+
+- **Build command**: genera los environments y compila Angular
+- **Output directory**: `dist/verona-ng/browser`
+- **Rewrites**: redirige todas las rutas a `index.html` (SPA)
+
+### Despliegue manual
+
+Si necesitas forzar un redeploy:
+
+1. Ve a **Deployments** en el dashboard de Vercel
+2. Click en los 3 puntos (...) del ultimo deploy
+3. Click en **Redeploy**
+
+### Desarrollo local
+
+Para desarrollo local, crea el archivo `src/environments/environment.ts` manualmente:
+
+```typescript
+export const environment = {
+    production: false,
+    supabaseUrl: 'https://tu-proyecto.supabase.co',
+    supabaseKey: 'tu-anon-key',
+    apiUrl: 'http://localhost:3000/api',
+    wompiPublicKey: 'pub_test_xxx',
+};
+```
+
+Este archivo no se sube a git.
+
 ## Additional Resources
 
 For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.

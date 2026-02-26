@@ -43,24 +43,20 @@ export class WompiService {
         return this.scriptLoading;
     }
 
-    async openCheckout(transaction: CompanySubscription): Promise<string> {
+    async openCheckout(transaction: CompanySubscription): Promise<void> {
         await this.loadScript();
 
         const redirectUrl = `${window.location.origin}/suscripcion/confirmacion?ref=${transaction.paymentId}`;
 
-        return new Promise<string>((resolve) => {
-            const checkout = new WidgetCheckout({
-                currency: WOMPI_CONFIG.CURRENCY,
-                amountInCents: transaction.amountInCents,
-                reference: transaction.paymentId,
-                publicKey: environment.wompiPublicKey,
-                redirectUrl,
-                signature: { integrity: transaction.integrityHash },
-            });
-
-            checkout.open((result) => {
-                resolve(result.transaction.id);
-            });
+        const checkout = new WidgetCheckout({
+            currency: WOMPI_CONFIG.CURRENCY,
+            amountInCents: transaction.amountInCents,
+            reference: transaction.paymentId,
+            publicKey: environment.wompiPublicKey,
+            redirectUrl,
+            signature: { integrity: transaction.integrityHash },
         });
+
+        checkout.open(() => {});
     }
 }
