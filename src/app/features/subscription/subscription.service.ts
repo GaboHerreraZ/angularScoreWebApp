@@ -15,7 +15,7 @@ export class SubscriptionService {
         return this.api.post<CompanySubscription>(`companies/${companyId}/subscriptions/create-transaction`, request);
     }
 
-    checkTransaction(companyId: string, paymentId: string): Observable<CompanySubscription> {
-        return this.api.get<CompanySubscription>(`companies/${companyId}/subscriptions/check-transaction/${paymentId}`);
+    checkTransaction(paymentId: string): Observable<CompanySubscription> {
+        return this.api.get<CompanySubscription>(`subscriptions/check-transaction/${paymentId}`);
     }
 }

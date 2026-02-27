@@ -71,7 +71,7 @@ export class Confirmation implements OnInit, OnDestroy {
             }
 
             const result = await firstValueFrom(
-                this.subscriptionService.checkTransaction(companyId, paymentId)
+                this.subscriptionService.checkTransaction(paymentId)
             );
             this.transaction.set(result);
 
@@ -81,14 +81,14 @@ export class Confirmation implements OnInit, OnDestroy {
             if (mapped === 'approved') {
                 await this.reloadProfile();
             } else if (mapped === 'pending') {
-                this.startPolling(companyId, paymentId);
+                this.startPolling(paymentId);
             }
         } catch {
             this.state.set('error');
         }
     }
 
-    private startPolling(companyId: string, paymentId: string): void {
+    private startPolling(paymentId: string): void {
         this.pollInterval = setInterval(async () => {
             this.pollCount++;
             if (this.pollCount >= this.MAX_POLLS) {
@@ -98,7 +98,7 @@ export class Confirmation implements OnInit, OnDestroy {
 
             try {
                 const result = await firstValueFrom(
-                    this.subscriptionService.checkTransaction(companyId, paymentId)
+                    this.subscriptionService.checkTransaction(paymentId)
                 );
                 this.transaction.set(result);
 

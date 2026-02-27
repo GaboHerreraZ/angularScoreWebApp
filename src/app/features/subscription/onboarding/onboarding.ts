@@ -275,7 +275,11 @@ export class Onboarding {
                 await this.authService.loadProfile(this.user!.id as string);
                 this.router.navigate(['/app']);
             } else {
-                this.wompiService.openCheckout(transaction);
+                this.wompiService.openCheckout(transaction, () => {
+                    this.router.navigate(['/suscripcion/confirmacion'], {
+                        queryParams: { ref: transaction.paymentId }
+                    });
+                });
             }
         } catch {
             this.notificationService.error('No se pudo iniciar el proceso. Intenta de nuevo.');
