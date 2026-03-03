@@ -88,7 +88,7 @@ export class Customers implements OnInit {
     onActionClick(event: TableActionEvent): void {
         switch (event.action) {
             case 'edit':
-                this.router.navigate(['/clientes/detalle-cliente', event.row.id]);
+                this.router.navigate(['/app/clientes/detalle-cliente', event.row.id]);
                 break;
             case 'delete':
                 this.customersService.deleteCustomer(event.row.id).pipe(
@@ -105,6 +105,6 @@ export class Customers implements OnInit {
     }
 
     onAdd(): void {
-        this.router.navigate(['/clientes/detalle-cliente']);
+        this.router.navigate(['/app/clientes/detalle-cliente']);
     }
 }

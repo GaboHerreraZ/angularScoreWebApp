@@ -30,6 +30,6 @@ export class Administration {
 
     onTabChange(value: string | number | undefined): void {
         if (value == null) return;
-        this.router.navigate(['/administracion', value]);
+        this.router.navigate(['/app/administracion', value]);
     }
 }

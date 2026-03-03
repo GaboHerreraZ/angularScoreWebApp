@@ -101,7 +101,7 @@ export class CustomerCreditStudies implements OnInit {
         this.customersService.getCustomerById(id).pipe(
             takeUntilDestroyed(this.destroyRef)
         ).subscribe(customer => {
-            this.router.navigate(['/estudio-credito/detalle-estudio'], {
+            this.router.navigate(['/app/estudio-credito/detalle-estudio'], {
                 queryParams: {
                     customerId: id,
                     customerName: customer?.businessName ?? ''
@@ -112,7 +112,7 @@ export class CustomerCreditStudies implements OnInit {
 
     onActionClick(event: TableActionEvent): void {
         if (event.action === 'view') {
-            this.router.navigate(['/estudio-credito/detalle-estudio', event.row.id]);
+            this.router.navigate(['/app/estudio-credito/detalle-estudio', event.row.id]);
         }
     }
 }

@@ -402,9 +402,9 @@ export class CreditStudyDetail implements OnInit {
                 if (!this.creditStudyId() && result.data?.id) {
                     const fromCustomerId = this.queryCustomerId();
                     if (fromCustomerId) {
-                        this.router.navigate(['/clientes/detalle-cliente', fromCustomerId, 'estudios-credito']);
+                        this.router.navigate(['/app/clientes/detalle-cliente', fromCustomerId, 'estudios-credito']);
                     } else {
-                        this.router.navigate(['/estudio-credito/detalle-estudio', result.data.id]).then(() => {
+                        this.router.navigate(['/app/estudio-credito/detalle-estudio', result.data.id]).then(() => {
                             setTimeout(() => {
                                 this.activeStep = 3;
                             }, 100);
@@ -423,9 +423,9 @@ export class CreditStudyDetail implements OnInit {
     onCancel(): void {
         const fromCustomerId = this.queryCustomerId();
         if (fromCustomerId) {
-            this.router.navigate(['/clientes/detalle-cliente', fromCustomerId, 'estudios-credito']);
+            this.router.navigate(['/app/clientes/detalle-cliente', fromCustomerId, 'estudios-credito']);
         } else {
-            this.router.navigate(['/estudio-credito']);
+            this.router.navigate(['/app/estudio-credito']);
         }
     }
 

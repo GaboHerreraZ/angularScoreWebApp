@@ -102,7 +102,7 @@ export class CreditStudy implements OnInit {
         console.log('event', event);
         switch (event.action) {
             case 'edit':
-                this.router.navigate(['/estudio-credito/detalle-estudio', event.row.id]);
+                this.router.navigate(['/app/estudio-credito/detalle-estudio', event.row.id]);
                 break;
             case 'delete':
                 console.log('Eliminar estudio de crédito:', event.row);
@@ -111,6 +111,6 @@ export class CreditStudy implements OnInit {
     }
 
     onAdd(): void {
-        this.router.navigate(['/estudio-credito/detalle-estudio']);
+        this.router.navigate(['/app/estudio-credito/detalle-estudio']);
     }
 }

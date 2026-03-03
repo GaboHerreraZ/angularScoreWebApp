@@ -68,6 +68,6 @@ export class CustomerView {
     }
 
     onBack(): void {
-        this.router.navigate(['/clientes']);
+        this.router.navigate(['/app/clientes']);
     }
 }

@@ -93,7 +93,6 @@ export class CustomerDetail {
         // Effect para cargar datos cuando cambia el customerId
         effect(() => {
             const id = this.customerId();
-            console.log('id', id);
             if (id) {
                 this.loadCustomer(id);
             }
@@ -166,7 +165,7 @@ export class CustomerDetail {
 
                 // Si es creación, navegar al modo edición con el nuevo ID
                 if (!this.customerId() && result.data?.id) {
-                    this.router.navigate(['/clientes/detalle-cliente', result.data.id]);
+                    this.router.navigate(['/app/clientes/detalle-cliente', result.data.id]);
                 }
                 // Si es edición, recargar los datos actualizados
                 else if (this.customerId()) {
@@ -177,7 +176,7 @@ export class CustomerDetail {
     }
 
     onCancel(): void {
-        this.router.navigate(['/clientes']);
+        this.router.navigate(['/app/clientes']);
     }
 
     isInvalid(controlName: string): boolean {
