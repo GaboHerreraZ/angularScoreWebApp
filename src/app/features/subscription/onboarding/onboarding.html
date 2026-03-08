@@ -13,7 +13,7 @@
             </div>
             <p-card>
                 <!-- Stepper -->
-                <p-stepper [value]="activeStep()">
+                <p-stepper [value]="activeStep()" [linear]="true">
                     <p-step-list>
                         <p-step [value]="1">Perfil</p-step>
                         <p-step [value]="2">Empresa</p-step>
@@ -234,56 +234,64 @@
                                 } @else {
 
                                 <div class="mt-4">
-                                    <!-- Plan header -->
-                                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
-                                        <div>
-                                            <h3 class="text-xl font-bold m-0 flex items-center gap-2">
-                                                <i class="pi pi-credit-card text-primary"></i>
-                                                Elige tu plan para comenzar
-                                            </h3>
-                                            <p class="text-muted-color text-sm mt-1 mb-0">Selecciona el plan ideal para tu negocio.</p>
+                                    <!-- Campaign banner -->
+                                    @if (campaign()) {
+                                    <div class="bg-primary/10 border border-primary/30 rounded-xl p-4 mb-6 text-center">
+                                        <div class="flex items-center justify-center gap-2 mb-1">
+                                            <i class="pi pi-tag text-primary"></i>
+                                            <span class="text-primary font-bold">{{ campaign()!.name }}</span>
                                         </div>
+                                        <p class="text-color text-sm m-0 mb-1">{{ campaign()!.description }}</p>
+                                        <span class="text-muted-color text-xs">Válido hasta el {{ formatCampaignEndDate() }}</span>
+                                    </div>
+                                    }
 
-                                        @if (hasAnnualPlans()) {
-                                        <div class="flex items-center gap-2 bg-surface-100 dark:bg-surface-800 rounded-full p-1 cursor-pointer select-none">
-                                            <span
-                                                class="px-4 py-2 rounded-full text-sm font-medium transition-all duration-300"
-                                                [ngClass]="billingCycle() === 'monthly' ? 'bg-primary text-primary-contrast shadow-sm' : 'text-muted-color hover:text-color'"
-                                                (click)="billingCycle.set('monthly')"
-                                            >
-                                                Mensual
-                                            </span>
-                                            <span
-                                                class="px-4 py-2 rounded-full text-sm font-medium transition-all duration-300"
-                                                [ngClass]="billingCycle() === 'annual' ? 'bg-primary text-primary-contrast shadow-sm' : 'text-muted-color hover:text-color'"
-                                                (click)="billingCycle.set('annual')"
-                                            >
-                                                Anual
-                                            </span>
-                                        </div>
-                                        }
+                                    <!-- Plan header -->
+                                    <div class="flex flex-col items-center gap-1 mb-6 text-center">
+                                        <h3 class="text-xl font-bold m-0 flex items-center gap-2">
+                                            <i class="pi pi-credit-card text-primary"></i>
+                                            Elige tu plan para comenzar
+                                        </h3>
+                                        <p class="text-muted-color text-sm mt-1 mb-0">Selecciona el plan ideal para tu negocio. Todos los planes son de facturación anual.</p>
                                     </div>
 
                                     <!-- Plans grid -->
-                                    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-6">
                                         @for (plan of plans(); track plan.id) {
                                         <div
-                                            class="relative flex flex-col rounded-xl border-2 p-6 transition-all duration-300 ease-in-out border-surface hover:border-primary/50 hover:shadow-lg hover:-translate-y-1"
-                                            [ngClass]="{ 'opacity-50 pointer-events-none': processing() && selectedPlanId() !== plan.id }"
+                                            class="relative flex flex-col rounded-xl border-2 p-6 w-full transition-all duration-300 ease-in-out hover:shadow-lg hover:-translate-y-1"
+                                            [ngClass]="{
+                                                'opacity-50 pointer-events-none': processing() && selectedPlanId() !== plan.id,
+                                                'border-primary shadow-lg': highlightedPlanId() === plan.id,
+                                                'border-surface hover:border-primary/50': highlightedPlanId() !== plan.id
+                                            }"
                                         >
+                                            <!-- Recommended badge -->
+                                            @if (highlightedPlanId() === plan.id) {
+                                            <div class="absolute -top-3 left-1/2 -translate-x-1/2">
+                                                <span class="bg-primary text-primary-contrast text-xs font-bold px-4 py-1 rounded-full shadow-sm whitespace-nowrap">Recomendado</span>
+                                            </div>
+                                            }
+
                                             <!-- Plan header -->
-                                            <div class="flex flex-col gap-2 mb-4">
-                                                <h3 class="text-xl font-bold m-0">{{ plan.name }}</h3>
+                                            <div class="flex flex-col gap-2 mb-4 text-center" [class.mt-2]="highlightedPlanId() === plan.id">
+                                                <h3 class="text-2xl font-extrabold m-0">{{ plan.name }}</h3>
                                                 <p class="text-muted-color text-sm m-0">{{ plan.description }}</p>
                                             </div>
 
                                             <!-- Price -->
+                                            @if (campaign() && plan.price > 0) {
+                                            <div class="flex items-center gap-2 mb-1">
+                                                <span class="text-lg text-muted-color line-through">{{ plan.price | number:'1.0-0' }}</span>
+                                                <span class="bg-green-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">-{{ campaign()!.discount }}%</span>
+                                            </div>
+                                            }
                                             <div class="flex items-baseline gap-2">
                                                 @if (plan.price === 0) {
                                                 <span class="text-4xl font-extrabold">Gratis</span>
                                                 } @else {
-                                                <span class="text-4xl font-extrabold">{{ plan.price | number:'1.0-0' }}</span>
-                                                <span class="text-muted-color text-sm">COP / {{ plan.isMonthly ? 'mes' : 'año' }}</span>
+                                                <span class="text-4xl font-extrabold">{{ getDiscountedPrice(plan.price) | number:'1.0-0' }}</span>
+                                                <span class="text-muted-color text-sm">COP / año</span>
                                                 }
                                             </div>
 
@@ -337,12 +345,12 @@
 
                                                 <div class="flex items-center gap-3">
                                                     <i class="pi pi-chart-bar text-primary w-5 text-center"></i>
-                                                    <span class="text-sm">Dashboard <strong>{{ dashboardLevelLabel(plan.dashboardLevel.label) }}</strong></span>
+                                                    <span class="text-sm">Dashboard <strong>{{ dashboardLevelLabel(plan.dashboardLevel?.label) }}</strong></span>
                                                 </div>
 
                                                 <div class="flex items-center gap-3">
                                                     <i class="pi pi-headphones text-primary w-5 text-center"></i>
-                                                    <span class="text-sm">Soporte <strong>{{ supportLevelLabel(plan.supportLevel.label) }}</strong></span>
+                                                    <span class="text-sm">Soporte <strong>{{ supportLevelLabel(plan.supportLevel?.label) }}</strong></span>
                                                 </div>
                                             </div>
 

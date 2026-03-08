@@ -1,12 +1,14 @@
 import { Component } from '@angular/core';
+import { ScrollAnimateDirective } from '@/app/shared/directives/scroll-animate.directive';
 
 @Component({
     standalone: true,
     selector: 'security-widget',
+    imports: [ScrollAnimateDirective],
     template: `
         <section id="security" class="px-6 sm:px-12 lg:px-20 py-16 lg:py-24 bg-surface-0 dark:bg-surface-950">
             <div class="max-w-screen-2xl mx-auto">
-                <div class="text-center mb-16">
+                <div class="text-center mb-16" appScrollAnimate="fade-up">
                     <span class="text-primary font-bold text-sm uppercase tracking-widest">Seguridad</span>
                     <h2 class="font-extrabold text-3xl sm:text-4xl lg:text-5xl mt-3 mb-4 text-color">Tu información financiera está protegida</h2>
                     <p class="text-lg text-muted-color max-w-2xl mx-auto">Cumplimos con los más altos estándares de seguridad y regulaciones colombianas para la protección de datos</p>
@@ -14,7 +16,7 @@ import { Component } from '@angular/core';
 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                     <!-- Encryption -->
-                    <div class="text-center group">
+                    <div class="text-center group" appScrollAnimate="scale-in">
                         <div class="w-20 h-20 rounded-2xl bg-green-500/10 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
                             <i class="pi pi-lock text-green-500 text-3xl"></i>
                         </div>
@@ -23,7 +25,7 @@ import { Component } from '@angular/core';
                     </div>
 
                     <!-- Cloud Security -->
-                    <div class="text-center group">
+                    <div class="text-center group" appScrollAnimate="scale-in" [animateDelay]="100">
                         <div class="w-20 h-20 rounded-2xl bg-blue-500/10 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
                             <i class="pi pi-cloud text-blue-500 text-3xl"></i>
                         </div>
@@ -32,7 +34,7 @@ import { Component } from '@angular/core';
                     </div>
 
                     <!-- Habeas Data -->
-                    <div class="text-center group">
+                    <div class="text-center group" appScrollAnimate="scale-in" [animateDelay]="200">
                         <div class="w-20 h-20 rounded-2xl bg-purple-500/10 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
                             <i class="pi pi-verified text-purple-500 text-3xl"></i>
                         </div>
@@ -41,7 +43,7 @@ import { Component } from '@angular/core';
                     </div>
 
                     <!-- Role-based Access -->
-                    <div class="text-center group">
+                    <div class="text-center group" appScrollAnimate="scale-in" [animateDelay]="300">
                         <div class="w-20 h-20 rounded-2xl bg-orange-500/10 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
                             <i class="pi pi-shield text-orange-500 text-3xl"></i>
                         </div>

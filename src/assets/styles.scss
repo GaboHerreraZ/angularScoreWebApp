@@ -2,3 +2,42 @@
 @use 'primeicons/primeicons.css';
 @use './layout/layout.scss';
 @use './demo/demo.scss';
+
+/* Scroll animations */
+.scroll-animate {
+    opacity: 0;
+    transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+}
+
+.scroll-fade-up {
+    transform: translateY(40px);
+}
+
+.scroll-fade-in {
+    transform: none;
+}
+
+.scroll-fade-left {
+    transform: translateX(-40px);
+}
+
+.scroll-fade-right {
+    transform: translateX(40px);
+}
+
+.scroll-scale-in {
+    transform: scale(0.9);
+}
+
+.scroll-animate.scroll-animated {
+    opacity: 1;
+    transform: translateY(0) translateX(0) scale(1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .scroll-animate {
+        opacity: 1;
+        transform: none;
+        transition: none;
+    }
+}

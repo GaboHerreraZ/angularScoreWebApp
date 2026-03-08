@@ -27,7 +27,7 @@ import { CompanyService } from '@/app/features/administration/components/company
 import { SubscriptionService } from '../subscription.service';
 import { WompiService } from '../wompi.service';
 import { Parameter } from '@/app/types/parameter';
-import { PlanItem } from '@/app/types/subscription';
+import { PlanItem, PublicPlansResponse } from '@/app/types/subscription';
 
 @Component({
     selector: 'app-onboarding',
@@ -72,7 +72,6 @@ export class Onboarding {
     savingCompany = signal(false);
     processing = signal(false);
     selectedPlanId = signal<string | null>(null);
-    billingCycle = signal<'monthly' | 'annual'>('monthly');
 
     rolesResource = resource<Parameter[], {}>({
         params: () => ({}),
@@ -89,20 +88,18 @@ export class Onboarding {
         loader: () => firstValueFrom(this.parameterService.getByType('sector'))
     });
 
-    plansResource = resource<PlanItem[], {}>({
+    plansResource = resource<PublicPlansResponse, {}>({
         params: () => ({}),
         loader: () => firstValueFrom(this.subscriptionService.getPublicPlans())
     });
 
-    plans = computed(() => {
-        const all = this.plansResource.value() ?? [];
-        const isMonthly = this.billingCycle() === 'monthly';
-        return all.filter(p => p.isMonthly === isMonthly);
-    });
+    campaign = computed(() => this.plansResource.value()?.campaign ?? null);
 
-    hasAnnualPlans = computed(() => {
-        const all = this.plansResource.value() ?? [];
-        return all.some(p => !p.isMonthly);
+    plans = computed(() => this.plansResource.value()?.data ?? []);
+
+    highlightedPlanId = computed(() => {
+        const all = this.plans();
+        return all.length >= 2 ? all[1].id : all[0]?.id ?? null;
     });
 
     profileForm = new FormGroup({
@@ -289,7 +286,20 @@ export class Onboarding {
         }
     }
 
-    supportLevelLabel(level: string): string {
+    getDiscountedPrice(price: number): number {
+        const campaign = this.campaign();
+        if (!campaign || price === 0) return price;
+        return Math.round(price * (1 - campaign.discount / 100));
+    }
+
+    formatCampaignEndDate(): string {
+        const campaign = this.campaign();
+        if (!campaign) return '';
+        return new Date(campaign.endDate).toLocaleDateString('es-CO', { day: 'numeric', month: 'long', year: 'numeric' });
+    }
+
+    supportLevelLabel(level: string | undefined): string {
+        if (!level) return '';
         const labels: Record<string, string> = {
             email: 'Correo electrónico',
             priority_email: 'Prioritario',
@@ -298,7 +308,8 @@ export class Onboarding {
         return labels[level] ?? level;
     }
 
-    dashboardLevelLabel(level: string): string {
+    dashboardLevelLabel(level: string | undefined): string {
+        if (!level) return '';
         const labels: Record<string, string> = {
             basic: 'Básico',
             advanced: 'Avanzado',

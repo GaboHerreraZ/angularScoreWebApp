@@ -2,16 +2,17 @@ import { Component } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { RouterModule } from '@angular/router';
 import { Ripple } from 'primeng/ripple';
+import { ScrollAnimateDirective } from '@/app/shared/directives/scroll-animate.directive';
 
 @Component({
     standalone: true,
     selector: 'hero-widget',
-    imports: [ButtonModule, RouterModule, Ripple],
+    imports: [ButtonModule, RouterModule, Ripple, ScrollAnimateDirective],
     template: `
         <section class="relative overflow-hidden bg-linear-to-br from-primary/5 via-surface-0 to-surface-0 dark:from-primary/10 dark:via-surface-950 dark:to-surface-950">
             <div class="flex flex-col lg:flex-row gap-12 items-center justify-between px-6 sm:px-12 lg:px-20 py-16 lg:py-24 max-w-screen-2xl mx-auto">
                 <!-- Text content -->
-                <div class="flex-1 animate-fadein animate-duration-1000">
+                <div class="flex-1" appScrollAnimate="fade-up">
                     <div class="inline-flex items-center gap-2 bg-primary/10 text-primary rounded-full px-4 py-2 text-sm font-semibold mb-6">
                         <i class="pi pi-sparkles"></i>
                         <span>Plataforma de análisis crediticio</span>
@@ -62,7 +63,7 @@ import { Ripple } from 'primeng/ripple';
                 </div>
 
                 <!-- Dashboard illustration -->
-                <div class="flex-1 animate-fadeinright animate-ease-in-out animate-duration-1000 w-full max-w-xl">
+                <div class="flex-1 w-full max-w-xl" appScrollAnimate="fade-right" [animateDelay]="200">
                     <div class="bg-surface-0 dark:bg-surface-900 rounded-2xl shadow-2xl p-6 border border-surface">
                         <!-- Mock header -->
                         <div class="flex items-center justify-between mb-6">

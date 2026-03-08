@@ -55,15 +55,34 @@ export interface PlanItem {
     maxCompanies: number;
     maxCustomers: number | null;
     maxStudiesPerMonth: number | null;
-    dashboardLevel: Parameter
+    dashboardLevel?: Parameter;
+    dashboardLevelId?: number;
     excelReports: boolean;
     emailNotifications: boolean;
     themeCustomization: boolean;
-    supportLevel:Parameter
+    supportLevel?: Parameter;
+    supportLevelId?: number;
     isActive: boolean;
     isCurrent?: boolean;
     createdAt: string;
     updatedAt: string;
+}
+
+export interface Campaign {
+    id: string;
+    name: string;
+    description: string;
+    discount: number;
+    startDate: string;
+    endDate: string;
+    isActive: boolean;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export interface PublicPlansResponse {
+    data: PlanItem[];
+    campaign: Campaign | null;
 }
 
 export interface AvailablePlans {

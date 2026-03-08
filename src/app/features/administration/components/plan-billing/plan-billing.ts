@@ -1,4 +1,4 @@
-import { Component, computed, inject, resource, signal } from '@angular/core';
+import { Component, computed, inject, resource } from '@angular/core';
 import { DecimalPipe, NgClass } from '@angular/common';
 import { firstValueFrom } from 'rxjs';
 import { CardModule } from 'primeng/card';
@@ -33,40 +33,31 @@ export class PlanBilling {
         return profile?.userCompanies?.[0]?.companyId ?? null;
     });
 
-    billingCycle = signal<'monthly' | 'annual'>('monthly');
-
     plansResource = resource<AvailablePlans, string>({
         params: () => this.companyId() as string,
         loader: ({ params: companyId }) => firstValueFrom(this.companyService.getAvailablePlans(companyId))
     });
 
-    plans = computed(() => {
-        const all = this.plansResource.value()?.plans ?? [];
-        const isMonthly = this.billingCycle() === 'monthly';
-        return all.filter(p => p.isMonthly === isMonthly);
-    });
+    plans = computed(() => this.plansResource.value()?.plans ?? []);
 
-    hasAnnualPlans = computed(() => {
-        const all = this.plansResource.value()?.plans ?? [];
-        return all.some(p => !p.isMonthly);
-    });
-
-    supportLevelLabel(level: string): string {
-        const labels: Record<string, string> = {
-            email: 'Correo electrónico',
-            priority_email: 'Prioritario',
-            dedicated: 'Dedicado'
+    supportLevelLabel(levelId: number | undefined): string {
+        if (levelId == null) return '';
+        const labels: Record<number, string> = {
+            18: 'Correo electrónico',
+            19: 'Prioritario',
+            20: 'Dedicado'
         };
-        return labels[level] ?? level;
+        return labels[levelId] ?? `Nivel ${levelId}`;
     }
 
-    dashboardLevelLabel(level: string): string {
-        const labels: Record<string, string> = {
-            basic: 'Básico',
-            advanced: 'Avanzado',
-            full: 'Completo'
+    dashboardLevelLabel(levelId: number | undefined): string {
+        if (levelId == null) return '';
+        const labels: Record<number, string> = {
+            16: 'Básico',
+            17: 'Avanzado',
+            18: 'Completo'
         };
-        return labels[level] ?? level;
+        return labels[levelId] ?? `Nivel ${levelId}`;
     }
 
     onUpgrade(plan: PlanItem): void {

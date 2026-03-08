@@ -1,11 +1,13 @@
 import { Component } from '@angular/core';
+import { ScrollAnimateDirective } from '@/app/shared/directives/scroll-animate.directive';
 
 @Component({
     standalone: true,
     selector: 'stats-widget',
+    imports: [ScrollAnimateDirective],
     template: `
         <section id="how-it-works" class="px-6 sm:px-12 lg:px-20 py-16 lg:py-24 bg-surface-50 dark:bg-surface-900 max-w-screen-2xl mx-auto">
-            <div class="text-center mb-16">
+            <div class="text-center mb-16" appScrollAnimate="fade-up">
                 <span class="text-primary font-bold text-sm uppercase tracking-widest">Proceso simple</span>
                 <h2 class="font-extrabold text-3xl sm:text-4xl lg:text-5xl mt-3 mb-4 text-color">¿Cómo funciona?</h2>
                 <p class="text-lg text-muted-color max-w-2xl mx-auto">De los datos financieros a una decisión crediticia en cuatro simples pasos</p>
@@ -16,7 +18,7 @@ import { Component } from '@angular/core';
                 <div class="hidden lg:block absolute top-16 left-[12.5%] right-[12.5%] h-0.5 bg-linear-to-r from-primary/20 via-primary/40 to-primary/20"></div>
 
                 <!-- Step 1 -->
-                <div class="flex flex-col items-center text-center group">
+                <div class="flex flex-col items-center text-center group" appScrollAnimate="fade-up">
                     <div class="relative z-10 w-16 h-16 rounded-2xl bg-linear-to-br from-blue-500 to-blue-600 flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300">
                         <i class="pi pi-user-plus text-white text-2xl"></i>
                         <span class="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-surface-0 dark:bg-surface-900 border-2 border-blue-500 text-blue-500 text-xs font-bold flex items-center justify-center">1</span>
@@ -26,7 +28,7 @@ import { Component } from '@angular/core';
                 </div>
 
                 <!-- Step 2 -->
-                <div class="flex flex-col items-center text-center group">
+                <div class="flex flex-col items-center text-center group" appScrollAnimate="fade-up" [animateDelay]="100">
                     <div class="relative z-10 w-16 h-16 rounded-2xl bg-linear-to-br from-purple-500 to-purple-600 flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300">
                         <i class="pi pi-file-edit text-white text-2xl"></i>
                         <span class="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-surface-0 dark:bg-surface-900 border-2 border-purple-500 text-purple-500 text-xs font-bold flex items-center justify-center">2</span>
@@ -36,7 +38,7 @@ import { Component } from '@angular/core';
                 </div>
 
                 <!-- Step 3 -->
-                <div class="flex flex-col items-center text-center group">
+                <div class="flex flex-col items-center text-center group" appScrollAnimate="fade-up" [animateDelay]="200">
                     <div class="relative z-10 w-16 h-16 rounded-2xl bg-linear-to-br from-orange-500 to-orange-600 flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300">
                         <i class="pi pi-chart-bar text-white text-2xl"></i>
                         <span class="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-surface-0 dark:bg-surface-900 border-2 border-orange-500 text-orange-500 text-xs font-bold flex items-center justify-center">3</span>
@@ -46,7 +48,7 @@ import { Component } from '@angular/core';
                 </div>
 
                 <!-- Step 4 -->
-                <div class="flex flex-col items-center text-center group">
+                <div class="flex flex-col items-center text-center group" appScrollAnimate="fade-up" [animateDelay]="300">
                     <div class="relative z-10 w-16 h-16 rounded-2xl bg-linear-to-br from-green-500 to-green-600 flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300">
                         <i class="pi pi-verified text-white text-2xl"></i>
                         <span class="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-surface-0 dark:bg-surface-900 border-2 border-green-500 text-green-500 text-xs font-bold flex items-center justify-center">4</span>

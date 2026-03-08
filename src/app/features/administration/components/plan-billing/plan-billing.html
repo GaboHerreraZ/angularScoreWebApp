@@ -4,7 +4,6 @@
     <div class="flex flex-col gap-4">
         <div class="flex items-center justify-between">
             <p-skeleton width="14rem" height="1.75rem" />
-            <p-skeleton width="12rem" height="2.5rem" borderRadius="2rem" />
         </div>
         <p-skeleton width="22rem" height="1rem" />
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-2">
@@ -40,25 +39,6 @@
             <p class="text-muted-color text-sm mt-1 mb-0">Selecciona el plan que mejor se adapte a las necesidades de tu empresa.</p>
         </div>
 
-        <!-- Billing toggle -->
-        @if (hasAnnualPlans()) {
-        <div class="flex items-center gap-2 bg-surface-100 dark:bg-surface-800 rounded-full p-1 cursor-pointer select-none">
-            <span
-                class="px-4 py-2 rounded-full text-sm font-medium transition-all duration-300"
-                [ngClass]="billingCycle() === 'monthly' ? 'bg-primary text-primary-contrast shadow-sm' : 'text-muted-color hover:text-color'"
-                (click)="billingCycle.set('monthly')"
-            >
-                Mensual
-            </span>
-            <span
-                class="px-4 py-2 rounded-full text-sm font-medium transition-all duration-300"
-                [ngClass]="billingCycle() === 'annual' ? 'bg-primary text-primary-contrast shadow-sm' : 'text-muted-color hover:text-color'"
-                (click)="billingCycle.set('annual')"
-            >
-                Anual
-            </span>
-        </div>
-        }
     </div>
 
     <!-- Plans grid -->
@@ -87,7 +67,7 @@
             <!-- Price -->
             <div class="flex items-baseline gap-2">
                 <span class="text-4xl font-extrabold">{{ plan.price | number:'1.0-0' }}</span>
-                <span class="text-muted-color text-sm">COP / {{ plan.isMonthly ? 'mes' : 'año' }}</span>
+                <span class="text-muted-color text-sm">COP / año</span>
             </div>
 
             <p-divider />
@@ -140,12 +120,12 @@
 
                 <div class="flex items-center gap-3">
                     <i class="pi pi-chart-bar text-primary w-5 text-center"></i>
-                    <span class="text-sm">Dashboard <strong>{{ dashboardLevelLabel(plan.dashboardLevel.label) }}</strong></span>
+                    <span class="text-sm">Dashboard <strong>{{ dashboardLevelLabel(plan.dashboardLevelId) }}</strong></span>
                 </div>
 
                 <div class="flex items-center gap-3">
                     <i class="pi pi-headphones text-primary w-5 text-center"></i>
-                    <span class="text-sm">Soporte <strong>{{ supportLevelLabel(plan.supportLevel.label) }}</strong></span>
+                    <span class="text-sm">Soporte <strong>{{ supportLevelLabel(plan.supportLevelId) }}</strong></span>
                 </div>
             </div>
 

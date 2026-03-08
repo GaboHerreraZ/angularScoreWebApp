@@ -1,20 +1,21 @@
 import { Component } from '@angular/core';
 import { AccordionModule } from 'primeng/accordion';
+import { ScrollAnimateDirective } from '@/app/shared/directives/scroll-animate.directive';
 
 @Component({
     standalone: true,
     selector: 'faq-widget',
-    imports: [AccordionModule],
+    imports: [AccordionModule, ScrollAnimateDirective],
     template: `
         <section id="faq" class="px-6 sm:px-12 lg:px-20 py-16 lg:py-24 bg-surface-0 dark:bg-surface-950">
             <div class="max-w-3xl mx-auto">
-                <div class="text-center mb-16">
+                <div class="text-center mb-16" appScrollAnimate="fade-up">
                     <span class="text-primary font-bold text-sm uppercase tracking-widest">FAQ</span>
                     <h2 class="font-extrabold text-3xl sm:text-4xl lg:text-5xl mt-3 mb-4 text-color">Preguntas frecuentes</h2>
                     <p class="text-lg text-muted-color max-w-2xl mx-auto">Resuelve tus dudas sobre la plataforma</p>
                 </div>
 
-                <p-accordion [multiple]="true" expandIcon="pi pi-plus" collapseIcon="pi pi-minus">
+                <p-accordion appScrollAnimate="fade-up" [animateDelay]="100" [multiple]="true" expandIcon="pi pi-plus" collapseIcon="pi pi-minus">
                     <p-accordion-panel value="0">
                         <p-accordion-header>¿Qué es Verona y para quién está diseñado?</p-accordion-header>
                         <p-accordion-content>

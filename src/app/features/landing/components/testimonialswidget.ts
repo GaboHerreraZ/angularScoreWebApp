@@ -1,12 +1,14 @@
 import { Component } from '@angular/core';
+import { ScrollAnimateDirective } from '@/app/shared/directives/scroll-animate.directive';
 
 @Component({
     standalone: true,
     selector: 'testimonials-widget',
+    imports: [ScrollAnimateDirective],
     template: `
         <section id="testimonials" class="px-6 sm:px-12 lg:px-20 py-16 lg:py-24 bg-surface-50 dark:bg-surface-900">
             <div class="max-w-screen-2xl mx-auto">
-                <div class="text-center mb-16">
+                <div class="text-center mb-16" appScrollAnimate="fade-up">
                     <span class="text-primary font-bold text-sm uppercase tracking-widest">Testimonios</span>
                     <h2 class="font-extrabold text-3xl sm:text-4xl lg:text-5xl mt-3 mb-4 text-color">Lo que dicen nuestros clientes</h2>
                     <p class="text-lg text-muted-color max-w-2xl mx-auto">Empresas en Colombia ya confían en Verona para sus decisiones crediticias</p>
@@ -14,7 +16,7 @@ import { Component } from '@angular/core';
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                     <!-- Testimonial 1 -->
-                    <article class="bg-surface-0 dark:bg-surface-950 rounded-2xl p-8 border border-surface hover:shadow-lg transition-all duration-300">
+                    <article appScrollAnimate="fade-up" class="bg-surface-0 dark:bg-surface-950 rounded-2xl p-8 border border-surface hover:shadow-lg transition-all duration-300">
                         <div class="flex items-center gap-1 mb-4">
                             @for (star of [1,2,3,4,5]; track star) {
                             <i class="pi pi-star-fill text-yellow-500 text-sm"></i>
@@ -33,7 +35,7 @@ import { Component } from '@angular/core';
                     </article>
 
                     <!-- Testimonial 2 -->
-                    <article class="bg-surface-0 dark:bg-surface-950 rounded-2xl p-8 border border-surface hover:shadow-lg transition-all duration-300">
+                    <article appScrollAnimate="fade-up" [animateDelay]="100" class="bg-surface-0 dark:bg-surface-950 rounded-2xl p-8 border border-surface hover:shadow-lg transition-all duration-300">
                         <div class="flex items-center gap-1 mb-4">
                             @for (star of [1,2,3,4,5]; track star) {
                             <i class="pi pi-star-fill text-yellow-500 text-sm"></i>
@@ -52,7 +54,7 @@ import { Component } from '@angular/core';
                     </article>
 
                     <!-- Testimonial 3 -->
-                    <article class="bg-surface-0 dark:bg-surface-950 rounded-2xl p-8 border border-surface hover:shadow-lg transition-all duration-300">
+                    <article appScrollAnimate="fade-up" [animateDelay]="200" class="bg-surface-0 dark:bg-surface-950 rounded-2xl p-8 border border-surface hover:shadow-lg transition-all duration-300">
                         <div class="flex items-center gap-1 mb-4">
                             @for (star of [1,2,3,4,5]; track star) {
                             <i class="pi pi-star-fill text-yellow-500 text-sm"></i>

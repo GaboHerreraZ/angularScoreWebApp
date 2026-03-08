@@ -1,14 +1,14 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from '@/app/core/services/api.service';
-import { PlanItem, CreateTransactionRequest, CompanySubscription } from '@/app/types/subscription';
+import { PublicPlansResponse, CreateTransactionRequest, CompanySubscription } from '@/app/types/subscription';
 
 @Injectable({ providedIn: 'root' })
 export class SubscriptionService {
     constructor(private api: ApiService) {}
 
-    getPublicPlans(): Observable<PlanItem[]> {
-        return this.api.get<PlanItem[]>('subscriptions');
+    getPublicPlans(): Observable<PublicPlansResponse> {
+        return this.api.get<PublicPlansResponse>('subscriptions');
     }
 
     createTransaction(companyId: string, request: CreateTransactionRequest): Observable<CompanySubscription> {
