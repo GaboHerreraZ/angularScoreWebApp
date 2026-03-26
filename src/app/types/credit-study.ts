@@ -1,3 +1,36 @@
+export interface ViabilityAlert {
+    type: 'success' | 'warning' | 'danger' | 'info';
+    message: string;
+    dimension: string;
+}
+
+export interface ViabilityDimension {
+    label: string;
+    score: number;
+    maxScore: number;
+    status: string;
+    ratio?: number;
+    marginPercent?: number;
+    realTerm?: number;
+    requestedTerm?: number;
+}
+
+export interface ViabilitySummary {
+    status: string;
+    totalScore: number;
+    maxScore: number;
+    recommendedTerm: number;
+    recommendedCreditLine: number;
+    monthlyPaymentCapacity: number;
+    annualPaymentCapacity: number;
+}
+
+export interface ViabilityConditions {
+    alerts: ViabilityAlert[];
+    summary: ViabilitySummary;
+    dimensions: Record<string, ViabilityDimension>;
+}
+
 export interface CreateCreditStudy {
     id: string;
     requestedTerm?: number;
@@ -48,6 +81,11 @@ export interface CreateCreditStudy {
     suppliersTurnover?: number;
     maximumPaymentTime?: number;
     averagePaymentTime?: number;
+    recommendedTerm?: number;
+    recommendedCreditLine?: number;
+    viabilityScore?: number;
+    viabilityStatus?: string;
+    viabilityConditions?: ViabilityConditions;
 
     createdBy: string;
     updatedBy: string;

@@ -1,0 +1,168 @@
+<div class="flex flex-col gap-6">
+    <!-- Banner de estado principal -->
+    <div class="rounded-xl border p-6 flex flex-col items-center gap-3" [ngClass]="[statusConfig().bg, statusConfig().border]">
+        <div class="w-14 h-14 rounded-full flex items-center justify-center text-white text-2xl" [ngClass]="statusConfig().iconBg">
+            <i [ngClass]="statusConfig().icon"></i>
+        </div>
+        <h3 class="text-xl font-bold m-0" [ngClass]="statusConfig().titleColor">{{ statusConfig().title }}</h3>
+        <p class="text-sm text-muted-color m-0 text-center max-w-lg">{{ statusConfig().description }}</p>
+
+        <!-- Metricas principales -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 w-full mt-4 pt-4 border-t" [ngClass]="statusConfig().border">
+            <div class="flex flex-col items-center gap-1">
+                <span class="text-xs font-bold text-muted-color">Cupo Solicitado</span>
+                <span class="font-semibold text-base">{{ study().requestedMonthlyCreditLine | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</span>
+            </div>
+            <div class="flex flex-col items-center gap-1">
+                <span class="text-xs font-bold text-muted-color">Cupo Recomendado</span>
+                <span class="font-semibold text-base">{{ (summary()?.recommendedCreditLine ?? study().recommendedCreditLine) | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</span>
+            </div>
+            <div class="flex flex-col items-center gap-1">
+                <span class="text-xs font-bold text-muted-color">Capacidad Pago Mensual</span>
+                <span class="font-semibold text-base">{{ (summary()?.monthlyPaymentCapacity ?? study().monthlyPaymentCapacity) | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</span>
+            </div>
+            <div class="flex flex-col items-center gap-1">
+                <span class="text-xs font-bold text-muted-color">Plazo Recomendado</span>
+                <span class="font-semibold text-base">{{ summary()?.recommendedTerm ?? study().recommendedTerm }} dias</span>
+            </div>
+            <div class="flex flex-col items-center gap-1">
+                <span class="text-xs font-bold text-muted-color">Score</span>
+                <span class="font-bold text-base" [ngClass]="statusConfig().titleColor">{{ scorePercentage() }} / {{ maxScore() }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dimensiones de viabilidad -->
+    @if (dimensions().length) {
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        @for (dim of dimensions(); track dim.key) {
+        <p-card>
+            <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-1.5">
+                    <h6 class="font-bold text-sm m-0">{{ dim.label }}</h6>
+                    @if (dimensionTooltips[dim.key]) {
+                    <i class="pi pi-question-circle text-xs text-muted-color cursor-help"
+                       [pTooltip]="dimensionTooltips[dim.key]"
+                       tooltipPosition="top"
+                       [tooltipOptions]="{ showDelay: 150, hideDelay: 100 }"></i>
+                    }
+                </div>
+                <span class="text-xs font-semibold px-2.5 py-1 rounded-full" [ngClass]="[getDimensionStatusConfig(dim).bg, getDimensionStatusConfig(dim).color]">
+                    {{ getDimensionStatusConfig(dim).label }}
+                </span>
+            </div>
+            <div class="flex items-center gap-3 mb-2">
+                <div class="flex-1 h-2.5 rounded-full bg-surface-200 overflow-hidden">
+                    <div class="h-full rounded-full transition-all duration-500" [ngClass]="getDimensionBarColor(dim)" [style.width.%]="getDimensionBarWidth(dim)"></div>
+                </div>
+                <span class="text-sm font-semibold text-muted-color whitespace-nowrap">{{ dim.score }} / {{ dim.maxScore }}</span>
+            </div>
+            @if (dim.key === 'termCoherence' && dim.realTerm != null) {
+            <div class="text-xs text-muted-color mt-1">
+                Plazo solicitado: <span class="font-semibold">{{ dim.requestedTerm }} dias</span> &middot; Plazo real: <span class="font-semibold">{{ dim.realTerm }} dias</span>
+            </div>
+            }
+            @if (dim.key === 'paymentCapacity' && dim.marginPercent != null) {
+            <div class="text-xs text-muted-color mt-1">
+                Margen de cobertura: <span class="font-semibold">{{ dim.marginPercent }}%</span>
+            </div>
+            }
+            @if (dim.key === 'creditLineAdequacy' && dim.ratio != null) {
+            <div class="text-xs text-muted-color mt-1">
+                Ratio solicitado/recomendado: <span class="font-semibold">{{ dim.ratio | number:'1.1-1' }}%</span>
+            </div>
+            }
+        </p-card>
+        }
+    </div>
+    }
+
+    <!-- Score crediticio + Alertas -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Score Crediticio -->
+        <p-card>
+            <h6 class="font-bold text-base mb-4 m-0">Score Crediticio</h6>
+            <div class="text-center mb-2">
+                <span class="text-4xl font-bold" [ngClass]="statusConfig().titleColor">{{ scorePercentage() }}</span>
+                <span class="text-muted-color text-lg"> / {{ maxScore() }}</span>
+            </div>
+            <div class="h-3 rounded-md bg-surface-200 overflow-hidden my-3">
+                <div class="h-full rounded-md transition-all duration-500" [style.width.%]="(scorePercentage() / maxScore()) * 100" style="background: linear-gradient(90deg, #ef4444 0%, #f59e0b 40%, #22c55e 70%, #16a34a 100%)"></div>
+            </div>
+            <div class="flex justify-between text-xs text-muted-color mt-1">
+                <span>Alto Riesgo</span>
+                <span>Bajo Riesgo</span>
+            </div>
+        </p-card>
+
+        <!-- Alertas y Recomendaciones -->
+        <p-card>
+            <h6 class="font-bold text-base mb-4 m-0">Alertas y Recomendaciones</h6>
+            @if (alerts().length) {
+            <div class="flex flex-col gap-2">
+                @for (alert of alerts(); track $index) {
+                <div class="flex items-start gap-2.5 p-3 rounded-lg" [ngClass]="{
+                    'bg-green-50 dark:bg-green-900/20': alert.type === 'success',
+                    'bg-amber-50 dark:bg-amber-900/20': alert.type === 'warning',
+                    'bg-red-50 dark:bg-red-900/20': alert.type === 'danger',
+                    'bg-blue-50 dark:bg-blue-900/20': alert.type === 'info'
+                }">
+                    <i [ngClass]="alertIconMap[alert.type]" class="text-sm mt-0.5" [ngClass]="{
+                        'text-green-600 dark:text-green-400': alert.type === 'success',
+                        'text-amber-600 dark:text-amber-400': alert.type === 'warning',
+                        'text-red-600 dark:text-red-400': alert.type === 'danger',
+                        'text-blue-600 dark:text-blue-400': alert.type === 'info'
+                    }"></i>
+                    <span class="text-sm">{{ alert.message }}</span>
+                </div>
+                }
+            </div>
+            } @else {
+            <p class="text-sm text-muted-color">No hay alertas disponibles.</p>
+            }
+        </p-card>
+    </div>
+
+    <!-- Resumen del Cupo -->
+    <p-card>
+        <h6 class="font-bold text-base mb-4 m-0">Resumen del Cupo</h6>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="flex flex-col gap-3">
+                <div class="flex justify-between items-center py-2 border-b border-surface-200">
+                    <span class="text-sm text-muted-color">Cliente:</span>
+                    <span class="text-sm font-semibold">{{ customer()?.businessName ?? '-' }}</span>
+                </div>
+                <div class="flex justify-between items-center py-2 border-b border-surface-200">
+                    <span class="text-sm text-muted-color">NIT:</span>
+                    <span class="text-sm font-semibold">{{ customer()?.identificationNumber ?? companyInfo()?.nit ?? '-' }}</span>
+                </div>
+                <div class="flex justify-between items-center py-2 border-b border-surface-200">
+                    <span class="text-sm text-muted-color">Ciudad:</span>
+                    <span class="text-sm font-semibold">{{ customer()?.city ?? companyInfo()?.city ?? '-' }}</span>
+                </div>
+                <div class="flex justify-between items-center py-2">
+                    <span class="text-sm text-muted-color">Cupo Solicitado:</span>
+                    <span class="text-sm font-semibold">{{ study().requestedMonthlyCreditLine | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</span>
+                </div>
+            </div>
+            <div class="flex flex-col gap-3">
+                <div class="flex justify-between items-center py-2 border-b border-surface-200">
+                    <span class="text-sm text-muted-color">Fecha del Estudio:</span>
+                    <span class="text-sm font-semibold">{{ study().studyDate | date:'d \'de\' MMMM \'de\' yyyy':'':'es-CO' }}</span>
+                </div>
+                <div class="flex justify-between items-center py-2 border-b border-surface-200">
+                    <span class="text-sm text-muted-color">Fecha de Resolucion:</span>
+                    <span class="text-sm font-semibold">{{ study().resolutionDate | date:'d \'de\' MMMM \'de\' yyyy':'':'es-CO' }}</span>
+                </div>
+                <div class="flex justify-between items-center py-2 border-b border-surface-200">
+                    <span class="text-sm text-muted-color">Plazo Solicitado:</span>
+                    <span class="text-sm font-semibold">{{ study().requestedTerm }} dias</span>
+                </div>
+                <div class="flex justify-between items-center py-2">
+                    <span class="text-sm text-muted-color">Estado:</span>
+                    <span class="text-xs font-semibold px-2.5 py-1 rounded-full" [ngClass]="[statusConfig().bg, statusConfig().titleColor]">{{ statusConfig().title }}</span>
+                </div>
+            </div>
+        </div>
+    </p-card>
+</div>

@@ -1,5 +1,5 @@
 import { Component, DestroyRef, effect, inject, signal, computed } from '@angular/core';
-import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
+import { CommonModule, CurrencyPipe } from '@angular/common';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
@@ -23,6 +23,7 @@ import { ConfirmationService } from 'primeng/api';
 import { CreditStudyService } from '../credit-study.service';
 import { CreateCreditStudy } from '@/app/types/credit-study';
 import { NotificationService } from '@/app/shared/components/notification/notification.service';
+import { StudyResult } from './study-result/study-result';
 import { AutoCompleteComponent } from '@/app/shared/components/auto-complete/auto-complete';
 import { AutoCompleteOption } from '@/app/shared/components/auto-complete/auto-complete.service';
 import { ParameterService } from '@/app/core/services/parameter.service';
@@ -34,7 +35,6 @@ import { AuthService } from '@/app/core/services/auth.service';
     imports: [
         CommonModule,
         CurrencyPipe,
-        DatePipe,
         ReactiveFormsModule,
         ButtonModule,
         InputTextModule,
@@ -50,7 +50,8 @@ import { AuthService } from '@/app/core/services/auth.service';
         SelectModule,
         SkeletonModule,
         ConfirmDialogModule,
-        AutoCompleteComponent
+        AutoCompleteComponent,
+        StudyResult
     ],
     providers: [ConfirmationService],
     templateUrl: './credit-study-detail.html'
@@ -96,49 +97,6 @@ export class CreditStudyDetail  {
     performingStudy = signal(false);
     studyCompleted = signal(false);
     studyResult = signal<CreateCreditStudy | null>(null);
-
-    scoreStatus = computed(() => {
-        const factor = this.studyResult()?.stabilityFactor ?? 0;
-        if (factor >= 0.66) {
-            return {
-                bg: 'bg-green-50',
-                border: 'border-green-200',
-                iconBg: 'bg-green-500',
-                icon: 'pi pi-check-circle',
-                titleColor: 'text-green-700',
-                title: 'Cupo Aprobado',
-                description: 'El análisis crediticio indica que el cliente es apto para el cupo solicitado.',
-                riskLabel: 'Bajo Riesgo',
-                interpretation: 'Riesgo bajo. El cliente presenta excelentes indicadores financieros con amplia capacidad de pago para el monto solicitado.'
-            };
-        } else if (factor >= 0.33) {
-            return {
-                bg: 'bg-blue-50',
-                border: 'border-blue-200',
-                iconBg: 'bg-blue-500',
-                icon: 'pi pi-info-circle',
-                titleColor: 'text-blue-700',
-                title: 'Cupo Aprobado con Condiciones',
-                description: 'El análisis crediticio indica que el cliente es apto para el cupo, sujeto a condiciones adicionales.',
-                riskLabel: 'Riesgo Moderado',
-                interpretation: 'Riesgo moderado. El cliente presenta indicadores financieros aceptables con capacidad de pago adecuada, pero se recomienda monitoreo periódico.'
-            };
-        } else {
-            return {
-                bg: 'bg-red-50',
-                border: 'border-red-200',
-                iconBg: 'bg-red-500',
-                icon: 'pi pi-times-circle',
-                titleColor: 'text-red-700',
-                title: 'Cupo No Aprobado',
-                description: 'El análisis crediticio indica que el cliente no cumple con los requisitos mínimos para el cupo solicitado.',
-                riskLabel: 'Alto Riesgo',
-                interpretation: 'Riesgo alto. El cliente presenta indicadores financieros insuficientes y no cuenta con la capacidad de pago necesaria para el monto solicitado.'
-            };
-        }
-    });
-
-    scorePercentage = computed(() => Math.round((this.studyResult()?.stabilityFactor ?? 0) * 100));
 
     studyCustomer = computed(() => (this.studyResult() as any)?.customer as { businessName?: string; identificationNumber?: string; city?: string } | undefined);
 
@@ -304,7 +262,7 @@ export class CreditStudyDetail  {
 
                 this.formValuesSignal.set(this.step2Form.getRawValue());
 
-                if (creditStudy.stabilityFactor != null) {
+                if (creditStudy.viabilityStatus != null || creditStudy.stabilityFactor != null) {
                     this.studyResult.set(creditStudy);
                     this.studyCompleted.set(true);
                 } else {

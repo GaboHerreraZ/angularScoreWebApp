@@ -688,127 +688,14 @@
                 </p-step>
                 <p-step-panel>
                     <ng-template #content let-activateCallback="activateCallback">
-                        @if (studyCompleted()) {
-                        <div class="flex flex-col gap-6">
-                            <!-- Banner de estado -->
-                            <div class="rounded-xl border p-6 flex flex-col items-center gap-3" [ngClass]="[scoreStatus().bg, scoreStatus().border]">
-                                <div class="w-14 h-14 rounded-full flex items-center justify-center text-white text-2xl" [ngClass]="scoreStatus().iconBg">
-                                    <i [ngClass]="scoreStatus().icon"></i>
-                                </div>
-                                <h3 class="text-xl font-bold m-0" [ngClass]="scoreStatus().titleColor">{{ scoreStatus().title }}</h3>
-                                <p class="text-sm text-muted-color m-0 text-center max-w-lg">{{ scoreStatus().description }}</p>
-
-                                <!-- Métricas -->
-                                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 w-full mt-4 pt-4 border-t" [ngClass]="scoreStatus().border">
-                                    <div class="flex flex-col items-center gap-1">
-                                        <span class="text-sm font-bold text-muted-color">Monto Solicitado</span>
-                                        <span class="font-semibold text-base">{{ studyResult()?.requestedMonthlyCreditLine | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</span>
-                                    </div>
-                                    <div class="flex flex-col items-center gap-1">
-                                        <span class="text-sm font-bold text-muted-color">Capacidad Pago Anual</span>
-                                        <span class="font-semibold text-base">{{ studyResult()?.annualPaymentCapacity | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</span>
-                                    </div>
-                                    <div class="flex flex-col items-center gap-1">
-                                        <span class="text-sm font-bold text-muted-color">Capacidad Pago Mensual</span>
-                                        <span class="font-semibold text-base">{{ studyResult()?.monthlyPaymentCapacity | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</span>
-                                    </div>
-                                    <div class="flex flex-col items-center gap-1">
-                                        <span class="text-sm font-bold text-muted-color">Plazo Solicitado</span>
-                                        <span class="font-semibold text-base">{{ studyResult()?.requestedTerm }} meses</span>
-                                    </div>
-                                    <div class="flex flex-col items-center gap-1">
-                                        <span class="text-sm font-bold text-muted-color">Score</span>
-                                        <span class="font-bold text-base" [ngClass]="scoreStatus().titleColor">{{ scorePercentage() }} / 100</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Cards de detalle -->
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <!-- Score Crediticio -->
-                                <p-card>
-                                    <h6 class="font-bold text-base mb-4 m-0">Score Crediticio</h6>
-                                    <div class="text-center mb-2">
-                                        <span class="text-4xl font-bold" [ngClass]="scoreStatus().titleColor">{{ scorePercentage() }}</span>
-                                        <span class="text-muted-color text-lg"> / 100</span>
-                                    </div>
-                                    <div class="h-3 rounded-md bg-surface-200 overflow-hidden my-3">
-                                        <div class="h-full rounded-md" [style.width.%]="scorePercentage()" style="background: linear-gradient(90deg, #ef4444 0%, #f59e0b 40%, #22c55e 70%, #16a34a 100%)"></div>
-                                    </div>
-                                    <div class="flex justify-between text-sm text-muted-color mt-1">
-                                        <span>Alto Riesgo</span>
-                                        <span>Bajo Riesgo</span>
-                                    </div>
-                                    <div class="mt-4 p-3 rounded-lg" [ngClass]="scoreStatus().bg">
-                                        <div class="text-sm font-semibold mb-1">Interpretación:</div>
-                                        <div class="text-sm text-muted-color">{{ scoreStatus().interpretation }}</div>
-                                    </div>
-                                </p-card>
-
-                                <!-- Factores Evaluados -->
-                                <p-card>
-                                    <h6 class="font-bold text-base mb-4 m-0">Factores Evaluados</h6>
-                                    <div class="flex justify-between items-center py-3 border-b border-surface-200">
-                                        <span class="text-sm">Capacidad de pago</span>
-                                        <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-green-50 text-green-600">Buena</span>
-                                    </div>
-                                    <div class="flex justify-between items-center py-3 border-b border-surface-200">
-                                        <span class="text-sm">Nivel de endeudamiento</span>
-                                        <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-green-50 text-green-600">Bajo</span>
-                                    </div>
-                                    <div class="flex justify-between items-center py-3 border-b border-surface-200">
-                                        <span class="text-sm">Relación ingresos/cupo</span>
-                                        <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-green-50 text-green-600">Adecuada</span>
-                                    </div>
-                                </p-card>
-                            </div>
-
-                            <!-- Resumen del Cupo -->
-                            <p-card>
-                                <h6 class="font-bold text-base mb-4 m-0">Resumen del Cupo</h6>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div class="flex flex-col gap-3">
-                                        <div class="flex justify-between items-center py-2 border-b border-surface-200">
-                                            <span class="text-sm text-muted-color">Cliente:</span>
-                                            <span class="text-sm font-semibold">{{ studyCustomer()?.businessName ?? '-' }}</span>
-                                        </div>
-                                        <div class="flex justify-between items-center py-2 border-b border-surface-200">
-                                            <span class="text-sm text-muted-color">NIT:</span>
-                                            <span class="text-sm font-semibold">{{ company().nit }}</span>
-                                        </div>
-                                        <div class="flex justify-between items-center py-2 border-b border-surface-200">
-                                            <span class="text-sm text-muted-color">Ciudad:</span>
-                                            <span class="text-sm font-semibold">{{ company().city }}</span>
-                                        </div>
-                                        <div class="flex justify-between items-center py-2">
-                                            <span class="text-sm text-muted-color">Cupo Solicitado:</span>
-                                            <span class="text-sm font-semibold">{{ studyResult()?.requestedMonthlyCreditLine | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</span>
-                                        </div>
-                                    </div>
-                                    <div class="flex flex-col gap-3">
-                                        <div class="flex justify-between items-center py-2 border-b border-surface-200">
-                                            <span class="text-sm text-muted-color">Fecha del Estudio:</span>
-                                            <span class="text-sm font-semibold">{{ studyResult()?.studyDate | date:'d \'de\' MMMM \'de\' yyyy':'':'es-CO' }}</span>
-                                        </div>
-                                        <div class="flex justify-between items-center py-2 border-b border-surface-200">
-                                            <span class="text-sm text-muted-color">Fecha de Resolución:</span>
-                                            <span class="text-sm font-semibold">{{ studyResult()?.resolutionDate | date:'d \'de\' MMMM \'de\' yyyy':'':'es-CO' }}</span>
-                                        </div>
-                                        <div class="flex justify-between items-center py-2 border-b border-surface-200">
-                                            <span class="text-sm text-muted-color">Plazo:</span>
-                                            <span class="text-sm font-semibold">{{ studyResult()?.requestedTerm }} meses</span>
-                                        </div>
-                                        <div class="flex justify-between items-center py-2">
-                                            <span class="text-sm text-muted-color">Estado:</span>
-                                            <span class="text-xs font-semibold px-2.5 py-1 rounded-full" [ngClass]="[scoreStatus().bg, scoreStatus().titleColor]">{{ scoreStatus().title }}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </p-card>
-
-                            <div class="py-2">
-                                <p-button label="Volver" severity="secondary" (onClick)="activateCallback(3)" />
-                            </div>
+                        @if (studyCompleted() && studyResult()) {
+                        <app-study-result
+                            [study]="studyResult()!"
+                            [customer]="studyCustomer()"
+                            [companyInfo]="company()"
+                        />
+                        <div class="py-2">
+                            <p-button label="Volver" severity="secondary" (onClick)="activateCallback(3)" />
                         </div>
                         } @else {
                         <div class="flex flex-col gap-4">
