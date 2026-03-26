@@ -8,7 +8,7 @@ export interface CreateCreditStudy {
     cashAndEquivalents?: number;
     accountsReceivable1?: number;
     accountsReceivable2?: number;
-    balanceSheet?: number;
+    balanceSheetDate?: Date;
     inventories1?: number;
     inventories2?: number;
     totalCurrentAssets?: number;

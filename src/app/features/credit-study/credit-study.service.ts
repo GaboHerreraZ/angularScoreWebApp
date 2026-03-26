@@ -62,7 +62,7 @@ export class CreditStudyService {
         this.loadTrigger$.next({ page, rows, search });
     }
 
-    createCreditStudy(creditStudy: Omit<CreateCreditStudy,'id'| 'createdBy' | 'updatedBy' | 'createdAt' | 'updatedAt'>): Observable<{ success: boolean; error?: string; data?: CreateCreditStudy }> {
+    createCreditStudy(creditStudy: Omit<CreateCreditStudy,'id'| 'createdBy' | 'updatedBy' | 'createdAt' | 'updatedAt' | 'statusId'>): Observable<{ success: boolean; error?: string; data?: CreateCreditStudy }> {
         return this.apiService.post<CreateCreditStudy>(this.basePath, creditStudy).pipe(
             map((response) => ({ success: true, data: response })),
             catchError((error) => {

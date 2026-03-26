@@ -23,7 +23,7 @@
             </div>
             <div class="flex gap-2">
                 <p-button label="Cancelar" icon="pi pi-times" severity="secondary" [outlined]="true" (onClick)="onCancel()" />
-                <p-button label="Guardar" icon="pi pi-check" severity="success" (onClick)="onSave()" />
+                <p-button label="Guardar" icon="pi pi-check" severity="success" (onClick)="onSave()" [disabled]="!step1Form.dirty && !step2Form.dirty" />
             </div>
         </div>
     </p-card>
@@ -123,7 +123,7 @@
                                     <div class="flex flex-col gap-1">
                                         <p-floatlabel variant="on">
                                             <p-inputnumber id="requestedTerm" formControlName="requestedTerm" [invalid]="isInvalid(step1Form, 'requestedTerm')" [useGrouping]="false" />
-                                            <label for="requestedTerm">Plazo Solicitado (meses) *</label>
+                                            <label for="requestedTerm">Plazo Solicitado (Días) *</label>
                                         </p-floatlabel>
                                         @if (isInvalid(step1Form, 'requestedTerm')) {
                                         <small class="text-red-500">{{ getErrorMessage(step1Form, 'requestedTerm') }}</small>
@@ -339,20 +339,16 @@
 
                                     <div class="flex flex-col gap-1">
                                         <p-floatlabel variant="on">
-                                            <p-inputnumber
-                                                id="balanceSheet"
-                                                formControlName="balanceSheet"
-                                                [invalid]="isInvalid(step2Form, 'balanceSheet')"
-                                                mode="currency"
-                                                currency="COP"
-                                                locale="es-CO"
-                                                [minFractionDigits]="0"
-                                                [maxFractionDigits]="0"
+                                            <p-datepicker
+                                                id="balanceSheetDate"
+                                                formControlName="balanceSheetDate"
+                                                dateFormat="yy-mm-dd"
+                                                [invalid]="isInvalid(step2Form, 'balanceSheetDate')"
                                             />
-                                            <label for="balanceSheet">Total Balance General *</label>
+                                            <label for="balanceSheetDate">Fecha Balance General *</label>
                                         </p-floatlabel>
-                                        @if (isInvalid(step2Form, 'balanceSheet')) {
-                                        <small class="text-red-500">{{ getErrorMessage(step2Form, 'balanceSheet') }}</small>
+                                        @if (isInvalid(step2Form, 'balanceSheetDate')) {
+                                        <small class="text-red-500">{{ getErrorMessage(step2Form, 'balanceSheetDate') }}</small>
                                         }
                                     </div>
                                 </div>

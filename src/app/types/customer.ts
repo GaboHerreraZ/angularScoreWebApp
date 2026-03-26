@@ -22,6 +22,7 @@ export interface Customer {
     email?: string;
     phone?: string;
     secondaryPhone?: string;
+    state?: string;
     city?: string;
     address?: string;
     commercialRef1Name?: string;

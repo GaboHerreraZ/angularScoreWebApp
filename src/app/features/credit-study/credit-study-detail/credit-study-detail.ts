@@ -1,4 +1,4 @@
-import { Component, DestroyRef, effect, inject, signal, computed, OnInit } from '@angular/core';
+import { Component, DestroyRef, effect, inject, signal, computed } from '@angular/core';
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -55,7 +55,7 @@ import { AuthService } from '@/app/core/services/auth.service';
     providers: [ConfirmationService],
     templateUrl: './credit-study-detail.html'
 })
-export class CreditStudyDetail implements OnInit {
+export class CreditStudyDetail  {
     private destroyRef = inject(DestroyRef);
     private route = inject(ActivatedRoute);
     private router = inject(Router);
@@ -190,7 +190,7 @@ export class CreditStudyDetail implements OnInit {
         cashAndEquivalents: new FormControl<number | null>(null, { validators: [Validators.required] }),
         accountsReceivable1: new FormControl<number | null>(null, { validators: [Validators.required] }),
         accountsReceivable2: new FormControl<number | null>(null, { validators: [Validators.required] }),
-        balanceSheet: new FormControl<number | null>(null, { validators: [Validators.required] }),
+        balanceSheetDate: new FormControl<Date | null>(null, { validators: [Validators.required] }),
         inventories1: new FormControl<number | null>(null, { validators: [Validators.required] }),
         inventories2: new FormControl<number | null>(null, { validators: [Validators.required] }),
         totalCurrentAssets: new FormControl<number | null>(null, { validators: [Validators.required] }),
@@ -251,8 +251,6 @@ export class CreditStudyDetail implements OnInit {
             this.formValuesSignal.set(values);
         });
     }
-    ngOnInit(): void {
-    }
 
     loadCreditStudy(id: string): void {
         this.loading.set(true);
@@ -278,7 +276,7 @@ export class CreditStudyDetail implements OnInit {
                     cashAndEquivalents: creditStudy.cashAndEquivalents ?? null,
                     accountsReceivable1: creditStudy.accountsReceivable1 ?? null,
                     accountsReceivable2: creditStudy.accountsReceivable2 ?? null,
-                    balanceSheet: creditStudy.balanceSheet ?? null,
+                    balanceSheetDate: creditStudy.balanceSheetDate ? new Date(creditStudy.balanceSheetDate) : null,
                     inventories1: creditStudy.inventories1 ?? null,
                     inventories2: creditStudy.inventories2 ?? null,
                     totalCurrentAssets: creditStudy.totalCurrentAssets ?? null,
@@ -349,12 +347,11 @@ export class CreditStudyDetail implements OnInit {
 
         const creditStudyData = {
             customerId,
-            statusId: 9,
             studyDate: step1Data.studyDate,
             notes: step1Data.notes,
             requestedTerm: step1Data.requestedTerm ?? 0,
             requestedMonthlyCreditLine: step1Data.requestedMonthlyCreditLine ?? 0,
-            balanceSheet: step2Data.balanceSheet ?? 0,
+            balanceSheetDate: step2Data.balanceSheetDate ?? undefined,
             cashAndEquivalents: step2Data.cashAndEquivalents ?? 0,
             accountsReceivable1: step2Data.accountsReceivable1 ?? 0,
             accountsReceivable2: step2Data.accountsReceivable2 ?? 0,

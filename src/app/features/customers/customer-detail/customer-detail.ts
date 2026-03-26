@@ -1,4 +1,4 @@
-import { Component, DestroyRef, effect, inject, signal } from '@angular/core';
+import { Component, DestroyRef, effect, inject, signal, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -17,6 +17,8 @@ import { MessageModule } from 'primeng/message';
 import { SkeletonModule } from 'primeng/skeleton';
 import { CustomersService } from '../customers.service';
 import { PhoneInput } from '@/app/shared/components/phone-input/phone-input';
+import { StateControl } from '@/app/shared/components/state-control/state-control';
+import { CityControl } from '@/app/shared/components/city-control/city-control';
 import { ParameterService } from '@/app/core/services/parameter.service';
 import { Parameter } from '@/app/types/parameter';
 import { NotificationService } from '@/app/shared/components/notification/notification.service';
@@ -37,7 +39,9 @@ import { NotificationService } from '@/app/shared/components/notification/notifi
         FluidModule,
         MessageModule,
         SkeletonModule,
-        PhoneInput
+        PhoneInput,
+        StateControl,
+        CityControl
     ],
     templateUrl: './customer-detail.html'
 })
@@ -61,7 +65,15 @@ export class CustomerDetail {
         )
     );
 
+    stateControl = viewChild<StateControl>('stateControl');
+    cityControl = viewChild<CityControl>('cityControl');
+
     loading = signal(false);
+    selectedDepartmentId = signal<number | null>(null);
+
+    // Datos pendientes de match cuando se carga un cliente en edición
+    private pendingStateName: string | null = null;
+    private pendingCityName: string | null = null;
 
     personTypes = toSignal(this.parameterService.getByType('personType'));
 
@@ -78,7 +90,8 @@ export class CustomerDetail {
         email: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.email] }),
         phone: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
         secondaryPhone: new FormControl('', { nonNullable: true }),
-        city: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+        state: new FormControl<{ id: number; name: string } | null>(null, { validators: [Validators.required] }),
+        city: new FormControl<{ id: number; name: string } | null>(null, { validators: [Validators.required] }),
         address: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
         commercialRef1Name: new FormControl('', { nonNullable: true }),
         commercialRef1Contact: new FormControl('', { nonNullable: true }),
@@ -97,6 +110,40 @@ export class CustomerDetail {
                 this.loadCustomer(id);
             }
         });
+
+        // Cuando cambia el departamento, resetear la ciudad
+        this.form.controls.state.valueChanges.pipe(
+            takeUntilDestroyed(this.destroyRef)
+        ).subscribe(state => {
+            this.selectedDepartmentId.set(state?.id ?? null);
+            this.form.controls.city.reset();
+        });
+
+        // Match pendiente de departamento por nombre cuando el resource termina de cargar
+        effect(() => {
+            const ctrl = this.stateControl();
+            const departments = ctrl?.departmentsResource.value();
+            if (this.pendingStateName && departments?.length) {
+                const match = departments.find(d => d.name === this.pendingStateName);
+                if (match) {
+                    this.form.controls.state.setValue(match, { emitEvent: true });
+                    this.pendingStateName = null;
+                }
+            }
+        });
+
+        // Match pendiente de ciudad por nombre cuando el resource termina de cargar
+        effect(() => {
+            const ctrl = this.cityControl();
+            const cities = ctrl?.citiesResource.value();
+            if (this.pendingCityName && cities?.length) {
+                const match = cities.find(c => c.name === this.pendingCityName);
+                if (match) {
+                    this.form.controls.city.setValue(match, { emitEvent: false });
+                    this.pendingCityName = null;
+                }
+            }
+        });
     }
 
     loadCustomer(id: number): void {
@@ -111,6 +158,10 @@ export class CustomerDetail {
                 const personType = this.personTypes()?.find(p => p.id === customer.personTypeId);
                 const economicActivity = this.sectorTypes()?.find(s => s.id === customer.economicActivityId);
 
+                // Guardar nombres para hacer match cuando los resources terminen de cargar
+                this.pendingStateName = customer.state ?? null;
+                this.pendingCityName = customer.city ?? null;
+
                 this.form.patchValue({
                     personTypeId: personType,
                     businessName: customer.businessName,
@@ -122,7 +173,6 @@ export class CustomerDetail {
                     email: customer.email ?? '',
                     phone: customer.phone ?? '',
                     secondaryPhone: customer.secondaryPhone ?? '',
-                    city: customer.city ?? '',
                     address: customer.address ?? '',
                     commercialRef1Name: customer.commercialRef1Name ?? '',
                     commercialRef1Contact: customer.commercialRef1Contact ?? '',
@@ -148,7 +198,9 @@ export class CustomerDetail {
         const customerData = {
             ...formData,
             personTypeId: (formData.personTypeId as any as Parameter).id,
-            economicActivityId: (formData.economicActivityId as any as Parameter).id
+            economicActivityId: (formData.economicActivityId as any as Parameter).id,
+            state: formData.state?.name ?? undefined,
+            city: formData.city?.name ?? undefined
         };
 
         const operation$ = this.customerId()
