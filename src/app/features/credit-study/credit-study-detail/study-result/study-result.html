@@ -32,6 +32,129 @@
         </div>
     </div>
 
+    <!-- Analisis IA -->
+    @if (isPro()) {
+    <div class="rounded-xl border border-purple-200 dark:border-purple-800 overflow-hidden">
+        @if (!aiRequested()) {
+        <!-- Boton para solicitar analisis -->
+        <div class="relative bg-linear-to-r from-purple-50 via-indigo-50 to-purple-50 dark:from-purple-900/20 dark:via-indigo-900/20 dark:to-purple-900/20 p-6">
+            <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(139,92,246,0.08),transparent_50%),radial-gradient(circle_at_70%_50%,rgba(99,102,241,0.08),transparent_50%)]"></div>
+            <div class="relative flex flex-col sm:flex-row items-center gap-4">
+                <div class="w-14 h-14 rounded-2xl bg-linear-to-br from-purple-500 to-indigo-600 flex items-center justify-center shrink-0 shadow-lg shadow-purple-500/25 ai-icon-pulse">
+                    <i class="pi pi-sparkles text-white text-2xl"></i>
+                </div>
+                <div class="flex-1 text-center sm:text-left">
+                    <h6 class="font-bold text-base m-0 text-purple-800 dark:text-purple-300">Analisis con Inteligencia Artificial</h6>
+                    <p class="text-sm text-purple-600/80 dark:text-purple-400/80 m-0 mt-1">Obtiene una interpretacion ejecutiva del estudio de credito generada por IA, con diagnostico, capacidad de pago y recomendaciones concretas.</p>
+                </div>
+                <p-button
+                    label="Generar Analisis"
+                    icon="pi pi-sparkles"
+                    severity="help"
+                    (onClick)="onRequestAiAnalysis()"
+                    styleClass="ai-btn-glow"
+                />
+            </div>
+        </div>
+        } @else if (aiLoading()) {
+        <!-- Estado de carga con animacion -->
+        <div class="bg-linear-to-r from-purple-50 via-indigo-50 to-purple-50 dark:from-purple-900/20 dark:via-indigo-900/20 dark:to-purple-900/20 p-6">
+            <div class="flex flex-col items-center gap-4 py-4">
+                <div class="relative w-16 h-16">
+                    <div class="absolute inset-0 rounded-full border-4 border-purple-200 dark:border-purple-800"></div>
+                    <div class="absolute inset-0 rounded-full border-4 border-transparent border-t-purple-500 animate-spin"></div>
+                    <div class="absolute inset-2 rounded-full bg-linear-to-br from-purple-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-purple-500/25">
+                        <i class="pi pi-sparkles text-white text-lg ai-sparkle-spin"></i>
+                    </div>
+                </div>
+                <div class="text-center">
+                    <h6 class="font-bold text-base m-0 text-purple-800 dark:text-purple-300">Analizando con IA...</h6>
+                    <p class="text-sm text-purple-600/70 dark:text-purple-400/70 m-0 mt-1 ai-typing">Procesando indicadores financieros y generando diagnostico</p>
+                </div>
+            </div>
+        </div>
+        } @else if (aiAnalysis()) {
+        <!-- Resultado del analisis -->
+        <div class="bg-linear-to-r from-purple-50/50 via-indigo-50/50 to-purple-50/50 dark:from-purple-900/10 dark:via-indigo-900/10 dark:to-purple-900/10">
+            <div class="flex items-center gap-3 px-6 pt-5 pb-3">
+                <div class="w-10 h-10 rounded-xl bg-linear-to-br from-purple-500 to-indigo-600 flex items-center justify-center shrink-0 shadow-md shadow-purple-500/20">
+                    <i class="pi pi-sparkles text-white text-base"></i>
+                </div>
+                <div class="flex-1">
+                    <h6 class="font-bold text-base m-0 text-purple-800 dark:text-purple-300">Analisis de Inteligencia Artificial</h6>
+                    <span class="text-xs text-muted-color">Generado por IA &middot; {{ aiAnalysis()!.createdAt | date:'d MMM yyyy, h:mm a':'':'es-CO' }}</span>
+                </div>
+                @if (aiAnalysis()!.status === 'success') {
+                <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400">
+                    <i class="pi pi-check-circle mr-1"></i>Completado
+                </span>
+                }
+            </div>
+            <div class="px-6 pb-5">
+                <div class="bg-white/70 dark:bg-surface-900/50 rounded-xl p-5 border border-purple-100 dark:border-purple-900/40 ai-result-fade-in">
+                    <p class="text-sm leading-relaxed text-surface-700 dark:text-surface-300 m-0 whitespace-pre-line">{{ aiAnalysis()!.result }}</p>
+                </div>
+                <div class="flex items-center gap-4 mt-3 text-xs text-muted-color">
+                    <span><i class="pi pi-clock mr-1"></i>{{ aiAnalysis()!.durationMs }}ms</span>
+                    <span><i class="pi pi-user mr-1"></i>{{ aiAnalysis()!.performedByUser.name }} {{ aiAnalysis()!.performedByUser.lastName }}</span>
+                </div>
+            </div>
+        </div>
+        } @else {
+        <!-- Error state -->
+        <div class="bg-red-50 dark:bg-red-900/10 p-6">
+            <div class="flex items-center gap-3">
+                <i class="pi pi-exclamation-circle text-red-500 text-xl"></i>
+                <div class="flex-1">
+                    <h6 class="font-bold text-sm m-0 text-red-700 dark:text-red-400">No se pudo generar el analisis</h6>
+                    <p class="text-sm text-red-600/70 dark:text-red-400/70 m-0 mt-1">Ocurrio un error al procesar el analisis. Puede intentarlo nuevamente.</p>
+                </div>
+                <p-button label="Reintentar" icon="pi pi-refresh" severity="danger" [outlined]="true" (onClick)="onRequestAiAnalysis()" />
+            </div>
+        </div>
+        }
+    </div>
+    }
+
+    <!-- Historial de analisis IA -->
+    @if (hasExistingAnalyses()) {
+    <div class="rounded-xl border border-purple-200 dark:border-purple-800 overflow-hidden">
+        <div class="flex items-center gap-3 px-6 py-4 bg-linear-to-r from-purple-50/50 via-indigo-50/50 to-purple-50/50 dark:from-purple-900/10 dark:via-indigo-900/10 dark:to-purple-900/10 border-b border-purple-100 dark:border-purple-900/40">
+            <div class="w-8 h-8 rounded-lg bg-linear-to-br from-purple-500 to-indigo-600 flex items-center justify-center shrink-0">
+                <i class="pi pi-sparkles text-white text-sm"></i>
+            </div>
+            <h6 class="font-bold text-sm m-0 text-purple-800 dark:text-purple-300">Historial de Analisis IA</h6>
+            <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400">
+                {{ existingAiAnalyses().length }}
+            </span>
+        </div>
+        <p-accordion [multiple]="true" [value]="['0']" expandIcon="pi pi-chevron-down" collapseIcon="pi pi-chevron-up">
+            @for (analysis of existingAiAnalyses(); track analysis.id; let i = $index) {
+            <p-accordion-panel [value]="i.toString()">
+                <p-accordion-header>
+                    <div class="flex items-center gap-3 w-full">
+                        <div class="flex-1 flex items-center gap-2">
+                            <i class="pi pi-sparkles text-purple-500 text-xs"></i>
+                            <span class="text-sm font-semibold">Analisis #{{ existingAiAnalyses().length - i }}</span>
+                            <span class="text-xs text-muted-color">&middot; {{ analysis.createdAt | date:'d MMM yyyy, h:mm a':'':'es-CO' }}</span>
+                        </div>
+                        <span class="text-xs text-muted-color mr-2">
+                            <i class="pi pi-user mr-1"></i>{{ analysis.performedByUser.name }} {{ analysis.performedByUser.lastName }}
+                        </span>
+                    </div>
+                </p-accordion-header>
+                <p-accordion-content>
+                    <div class="p-4">
+                        <p class="text-sm leading-relaxed text-surface-700 dark:text-surface-300 m-0 whitespace-pre-line">{{ analysis.result }}</p>
+                    </div>
+                </p-accordion-content>
+            </p-accordion-panel>
+            }
+        </p-accordion>
+    </div>
+    }
+    <p-confirmDialog />
+
     <!-- Dimensiones de viabilidad -->
     @if (dimensions().length) {
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">

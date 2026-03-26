@@ -86,11 +86,51 @@ export interface CreateCreditStudy {
     viabilityScore?: number;
     viabilityStatus?: string;
     viabilityConditions?: ViabilityConditions;
+    aiAnalyses?: AiAnalysisItem[];
 
     createdBy: string;
     updatedBy: string;
     createdAt: Date;
     updatedAt: Date;
+}
+
+export interface AiAnalysisItem {
+    id: string;
+    result: string | null;
+    createdAt: string;
+    performedByUser: {
+        id: string;
+        name: string;
+        lastName: string;
+    };
+}
+
+export interface AiAnalysisResponse {
+    id: string;
+    result: string;
+    status: 'success' | 'error';
+    durationMs: number;
+    companyId: string;
+    customerId: string;
+    creditStudyId: string;
+    performedBy: string;
+    createdAt: string;
+    errorMessage: string | null;
+    customer: {
+        id: string;
+        businessName: string;
+    };
+    creditStudy: {
+        id: string;
+        viabilityScore: number;
+        viabilityStatus: string;
+    };
+    performedByUser: {
+        id: string;
+        name: string;
+        lastName: string;
+        email: string;
+    };
 }
 
 export interface CustomerCreditStudyResponse extends CreateCreditStudy {

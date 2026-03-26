@@ -41,3 +41,54 @@
         transition: none;
     }
 }
+
+/* AI Analysis animations */
+.ai-icon-pulse {
+    animation: ai-pulse 2.5s ease-in-out infinite;
+}
+
+@keyframes ai-pulse {
+    0%, 100% { box-shadow: 0 4px 15px rgba(139, 92, 246, 0.25); }
+    50% { box-shadow: 0 4px 25px rgba(139, 92, 246, 0.5); }
+}
+
+.ai-sparkle-spin {
+    animation: sparkle-rotate 2s linear infinite;
+}
+
+@keyframes sparkle-rotate {
+    0% { transform: rotate(0deg) scale(1); }
+    25% { transform: rotate(90deg) scale(1.1); }
+    50% { transform: rotate(180deg) scale(1); }
+    75% { transform: rotate(270deg) scale(1.1); }
+    100% { transform: rotate(360deg) scale(1); }
+}
+
+.ai-typing::after {
+    content: '';
+    animation: typing-dots 1.5s steps(3) infinite;
+}
+
+@keyframes typing-dots {
+    0% { content: ''; }
+    33% { content: '.'; }
+    66% { content: '..'; }
+    100% { content: '...'; }
+}
+
+.ai-result-fade-in {
+    animation: result-fade 0.6s ease-out forwards;
+}
+
+@keyframes result-fade {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.ai-btn-glow {
+    transition: box-shadow 0.3s ease;
+}
+
+.ai-btn-glow:hover {
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
+}

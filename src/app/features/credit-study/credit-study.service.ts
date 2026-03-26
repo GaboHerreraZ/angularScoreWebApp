@@ -2,7 +2,7 @@ import { inject, Injectable, signal } from '@angular/core';
 import { Observable, BehaviorSubject, of, map, catchError, tap, switchMap } from 'rxjs';
 import { ApiService } from '@/app/core/services/api.service';
 import { AuthService } from '@/app/core/services/auth.service';
-import { CreateCreditStudy } from '@/app/types/credit-study';
+import { AiAnalysisResponse, CreateCreditStudy } from '@/app/types/credit-study';
 
 interface LoadCreditStudiesParams {
     page: number;
@@ -100,6 +100,19 @@ export class CreditStudyService {
             catchError((error) => {
                 console.error('Error al realizar estudio de crédito:', error);
                 return of({ success: false, error: 'Error al realizar el estudio de crédito' });
+            })
+        );
+    }
+
+    performAiAnalysis(creditStudyId: string): Observable<{ success: boolean; error?: string; data?: AiAnalysisResponse }> {
+        const endpoint = `companies/${this.companyId()}/ai-analyses/credit-studies/${creditStudyId}`;
+
+        return this.apiService.post<AiAnalysisResponse>(endpoint, {}).pipe(
+            map((response) => ({ success: true, data: response })),
+            catchError((error) => {
+                console.error('Error al realizar análisis IA:', error);
+                const message = error?.error?.message ?? 'Error al realizar el análisis de inteligencia artificial';
+                return of({ success: false, error: message });
             })
         );
     }

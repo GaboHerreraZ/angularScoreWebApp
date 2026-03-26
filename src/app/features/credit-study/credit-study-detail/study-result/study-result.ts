@@ -1,20 +1,50 @@
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, DestroyRef, inject, input, output, signal } from '@angular/core';
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { finalize } from 'rxjs';
 import { CardModule } from 'primeng/card';
 import { MessageModule } from 'primeng/message';
 import { TooltipModule } from 'primeng/tooltip';
-import { CreateCreditStudy, ViabilityConditions, ViabilityDimension } from '@/app/types/credit-study';
+import { ButtonModule } from 'primeng/button';
+import { AccordionModule } from 'primeng/accordion';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ConfirmationService } from 'primeng/api';
+import { AiAnalysisItem, AiAnalysisResponse, CreateCreditStudy, ViabilityConditions, ViabilityDimension } from '@/app/types/credit-study';
+import { CreditStudyService } from '../../credit-study.service';
+import { NotificationService } from '@/app/shared/components/notification/notification.service';
 
 @Component({
     selector: 'app-study-result',
     standalone: true,
-    imports: [CommonModule, CurrencyPipe, DatePipe, CardModule, MessageModule, TooltipModule],
+    imports: [CommonModule, CurrencyPipe, DatePipe, CardModule, MessageModule, TooltipModule, ButtonModule, AccordionModule, ConfirmDialogModule],
+    providers: [ConfirmationService],
     templateUrl: './study-result.html'
 })
 export class StudyResult {
+    private destroyRef = inject(DestroyRef);
+    private creditStudyService = inject(CreditStudyService);
+    private notificationService = inject(NotificationService);
+    private confirmationService = inject(ConfirmationService);
+
     study = input.required<CreateCreditStudy>();
     customer = input<{ businessName?: string; identificationNumber?: string; city?: string }>();
     companyInfo = input<{ name: string; city: string; nit: string }>();
+    subscriptionName = input<string>('');
+
+    isPro = computed(() => this.subscriptionName().toLowerCase().includes('pro'));
+
+    aiLoading = signal(false);
+    aiAnalysis = signal<AiAnalysisResponse | null>(null);
+    aiRequested = signal(false);
+
+    existingAiAnalyses = computed(() => {
+        const analyses = this.study().aiAnalyses ?? [];
+        return analyses
+            .filter(a => a.result != null && a.result.trim() !== '')
+            .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    });
+
+    hasExistingAnalyses = computed(() => this.existingAiAnalyses().length > 0);
 
     viability = computed(() => {
         const raw = this.study().viabilityConditions;
@@ -124,5 +154,38 @@ export class StudyResult {
         if (ratio >= 0.8) return 'bg-green-500';
         if (ratio >= 0.5) return 'bg-amber-500';
         return 'bg-red-500';
+    }
+
+    onRequestAiAnalysis(): void {
+        this.confirmationService.confirm({
+            message: 'Se realizara un analisis con inteligencia artificial basado en los resultados del estudio de credito. Esta accion consume una solicitud de su plan Pro.',
+            header: 'Analisis con IA',
+            icon: 'pi pi-sparkles',
+            acceptLabel: 'Si, analizar',
+            rejectLabel: 'Cancelar',
+            acceptButtonStyleClass: 'p-button-primary',
+            rejectButtonStyleClass: 'p-button-secondary p-button-outlined',
+            accept: () => this.executeAiAnalysis()
+        });
+    }
+
+    private executeAiAnalysis(): void {
+        const studyId = this.study().id;
+        if (!studyId) return;
+
+        this.aiLoading.set(true);
+        this.aiRequested.set(true);
+
+        this.creditStudyService.performAiAnalysis(studyId).pipe(
+            finalize(() => this.aiLoading.set(false)),
+            takeUntilDestroyed(this.destroyRef)
+        ).subscribe(result => {
+            if (result.success && result.data) {
+                this.aiAnalysis.set(result.data);
+                this.notificationService.success('Analisis de IA generado exitosamente', 'IA');
+            } else {
+                this.notificationService.error(result.error ?? 'Error al generar el analisis', 'Error');
+            }
+        });
     }
 }

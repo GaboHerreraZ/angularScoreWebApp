@@ -78,6 +78,13 @@ export class CreditStudyDetail  {
         };
     })
 
+    subscriptionName = computed(() => {
+        const user = this.authSerice.currentProfile();
+        const subs = user?.userCompanies?.[0]?.company?.companySubscriptions;
+        const current = subs?.find(s => s.isCurrent);
+        return current?.subscription?.name ?? '';
+    })
+
 
     creditStudyId = toSignal(
         this.route.params.pipe(
