@@ -212,7 +212,7 @@
                                                 [minFractionDigits]="0"
                                                 [maxFractionDigits]="0"
                                             />
-                                            <label for="accountsReceivable1">Cuentas por Cobrar 1 *</label>
+                                            <label for="accountsReceivable1">Cuentas por Cobrar Año 1 *</label>
                                         </p-floatlabel>
                                         @if (isInvalid(step2Form, 'accountsReceivable1')) {
                                         <small class="text-red-500">{{ getErrorMessage(step2Form, 'accountsReceivable1') }}</small>
@@ -231,7 +231,7 @@
                                                 [minFractionDigits]="0"
                                                 [maxFractionDigits]="0"
                                             />
-                                            <label for="accountsReceivable2">Cuentas por Cobrar 2 *</label>
+                                            <label for="accountsReceivable2">Cuentas por Cobrar Año 2 *</label>
                                         </p-floatlabel>
                                         @if (isInvalid(step2Form, 'accountsReceivable2')) {
                                         <small class="text-red-500">{{ getErrorMessage(step2Form, 'accountsReceivable2') }}</small>
@@ -562,7 +562,7 @@
                                                 [minFractionDigits]="0"
                                                 [maxFractionDigits]="0"
                                             />
-                                            <label for="sellingExpenses">Gastos de Ventas *</label>
+                                            <label for="sellingExpenses">Gastos de Ventas o Distribución*</label>
                                         </p-floatlabel>
                                         @if (isInvalid(step2Form, 'sellingExpenses')) {
                                         <small class="text-red-500">{{ getErrorMessage(step2Form, 'sellingExpenses') }}</small>
@@ -572,19 +572,38 @@
                                     <div class="flex flex-col gap-1">
                                         <p-floatlabel variant="on">
                                             <p-inputnumber
-                                                id="depreciationAmortization"
-                                                formControlName="depreciationAmortization"
-                                                [invalid]="isInvalid(step2Form, 'depreciationAmortization')"
+                                                id="depreciation"
+                                                formControlName="depreciation"
+                                                [invalid]="isInvalid(step2Form, 'depreciation')"
                                                 mode="currency"
                                                 currency="COP"
                                                 locale="es-CO"
                                                 [minFractionDigits]="0"
                                                 [maxFractionDigits]="0"
                                             />
-                                            <label for="depreciationAmortization">Depreciación y Amortización *</label>
+                                            <label for="depreciation">Depreciación *</label>
                                         </p-floatlabel>
-                                        @if (isInvalid(step2Form, 'depreciationAmortization')) {
-                                        <small class="text-red-500">{{ getErrorMessage(step2Form, 'depreciationAmortization') }}</small>
+                                        @if (isInvalid(step2Form, 'depreciation')) {
+                                        <small class="text-red-500">{{ getErrorMessage(step2Form, 'depreciation') }}</small>
+                                        }
+                                    </div>
+
+                                    <div class="flex flex-col gap-1">
+                                        <p-floatlabel variant="on">
+                                            <p-inputnumber
+                                                id="amortization"
+                                                formControlName="amortization"
+                                                [invalid]="isInvalid(step2Form, 'amortization')"
+                                                mode="currency"
+                                                currency="COP"
+                                                locale="es-CO"
+                                                [minFractionDigits]="0"
+                                                [maxFractionDigits]="0"
+                                            />
+                                            <label for="amortization">Amortización *</label>
+                                        </p-floatlabel>
+                                        @if (isInvalid(step2Form, 'amortization')) {
+                                        <small class="text-red-500">{{ getErrorMessage(step2Form, 'amortization') }}</small>
                                         }
                                     </div>
 

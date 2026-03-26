@@ -26,7 +26,8 @@ export interface CreateCreditStudy {
     costOfSales?: number;
     administrativeExpenses?: number;
     sellingExpenses?: number;
-    depreciationAmortization?: number;
+    depreciation?: number;
+    amortization?: number;
     financialExpenses?: number;
     taxes?: number;
     totalAssets?: number;
