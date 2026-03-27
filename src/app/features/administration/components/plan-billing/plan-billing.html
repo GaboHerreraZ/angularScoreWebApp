@@ -95,6 +95,13 @@
                     <i class="pi pi-file-check text-primary w-5 text-center"></i>
                     <span class="text-sm"> @if (plan.maxStudiesPerMonth === null) { Estudios <strong>ilimitados</strong> / mes } @else { Hasta <strong>{{ plan.maxStudiesPerMonth }}</strong> estudios / mes } </span>
                 </div>
+
+                @if (plan.maxAiAnalysisPerMonth && plan.maxAiAnalysisPerMonth > 0) {
+                <div class="flex items-center gap-3">
+                    <i class="pi pi-sparkles text-purple-500 w-5 text-center"></i>
+                    <span class="text-sm font-medium text-purple-700 dark:text-purple-400"> @if (plan.maxAiAnalysisPerMonth === -1) { Análisis IA <strong>ilimitados</strong> / mes } @else { Hasta <strong>{{ plan.maxAiAnalysisPerMonth }}</strong> análisis IA / mes } </span>
+                </div>
+                }
             </div>
 
             <p-divider />
@@ -116,6 +123,16 @@
                 <div class="flex items-center gap-3">
                     <i class="pi w-5 text-center" [ngClass]="plan.themeCustomization ? 'pi-check-circle text-green-500' : 'pi-times-circle text-red-400'"></i>
                     <span class="text-sm">Personalización de tema</span>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    @if (plan.maxAiAnalysisPerMonth && plan.maxAiAnalysisPerMonth > 0) {
+                    <i class="pi pi-sparkles text-purple-500 w-5 text-center"></i>
+                    <span class="text-sm font-semibold bg-linear-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">Análisis con Inteligencia Artificial</span>
+                    } @else {
+                    <i class="pi pi-times-circle text-red-400 w-5 text-center"></i>
+                    <span class="text-sm text-muted-color">Análisis con Inteligencia Artificial</span>
+                    }
                 </div>
 
                 <div class="flex items-center gap-3">

@@ -36,6 +36,7 @@ export interface SubscriptionUsage {
         users: UsageItem;
         customers: UsageItem;
         studiesThisMonth: UsageItem;
+        aiAnalysesThisMonth: UsageItem;
     };
     features: {
         dashboardLevel: Parameter;
