@@ -12,6 +12,7 @@ export interface Subscription {
     maxCompanies: number;
     maxCustomers: number;
     maxStudiesPerMonth: number;
+    maxAiAnalysisPerMonth: number | null;
     dashboardLevel: Parameter;
     excelReports: boolean;
     emailNotifications: boolean;
@@ -55,6 +56,7 @@ export interface PlanItem {
     maxCompanies: number;
     maxCustomers: number | null;
     maxStudiesPerMonth: number | null;
+    maxAiAnalysisPerMonth: number | null;
     dashboardLevel?: Parameter;
     dashboardLevelId?: number;
     excelReports: boolean;

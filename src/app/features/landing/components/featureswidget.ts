@@ -60,8 +60,23 @@ import { ScrollAnimateDirective } from '@/app/shared/directives/scroll-animate.d
                         <p class="text-muted-color leading-relaxed m-0">Gestiona múltiples compañías desde una sola cuenta con usuarios y roles independientes para cada una.</p>
                     </article>
 
-                    <!-- Feature 6 -->
-                    <article appScrollAnimate="fade-up" [animateDelay]="500" class="bg-surface-50 dark:bg-surface-900 rounded-2xl p-8 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border border-transparent hover:border-primary/20">
+                    <!-- Feature 6: AI Analysis -->
+                    <article appScrollAnimate="fade-up" [animateDelay]="500" class="relative bg-surface-50 dark:bg-surface-900 rounded-2xl p-8 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border border-transparent hover:border-purple-400/40 overflow-hidden group">
+                        <div class="absolute inset-0 bg-linear-to-br from-purple-500/5 via-transparent to-indigo-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                        <div class="relative">
+                            <div class="flex items-center gap-3 mb-6">
+                                <div class="w-14 h-14 rounded-xl bg-linear-to-br from-purple-500/20 to-indigo-500/20 flex items-center justify-center ai-icon-pulse">
+                                    <i class="pi pi-sparkles text-purple-500 text-2xl"></i>
+                                </div>
+                                <span class="text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full bg-linear-to-r from-purple-500 to-indigo-500 text-white">Nuevo</span>
+                            </div>
+                            <h3 class="font-bold text-xl mb-3 mt-0 text-color">Analisis con IA</h3>
+                            <p class="text-muted-color leading-relaxed m-0">Obtiene recomendaciones inteligentes basadas en inteligencia artificial para cada estudio de credito. Analisis profundo automatico en segundos.</p>
+                        </div>
+                    </article>
+
+                    <!-- Feature 7 -->
+                    <article appScrollAnimate="fade-up" [animateDelay]="600" class="bg-surface-50 dark:bg-surface-900 rounded-2xl p-8 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border border-transparent hover:border-primary/20">
                         <div class="w-14 h-14 rounded-xl bg-pink-500/10 flex items-center justify-center mb-6">
                             <i class="pi pi-chart-bar text-pink-500 text-2xl"></i>
                         </div>

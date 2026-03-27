@@ -146,8 +146,13 @@ interface PlanView {
                             <span class="text-xs font-semibold text-muted-color uppercase tracking-wide">Límites</span>
                             @for (limit of plan.limits; track limit) {
                             <div class="flex items-center gap-3">
+                                @if (limit.includes('IA')) {
+                                <i class="pi pi-sparkles text-purple-500 text-sm"></i>
+                                <span class="text-sm font-medium text-purple-700 dark:text-purple-400">{{ limit }}</span>
+                                } @else {
                                 <i class="pi pi-check-circle text-primary text-sm"></i>
                                 <span class="text-sm text-color">{{ limit }}</span>
+                                }
                             </div>
                             }
                         </div>
@@ -157,8 +162,13 @@ interface PlanView {
                             <span class="text-xs font-semibold text-muted-color uppercase tracking-wide">Características</span>
                             @for (feature of plan.features; track feature.label) {
                             <div class="flex items-center gap-3">
+                                @if (feature.label.includes('Inteligencia Artificial') && feature.included) {
+                                <i class="pi pi-sparkles text-sm text-purple-500"></i>
+                                <span class="text-sm font-semibold bg-linear-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">{{ feature.label }}</span>
+                                } @else {
                                 <i class="pi text-sm" [ngClass]="feature.included ? 'pi-check-circle text-green-500' : 'pi-times-circle text-red-400'"></i>
                                 <span class="text-sm" [ngClass]="feature.included ? 'text-color' : 'text-muted-color'">{{ feature.label }}</span>
+                                }
                             </div>
                             }
                         </div>
@@ -234,6 +244,13 @@ export class PricingWidget {
                 ? 'Estudios ilimitados / mes'
                 : `${item.maxStudiesPerMonth} estudio${item.maxStudiesPerMonth > 1 ? 's' : ''} / mes`
         );
+        if (item.maxAiAnalysisPerMonth != null && item.maxAiAnalysisPerMonth > 0) {
+            limits.push(
+                item.maxAiAnalysisPerMonth === -1
+                    ? 'Analisis IA ilimitados / mes'
+                    : `${item.maxAiAnalysisPerMonth} analisis IA / mes`
+            );
+        }
         return limits;
     }
 
@@ -243,7 +260,8 @@ export class PricingWidget {
             { label: `Soporte por ${item.supportLevel?.label?.toLowerCase() ?? 'correo'}`, included: true },
             { label: 'Reportes Excel', included: item.excelReports },
             { label: 'Notificaciones por correo', included: item.emailNotifications },
-            { label: 'Personalización de tema', included: item.themeCustomization }
+            { label: 'Personalización de tema', included: item.themeCustomization },
+            { label: 'Analisis con Inteligencia Artificial', included: item.maxAiAnalysisPerMonth != null && item.maxAiAnalysisPerMonth !== 0 }
         ];
     }
 

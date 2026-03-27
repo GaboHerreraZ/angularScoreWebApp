@@ -21,8 +21,8 @@ import { ScrollAnimateDirective } from '@/app/shared/directives/scroll-animate.d
                         Decisiones de crédito <span class="text-primary">inteligentes</span>, rápidas y seguras
                     </h1>
                     <p class="text-lg sm:text-xl mb-8 leading-relaxed text-muted-color max-w-2xl">
-                        Automatiza el análisis financiero de tus clientes con scoring de riesgo en tiempo real.
-                        Más de 15 indicadores calculados automáticamente para decisiones acertadas.
+                        Automatiza el analisis financiero de tus clientes con scoring de riesgo en tiempo real.
+                        Mas de 15 indicadores calculados automaticamente y <span class="font-semibold text-purple-600 dark:text-purple-400">analisis con inteligencia artificial</span> para decisiones acertadas.
                     </p>
                     <div class="flex flex-col sm:flex-row gap-4 mb-12">
                         <a [routerLink]="['/auth/iniciar-sesion']">
@@ -52,11 +52,11 @@ import { ScrollAnimateDirective } from '@/app/shared/directives/scroll-animate.d
                         </div>
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 rounded-full bg-purple-500/10 flex items-center justify-center">
-                                <i class="pi pi-clock text-purple-500 text-lg"></i>
+                                <i class="pi pi-sparkles text-purple-500 text-lg"></i>
                             </div>
                             <div>
-                                <div class="font-bold text-color">En minutos</div>
-                                <div class="text-sm text-muted-color">Resultados al instante</div>
+                                <div class="font-bold text-color">IA integrada</div>
+                                <div class="text-sm text-muted-color">Analisis inteligente</div>
                             </div>
                         </div>
                     </div>
@@ -84,6 +84,17 @@ import { ScrollAnimateDirective } from '@/app/shared/directives/scroll-animate.d
                             <div class="w-full bg-surface-200 dark:bg-surface-700 rounded-full h-2">
                                 <div class="bg-linear-to-r from-green-500 to-emerald-400 h-2 rounded-full" style="width: 87%"></div>
                             </div>
+                        </div>
+                        <!-- AI Analysis mock -->
+                        <div class="bg-linear-to-r from-purple-500/10 to-indigo-500/10 dark:from-purple-500/20 dark:to-indigo-500/20 rounded-xl p-4 mb-4 flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-lg bg-linear-to-br from-purple-500 to-indigo-500 flex items-center justify-center shrink-0">
+                                <i class="pi pi-sparkles text-white text-sm"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="text-xs font-semibold text-purple-700 dark:text-purple-400 mb-0.5">Analisis IA</div>
+                                <div class="text-[11px] text-muted-color truncate">Cliente apto para el cupo. Riesgo bajo...</div>
+                            </div>
+                            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-green-500/20 text-green-600 dark:text-green-400 shrink-0">Completo</span>
                         </div>
                         <!-- Mini indicators -->
                         <div class="grid grid-cols-2 gap-3">
