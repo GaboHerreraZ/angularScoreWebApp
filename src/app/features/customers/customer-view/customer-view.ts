@@ -7,13 +7,14 @@ import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { TabsModule } from 'primeng/tabs';
 import { SkeletonModule } from 'primeng/skeleton';
+import { TagModule } from 'primeng/tag';
 import { CustomersService } from '../customers.service';
 import { Customer } from '@/app/types/customer';
 
 @Component({
     selector: 'app-customer-view',
     standalone: true,
-    imports: [CommonModule, RouterOutlet, ButtonModule, CardModule, TabsModule, SkeletonModule],
+    imports: [CommonModule, RouterOutlet, ButtonModule, CardModule, TabsModule, SkeletonModule, TagModule],
     templateUrl: './customer-view.html'
 })
 export class CustomerView {

@@ -3,27 +3,42 @@
     <!-- Header -->
     @if (loading()) {
     <p-card>
-        <div class="flex items-center justify-between">
-            <div class="flex items-center gap-3">
+        <div class="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+            <div class="flex items-center gap-3 shrink-0">
                 <p-skeleton shape="circle" size="2.5rem" />
-                <p-skeleton width="15rem" height="2rem" />
+                <div class="flex flex-col gap-1">
+                    <p-skeleton width="15rem" height="1.75rem" />
+                    <p-skeleton width="10rem" height="1rem" />
+                </div>
             </div>
-            <div class="flex gap-2">
-                <p-skeleton width="8rem" height="2.5rem" borderRadius="6px" />
-                <p-skeleton width="8rem" height="2.5rem" borderRadius="6px" />
+            <div class="flex gap-2 sm:ml-auto ml-12">
+                <p-skeleton width="8rem" height="2.5rem" borderRadius="6px" styleClass="flex-1 sm:flex-none" />
+                <p-skeleton width="8rem" height="2.5rem" borderRadius="6px" styleClass="flex-1 sm:flex-none" />
             </div>
         </div>
     </p-card>
     } @else {
     <p-card>
-        <div class="flex items-center justify-between">
-            <div class="flex items-center gap-3">
+        <div class="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+            <div class="flex items-center gap-3 flex-1 min-w-0">
                 <p-button icon="pi pi-arrow-left" [rounded]="true" [text]="true" severity="secondary" (onClick)="onCancel()" />
-                <h2 class="text-2xl font-semibold m-0">Nuevo Estudio de Crédito</h2>
+                <div class="flex items-center justify-center rounded-full shrink-0"
+                     [ngClass]="isEditMode() ? 'bg-blue-50 text-blue-500 dark:bg-blue-500/10 dark:text-blue-400' : 'bg-green-50 text-green-500 dark:bg-green-500/10 dark:text-green-400'"
+                     style="width: 2.75rem; height: 2.75rem;">
+                    <i class="pi text-lg" [ngClass]="isEditMode() ? 'pi-file-edit' : 'pi-file-plus'"></i>
+                </div>
+                <div class="flex flex-col min-w-0">
+                    <h2 class="text-xl sm:text-2xl font-semibold m-0 truncate">
+                        {{ isEditMode() ? 'Editar Estudio de Crédito' : 'Nuevo Estudio de Crédito' }}
+                    </h2>
+                    <span class="text-muted-color text-sm">
+                        {{ isEditMode() ? 'Modifique los datos del estudio y guarde los cambios' : 'Complete los datos para crear un nuevo estudio' }}
+                    </span>
+                </div>
             </div>
-            <div class="flex gap-2">
-                <p-button label="Cancelar" icon="pi pi-times" severity="secondary" [outlined]="true" (onClick)="onCancel()" />
-                <p-button label="Guardar" icon="pi pi-check" severity="success" (onClick)="onSave()" [disabled]="!step1Form.dirty && !step2Form.dirty" />
+            <div class="flex gap-2 sm:ml-0 ml-12 shrink-0">
+                <p-button label="Cancelar" icon="pi pi-times" severity="secondary" [outlined]="true" (onClick)="onCancel()" class="flex-1 sm:flex-none" />
+                <p-button label="Guardar" icon="pi pi-check" severity="success" (onClick)="onSave()" [disabled]="!step1Form.dirty && !step2Form.dirty" class="flex-1 sm:flex-none" />
             </div>
         </div>
     </p-card>
@@ -112,7 +127,7 @@
 
                                     <div class="flex flex-col gap-1">
                                         <p-floatlabel variant="on">
-                                            <p-datepicker id="studyDate" formControlName="studyDate" dateFormat="yy-mm-dd" [invalid]="isInvalid(step1Form, 'studyDate')" />
+                                            <p-datepicker id="studyDate" formControlName="studyDate" dateFormat="yy-mm-dd" [invalid]="isInvalid(step1Form, 'studyDate')" [disabled]="isEditMode()" />
                                             <label for="studyDate">Fecha del Estudio *</label>
                                         </p-floatlabel>
                                         @if (isInvalid(step1Form, 'studyDate')) {
