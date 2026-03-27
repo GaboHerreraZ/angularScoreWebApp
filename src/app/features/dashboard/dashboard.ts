@@ -30,6 +30,7 @@ import { BasicDashboard, AdvancedDashboard } from '@/app/types/dashboard';
 export class Dashboard implements OnInit {
     private dashboardService = inject(DashboardService);
 
+    floor = Math.floor;
     loading = signal(false);
     dashboardLevel = this.dashboardService.dashboardLevel;
 

@@ -1,4 +1,4 @@
-# Verona NG
+# Riskia NG
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.
 
@@ -79,7 +79,7 @@ supabase/
 |---|---|
 | `INFOBIP_BASE_URL` | Dominio de tu cuenta Infobip (ej: `xxxxx.api.infobip.com`) |
 | `INFOBIP_API_KEY` | API Key de Infobip |
-| `INFOBIP_SENDER` | Nombre del remitente (por defecto: `VERONA`) |
+| `INFOBIP_SENDER` | Nombre del remitente (por defecto: `RISKIA`) |
 
 #### Configuracion inicial
 
@@ -103,7 +103,7 @@ supabase/
 
 1. Configura los secrets en Supabase Cloud:
    ```bash
-   npx supabase secrets set INFOBIP_BASE_URL=<tu-base-url> INFOBIP_API_KEY=<tu-api-key> INFOBIP_SENDER=VERONA
+   npx supabase secrets set INFOBIP_BASE_URL=<tu-base-url> INFOBIP_API_KEY=<tu-api-key> INFOBIP_SENDER=RISKIA
    ```
 
 2. Despliega la funcion:
@@ -155,7 +155,7 @@ Configura las siguientes variables en **Vercel > Settings > Environment Variable
 El archivo `vercel.json` en la raiz del proyecto configura:
 
 - **Build command**: genera los environments y compila Angular
-- **Output directory**: `dist/verona-ng/browser`
+- **Output directory**: `dist/riskia-ng/browser`
 - **Rewrites**: redirige todas las rutas a `index.html` (SPA)
 
 ### Despliegue manual

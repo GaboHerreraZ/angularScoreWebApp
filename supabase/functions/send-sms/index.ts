@@ -2,7 +2,7 @@ import "@supabase/functions-js/edge-runtime.d.ts";
 
 const INFOBIP_BASE_URL = Deno.env.get("INFOBIP_BASE_URL")!;
 const INFOBIP_API_KEY = Deno.env.get("INFOBIP_API_KEY")!;
-const INFOBIP_SENDER = Deno.env.get("INFOBIP_SENDER") || "VERONA";
+const INFOBIP_SENDER = Deno.env.get("INFOBIP_SENDER") || "RISKIA";
 
 interface SendSmsPayload {
     user: {
@@ -44,7 +44,7 @@ Deno.serve(async (req) => {
                         sender: INFOBIP_SENDER,
                         destinations: [{ to: phone }],
                         content: {
-                            text: `Tu codigo de verificacion VERONA es: ${otp}. Expira en 60 segundos.`,
+                            text: `Tu codigo de verificacion RISKIA es: ${otp}. Expira en 60 segundos.`,
                         },
                     },
                 ],

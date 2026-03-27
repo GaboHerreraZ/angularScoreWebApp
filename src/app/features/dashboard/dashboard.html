@@ -248,7 +248,7 @@
                 </div>
                 <div>
                     <p class="text-surface-500 text-sm">Plazo máx. pago prom.</p>
-                    <p class="text-2xl font-bold text-surface-800 dark:text-surface-100">{{ adv.financialIndicators.avgMaxPaymentTime }} <span class="text-sm font-normal text-surface-500">días</span></p>
+                    <p class="text-2xl font-bold text-surface-800 dark:text-surface-100">{{ floor(adv.financialIndicators.avgMaxPaymentTime) }} <span class="text-sm font-normal text-surface-500">días</span></p>
                 </div>
             </div>
         </p-card>

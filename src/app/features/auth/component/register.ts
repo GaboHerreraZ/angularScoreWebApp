@@ -16,8 +16,8 @@ import { Configurator } from '@/app/layout/components/configurator/configurator'
         <app-configurator [simple]="true" />
         <div class="bg-surface-100 dark:bg-surface-950 h-screen w-screen flex items-center justify-center">
             <div class="bg-surface-0 dark:bg-surface-900 py-16 px-8 sm:px-16 shadow flex flex-col w-11/12 sm:w-120" style="border-radius: 14px">
-                <h1 class="font-bold text-2xl mt-0 mb-2">VERONA</h1>
-                <p class="text-muted-color mb-6">Welcome to the <strong>Verona Community</strong>, where the magic happens, sign up to continue.</p>
+                <h1 class="font-bold text-2xl mt-0 mb-2">RISKIA</h1>
+                <p class="text-muted-color mb-6">Welcome to the <strong>Riskia Community</strong>, where the magic happens, sign up to continue.</p>
 
                 <p-icon-field class="mb-6">
                     <p-inputicon class="pi pi-user" />

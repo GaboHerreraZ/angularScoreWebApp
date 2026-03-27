@@ -16,8 +16,8 @@ const FAQ_DATA: FaqItem[] = [
     // General
     {
         category: 'General',
-        question: '¿Qué es Verona?',
-        answer: 'Verona es una plataforma de gestión de clientes y estudios de crédito diseñada para agilizar el análisis financiero de sus clientes, centralizar la información y facilitar la toma de decisiones.'
+        question: '¿Qué es Riskia?',
+        answer: 'Riskia es una plataforma de gestión de clientes y estudios de crédito diseñada para agilizar el análisis financiero de sus clientes, centralizar la información y facilitar la toma de decisiones.'
     },
     {
         category: 'General',

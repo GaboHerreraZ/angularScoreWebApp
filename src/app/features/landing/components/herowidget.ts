@@ -72,7 +72,7 @@ import { ScrollAnimateDirective } from '@/app/shared/directives/scroll-animate.d
                                 <div class="w-3 h-3 rounded-full bg-yellow-400"></div>
                                 <div class="w-3 h-3 rounded-full bg-green-400"></div>
                             </div>
-                            <span class="text-xs text-muted-color font-mono">verona.app/estudio-crediticio</span>
+                            <span class="text-xs text-muted-color font-mono">riskia.app/estudio-crediticio</span>
                         </div>
                         <!-- Scoring card -->
                         <div class="bg-linear-to-r from-green-500/10 to-emerald-500/10 dark:from-green-500/20 dark:to-emerald-500/20 rounded-xl p-5 mb-4">
