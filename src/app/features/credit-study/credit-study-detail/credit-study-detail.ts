@@ -19,14 +19,17 @@ import { BadgeModule } from 'primeng/badge';
 import { SelectModule } from 'primeng/select';
 import { SkeletonModule } from 'primeng/skeleton';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { DialogModule } from 'primeng/dialog';
+import { TableModule } from 'primeng/table';
 import { ConfirmationService } from 'primeng/api';
 import { CreditStudyService } from '../credit-study.service';
-import { CreateCreditStudy } from '@/app/types/credit-study';
+import { CreateCreditStudy, ExtractedFinancialData } from '@/app/types/credit-study';
 import { NotificationService } from '@/app/shared/components/notification/notification.service';
 import { StudyResult } from './study-result/study-result';
 import { AutoCompleteComponent } from '@/app/shared/components/auto-complete/auto-complete';
 import { AutoCompleteOption } from '@/app/shared/components/auto-complete/auto-complete.service';
 import { ParameterService } from '@/app/core/services/parameter.service';
+import { Parameter } from '@/app/types/parameter';
 import { AuthService } from '@/app/core/services/auth.service';
 
 @Component({
@@ -50,6 +53,8 @@ import { AuthService } from '@/app/core/services/auth.service';
         SelectModule,
         SkeletonModule,
         ConfirmDialogModule,
+        DialogModule,
+        TableModule,
         AutoCompleteComponent,
         StudyResult
     ],
@@ -99,7 +104,41 @@ export class CreditStudyDetail  {
         this.route.queryParams.pipe(map(qp => qp['customerName']))
     );
 
+    private readonly MAX_PDF_SIZE_MB = 10;
+    private readonly MAX_PDF_SIZE_BYTES = this.MAX_PDF_SIZE_MB * 1024 * 1024;
+
+    extractedDataVisible = signal(false);
+    extractedDataRows = signal<{ label: string; value: number | null }[]>([]);
+
+    private readonly extractionFields: { label: string; key: keyof ExtractedFinancialData }[] = [
+        { label: 'Efectivo y equivalentes', key: 'cashAndEquivalents' },
+        { label: 'Cuentas por cobrar (año reciente)', key: 'accountsReceivable1' },
+        { label: 'Cuentas por cobrar (año anterior)', key: 'accountsReceivable2' },
+        { label: 'Inventarios (año reciente)', key: 'inventories1' },
+        { label: 'Inventarios (año anterior)', key: 'inventories2' },
+        { label: 'Total activos corrientes', key: 'totalCurrentAssets' },
+        { label: 'Propiedades, planta y equipo', key: 'fixedAssetsProperty' },
+        { label: 'Total activos no corrientes', key: 'totalNonCurrentAssets' },
+        { label: 'Obligaciones financieras a corto plazo', key: 'shortTermFinancialLiabilities' },
+        { label: 'Proveedores (año reciente)', key: 'suppliers1' },
+        { label: 'Proveedores (año anterior)', key: 'suppliers2' },
+        { label: 'Total pasivos corrientes', key: 'totalCurrentLiabilities' },
+        { label: 'Obligaciones financieras a largo plazo', key: 'longTermFinancialLiabilities' },
+        { label: 'Total pasivos no corrientes', key: 'totalNonCurrentLiabilities' },
+        { label: 'Resultados acumulados', key: 'retainedEarnings' },
+        { label: 'Utilidad neta', key: 'netIncome' },
+        { label: 'Ingresos de actividades ordinarias', key: 'ordinaryActivityRevenue' },
+        { label: 'Costo de ventas', key: 'costOfSales' },
+        { label: 'Gastos de administración', key: 'administrativeExpenses' },
+        { label: 'Gastos de ventas', key: 'sellingExpenses' },
+        { label: 'Depreciación', key: 'depreciation' },
+        { label: 'Amortización', key: 'amortization' },
+        { label: 'Gastos financieros', key: 'financialExpenses' },
+        { label: 'Impuestos', key: 'taxes' },
+    ];
+
     loading = signal(false);
+    extractingPdf = signal(false);
     activeStep = 1;
     performingStudy = signal(false);
     studyCompleted = signal(false);
@@ -168,7 +207,7 @@ export class CreditStudyDetail  {
         longTermFinancialLiabilities: new FormControl<number | null>(null, { validators: [Validators.required] }),
         totalNonCurrentLiabilities: new FormControl<number | null>(null, { validators: [Validators.required] }),
         retainedEarnings: new FormControl<number | null>(null, { validators: [Validators.required] }),
-        incomeStatementId: new FormControl({}, { validators: [Validators.required] }),
+        incomeStatementId: new FormControl<Parameter | null>(null, { validators: [Validators.required] }),
         ordinaryActivityRevenue: new FormControl<number | null>(null, { validators: [Validators.required] }),
         costOfSales: new FormControl<number | null>(null, { validators: [Validators.required] }),
         administrativeExpenses: new FormControl<number | null>(null, { validators: [Validators.required] }),
@@ -383,6 +422,85 @@ export class CreditStudyDetail  {
                 this.notificationService.error(result.error ?? 'Error al guardar', 'Error');
             }
         });
+    }
+
+    onUploadFinancialStatements(): void {
+        this.confirmationService.confirm({
+            message: `Para una extracción exitosa, el archivo debe cumplir con las siguientes condiciones:\n\n` +
+                `- Formato PDF\n` +
+                `- Peso máximo de ${this.MAX_PDF_SIZE_MB} MB\n` +
+                `- Debe ser un documento digital legible (no se aceptan copias escaneadas, fotografías ni capturas de pantalla)`,
+            header: 'Cargar Estados Financieros',
+            icon: 'pi pi-file-pdf',
+            acceptLabel: 'Proceder',
+            rejectLabel: 'Cancelar',
+            acceptButtonStyleClass: 'p-button-info',
+            rejectButtonStyleClass: 'p-button-secondary p-button-outlined',
+            accept: () => this.openFileSelector()
+        });
+    }
+
+    private openFileSelector(): void {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'application/pdf';
+
+        input.onchange = () => {
+            const file = input.files?.[0];
+            if (!file) return;
+
+            if (file.type !== 'application/pdf') {
+                this.notificationService.error('Solo se permiten archivos PDF', 'Formato inválido');
+                return;
+            }
+
+            if (file.size > this.MAX_PDF_SIZE_BYTES) {
+                this.notificationService.error(
+                    `El archivo excede el tamaño máximo permitido de ${this.MAX_PDF_SIZE_MB} MB`,
+                    'Archivo muy grande'
+                );
+                return;
+            }
+
+            this.extractingPdf.set(true);
+            this.creditStudyService.extractFinancialData(file).pipe(
+                finalize(() => this.extractingPdf.set(false)),
+                takeUntilDestroyed(this.destroyRef)
+            ).subscribe((result) => {
+                if (result.success && result.data) {
+                    this.applyExtractedData(result.data);
+                } else {
+                    this.notificationService.error(result.error ?? 'Error al procesar el documento', 'Error');
+                }
+            });
+        };
+
+        input.click();
+    }
+
+    private applyExtractedData(data: ExtractedFinancialData): void {
+        const patchData: Record<string, any> = {};
+        const rows: { label: string; value: number | null }[] = [];
+
+        for (const field of this.extractionFields) {
+            const value = data[field.key] ?? null;
+            patchData[field.key] = value;
+            rows.push({ label: field.label, value: value as number | null });
+        }
+
+        if (data.balanceSheetDate) {
+            patchData['balanceSheetDate'] = new Date(data.balanceSheetDate);
+        }
+
+        this.step2Form.patchValue(patchData);
+        this.step2Form.markAsDirty();
+        this.formValuesSignal.set(this.step2Form.getRawValue());
+        this.extractedDataRows.set(rows);
+        this.extractedDataVisible.set(true);
+    }
+
+    onCloseExtractedData(): void {
+        this.extractedDataVisible.set(false);
     }
 
     onCancel(): void {

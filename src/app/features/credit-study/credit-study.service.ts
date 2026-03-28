@@ -2,7 +2,7 @@ import { inject, Injectable, signal } from '@angular/core';
 import { Observable, BehaviorSubject, of, map, catchError, tap, switchMap } from 'rxjs';
 import { ApiService } from '@/app/core/services/api.service';
 import { AuthService } from '@/app/core/services/auth.service';
-import { AiAnalysisResponse, CreateCreditStudy } from '@/app/types/credit-study';
+import { AiAnalysisResponse, CreateCreditStudy, ExtractedFinancialData } from '@/app/types/credit-study';
 
 interface LoadCreditStudiesParams {
     page: number;
@@ -100,6 +100,22 @@ export class CreditStudyService {
             catchError((error) => {
                 console.error('Error al realizar estudio de crédito:', error);
                 return of({ success: false, error: 'Error al realizar el estudio de crédito' });
+            })
+        );
+    }
+
+    extractFinancialData(file: File): Observable<{ success: boolean; error?: string; data?: ExtractedFinancialData }> {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const endpoint = `companies/${this.companyId()}/ai-analyses/extract-pdf`;
+
+        return this.apiService.post<ExtractedFinancialData>(endpoint, formData).pipe(
+            map((response) => ({ success: true, data: response })),
+            catchError((error) => {
+                console.error('Error al extraer datos del PDF:', error);
+                const message = error?.error?.message ?? 'Error al procesar el documento PDF';
+                return of({ success: false, error: message });
             })
         );
     }

@@ -1,4 +1,84 @@
 <p-confirmDialog />
+
+<!-- Modal de carga mientras se extrae el PDF -->
+<p-dialog
+    [(visible)]="extractingPdf"
+    [modal]="true"
+    [closable]="false"
+    [showHeader]="false"
+    [style]="{ width: '420px' }"
+    [draggable]="false">
+    <div class="bg-linear-to-r mt-4 from-blue-50 via-cyan-50 to-blue-50 dark:from-blue-900/20 dark:via-cyan-900/20 dark:to-blue-900/20 p-6 rounded-xl">
+        <div class="flex flex-col items-center gap-4 py-4">
+            <div class="relative w-16 h-16">
+                <div class="absolute inset-0 rounded-full border-4 border-blue-200 dark:border-blue-800"></div>
+                <div class="absolute inset-0 rounded-full border-4 border-transparent border-t-blue-500 animate-spin"></div>
+                <div class="absolute inset-2 rounded-full bg-linear-to-br from-blue-500 to-cyan-600 flex items-center justify-center shadow-lg shadow-blue-500/25">
+                    <i class="pi pi-file-pdf text-white text-lg ai-sparkle-spin"></i>
+                </div>
+            </div>
+            <div class="text-center">
+                <h6 class="font-bold text-base m-0 text-blue-800 dark:text-blue-300">Extrayendo datos del PDF...</h6>
+                <p class="text-sm text-blue-600/70 dark:text-blue-400/70 m-0 mt-1 ai-typing">Leyendo estados financieros y extrayendo cifras</p>
+            </div>
+            <div class="flex gap-6 mt-2">
+                <div class="flex flex-col items-center gap-1">
+                    <p-skeleton width="5rem" height="0.75rem" borderRadius="4px" />
+                    <p-skeleton width="3.5rem" height="0.75rem" borderRadius="4px" />
+                </div>
+                <div class="flex flex-col items-center gap-1">
+                    <p-skeleton width="6rem" height="0.75rem" borderRadius="4px" />
+                    <p-skeleton width="4rem" height="0.75rem" borderRadius="4px" />
+                </div>
+                <div class="flex flex-col items-center gap-1">
+                    <p-skeleton width="4.5rem" height="0.75rem" borderRadius="4px" />
+                    <p-skeleton width="3rem" height="0.75rem" borderRadius="4px" />
+                </div>
+            </div>
+        </div>
+    </div>
+</p-dialog>
+
+<p-dialog
+    header="Datos extraídos del PDF"
+    [(visible)]="extractedDataVisible"
+    [modal]="true"
+    [closable]="false"
+    [dismissableMask]="false"
+    [style]="{ width: '600px' }"
+    [maximizable]="true"
+    [draggable]="false">
+
+    <p class="text-muted-color text-sm mb-4">Los siguientes datos fueron extraídos del documento y aplicados al formulario. Los campos sin valor no fueron encontrados en el documento.</p>
+
+    <p-table [value]="extractedDataRows()" [scrollable]="true" scrollHeight="400px" styleClass="p-datatable-sm p-datatable-striped">
+        <ng-template #header>
+            <tr>
+                <th>Campo</th>
+                <th class="text-right">Valor</th>
+            </tr>
+        </ng-template>
+        <ng-template #body let-row>
+            <tr>
+                <td>{{ row.label }}</td>
+                <td class="text-right font-medium">
+                    @if (row.value !== null) {
+                        {{ row.value | currency: 'COP' : 'symbol-narrow' : '1.0-0' }}
+                    } @else {
+                        <span class="text-muted-color italic">No encontrado</span>
+                    }
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+
+    <ng-template #footer>
+        <div class="flex justify-end">
+            <p-button label="Aceptar" icon="pi pi-check" severity="info" (onClick)="onCloseExtractedData()" />
+        </div>
+    </ng-template>
+</p-dialog>
+
 <div class="flex flex-col gap-6">
     <!-- Header -->
     @if (loading()) {
@@ -38,7 +118,8 @@
             </div>
             <div class="flex gap-2 sm:ml-0 ml-12 shrink-0">
                 <p-button label="Cancelar" icon="pi pi-times" severity="secondary" [outlined]="true" (onClick)="onCancel()" class="flex-1 sm:flex-none" />
-                <p-button label="Guardar" icon="pi pi-check" severity="success" (onClick)="onSave()" [disabled]="!step1Form.dirty && !step2Form.dirty" class="flex-1 sm:flex-none" />
+                <p-button label="Cargar Estados Financieros" icon="pi pi-file-pdf" severity="info" [outlined]="true" (onClick)="onUploadFinancialStatements()" [loading]="extractingPdf()" [disabled]="extractingPdf()" class="flex-1 sm:flex-none" />
+                <p-button label="Guardar" icon="pi pi-check" severity="success" (onClick)="onSave()" class="flex-1 sm:flex-none" />
             </div>
         </div>
     </p-card>
@@ -690,7 +771,7 @@
                             @if (isEditMode()) {
                             <p-button label="Realizar Estudio" icon="pi pi-bolt" severity="success" (onClick)="onPerformStudy(activateCallback)" [disabled]="!canPerformStudy()" [loading]="performingStudy()" />
                             } @else {
-                            <p-button label="Guardar" icon="pi pi-check" severity="success" (onClick)="onSave()" [disabled]="!canSaveStudy()" />
+                            <p-button label="Guardar" icon="pi pi-check" severity="success" (onClick)="onSave()" />
                             }
                         </div>
                     </ng-template>

@@ -94,6 +94,34 @@ export interface CreateCreditStudy {
     updatedAt: Date;
 }
 
+export interface ExtractedFinancialData {
+    balanceSheetDate: string | null;
+    cashAndEquivalents: number | null;
+    accountsReceivable1: number | null;
+    accountsReceivable2: number | null;
+    inventories1: number | null;
+    inventories2: number | null;
+    totalCurrentAssets: number | null;
+    fixedAssetsProperty: number | null;
+    totalNonCurrentAssets: number | null;
+    shortTermFinancialLiabilities: number | null;
+    suppliers1: number | null;
+    suppliers2: number | null;
+    totalCurrentLiabilities: number | null;
+    longTermFinancialLiabilities: number | null;
+    totalNonCurrentLiabilities: number | null;
+    retainedEarnings: number | null;
+    netIncome: number | null;
+    ordinaryActivityRevenue: number | null;
+    costOfSales: number | null;
+    administrativeExpenses: number | null;
+    sellingExpenses: number | null;
+    depreciation: number | null;
+    amortization: number | null;
+    financialExpenses: number | null;
+    taxes: number | null;
+}
+
 export interface AiAnalysisItem {
     id: string;
     result: string | null;
