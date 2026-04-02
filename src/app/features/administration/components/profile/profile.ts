@@ -15,7 +15,6 @@ import { ParameterService } from '@/app/core/services/parameter.service';
 import { ProfileService } from './profile.service';
 import { SupabaseService } from '@/app/core/services/supabase.service';
 import { AuthService } from '@/app/core/services/auth.service';
-import { Parameter } from '@/app/types/parameter';
 import { NotificationService } from '@/app/shared/components/notification/notification.service';
 
 @Component({
@@ -57,6 +56,7 @@ export class Profile {
                     email: profile.email,
                     name: profile.name,
                     lastName: profile.lastName,
+                    phone: profile.phone,
                     roleName: (profile as any).role?.label || '',
                     position: profile.position
                 });
@@ -65,10 +65,10 @@ export class Profile {
     }
 
     form = new FormGroup({
-        email: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.email] }),
+        email: new FormControl({ value: '', disabled: true }, { nonNullable: true, validators: [Validators.required, Validators.email] }),
         name: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
         lastName: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-        phone: new FormControl({ value: this.user?.phoneFormatted, disabled: true }, { nonNullable: true, validators: [Validators.required] }),
+        phone: new FormControl('', { nonNullable: true }),
         roleName: new FormControl({ value: '', disabled: true }),
         roleId: new FormControl('', { nonNullable: true }),
         position: new FormControl<string | null>(null)
@@ -94,8 +94,7 @@ export class Profile {
         const payload = {
             name: formData.name,
             lastName: formData.lastName,
-            phone: this.user.phone,
-            roleId: (formData.roleId as any as Parameter).id,
+            phone: formData.phone,
             position: formData.position
         };
 
@@ -112,12 +111,13 @@ export class Profile {
 
     private createProfile(): void {
         const formData = this.form.getRawValue();
-        const { roleId, ...rest } = formData;
         const payload = {
-            ...rest,
             id: this.user?.id,
-            phone: this.user.phone,
-            roleId: (roleId as any as Parameter).id
+            name: formData.name,
+            lastName: formData.lastName,
+            email: formData.email,
+            phone: formData.phone,
+            position: formData.position
         };
 
         this.profileService.createProfile(payload as any).pipe(

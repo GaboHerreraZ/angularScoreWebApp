@@ -13,6 +13,7 @@ export interface Subscription {
     maxCustomers: number;
     maxStudiesPerMonth: number;
     maxAiAnalysisPerMonth: number | null;
+    maxPdfExtractionsPerMonth: number | null;
     dashboardLevel: Parameter;
     excelReports: boolean;
     emailNotifications: boolean;
@@ -37,6 +38,7 @@ export interface SubscriptionUsage {
         customers: UsageItem;
         studiesThisMonth: UsageItem;
         aiAnalysesThisMonth: UsageItem;
+        pdfExtractionsThisMonth: UsageItem;
     };
     features: {
         dashboardLevel: Parameter;
@@ -58,6 +60,7 @@ export interface PlanItem {
     maxCustomers: number | null;
     maxStudiesPerMonth: number | null;
     maxAiAnalysisPerMonth: number | null;
+    maxPdfExtractionsPerMonth: number | null;
     dashboardLevel?: Parameter;
     dashboardLevelId?: number;
     excelReports: boolean;

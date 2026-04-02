@@ -92,19 +92,12 @@
                                                     <label for="onb-position">Cargo en la Empresa</label>
                                                 </p-floatlabel>
                                             </div>
-
-                                            <div class="flex flex-col gap-1">
-                                                <p-floatlabel variant="on">
-                                                    <input pInputText id="onb-role" [formControl]="profileForm.controls.roleLabel" />
-                                                    <label for="onb-role">Rol en el sistema</label>
-                                                </p-floatlabel>
-                                            </div>
                                         </div>
                                     </p-fluid>
                                 </p-card>
 
                                 <div class="flex justify-end mt-4">
-                                    <p-button label="Guardar y continuar" icon="pi pi-arrow-right" iconPos="right" [loading]="savingProfile()" (onClick)="onSaveProfile(activateCallback)" />
+                                    <p-button label="Guardar y continuar" icon="pi pi-arrow-right" iconPos="right" [loading]="savingProfile()" (onClick)="onSaveProfile()" />
                                 </div>
                                 }
                             </ng-template>

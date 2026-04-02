@@ -12,8 +12,8 @@ import { RouterModule } from '@angular/router';
                     <!-- Brand -->
                     <div>
                         <div class="flex items-center gap-2 mb-4">
-                            <img alt="Riskia logo" src="/layout/images/logo-light.png" class="w-8 h-8" />
-                            <span class="text-white text-2xl font-bold">Riskia</span>
+                            <img alt="TuPlazo logo" src="/layout/images/logo-light.png" class="w-8 h-8" />
+                            <span class="text-white text-2xl font-bold">TuPlazo</span>
                         </div>
                         <p class="text-gray-400 leading-relaxed mb-6">Análisis crediticio inteligente para empresas que buscan tomar decisiones de crédito más rápidas y seguras.</p>
                     </div>
@@ -46,7 +46,7 @@ import { RouterModule } from '@angular/router';
                         <ul class="list-none p-0 m-0 flex flex-col gap-3">
                             <li class="flex items-center gap-2">
                                 <i class="pi pi-envelope text-gray-500"></i>
-                                <span class="text-gray-400">soporte&#64;riskia.app</span>
+                                <span class="text-gray-400">soporte&#64;tuplazo.ai</span>
                             </li>
                             <li class="flex items-center gap-2">
                                 <i class="pi pi-map-marker text-gray-500"></i>
@@ -58,7 +58,7 @@ import { RouterModule } from '@angular/router';
 
                 <!-- Divider -->
                 <div class="border-t border-gray-800 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-                    <span class="text-gray-500 text-sm">&copy; 2026 Riskia. Todos los derechos reservados.</span>
+                    <span class="text-gray-500 text-sm">&copy; 2026 TuPlazo. Todos los derechos reservados.</span>
                     <span class="text-gray-500 text-sm">Hecho con &hearts; en Colombia &#x1F1E8;&#x1F1F4;</span>
                 </div>
             </div>

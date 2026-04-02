@@ -103,11 +103,10 @@ export class Onboarding {
     });
 
     profileForm = new FormGroup({
-        email: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.email] }),
+        email: new FormControl({ value: this.user?.email ?? '', disabled: true }, { nonNullable: true, validators: [Validators.required, Validators.email] }),
         name: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
         lastName: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-        phone: new FormControl({ value: this.user?.phoneFormatted, disabled: true }, { nonNullable: true }),
-        roleLabel: new FormControl({ value: '', disabled: true }),
+        phone: new FormControl('', { nonNullable: true }),
         position: new FormControl<string | null>(null)
     });
 
@@ -124,14 +123,6 @@ export class Onboarding {
     });
 
     constructor() {
-        // Auto-set admin role label when loaded
-        effect(() => {
-            const role = this.adminRole();
-            if (role) {
-                this.profileForm.patchValue({ roleLabel: role.label });
-            }
-        });
-
         // Track state selection to update city options
         this.companyForm.controls.state.valueChanges.pipe(
             takeUntilDestroyed(this.destroyRef)
@@ -172,15 +163,9 @@ export class Onboarding {
         });
     }
 
-    onSaveProfile(activateCallback: (step: number) => void): void {
+    onSaveProfile(): void {
         if (this.profileForm.invalid) {
             this.profileForm.markAllAsTouched();
-            return;
-        }
-
-        const adminRole = this.adminRole();
-        if (!adminRole) {
-            this.notificationService.error('No se pudo obtener el rol de administrador.');
             return;
         }
 
@@ -191,8 +176,7 @@ export class Onboarding {
             email: formData.email,
             name: formData.name,
             lastName: formData.lastName,
-            phone: this.user?.phone,
-            roleId: adminRole.id,
+            phone: formData.phone,
             position: formData.position
         };
 
@@ -203,7 +187,6 @@ export class Onboarding {
             next: async () => {
                 this.notificationService.success('Perfil creado correctamente');
                 await this.authService.loadProfile(this.user!.id as string);
-                activateCallback(2);
             },
             error: () => {
                 this.notificationService.error('Error al crear el perfil. Intenta de nuevo.');
@@ -221,11 +204,6 @@ export class Onboarding {
         this.savingCompany.set(true);
         const formData = this.companyForm.getRawValue();
 
-        const adminRole = this.adminRole();
-        if (!adminRole) {
-            this.notificationService.error('No se pudo obtener el rol de administrador.');
-            return;
-        }
 
         const payload = {
             name: formData.name,
@@ -235,7 +213,6 @@ export class Onboarding {
             city: formData.city?.name,
             address: formData.address,
             isActive: true,
-            roleId: adminRole.id,
         };
 
         this.companyService.createCompany(payload as any).pipe(

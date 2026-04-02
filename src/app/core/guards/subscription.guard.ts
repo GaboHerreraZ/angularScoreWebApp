@@ -17,7 +17,14 @@ export const subscriptionGuard: CanActivateFn = async () => {
         return router.createUrlTree(['/suscripcion/registro']);
     }
 
-    const company = userCompanies[0].company;
+    const userCompany = userCompanies[0];
+    if (!userCompany.isActive && profile.role?.code === 'auxiliar') {
+        return router.createUrlTree(['/'], {
+            queryParams: { blocked: 'true' }
+        });
+    }
+
+    const company = userCompany.company;
     if (!company?.companySubscriptions?.length) {
         return router.createUrlTree(['/suscripcion/registro']);
     }

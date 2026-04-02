@@ -3,7 +3,7 @@
     "version": 1,
     "newProjectRoot": "projects",
     "projects": {
-        "riskia-ng": {
+        "tuplazo-ng": {
             "projectType": "application",
             "schematics": {
                 "@schematics/angular:component": {
@@ -17,7 +17,7 @@
                 "build": {
                     "builder": "@angular-devkit/build-angular:application",
                     "options": {
-                        "outputPath": "dist/riskia-ng",
+                        "outputPath": "dist/tuplazo-ng",
                         "index": "src/index.html",
                         "browser": "src/main.ts",
                         "tsConfig": "tsconfig.app.json",
@@ -68,10 +68,10 @@
                     "builder": "@angular-devkit/build-angular:dev-server",
                     "configurations": {
                         "production": {
-                            "buildTarget": "riskia-ng:build:production"
+                            "buildTarget": "tuplazo-ng:build:production"
                         },
                         "development": {
-                            "buildTarget": "riskia-ng:build:development"
+                            "buildTarget": "tuplazo-ng:build:development"
                         }
                     },
                     "defaultConfiguration": "development"

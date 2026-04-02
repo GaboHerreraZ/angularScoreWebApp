@@ -23,7 +23,8 @@
             <p-skeleton width="18rem" height="1rem" />
             <p-skeleton height="4rem" borderRadius="0.5rem" />
             <p-skeleton width="12rem" height="1.25rem" />
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+                <p-skeleton height="8rem" borderRadius="0.5rem" />
                 <p-skeleton height="8rem" borderRadius="0.5rem" />
                 <p-skeleton height="8rem" borderRadius="0.5rem" />
                 <p-skeleton height="8rem" borderRadius="0.5rem" />
@@ -163,7 +164,7 @@
             <!-- Consumo de recursos -->
             <div>
                 <h3 class="text-lg font-semibold mb-3">Consumo de recursos</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
                     <!-- Usuarios -->
                     <div class="rounded-lg border border-surface p-4 flex flex-col gap-3">
                         <div class="flex items-center gap-2">
@@ -282,6 +283,38 @@
                         </span>
                         }
                     </div>
+
+                    <!-- Extracciones PDF este mes -->
+                    <div class="rounded-lg border border-surface p-4 flex flex-col gap-3">
+                        <div class="flex items-center gap-2">
+                            <i class="pi pi-file-pdf text-teal-500"></i>
+                            <span class="font-medium">Extracciones PDF este mes</span>
+                        </div>
+                        @if (data.usage.pdfExtractionsThisMonth.unlimited) {
+                        <div class="flex items-baseline justify-between">
+                            <span class="text-2xl font-bold">{{ data.usage.pdfExtractionsThisMonth.used }}</span>
+                            <span class="text-muted-color text-sm">Ilimitadas</span>
+                        </div>
+                        <p-progressBar [value]="100" [showValue]="false" [style]="{ height: '8px' }" color="var(--teal-500)" />
+                        <span class="text-sm text-teal-500">Sin límite</span>
+                        } @else {
+                        <div class="flex items-baseline justify-between">
+                            <span class="text-2xl font-bold">{{ data.usage.pdfExtractionsThisMonth.used }}</span>
+                            <span class="text-muted-color text-sm">de {{ data.usage.pdfExtractionsThisMonth.max }}</span>
+                        </div>
+                        <p-progressBar [value]="usagePercentage(data.usage.pdfExtractionsThisMonth.used, data.usage.pdfExtractionsThisMonth.max)" [showValue]="false" />
+                        <span
+                            class="text-sm"
+                            [ngClass]="{
+                            'text-green-500': usageSeverity(data.usage.pdfExtractionsThisMonth.used, data.usage.pdfExtractionsThisMonth.max) === 'success',
+                            'text-yellow-500': usageSeverity(data.usage.pdfExtractionsThisMonth.used, data.usage.pdfExtractionsThisMonth.max) === 'warn',
+                            'text-red-500': usageSeverity(data.usage.pdfExtractionsThisMonth.used, data.usage.pdfExtractionsThisMonth.max) === 'danger'
+                        }"
+                        >
+                            {{ data.usage.pdfExtractionsThisMonth.remaining }} disponible{{ data.usage.pdfExtractionsThisMonth.remaining !== 1 ? 's' : '' }}
+                        </span>
+                        }
+                    </div>
                 </div>
             </div>
 
@@ -325,11 +358,58 @@
     </p-card>
     }
 
-    <!-- Sección de Usuarios -->
-    <ng-template #subtitle>
-        <span class="text-muted-color text-sm">Usuarios con acceso a esta empresa. Puedes invitar nuevos o eliminar los existentes.</span>
-    </ng-template>
-
-    <app-custom-table [tableSettings]="usersTableSettings()" [data]="usersData()" [totalRecords]="usersData().length" (actionClick)="onUserAction($event)" (addClick)="onInviteUser()" />
+    <!-- Sección de Usuarios Invitados -->
+    <app-custom-table [tableSettings]="invitationsTableSettings" [data]="invitationsData()" [totalRecords]="invitationsData().length" (actionClick)="onInvitationAction($event)" (addClick)="onInviteUser()" />
     }
 </div>
+
+<!-- Dialog Invitar Usuario -->
+<p-dialog header="Invitar usuario" [(visible)]="inviteDialogVisible" [modal]="true" [style]="{ width: '28rem' }" [closable]="!inviting()" [draggable]="false">
+    <div class="flex flex-col gap-4">
+        <span class="text-muted-color text-sm">Invita a un usuario a colaborar en tu empresa. Recibirá un correo con las instrucciones para acceder.</span>
+
+        <p-fluid>
+            <div class="flex flex-col gap-1">
+                <p-floatlabel variant="on">
+                    <input pInputText id="inviteEmail" [formControl]="inviteForm.controls.email" [invalid]="inviteForm.controls.email.invalid && inviteForm.controls.email.touched" />
+                    <label for="inviteEmail">Correo electrónico *</label>
+                </p-floatlabel>
+                @if (inviteForm.controls.email.touched && inviteForm.controls.email.errors) {
+                    <small class="text-red-500">
+                        @if (inviteForm.controls.email.errors['required']) {
+                            Este campo es obligatorio
+                        } @else if (inviteForm.controls.email.errors['email']) {
+                            Ingresa un correo válido
+                        }
+                    </small>
+                }
+            </div>
+        </p-fluid>
+    </div>
+
+    <ng-template #footer>
+        <div class="flex justify-end gap-2">
+            <p-button label="Cancelar" severity="secondary" [text]="true" (onClick)="inviteDialogVisible.set(false)" [disabled]="inviting()" />
+            <p-button label="Invitar" icon="pi pi-send" severity="success" [loading]="inviting()" (onClick)="onInviteSubmit()" />
+        </div>
+    </ng-template>
+</p-dialog>
+
+<!-- Dialog Confirmación de Acción -->
+<p-dialog [header]="confirmDialogTitle()" [(visible)]="confirmDialogVisible" [modal]="true" [style]="{ width: '28rem' }" [closable]="!processingAction()" [draggable]="false">
+    <div class="flex flex-col items-center gap-4 text-center">
+        <i [class]="confirmDialogIcon() + ' text-4xl'" [ngClass]="{
+            'text-blue-500': confirmDialogSeverity() === 'info',
+            'text-red-500': confirmDialogSeverity() === 'danger',
+            'text-green-500': confirmDialogSeverity() === 'success'
+        }"></i>
+        <p class="text-color m-0">{{ confirmDialogMessage() }}</p>
+    </div>
+
+    <ng-template #footer>
+        <div class="flex justify-end gap-2">
+            <p-button label="Cancelar" severity="secondary" [text]="true" (onClick)="confirmDialogVisible.set(false)" [disabled]="processingAction()" />
+            <p-button label="Confirmar" [icon]="confirmDialogIcon()" [severity]="confirmDialogSeverity()" [loading]="processingAction()" (onClick)="onConfirmAction()" />
+        </div>
+    </ng-template>
+</p-dialog>

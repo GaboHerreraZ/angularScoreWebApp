@@ -11,7 +11,7 @@ import { ScrollAnimateDirective } from '@/app/shared/directives/scroll-animate.d
                 <div class="text-center mb-16" appScrollAnimate="fade-up">
                     <span class="text-primary font-bold text-sm uppercase tracking-widest">Testimonios</span>
                     <h2 class="font-extrabold text-3xl sm:text-4xl lg:text-5xl mt-3 mb-4 text-color">Lo que dicen nuestros clientes</h2>
-                    <p class="text-lg text-muted-color max-w-2xl mx-auto">Empresas en Colombia ya confían en Riskia para sus decisiones crediticias</p>
+                    <p class="text-lg text-muted-color max-w-2xl mx-auto">Empresas en Colombia ya confían en TuPlazo para sus decisiones crediticias</p>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -41,7 +41,7 @@ import { ScrollAnimateDirective } from '@/app/shared/directives/scroll-animate.d
                             <i class="pi pi-star-fill text-yellow-500 text-sm"></i>
                             }
                         </div>
-                        <p class="text-color leading-relaxed mb-6 italic">"El scoring de riesgo nos permite tomar decisiones objetivas y respaldadas por datos. Hemos reducido la cartera vencida en un 35% desde que implementamos Riskia."</p>
+                        <p class="text-color leading-relaxed mb-6 italic">"El scoring de riesgo nos permite tomar decisiones objetivas y respaldadas por datos. Hemos reducido la cartera vencida en un 35% desde que implementamos TuPlazo."</p>
                         <div class="flex items-center gap-3">
                             <div class="w-12 h-12 rounded-full bg-green-500/10 flex items-center justify-center">
                                 <span class="text-green-500 font-bold text-lg">LP</span>

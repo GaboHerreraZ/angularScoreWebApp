@@ -17,6 +17,7 @@ export const appRoutes: Routes = [
             { path: 'administracion', data: { breadcrumb: 'Administración' }, loadChildren: () => import('@/app/features/administration/administration.routes') }
         ]
     },
+    { path: 'invitacion', loadComponent: () => import('@/app/features/invitation/invitation').then(c => c.InvitationComponent) },
     { path: 'auth', loadChildren: () => import('@/app/features/auth/auth.routes') },
     { path: 'suscripcion', loadChildren: () => import('@/app/features/subscription/subscription.routes') },
     { path: 'inicio', redirectTo: '/', pathMatch: 'full' },

@@ -16,13 +16,8 @@ const FAQ_DATA: FaqItem[] = [
     // General
     {
         category: 'General',
-        question: '¿Qué es Riskia?',
-        answer: 'Riskia es una plataforma de gestión de clientes y estudios de crédito diseñada para agilizar el análisis financiero de sus clientes, centralizar la información y facilitar la toma de decisiones.'
-    },
-    {
-        category: 'General',
-        question: '¿Cómo cambio mi contraseña?',
-        answer: 'Dirígete a Administración → Perfil y utiliza la opción "Cambiar contraseña". También puedes hacerlo desde la pantalla de inicio de sesión con la opción "¿Olvidé mi contraseña?".'
+        question: '¿Qué es TuPlazo?',
+        answer: 'TuPlazo es una plataforma de gestión de clientes y estudios de crédito diseñada para agilizar el análisis financiero de sus clientes, centralizar la información y facilitar la toma de decisiones.'
     },
     {
         category: 'General',

@@ -1,9 +1,11 @@
-import { Component } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { Component, inject, signal } from '@angular/core';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { RippleModule } from 'primeng/ripple';
 import { StyleClassModule } from 'primeng/styleclass';
 import { ButtonModule } from 'primeng/button';
 import { DividerModule } from 'primeng/divider';
+import { DialogModule } from 'primeng/dialog';
+import { SupabaseService } from '@/app/core/services/supabase.service';
 import { HeaderWidget } from './components/headerwidget';
 import { HeroWidget } from './components/herowidget';
 import { StatsWidget } from './components/statswidget';
@@ -18,7 +20,20 @@ import { FooterWidget } from './components/footerwidget';
 @Component({
     selector: 'app-landing',
     standalone: true,
-    imports: [RouterModule, RippleModule, StyleClassModule, ButtonModule, DividerModule, HeaderWidget, HeroWidget, StatsWidget, FeaturesWidget, SecurityWidget, TestimonialsWidget, JoinWidget, PricingWidget, FaqWidget, FooterWidget],
+    imports: [RouterModule, RippleModule, StyleClassModule, ButtonModule, DividerModule, DialogModule, HeaderWidget, HeroWidget, StatsWidget, FeaturesWidget, SecurityWidget, TestimonialsWidget, JoinWidget, PricingWidget, FaqWidget, FooterWidget],
     templateUrl: './landing.html'
 })
-export class Landing {}
+export class Landing {
+    private route = inject(ActivatedRoute);
+    private supabaseService = inject(SupabaseService);
+
+    blockedDialogVisible = signal(
+        this.route.snapshot.queryParamMap.get('blocked') === 'true' && this.supabaseService.isAuthenticated()
+    );
+
+    constructor() {
+        if (this.blockedDialogVisible()) {
+            this.supabaseService.signOut();
+        }
+    }
+}

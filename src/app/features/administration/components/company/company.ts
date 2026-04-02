@@ -13,12 +13,14 @@ import { TagModule } from 'primeng/tag';
 import { SkeletonModule } from 'primeng/skeleton';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { TooltipModule } from 'primeng/tooltip';
+import { DialogModule } from 'primeng/dialog';
 import { CustomTable } from '@/app/shared/components/table/table';
 import { CompanyService } from './company.service';
 import { ParameterService } from '@/app/core/services/parameter.service';
 import { SupabaseService } from '@/app/core/services/supabase.service';
 import { NotificationService } from '@/app/shared/components/notification/notification.service';
 import { Company as CompanyModel } from '@/app/types/company';
+import { InvitationsResponse } from '@/app/types/invitation';
 import { Parameter } from '@/app/types/parameter';
 import { SubscriptionUsage } from '@/app/types/subscription';
 import { TableActionEvent, TableSettings } from '@/app/types/table';
@@ -40,6 +42,7 @@ import { TableActionEvent, TableSettings } from '@/app/types/table';
         SkeletonModule,
         ProgressBarModule,
         TooltipModule,
+        DialogModule,
         CustomTable
     ],
     templateUrl: './company.html'
@@ -72,6 +75,54 @@ export class Company {
     });
 
     subscriptionUsage = computed(() => this.subscriptionUsageResource.value() ?? null);
+
+    invitationsResource = resource<InvitationsResponse, string>({
+        params: () => this.user!.id as string,
+        loader: ({ params: userId }) => firstValueFrom(this.companyService.getInvitations(userId))
+    });
+
+    invitationsData = computed(() => {
+        const invitations = this.invitationsResource.value()?.data ?? [];
+        return invitations.map(inv => ({
+            id: inv.id,
+            email: inv.email,
+            company: inv.company.name,
+            invitedBy: `${inv.invitedByUser.name} ${inv.invitedByUser.lastName}`,
+            status: inv.status.label,
+            statusCode: inv.status.code,
+            createdAt: new Date(inv.createdAt).toLocaleDateString('es-CO'),
+            canResend: inv.status.code === 'rechazada',
+            canDeactivate: inv.status.code === 'aceptada',
+            canActivate: inv.status.code === 'cancelado'
+        }));
+    });
+
+    invitationsTableSettings: TableSettings = {
+        title: 'Usuarios Invitados',
+        titleIcon: 'pi pi-users',
+        columns: [
+            { header: 'Correo', field: 'email', type: 'text' },
+            { header: 'Empresa', field: 'company', type: 'text' },
+            { header: 'Invitado por', field: 'invitedBy', type: 'text' },
+            { header: 'Estado', field: 'status', type: 'status', severityMap: { 'Pendiente': 'warn', 'Aceptada': 'success', 'Rechazada': 'danger', 'Inactivo': 'secondary', 'Cancelada':'danger' }, defaultSeverity: 'info' },
+            { header: 'Fecha', field: 'createdAt', type: 'text', filterable: false }
+        ],
+        actions: [
+            { id: 'resendInvitation', icon: 'pi pi-replay', severity: 'info', tooltip: 'Reenviar invitación', visibleField: 'canResend' },
+            { id: 'deactivateUser', icon: 'pi pi-ban', severity: 'danger', tooltip: 'Desactivar usuario', visibleField: 'canDeactivate' },
+            { id: 'activateUser', icon: 'pi pi-check-circle', severity: 'success', tooltip: 'Activar usuario', visibleField: 'canActivate' }
+        ],
+        addButton: {
+            label: 'Invitar usuario',
+            icon: 'pi pi-user-plus',
+            severity: 'success'
+        },
+        rows: 5,
+        rowsPerPageOptions: [5, 10],
+        showGridlines: false,
+        showSearch: false,
+        showColumnFilters: false
+    };
 
     usagePercentage(used: number, max: number): number {
         if (max === 0) return 0;
@@ -109,51 +160,6 @@ export class Company {
         };
         return labels[level] ?? level;
     }
-
-    usersData = computed(() => {
-        const c = this.company();
-        if (!c?.userCompanies) return [];
-        return c.userCompanies.map(uc => ({
-            id: uc.id,
-            fullName: `${uc.user.name} ${uc.user.lastName}`,
-            isActive: uc.isActive,
-            role: uc.role.label,
-            phone: uc.user.phone,
-            email: uc.user.email,
-            canDelete: uc.role.code !== 'administrator'
-        }));
-    });
-
-    usersTableSettings = computed<TableSettings>(() => {
-        const c = this.company();
-        const maxUsers = c?.subscription?.maxUsers ?? 0;
-        const currentUsers = c?.userCompanies?.length ?? 0;
-        return {
-            title: 'Usuarios Asociados',
-            titleIcon: 'pi pi-users',
-            columns: [
-                { header: 'Nombre Completo', field: 'fullName', type: 'text' },
-                { header: 'Activo', field: 'isActive', type: 'boolean', filterable: false },
-                { header: 'Rol', field: 'role', type: 'text' },
-                { header: 'Teléfono', field: 'phone', type: 'text', filterable: false },
-                { header: 'Correo', field: 'email', type: 'text' }
-            ],
-            actions: [
-                { id: 'delete', icon: 'pi pi-trash', severity: 'danger', tooltip: 'Eliminar', visibleField: 'canDelete' }
-            ],
-            addButton: {
-                label: 'Invitar usuario',
-                icon: 'pi pi-user-plus',
-                severity: 'success',
-                disabled: currentUsers >= maxUsers
-            },
-            rows: 5,
-            rowsPerPageOptions: [5, 10],
-            showGridlines: false,
-            showSearch: false,
-            showColumnFilters: false
-        };
-    });
 
     form = new FormGroup({
         name: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
@@ -208,14 +214,126 @@ export class Company {
         });
     }
 
-    onUserAction(event: TableActionEvent): void {
-        if (event.action === 'delete') {
-            console.log('Delete user:', event.row);
+    inviteDialogVisible = signal(false);
+    inviting = signal(false);
+    inviteForm = new FormGroup({
+        email: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.email] })
+    });
+
+    // Confirmation dialog
+    confirmDialogVisible = signal(false);
+    confirmDialogTitle = signal('');
+    confirmDialogMessage = signal('');
+    confirmDialogIcon = signal('');
+    confirmDialogSeverity = signal<'success' | 'danger' | 'info'>('info');
+    processingAction = signal(false);
+    private pendingAction: (() => void) | null = null;
+
+    onInvitationAction(event: TableActionEvent): void {
+        switch (event.action) {
+            case 'resendInvitation':
+                this.confirmDialogTitle.set('Reenviar invitación');
+                this.confirmDialogMessage.set(`La invitación será enviada nuevamente al correo ${event.row.email}. El usuario recibirá un nuevo enlace para unirse a la empresa.`);
+                this.confirmDialogIcon.set('pi pi-replay');
+                this.confirmDialogSeverity.set('info');
+                this.pendingAction = () => this.resendInvitation(event.row.email);
+                this.confirmDialogVisible.set(true);
+                break;
+
+            case 'deactivateUser':
+                this.confirmDialogTitle.set('Desactivar usuario');
+                this.confirmDialogMessage.set(`Se desactivará el acceso de ${event.row.email} a la empresa. El usuario no podrá iniciar sesión ni realizar cambios hasta que sea reactivado.`);
+                this.confirmDialogIcon.set('pi pi-ban');
+                this.confirmDialogSeverity.set('danger');
+                this.pendingAction = () => this.toggleStatus(event.row.id, false);
+                this.confirmDialogVisible.set(true);
+                break;
+
+            case 'activateUser':
+                this.confirmDialogTitle.set('Activar usuario');
+                this.confirmDialogMessage.set(`Se reactivará el acceso de ${event.row.email} a la empresa. El usuario podrá iniciar sesión y operar con normalidad.`);
+                this.confirmDialogIcon.set('pi pi-check-circle');
+                this.confirmDialogSeverity.set('success');
+                this.pendingAction = () => this.toggleStatus(event.row.id, true);
+                this.confirmDialogVisible.set(true);
+                break;
         }
     }
 
+    onConfirmAction(): void {
+        this.pendingAction?.();
+    }
+
+    private resendInvitation(email: string): void {
+        const companyId = this.company()?.id;
+        if (!companyId) return;
+
+        this.processingAction.set(true);
+        this.companyService.inviteUser(companyId, email).pipe(
+            finalize(() => {
+                this.processingAction.set(false);
+                this.confirmDialogVisible.set(false);
+            }),
+            takeUntilDestroyed(this.destroyRef)
+        ).subscribe({
+            next: () => {
+                this.notificationService.success('Invitación reenviada correctamente. El usuario recibirá un nuevo correo.');
+                this.invitationsResource.reload();
+            },
+            error: () => {
+                this.notificationService.error('No se pudo reenviar la invitación. Intenta de nuevo.');
+            }
+        });
+    }
+
+    private toggleStatus(invitationId: string, isActive: boolean): void {
+        this.processingAction.set(true);
+        this.companyService.toggleInvitationStatus(invitationId, isActive).pipe(
+            finalize(() => {
+                this.processingAction.set(false);
+                this.confirmDialogVisible.set(false);
+            }),
+            takeUntilDestroyed(this.destroyRef)
+        ).subscribe({
+            next: () => {
+                this.notificationService.success(isActive ? 'Usuario activado correctamente.' : 'Usuario desactivado correctamente.');
+                this.invitationsResource.reload();
+            },
+            error: () => {
+                this.notificationService.error(isActive ? 'No se pudo activar el usuario.' : 'No se pudo desactivar el usuario.');
+            }
+        });
+    }
+
     onInviteUser(): void {
-        console.log('Invite user');
+        this.inviteForm.reset();
+        this.inviteDialogVisible.set(true);
+    }
+
+    onInviteSubmit(): void {
+        if (this.inviteForm.invalid) {
+            this.inviteForm.markAllAsTouched();
+            return;
+        }
+
+        const companyId = this.company()?.id;
+        if (!companyId) return;
+
+        this.inviting.set(true);
+        this.companyService.inviteUser(companyId, this.inviteForm.controls.email.value).pipe(
+            finalize(() => this.inviting.set(false)),
+            takeUntilDestroyed(this.destroyRef)
+        ).subscribe({
+            next: () => {
+                this.notificationService.success('Invitación enviada correctamente', 'Ok');
+                this.inviteDialogVisible.set(false);
+                this.companyResource.reload();
+                this.invitationsResource.reload();
+            },
+            error: () => {
+                this.notificationService.error('No se pudo enviar la invitación', 'Error');
+            }
+        });
     }
 
     isInvalid(controlName: string): boolean {

@@ -1,6 +1,6 @@
 {
     "buildCommand": "node scripts/set-env.js && ng build --configuration production",
-    "outputDirectory": "dist/riskia-ng/browser",
+    "outputDirectory": "dist/tuplazo-ng/browser",
     "framework": null,
     "rewrites": [
         {

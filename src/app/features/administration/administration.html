@@ -5,6 +5,7 @@
                 <i class="pi pi-user mr-2"></i>
                 <span>Perfil</span>
             </p-tab>
+            @if (isAdmin()) {
             <p-tab value="empresa">
                 <i class="pi pi-building mr-2"></i>
                 <span>Empresa</span>
@@ -13,6 +14,7 @@
                 <i class="pi pi-credit-card mr-2"></i>
                 <span>Plan y Facturación</span>
             </p-tab>
+            }
         </p-tablist>
     </p-tabs>
     <div class="mt-4">

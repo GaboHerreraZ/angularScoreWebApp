@@ -27,7 +27,7 @@ export class SupabaseService implements OnDestroy {
             auth: {
                 persistSession: true,
                 autoRefreshToken: true,
-                detectSessionInUrl: false
+                detectSessionInUrl: true
             }
         });
 
@@ -64,6 +64,36 @@ export class SupabaseService implements OnDestroy {
         if (data.session) {
             this.session.set(data.session);
         }
+        return { error: error as Error | null };
+    }
+
+    async signUp(email: string, password: string): Promise<{ data: { id: string } | null; error: Error | null }> {
+        const { data, error } = await this.supabase.auth.signUp({ email, password });
+        return {
+            data: data.user ? { id: data.user.id } : null,
+            error: error as Error | null
+        };
+    }
+
+    async signInWithPassword(email: string, password: string): Promise<{ error: Error | null }> {
+        const { data, error } = await this.supabase.auth.signInWithPassword({ email, password });
+        if (data.session) {
+            this.session.set(data.session);
+        }
+        return { error: error as Error | null };
+    }
+
+    async signInWithGoogle(invitationId?: string, token?: string): Promise<{ error: Error | null }> {
+        let redirectTo = window.location.origin + '/auth/callback';
+        const params = new URLSearchParams();
+        if (invitationId) params.set('invitation', invitationId);
+        if (token) params.set('token', token);
+        const qs = params.toString();
+        if (qs) redirectTo += `?${qs}`;
+        const { error } = await this.supabase.auth.signInWithOAuth({
+            provider: 'google',
+            options: { redirectTo }
+        });
         return { error: error as Error | null };
     }
 

@@ -1,7 +1,7 @@
 <div class="layout-topbar">
     <a class="app-logo" routerLink="/app">
         <img alt="app logo" [src]="logo()" />
-        <span class="app-name">Riskia</span>
+        <span class="app-name">TuPlazo</span>
     </a>
 
     <button #menubutton class="topbar-menubutton p-link cursor-pointer" type="button" (click)="onMenuButtonClick()">
@@ -59,7 +59,7 @@
                         <i class="pi pi-briefcase mr-4"></i>
                         <span>Administración</span>
                     </a>
-                    <a pRipple class="flex p-2 rounded-border w-full items-center hover:bg-emphasis transition-colors duration-150 cursor-pointer">
+                    <a pRipple (click)="logout()" class="flex p-2 rounded-border w-full items-center hover:bg-emphasis transition-colors duration-150 cursor-pointer">
                         <i class="pi pi-power-off mr-4"></i>
                         <span>Cerrar Sesión</span>
                     </a>

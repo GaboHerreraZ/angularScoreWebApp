@@ -149,6 +149,9 @@ interface PlanView {
                                 @if (limit.includes('IA')) {
                                 <i class="pi pi-sparkles text-purple-500 text-sm"></i>
                                 <span class="text-sm font-medium text-purple-700 dark:text-purple-400">{{ limit }}</span>
+                                } @else if (limit.includes('PDF')) {
+                                <i class="pi pi-file-pdf text-teal-500 text-sm"></i>
+                                <span class="text-sm font-medium text-teal-700 dark:text-teal-400">{{ limit }}</span>
                                 } @else {
                                 <i class="pi pi-check-circle text-primary text-sm"></i>
                                 <span class="text-sm text-color">{{ limit }}</span>
@@ -165,6 +168,9 @@ interface PlanView {
                                 @if (feature.label.includes('Inteligencia Artificial') && feature.included) {
                                 <i class="pi pi-sparkles text-sm text-purple-500"></i>
                                 <span class="text-sm font-semibold bg-linear-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">{{ feature.label }}</span>
+                                } @else if (feature.label.includes('PDF') && feature.included) {
+                                <i class="pi pi-file-pdf text-sm text-teal-500"></i>
+                                <span class="text-sm font-semibold bg-linear-to-r from-teal-600 to-emerald-600 bg-clip-text text-transparent">{{ feature.label }}</span>
                                 } @else {
                                 <i class="pi text-sm" [ngClass]="feature.included ? 'pi-check-circle text-green-500' : 'pi-times-circle text-red-400'"></i>
                                 <span class="text-sm" [ngClass]="feature.included ? 'text-color' : 'text-muted-color'">{{ feature.label }}</span>
@@ -251,6 +257,13 @@ export class PricingWidget {
                     : `${item.maxAiAnalysisPerMonth} analisis IA / mes`
             );
         }
+        if (item.maxPdfExtractionsPerMonth != null && item.maxPdfExtractionsPerMonth > 0) {
+            limits.push(
+                item.maxPdfExtractionsPerMonth === -1
+                    ? 'Extracciones PDF ilimitadas / mes'
+                    : `${item.maxPdfExtractionsPerMonth} extracciones PDF / mes`
+            );
+        }
         return limits;
     }
 
@@ -261,7 +274,8 @@ export class PricingWidget {
             { label: 'Reportes Excel', included: item.excelReports },
             { label: 'Notificaciones por correo', included: item.emailNotifications },
             { label: 'Personalización de tema', included: item.themeCustomization },
-            { label: 'Analisis con Inteligencia Artificial', included: item.maxAiAnalysisPerMonth != null && item.maxAiAnalysisPerMonth !== 0 }
+            { label: 'Analisis con Inteligencia Artificial', included: item.maxAiAnalysisPerMonth != null && item.maxAiAnalysisPerMonth !== 0 },
+            { label: 'Extracción de datos PDF', included: item.maxPdfExtractionsPerMonth != null && item.maxPdfExtractionsPerMonth !== 0 }
         ];
     }
 

@@ -1,56 +1,115 @@
-import { Component } from '@angular/core';
-import { IconField } from 'primeng/iconfield';
-import { InputIcon } from 'primeng/inputicon';
-import { Password } from 'primeng/password';
+import { Component, inject, signal } from '@angular/core';
+import { ReactiveFormsModule, FormGroup, FormControl, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
-import { RouterModule } from '@angular/router';
-import { FormsModule } from '@angular/forms';
-import { InputText } from 'primeng/inputtext';
+import { InputTextModule } from 'primeng/inputtext';
+import { MessageModule } from 'primeng/message';
+import { CardModule } from 'primeng/card';
 import { Configurator } from '@/app/layout/components/configurator/configurator';
+import { SupabaseService } from '@/app/core/services/supabase.service';
+import { CompanyService } from '@/app/features/administration/components/company/company.service';
+import { FloatLabelModule } from 'primeng/floatlabel';
+import { PasswordModule } from 'primeng/password';
 
 @Component({
     selector: 'app-register',
     standalone: true,
-    imports: [IconField, InputIcon, Password, ButtonModule, RouterModule, FormsModule, InputText, Configurator],
-    template: `
-        <app-configurator [simple]="true" />
-        <div class="bg-surface-100 dark:bg-surface-950 h-screen w-screen flex items-center justify-center">
-            <div class="bg-surface-0 dark:bg-surface-900 py-16 px-8 sm:px-16 shadow flex flex-col w-11/12 sm:w-120" style="border-radius: 14px">
-                <h1 class="font-bold text-2xl mt-0 mb-2">RISKIA</h1>
-                <p class="text-muted-color mb-6">Welcome to the <strong>Riskia Community</strong>, where the magic happens, sign up to continue.</p>
-
-                <p-icon-field class="mb-6">
-                    <p-inputicon class="pi pi-user" />
-                    <input pInputText type="text" placeholder="Email" class="w-full" />
-                </p-icon-field>
-
-                <p-icon-field class="mb-6">
-                    <p-inputicon class="pi pi-key z-20" />
-                    <p-password id="password" placeholder="Password" styleClass="w-full" [(ngModel)]="value" [inputStyle]="{ paddingLeft: '2.5rem' }" inputStyleClass="w-full" [toggleMask]="true"></p-password>
-                </p-icon-field>
-
-                <p-button [routerLink]="['/app']" label="Sign Up" class="mb-4" styleClass="w-full"></p-button>
-
-                <span class="text-muted-color text-center mb-6">or sign up with below</span>
-
-                <div class="flex gap-6 items-center justify-center">
-                    <a href="https://www.facebook.com" class="inline-flex shrink-0 w-12 h-12 justify-center items-center bg-surface-50 dark:bg-surface-950 rounded-full">
-                        <i class="pi pi-facebook text-2xl! text-color"></i>
-                    </a>
-                    <a href="https://www.twitter.com" class="inline-flex shrink-0 w-12 h-12 justify-center items-center bg-surface-50 dark:bg-surface-950 rounded-full">
-                        <i class="pi pi-twitter text-2xl! text-color"></i>
-                    </a>
-                    <a href="https://www.google.com" class="inline-flex shrink-0 w-12 h-12 justify-center items-center bg-surface-50 dark:bg-surface-950 rounded-full">
-                        <i class="pi pi-google text-2xl! text-color"></i>
-                    </a>
-                    <a href="https://www.github.com" class="inline-flex shrink-0 w-12 h-12 justify-center items-center bg-surface-50 dark:bg-surface-950 rounded-full">
-                        <i class="pi pi-github text-2xl! text-color"></i>
-                    </a>
-                </div>
-            </div>
-        </div>
-    `
+    imports: [
+        ReactiveFormsModule,
+        RouterModule,
+        ButtonModule,
+        InputTextModule,
+        MessageModule,
+        CardModule,
+        Configurator,
+        FloatLabelModule,
+        PasswordModule
+    ],
+    templateUrl: './register.html'
 })
 export class Register {
-    value: string = '';
+    private route = inject(ActivatedRoute);
+    private router = inject(Router);
+    private supabaseService = inject(SupabaseService);
+    private companyService = inject(CompanyService);
+
+    invitationId = this.route.snapshot.queryParamMap.get('invitation');
+    invitationEmail = this.route.snapshot.queryParamMap.get('email');
+    invitationToken = this.route.snapshot.queryParamMap.get('token');
+
+    loading = signal(false);
+    errorMessage = signal<string | null>(null);
+    successMessage = signal<string | null>(null);
+
+    registerForm = new FormGroup({
+        email: new FormControl(
+            { value: this.invitationEmail ?? '', disabled: !!this.invitationEmail },
+            { nonNullable: true, validators: [Validators.required, Validators.email] }
+        ),
+        password: new FormControl('', {
+            nonNullable: true,
+            validators: [Validators.required, Validators.minLength(6)]
+        }),
+        confirmPassword: new FormControl('', {
+            nonNullable: true,
+            validators: [Validators.required]
+        })
+    }, { validators: this.passwordMatchValidator });
+
+    private passwordMatchValidator(control: AbstractControl): ValidationErrors | null {
+        const password = control.get('password')?.value;
+        const confirmPassword = control.get('confirmPassword')?.value;
+        return password === confirmPassword ? null : { passwordMismatch: true };
+    }
+
+    async register(): Promise<void> {
+        if (this.registerForm.invalid) return;
+
+        this.loading.set(true);
+        this.errorMessage.set(null);
+        this.successMessage.set(null);
+
+        const { email, password } = this.registerForm.getRawValue();
+        const { data, error } = await this.supabaseService.signUp(email, password);
+
+        if (error) {
+            this.loading.set(false);
+            this.errorMessage.set(this.getErrorMessage(error));
+            return;
+        }
+
+        if (this.invitationId && this.invitationToken && data?.id) {
+            try {
+                await firstValueFrom(
+                    this.companyService.acceptInvitationRegister(this.invitationId, data.id, this.invitationToken)
+                );
+            } catch {
+                this.loading.set(false);
+                this.errorMessage.set('Tu cuenta fue creada, pero no se pudo asociar a la empresa. Contacta al administrador que te invitó.');
+                this.router.navigate(['/auth/iniciar-sesion'], {
+                    queryParams: { error: 'Tu cuenta fue creada, pero no se pudo asociar a la empresa. Contacta al administrador que te invitó.' }
+                });
+                return;
+            }
+        }
+
+        this.loading.set(false);
+        this.successMessage.set('Cuenta creada exitosamente. Debes confirmar tu correo electrónico antes de iniciar sesión.');
+
+        setTimeout(() => {
+            this.router.navigate(['/auth/iniciar-sesion']);
+        }, 4000);
+    }
+
+    private getErrorMessage(error: Error): string {
+        const msg = error.message?.toLowerCase() ?? '';
+        if (msg.includes('already registered')) {
+            return 'Este correo electrónico ya está registrado.';
+        }
+        if (msg.includes('password')) {
+            return 'La contraseña no cumple con los requisitos mínimos.';
+        }
+        return 'Error al crear la cuenta. Intenta de nuevo.';
+    }
 }

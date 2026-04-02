@@ -90,6 +90,22 @@ export class CreditStudyDetail  {
         return current?.subscription?.name ?? '';
     })
 
+    private currentSubscription = computed(() => {
+        const user = this.authSerice.currentProfile();
+        const subs = user?.userCompanies?.[0]?.company?.companySubscriptions;
+        return subs?.find(s => s.isCurrent)?.subscription ?? null;
+    });
+
+    canUseAi = computed(() => {
+        const sub = this.currentSubscription();
+        return sub != null && sub.maxAiAnalysisPerMonth != null && sub.maxAiAnalysisPerMonth > 0;
+    });
+
+    canExtractPdf = computed(() => {
+        const sub = this.currentSubscription();
+        return sub != null && sub.maxPdfExtractionsPerMonth != null && sub.maxPdfExtractionsPerMonth > 0;
+    });
+
 
     creditStudyId = toSignal(
         this.route.params.pipe(

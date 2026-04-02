@@ -29,6 +29,8 @@ export interface Role {
 export interface UserCompany {
   companyId: string;
   company: Company;
+  isActive: boolean;
+
 }
 
 interface Company {
@@ -59,6 +61,8 @@ interface Subscription {
     maxStudiesPerMonth: number;
     maxUsers: number;
     themeCustomization: boolean;
+    maxAiAnalysisPerMonth: number;
+    maxPdfExtractionsPerMonth: number;
     isActive: boolean;
     dashboardLevel: {
       id: string;

@@ -102,6 +102,13 @@
                     <span class="text-sm font-medium text-purple-700 dark:text-purple-400"> @if (plan.maxAiAnalysisPerMonth === -1) { Análisis IA <strong>ilimitados</strong> / mes } @else { Hasta <strong>{{ plan.maxAiAnalysisPerMonth }}</strong> análisis IA / mes } </span>
                 </div>
                 }
+
+                @if (plan.maxPdfExtractionsPerMonth && plan.maxPdfExtractionsPerMonth > 0) {
+                <div class="flex items-center gap-3">
+                    <i class="pi pi-file-pdf text-teal-500 w-5 text-center"></i>
+                    <span class="text-sm font-medium text-teal-700 dark:text-teal-400"> @if (plan.maxPdfExtractionsPerMonth === -1) { Extracciones PDF <strong>ilimitadas</strong> / mes } @else { Hasta <strong>{{ plan.maxPdfExtractionsPerMonth }}</strong> extracciones PDF / mes } </span>
+                </div>
+                }
             </div>
 
             <p-divider />
@@ -132,6 +139,16 @@
                     } @else {
                     <i class="pi pi-times-circle text-red-400 w-5 text-center"></i>
                     <span class="text-sm text-muted-color">Análisis con Inteligencia Artificial</span>
+                    }
+                </div>
+
+                <div class="flex items-center gap-3">
+                    @if (plan.maxPdfExtractionsPerMonth && plan.maxPdfExtractionsPerMonth > 0) {
+                    <i class="pi pi-file-pdf text-teal-500 w-5 text-center"></i>
+                    <span class="text-sm font-semibold bg-linear-to-r from-teal-600 to-emerald-600 bg-clip-text text-transparent">Extracción de datos PDF</span>
+                    } @else {
+                    <i class="pi pi-times-circle text-red-400 w-5 text-center"></i>
+                    <span class="text-sm text-muted-color">Extracción de datos PDF</span>
                     }
                 </div>
 

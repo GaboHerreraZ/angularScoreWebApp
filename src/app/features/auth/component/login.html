@@ -1,4 +1,5 @@
 <app-configurator [simple]="true" />
+<app-notification />
 
 <div class="h-screen w-screen flex flex-col lg:flex-row overflow-hidden">
     <!-- Panel izquierdo: Ilustracion -->
@@ -11,9 +12,9 @@
         </div>
 
         <div class="flex flex-col items-center z-10 px-12 text-center">
-            <img src="logo/verona-login.svg" alt="Riskia" class="w-64 h-auto mb-10 drop-shadow-lg" />
-            <h2 class="text-white text-4xl font-bold mb-4 tracking-tight">RISKIA</h2>
-            <p class="text-white/70 text-lg max-w-sm leading-relaxed">Accede a tu cuenta de forma segura con verificacion por SMS.</p>
+            <img src="logo/verona-login.svg" alt="TuPlazo" class="w-64 h-auto mb-10 drop-shadow-lg" />
+            <h2 class="text-white text-4xl font-bold mb-4 tracking-tight">TUPLAZO</h2>
+            <p class="text-white/70 text-lg max-w-sm leading-relaxed">Accede a tu cuenta de forma segura con Google o correo electrónico.</p>
         </div>
     </div>
 
@@ -21,60 +22,73 @@
     <div class="w-full lg:w-1/2 flex items-center justify-center bg-surface-100 dark:bg-surface-950 p-6 sm:p-12">
         <p-card styleClass="w-full max-w-md shadow-md">
             <div class="flex items-center gap-3 mb-2">
-                <i class="pi pi-phone text-primary-500 text-3xl"></i>
-                <h1 class="font-bold text-2xl m-0">RISKIA</h1>
+                <i class="pi pi-sign-in text-primary-500 text-3xl"></i>
+                <h1 class="font-bold text-2xl m-0">TUPLAZO</h1>
             </div>
 
-            <!-- PASO 1: Numero de telefono -->
-            @if (step() === 'phone') {
-            <p class="text-muted-color mb-6">Ingresa tu numero de telefono para recibir un codigo de verificacion por SMS.</p>
+            <p class="text-muted-color mb-6">Inicia sesión con tu cuenta de Google o correo electrónico.</p>
 
-            <form [formGroup]="phoneForm" (ngSubmit)="sendOtp()">
-                <app-phone-input
-                    inputId="phone-number"
-                    styleClass="mb-2"
-                    [formControl]="phoneForm.controls.phone"
-                />
+            <!-- Botón Google -->
+            <button
+                type="button"
+                class="w-full flex items-center justify-center gap-3 px-4 py-3 mb-4 rounded-lg border border-surface-300 dark:border-surface-600 bg-surface-0 dark:bg-surface-800 hover:bg-surface-100 dark:hover:bg-surface-700 transition-colors cursor-pointer"
+                (click)="signInWithGoogle()"
+                [disabled]="googleLoading()"
+            >
+                @if (googleLoading()) {
+                    <i class="pi pi-spin pi-spinner text-lg"></i>
+                } @else {
+                    <svg width="20" height="20" viewBox="0 0 48 48">
+                        <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+                        <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+                        <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+                        <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+                    </svg>
+                }
+                <span class="font-medium text-surface-700 dark:text-surface-200">Continuar con Google</span>
+            </button>
 
-                @if (phoneForm.controls.phone.touched && phoneForm.controls.phone.errors) {
-                <small class="text-red-500 mb-4 block"> Ingresa un numero de telefono valido (7 a 15 digitos). </small>
+            <!-- Separador -->
+            <div class="flex items-center gap-3 my-5">
+                <div class="flex-1 border-t border-surface-300 dark:border-surface-600"></div>
+                <span class="text-muted-color text-sm">o</span>
+                <div class="flex-1 border-t border-surface-300 dark:border-surface-600"></div>
+            </div>
+
+            <!-- Formulario email + password -->
+            <form [formGroup]="loginForm" (ngSubmit)="signIn()">
+                <p-floatlabel variant="on" class="w-full mb-5">
+                    <input pInputText id="email" formControlName="email" class="w-full" />
+                    <label for="email">Correo electrónico</label>
+                </p-floatlabel>
+
+                <p-floatlabel variant="on" class="w-full mb-2">
+                    <p-password id="password" formControlName="password" [toggleMask]="true" [feedback]="false" styleClass="w-full" inputStyleClass="w-full" />
+                    <label for="password">Contraseña</label>
+                </p-floatlabel>
+
+                @if (loginForm.controls.email.touched && loginForm.controls.email.errors?.['email']) {
+                    <small class="text-red-500 mb-2 block">Ingresa un correo electrónico válido.</small>
                 }
 
-                <div class="mb-6"></div>
+                @if (loginForm.controls.password.touched && loginForm.controls.password.errors?.['minlength']) {
+                    <small class="text-red-500 mb-2 block">La contraseña debe tener al menos 6 caracteres.</small>
+                }
+
+                <div class="mb-4"></div>
 
                 @if (errorMessage()) {
-                <p-message severity="error" [text]="errorMessage()!" styleClass="mb-4 w-full" />
+                    <p-message severity="error" [text]="errorMessage()!" styleClass="mb-4 w-full" />
                 }
 
-                <p-button type="submit" label="Enviar codigo" styleClass="w-full" [loading]="sending()" [disabled]="phoneForm.invalid || sending()" icon="pi pi-send" />
+                <p-button type="submit" label="Iniciar sesión" styleClass="w-full" [loading]="loading()" [disabled]="loginForm.invalid || loading()" icon="pi pi-sign-in" />
             </form>
-            }
 
-            <!-- PASO 2: Verificacion OTP -->
-            @if (step() === 'otp') {
-            <p class="text-muted-color mb-1">Ingresa el codigo de 6 digitos enviado a</p>
-            <p class="font-semibold text-lg mb-6 text-primary-500">{{ fullPhoneNumber }}</p>
-
-            <div class="mb-6">
-                <app-otp-input (otpComplete)="onOtpComplete($event)" />
+            <!-- Link a registro -->
+            <div class="text-center mt-6">
+                <span class="text-muted-color">¿No tienes cuenta? </span>
+                <a routerLink="/auth/registro" class="text-primary-500 font-semibold cursor-pointer no-underline hover:underline">Regístrate</a>
             </div>
-
-            @if (errorMessage()) {
-            <p-message severity="error" [text]="errorMessage()!" styleClass="mb-4 w-full" />
-            }
-
-            <p-button label="Verificar" styleClass="w-full mb-6" [loading]="verifying()" [disabled]="otpCode().length !== 6 || verifying()" (onClick)="submitOtp()" icon="pi pi-check-circle" />
-
-            <div class="flex items-center justify-between">
-                <button type="button" class="text-primary-500 font-semibold cursor-pointer bg-transparent border-0 p-0 text-sm" (click)="goBackToPhone()"><i class="pi pi-arrow-left mr-1"></i> Cambiar numero</button>
-
-                @if (resendTimer() > 0) {
-                <span class="text-muted-color text-sm"> Reenviar en {{ resendTimer() }}s </span>
-                } @else {
-                <button type="button" class="text-primary-500 font-semibold cursor-pointer bg-transparent border-0 p-0 text-sm" (click)="resendOtp()" [disabled]="sending()">Reenviar codigo</button>
-                }
-            </div>
-            }
         </p-card>
     </div>
 </div>

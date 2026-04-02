@@ -4,6 +4,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { filter, map } from 'rxjs';
 import { TabsModule } from 'primeng/tabs';
 import { CardModule } from 'primeng/card';
+import { AuthService } from '@/app/core/services/auth.service';
 
 @Component({
     selector: 'app-administration',
@@ -13,6 +14,7 @@ import { CardModule } from 'primeng/card';
 })
 export class Administration {
     private router = inject(Router);
+    private authService = inject(AuthService);
 
     private url = toSignal(
         this.router.events.pipe(
@@ -26,6 +28,11 @@ export class Administration {
         const url = this.url();
         const segments = url.split('/');
         return segments[segments.length - 1] || 'perfil';
+    });
+
+    isAdmin = computed(() => {
+        const role = this.authService.currentProfile()?.role;
+        return role?.code === 'administrador';
     });
 
     onTabChange(value: string | number | undefined): void {

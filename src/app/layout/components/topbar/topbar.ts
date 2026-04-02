@@ -7,6 +7,8 @@ import { Ripple } from 'primeng/ripple';
 import { ButtonModule } from 'primeng/button';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '@/app/core/services/auth.service';
+import { SupabaseService } from '@/app/core/services/supabase.service';
+import { Router } from '@angular/router';
 import { AvatarModule } from 'primeng/avatar';
 import { TooltipModule } from 'primeng/tooltip';
 
@@ -67,5 +69,13 @@ export class Topbar {
         event.preventDefault();
         event.stopPropagation();
         this.layoutService.closeTab(index);
+    }
+
+    private supabaseService = inject(SupabaseService);
+    private router = inject(Router);
+
+    async logout() {
+        await this.supabaseService.signOut();
+        this.router.navigate(['/']);
     }
 }
