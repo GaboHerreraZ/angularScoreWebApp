@@ -190,10 +190,6 @@ export class CreditStudyDetail  {
         const values = this.formValuesSignal();
         return (values.ordinaryActivityRevenue ?? 0) - (values.costOfSales ?? 0);
     });
-    netIncome = computed(() => {
-        const values = this.formValuesSignal();
-        return (values.ordinaryActivityRevenue ?? 0) - (values.costOfSales ?? 0);
-    });
 
     step1Form = new FormGroup({
         customerId: new FormControl<AutoCompleteOption | null>(null, { validators: [Validators.required] }),
@@ -402,7 +398,7 @@ export class CreditStudyDetail  {
             amortization: step2Data.amortization ?? 0,
             financialExpenses: step2Data.financialExpenses ?? 0,
             taxes: step2Data.taxes ?? 0,
-            netIncome: this.netIncome(),
+            netIncome: step2Data.netIncome ?? 0,
         };
 
         const operation$ = this.creditStudyId()
