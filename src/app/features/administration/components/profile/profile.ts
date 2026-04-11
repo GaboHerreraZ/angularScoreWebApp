@@ -11,7 +11,6 @@ import { FluidModule } from 'primeng/fluid';
 import { AvatarModule } from 'primeng/avatar';
 import { SkeletonModule } from 'primeng/skeleton';
 import { PhoneInput } from '@/app/shared/components/phone-input/phone-input';
-import { ParameterService } from '@/app/core/services/parameter.service';
 import { ProfileService } from './profile.service';
 import { SupabaseService } from '@/app/core/services/supabase.service';
 import { AuthService } from '@/app/core/services/auth.service';

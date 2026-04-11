@@ -3,7 +3,7 @@ import { Customers } from './customers';
 
 export default [
     { path: '', component: Customers },
-    { path: 'detalle-cliente', loadComponent: () => import('./customer-detail/customer-detail').then((c) => c.CustomerDetail) },
+    { path: 'detalle-cliente', data: { breadcrumb: 'Nuevo Cliente' }, loadComponent: () => import('./customer-detail/customer-detail').then((c) => c.CustomerDetail) },
     {
         path: 'detalle-cliente/:id',
         loadComponent: () => import('./customer-view/customer-view').then((c) => c.CustomerView),

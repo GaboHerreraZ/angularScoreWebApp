@@ -21,6 +21,7 @@ import { StateControl } from '@/app/shared/components/state-control/state-contro
 import { CityControl } from '@/app/shared/components/city-control/city-control';
 import { ParameterService } from '@/app/core/services/parameter.service';
 import { Parameter } from '@/app/types/parameter';
+import { Customer } from '@/app/types/customer';
 import { NotificationService } from '@/app/shared/components/notification/notification.service';
 
 @Component({
@@ -79,8 +80,11 @@ export class CustomerDetail {
 
     sectorTypes = toSignal(this.parameterService.getByType('sector'));
 
+    identificationTypes = toSignal(this.parameterService.getByType('identification_type'));
+
     form = new FormGroup({
         personTypeId: new FormControl({}, { validators: [Validators.required] }),
+        identificationTypeId: new FormControl({}, { validators: [Validators.required] }),
         businessName: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
         identificationNumber: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
         legalRepName: new FormControl('', { nonNullable: true }),
@@ -155,6 +159,7 @@ export class CustomerDetail {
             if (customer) {
                 // Find the matching objects in the option arrays
                 const personType = this.personTypes()?.find(p => p.id === customer.personTypeId);
+                const identificationType = this.identificationTypes()?.find(i => i.id === customer.identificationTypeId);
                 const economicActivity = this.sectorTypes()?.find(s => s.id === customer.economicActivityId);
 
                 // Store names to match once the resources finish loading
@@ -163,6 +168,7 @@ export class CustomerDetail {
 
                 this.form.patchValue({
                     personTypeId: personType,
+                    identificationTypeId: identificationType,
                     businessName: customer.businessName,
                     identificationNumber: customer.identificationNumber,
                     legalRepName: customer.legalRepName ?? '',
@@ -197,10 +203,11 @@ export class CustomerDetail {
         const customerData = {
             ...formData,
             personTypeId: (formData.personTypeId as any as Parameter).id,
+            identificationTypeId: (formData.identificationTypeId as any as Parameter).id,
             economicActivityId: (formData.economicActivityId as any as Parameter).id,
             state: formData.state?.name ?? undefined,
             city: formData.city?.name ?? undefined
-        };
+        } as unknown as Customer;
 
         const operation$ = this.customerId()
             ? this.customersService.updateCustomer(this.customerId()!, customerData)

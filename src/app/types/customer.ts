@@ -13,6 +13,7 @@ export interface Representative {
 export interface Customer {
     id?: number;
     personTypeId: number;
+    identificationTypeId: number;
     businessName: string;
     identificationNumber: string;
     legalRepName?: string;
@@ -34,6 +35,7 @@ export interface Customer {
     commercialRef2Phone?: string;
     observations?: string;
     personType?: Parameter;
+    identificationType?: Parameter;
     economicActivity?: Parameter;
 
 }
