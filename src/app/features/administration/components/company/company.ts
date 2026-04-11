@@ -66,6 +66,16 @@ export class Company {
         loader: ({ params: type }) => firstValueFrom(this.parameterService.getByType(type))
     });
 
+    accountTypesResource = resource<Parameter[], string>({
+        params: () => 'account_type',
+        loader: ({ params: type }) => firstValueFrom(this.parameterService.getByType(type))
+    });
+
+    banksResource = resource<Parameter[], string>({
+        params: () => 'bank',
+        loader: ({ params: type }) => firstValueFrom(this.parameterService.getByType(type))
+    });
+
     saving = signal(false);
     company = signal<CompanyModel | null>(null);
 
@@ -167,6 +177,9 @@ export class Company {
         state: new FormControl({value:'', disabled: true}, { nonNullable: true }),
         city: new FormControl({value:'', disabled: true}, { nonNullable: true  }),
         sectorId: new FormControl<number | null>(null, { validators: [Validators.required] }),
+        accountTypeId: new FormControl<number | null>(null),
+        accountBankId: new FormControl<number | null>(null),
+        accountNumber: new FormControl<string | null>(null, { validators: [Validators.maxLength(50)] }),
         isActive: new FormControl({ value: false, disabled: true }, { nonNullable: true }),
         createdAt: new FormControl({ value: '', disabled: true }, { nonNullable: true })
     });
@@ -183,6 +196,9 @@ export class Company {
                     city: c.city,
                     state: c.state,
                     sectorId: c.sectorId,
+                    accountTypeId: c.accountTypeId,
+                    accountBankId: c.accountBankId,
+                    accountNumber: c.accountNumber,
                     isActive: c.isActive,
                     createdAt: new Date(c.createdAt).toLocaleDateString('es-CO')
                 });
@@ -200,7 +216,10 @@ export class Company {
         const payload = {
             name: formData.name,
             city: formData.city,
-            sectorId: formData.sectorId
+            sectorId: formData.sectorId,
+            accountTypeId: formData.accountTypeId,
+            accountBankId: formData.accountBankId,
+            accountNumber: formData.accountNumber
         };
 
         this.saving.set(true);
@@ -345,6 +364,7 @@ export class Company {
         const control = this.form.get(controlName);
         if (!control || !control.errors || !control.touched) return '';
         if (control.errors['required']) return 'Este campo es obligatorio';
+        if (control.errors['maxlength']) return `Máximo ${control.errors['maxlength'].requiredLength} caracteres`;
         return '';
     }
 }

@@ -10,6 +10,9 @@ export interface Company {
     state: string;
     city: string;
     address: string;
+    accountTypeId: number | null;
+    accountBankId: number | null;
+    accountNumber: string | null;
     isActive: boolean;
     createdAt: string;
     updatedAt: string;
