@@ -1,4 +1,5 @@
-import { Component, inject, signal, computed, OnInit } from '@angular/core';
+import { Component, inject, signal, computed, OnInit, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { CardModule } from 'primeng/card';
@@ -9,6 +10,7 @@ import { SkeletonModule } from 'primeng/skeleton';
 import { ButtonModule } from 'primeng/button';
 import { DashboardService } from './dashboard.service';
 import { BasicDashboard, AdvancedDashboard } from '@/app/types/dashboard';
+import { HelpTooltip } from '@/app/shared/components/help-tooltip/help-tooltip';
 
 @Component({
     selector: 'app-dashboard',
@@ -23,16 +25,33 @@ import { BasicDashboard, AdvancedDashboard } from '@/app/types/dashboard';
         SkeletonModule,
         ButtonModule,
         CurrencyPipe,
-        DatePipe
+        DatePipe,
+        HelpTooltip
     ],
     templateUrl: './dashboard.html'
 })
 export class Dashboard implements OnInit {
     private dashboardService = inject(DashboardService);
+    private destroyRef = inject(DestroyRef);
 
     floor = Math.floor;
     loading = signal(false);
     dashboardLevel = this.dashboardService.dashboardLevel;
+
+    chartTooltips: Record<string, string> = {
+        studiesByStatus: 'Distribucion de los estudios de credito segun su estado actual (aprobado, pendiente, rechazado, realizado).',
+        studiesByMonth: 'Cantidad total de estudios de credito realizados mes a mes, para visualizar la tendencia de actividad.',
+        customersByPersonType: 'Proporcion de clientes clasificados como persona natural o persona juridica.',
+        recentStudies: 'Listado de los estudios de credito mas recientes con su cliente, fecha, estado y cupo solicitado.',
+        stabilityDistribution: 'Distribucion de clientes segun las bandas del Altman Z-Score: alto riesgo, zona gris y zona segura.',
+        paymentCapacityTrend: 'Evolucion del promedio mensual de capacidad de pago del portafolio en los ultimos 12 meses.',
+        turnoverIndicators: 'Dias promedio del portafolio en rotacion de cartera, inventario, proveedores y plazo maximo de pago.',
+        topCustomers: 'Los 10 clientes con el mayor cupo de credito solicitado dentro del portafolio.',
+        revenueVsNetIncome: 'Comparacion mes a mes del promedio de ingresos frente al promedio de utilidad neta del portafolio.',
+        debtStructure: 'Composicion promedio del balance entre pasivo corriente, pasivo no corriente y patrimonio.',
+        analyst: 'Cantidad de estudios de credito realizados por cada analista del equipo.',
+        economicActivity: 'Numero de clientes clasificados por su actividad economica principal.'
+    };
 
     basicData = signal<BasicDashboard | null>(null);
     advancedData = signal<AdvancedDashboard | null>(null);
@@ -302,10 +321,12 @@ export class Dashboard implements OnInit {
 
     private loadBasic(): void {
         this.loading.set(true);
-        this.dashboardService.getBasicDashboard().subscribe(data => {
-            this.basicData.set(data);
-            this.loading.set(false);
-        });
+        this.dashboardService.getBasicDashboard()
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
+                next: data => this.basicData.set(data),
+                complete: () => this.loading.set(false)
+            });
     }
 
     private loadAdvanced(): void {
@@ -316,10 +337,12 @@ export class Dashboard implements OnInit {
         this.dashboardService.getAdvancedDashboard(
             this.toIsoDate(dateFrom),
             this.toIsoDate(dateTo)
-        ).subscribe(data => {
-            this.advancedData.set(data as AdvancedDashboard | null);
-            this.loading.set(false);
-        });
+        )
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
+                next: data => this.advancedData.set(data as AdvancedDashboard | null),
+                complete: () => this.loading.set(false)
+            });
     }
 
     private toIsoDate(d: Date): string {

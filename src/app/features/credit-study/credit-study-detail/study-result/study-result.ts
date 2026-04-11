@@ -4,7 +4,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
 import { CardModule } from 'primeng/card';
 import { MessageModule } from 'primeng/message';
-import { TooltipModule } from 'primeng/tooltip';
 import { ButtonModule } from 'primeng/button';
 import { AccordionModule } from 'primeng/accordion';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
@@ -12,11 +11,12 @@ import { ConfirmationService } from 'primeng/api';
 import { AiAnalysisItem, AiAnalysisResponse, CreateCreditStudy, ViabilityConditions, ViabilityDimension } from '@/app/types/credit-study';
 import { CreditStudyService } from '../../credit-study.service';
 import { NotificationService } from '@/app/shared/components/notification/notification.service';
+import { HelpTooltip } from '@/app/shared/components/help-tooltip/help-tooltip';
 
 @Component({
     selector: 'app-study-result',
     standalone: true,
-    imports: [CommonModule, CurrencyPipe, DatePipe, CardModule, MessageModule, TooltipModule, ButtonModule, AccordionModule, ConfirmDialogModule],
+    imports: [CommonModule, CurrencyPipe, DatePipe, CardModule, MessageModule, ButtonModule, AccordionModule, ConfirmDialogModule, HelpTooltip],
     providers: [ConfirmationService],
     templateUrl: './study-result.html'
 })

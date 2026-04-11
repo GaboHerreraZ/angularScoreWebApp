@@ -161,13 +161,10 @@
         @for (dim of dimensions(); track dim.key) {
         <p-card>
             <div class="flex items-center justify-between mb-3">
-                <div class="flex items-center gap-1.5">
+                <div class="flex items-center gap-2">
                     <h6 class="font-bold text-sm m-0">{{ dim.label }}</h6>
                     @if (dimensionTooltips[dim.key]) {
-                    <i class="pi pi-question-circle text-xs text-muted-color cursor-help"
-                       [pTooltip]="dimensionTooltips[dim.key]"
-                       tooltipPosition="top"
-                       [tooltipOptions]="{ showDelay: 150, hideDelay: 100 }"></i>
+                    <app-help-tooltip [text]="dimensionTooltips[dim.key]" />
                     }
                 </div>
                 <span class="text-xs font-semibold px-2.5 py-1 rounded-full" [ngClass]="[getDimensionStatusConfig(dim).bg, getDimensionStatusConfig(dim).color]">
