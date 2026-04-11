@@ -54,7 +54,7 @@ export class CustomerDetail {
 
     private notificationService = inject(NotificationService);
 
-    // Leer :id de la ruta propia (create standalone) o de la ruta padre (edit dentro del tab wrapper)
+    // Read :id from the own route (standalone create) or from the parent route (edit inside tab wrapper)
     customerId = toSignal(
         merge(
             this.route.params.pipe(map(p => p['id'])),
@@ -71,7 +71,7 @@ export class CustomerDetail {
     loading = signal(false);
     selectedDepartmentId = signal<number | null>(null);
 
-    // Datos pendientes de match cuando se carga un cliente en edición
+    // Pending data to match when loading a customer in edit mode
     private pendingStateName: string | null = null;
     private pendingCityName: string | null = null;
 
@@ -103,7 +103,7 @@ export class CustomerDetail {
     });
 
     constructor() {
-        // Effect para cargar datos cuando cambia el customerId
+        // Effect to load data when customerId changes
         effect(() => {
             const id = this.customerId();
             if (id) {
@@ -111,7 +111,7 @@ export class CustomerDetail {
             }
         });
 
-        // Cuando cambia el departamento, resetear la ciudad
+        // When the department changes, reset the city
         this.form.controls.state.valueChanges.pipe(
             takeUntilDestroyed(this.destroyRef)
         ).subscribe(state => {
@@ -119,7 +119,7 @@ export class CustomerDetail {
             this.form.controls.city.reset();
         });
 
-        // Match pendiente de departamento por nombre cuando el resource termina de cargar
+        // Pending department match by name once the resource finishes loading
         effect(() => {
             const ctrl = this.stateControl();
             const departments = ctrl?.departmentsResource.value();
@@ -132,7 +132,7 @@ export class CustomerDetail {
             }
         });
 
-        // Match pendiente de ciudad por nombre cuando el resource termina de cargar
+        // Pending city match by name once the resource finishes loading
         effect(() => {
             const ctrl = this.cityControl();
             const cities = ctrl?.citiesResource.value();
@@ -152,13 +152,12 @@ export class CustomerDetail {
             finalize(() => this.loading.set(false)),
             takeUntilDestroyed(this.destroyRef)
         ).subscribe((customer) => {
-            console.log('customer', customer);
             if (customer) {
-                // Buscar los objetos correspondientes en los arrays de opciones
+                // Find the matching objects in the option arrays
                 const personType = this.personTypes()?.find(p => p.id === customer.personTypeId);
                 const economicActivity = this.sectorTypes()?.find(s => s.id === customer.economicActivityId);
 
-                // Guardar nombres para hacer match cuando los resources terminen de cargar
+                // Store names to match once the resources finish loading
                 this.pendingStateName = customer.state ?? null;
                 this.pendingCityName = customer.city ?? null;
 
@@ -215,11 +214,11 @@ export class CustomerDetail {
                 const message = this.customerId() ? 'Cliente actualizado correctamente' : 'Cliente creado correctamente';
                 this.notificationService.success(message, 'OK');
 
-                // Si es creación, navegar al modo edición con el nuevo ID
+                // On create, navigate to edit mode with the new ID
                 if (!this.customerId() && result.data?.id) {
                     this.router.navigate(['/app/clientes/detalle-cliente', result.data.id]);
                 }
-                // Si es edición, recargar los datos actualizados
+                // On edit, reload the updated data
                 else if (this.customerId()) {
                     this.loadCustomer(this.customerId()!);
                 }
