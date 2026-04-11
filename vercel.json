@@ -1,6 +1,6 @@
 {
     "buildCommand": "node scripts/set-env.js && ng build --configuration production",
-    "outputDirectory": "dist/tuplazo-ng/browser",
+    "outputDirectory": "dist/creditia-ng/browser",
     "framework": null,
     "rewrites": [
         {

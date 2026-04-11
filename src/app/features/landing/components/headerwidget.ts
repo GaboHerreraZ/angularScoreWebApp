@@ -13,8 +13,8 @@ import { LayoutService } from '@/app/layout/service/layout.service';
         <nav aria-label="Navegación principal" class="sticky top-0 z-50 backdrop-blur-md bg-surface-0/80 dark:bg-surface-950/80 border-b border-surface">
             <div class="flex items-center justify-between px-6 sm:px-12 lg:px-20 py-4 max-w-screen-2xl mx-auto">
                 <a [routerLink]="['/']" class="cursor-pointer flex items-center gap-2">
-                    <img [src]="logo()" alt="TuPlazo logo" class="w-8 h-8" />
-                    <span class="text-2xl font-bold text-color">TUPLAZO</span>
+                    <img [src]="logo()" alt="Creditia logo" class="w-8 h-8" />
+                    <span class="text-2xl font-bold text-color">CREDITIA</span>
                 </a>
                 <div class="relative flex items-center gap-2">
                     <!-- Dark mode toggle -->

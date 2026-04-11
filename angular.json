@@ -3,7 +3,7 @@
     "version": 1,
     "newProjectRoot": "projects",
     "projects": {
-        "tuplazo-ng": {
+        "creditia-ng": {
             "projectType": "application",
             "schematics": {
                 "@schematics/angular:component": {
@@ -17,7 +17,7 @@
                 "build": {
                     "builder": "@angular-devkit/build-angular:application",
                     "options": {
-                        "outputPath": "dist/tuplazo-ng",
+                        "outputPath": "dist/creditia-ng",
                         "index": "src/index.html",
                         "browser": "src/main.ts",
                         "tsConfig": "tsconfig.app.json",
@@ -68,10 +68,10 @@
                     "builder": "@angular-devkit/build-angular:dev-server",
                     "configurations": {
                         "production": {
-                            "buildTarget": "tuplazo-ng:build:production"
+                            "buildTarget": "creditia-ng:build:production"
                         },
                         "development": {
-                            "buildTarget": "tuplazo-ng:build:development"
+                            "buildTarget": "creditia-ng:build:development"
                         }
                     },
                     "defaultConfiguration": "development"

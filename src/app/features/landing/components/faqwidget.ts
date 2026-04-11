@@ -17,10 +17,10 @@ import { ScrollAnimateDirective } from '@/app/shared/directives/scroll-animate.d
 
                 <p-accordion appScrollAnimate="fade-up" [animateDelay]="100" [multiple]="true" expandIcon="pi pi-plus" collapseIcon="pi pi-minus">
                     <p-accordion-panel value="0">
-                        <p-accordion-header>¿Qué es TuPlazo y para quién está diseñado?</p-accordion-header>
+                        <p-accordion-header>¿Qué es Creditia y para quién está diseñado?</p-accordion-header>
                         <p-accordion-content>
                             <p class="text-muted-color leading-relaxed m-0">
-                                TuPlazo es una plataforma de análisis crediticio diseñada para empresas colombianas que otorgan crédito a sus clientes.
+                                Creditia es una plataforma de análisis crediticio diseñada para empresas colombianas que otorgan crédito a sus clientes.
                                 Está pensada para directores financieros, analistas de crédito y gerentes que necesitan evaluar el riesgo financiero
                                 de forma rápida y objetiva con más de 15 indicadores calculados automáticamente.
                             </p>
@@ -50,7 +50,7 @@ import { ScrollAnimateDirective } from '@/app/shared/directives/scroll-animate.d
                     </p-accordion-panel>
 
                     <p-accordion-panel value="3">
-                        <p-accordion-header>¿Puedo usar TuPlazo gratis?</p-accordion-header>
+                        <p-accordion-header>¿Puedo usar Creditia gratis?</p-accordion-header>
                         <p-accordion-content>
                             <p class="text-muted-color leading-relaxed m-0">
                                 Sí. Nuestro plan Básico es completamente gratuito e incluye hasta 2 usuarios, 50 clientes y 10 estudios de crédito
