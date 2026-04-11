@@ -1,27 +1,14 @@
 import { Component, computed, inject, resource } from '@angular/core';
-import { DecimalPipe, NgClass } from '@angular/common';
 import { firstValueFrom } from 'rxjs';
-import { CardModule } from 'primeng/card';
-import { ButtonModule } from 'primeng/button';
-import { TagModule } from 'primeng/tag';
-import { SkeletonModule } from 'primeng/skeleton';
-import { DividerModule } from 'primeng/divider';
 import { CompanyService } from '../company/company.service';
 import { AuthService } from '@/app/core/services/auth.service';
 import { AvailablePlans, PlanItem } from '@/app/types/subscription';
+import { SubscriptionPlansList } from '@/app/shared/components/subscription-plans-list/subscription-plans-list';
 
 @Component({
     selector: 'app-plan-billing',
     standalone: true,
-    imports: [
-        DecimalPipe,
-        NgClass,
-        CardModule,
-        ButtonModule,
-        TagModule,
-        SkeletonModule,
-        DividerModule
-    ],
+    imports: [SubscriptionPlansList],
     templateUrl: './plan-billing.html'
 })
 export class PlanBilling {
@@ -40,25 +27,8 @@ export class PlanBilling {
 
     plans = computed(() => this.plansResource.value()?.plans ?? []);
 
-    supportLevelLabel(levelId: number | undefined): string {
-        if (levelId == null) return '';
-        const labels: Record<number, string> = {
-            18: 'Correo electrónico',
-            19: 'Prioritario',
-            20: 'Dedicado'
-        };
-        return labels[levelId] ?? `Nivel ${levelId}`;
-    }
-
-    dashboardLevelLabel(levelId: number | undefined): string {
-        if (levelId == null) return '';
-        const labels: Record<number, string> = {
-            16: 'Básico',
-            17: 'Avanzado',
-            18: 'Completo'
-        };
-        return labels[levelId] ?? `Nivel ${levelId}`;
-    }
+    ctaLabelFn = (plan: PlanItem): string => (plan.isCurrent ? 'Plan actual' : 'Cambiar a este plan');
+    ctaDisabledFn = (plan: PlanItem): boolean => !!plan.isCurrent;
 
     onUpgrade(plan: PlanItem): void {
         console.log('Upgrade to plan:', plan.id, plan.name);

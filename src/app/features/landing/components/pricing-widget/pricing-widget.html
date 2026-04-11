@@ -1,0 +1,25 @@
+<section id="pricing" class="px-6 sm:px-12 lg:px-20 py-16 lg:py-24 bg-surface-50 dark:bg-surface-900">
+    <div class="max-w-screen-2xl mx-auto">
+        <div class="text-center mb-12" appScrollAnimate="fade-up">
+            <span class="bg-primary/10 text-primary font-bold text-sm uppercase tracking-widest px-4 py-1.5 rounded-full">Precios y Planes</span>
+            <h2 class="font-extrabold text-3xl sm:text-4xl lg:text-5xl mt-5 mb-4 text-color">
+                Software de <span class="text-primary">análisis crediticio</span> para tu empresa
+            </h2>
+            <p class="text-lg text-muted-color max-w-2xl mx-auto mb-4">
+                Automatiza la evaluación de riesgo financiero y gestión de crédito. Elige el plan ideal para tu operación.
+            </p>
+            <span class="inline-flex items-center gap-2 bg-surface-100 dark:bg-surface-800 text-muted-color text-sm font-semibold px-5 py-2.5 rounded-full">
+                <i class="pi pi-calendar text-primary"></i>
+                Todos los planes son de facturación anual
+            </span>
+        </div>
+
+        <app-subscription-plans-list
+            [plans]="plans()"
+            [campaign]="campaign()"
+            [loading]="loading()"
+            [ctaLabelFn]="ctaLabelFn"
+            (planAction)="onPlanSelected($event)"
+        />
+    </div>
+</section>
