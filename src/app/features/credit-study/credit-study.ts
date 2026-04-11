@@ -81,13 +81,10 @@ export class CreditStudy implements OnInit {
     ) {}
 
     ngOnInit(): void {
-        // Suscribirse al observable para iniciar la carga de datos
+        // Activate the service pipe so its taps write into the signals used by the view
         this.creditStudyService.creditStudies$
             .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe();
-
-        // Trigger inicial de carga
-        this.creditStudyService.loadCreditStudies();
     }
 
     onPageChange(event: TablePageChangeEvent): void {
@@ -99,7 +96,6 @@ export class CreditStudy implements OnInit {
     }
 
     onActionClick(event: TableActionEvent): void {
-        console.log('event', event);
         switch (event.action) {
             case 'edit':
                 this.router.navigate(['/app/estudio-credito/detalle-estudio', event.row.id]);

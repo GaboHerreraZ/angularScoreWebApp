@@ -1,4 +1,4 @@
-import { Component, computed, DestroyRef, inject, input, output, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, input, signal } from '@angular/core';
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
@@ -8,7 +8,7 @@ import { ButtonModule } from 'primeng/button';
 import { AccordionModule } from 'primeng/accordion';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
-import { AiAnalysisItem, AiAnalysisResponse, CreateCreditStudy, ViabilityConditions, ViabilityDimension } from '@/app/types/credit-study';
+import { AiAnalysisResponse, CreateCreditStudy, ViabilityConditions, ViabilityDimension } from '@/app/types/credit-study';
 import { CreditStudyService } from '../../credit-study.service';
 import { NotificationService } from '@/app/shared/components/notification/notification.service';
 import { HelpTooltip } from '@/app/shared/components/help-tooltip/help-tooltip';
