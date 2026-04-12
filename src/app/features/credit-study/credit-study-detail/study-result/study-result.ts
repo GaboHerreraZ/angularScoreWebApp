@@ -30,6 +30,7 @@ export class StudyResult {
     customer = input<{ businessName?: string; identificationNumber?: string; city?: string }>();
     companyInfo = input<{ name: string; city: string; nit: string }>();
     subscriptionName = input<string>('');
+    readOnly = input<boolean>(false);
 
     isPro = computed(() => this.subscriptionName().toLowerCase().includes('pro'));
 

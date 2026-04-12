@@ -87,6 +87,12 @@ export interface CreateCreditStudy {
     viabilityStatus?: string;
     viabilityConditions?: ViabilityConditions;
     aiAnalyses?: AiAnalysisItem[];
+    promissoryNotes?: PromissoryNote[];
+    status?: {
+        id: number;
+        label: string;
+        code: string;
+    };
 
     createdBy: string;
     updatedBy: string;
@@ -120,6 +126,24 @@ export interface ExtractedFinancialData {
     amortization: number | null;
     financialExpenses: number | null;
     taxes: number | null;
+}
+
+export interface PromissoryNote {
+    id: number;
+    amount: number;
+    amountInWords: string;
+    signingUrl: string;
+    signedDocumentUrl: string | null;
+    signedFileStoragePath: string | null;
+    sentAt: string;
+    signedAt: string | null;
+    declinedAt: string | null;
+    createdAt: string;
+    status: {
+        id: number;
+        label: string;
+        code: string;
+    };
 }
 
 export interface AiAnalysisItem {
@@ -165,6 +189,6 @@ export interface CustomerCreditStudyResponse extends CreateCreditStudy {
     status: {
         id: number;
         label: string;
-        key: string;
+        code: string;
     };
 }

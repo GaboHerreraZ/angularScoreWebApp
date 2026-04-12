@@ -120,8 +120,32 @@ export class CreditStudyService {
         );
     }
 
+    previewPromissoryNote(creditStudyId: string): Observable<{ success: boolean; error?: string; data?: string }> {
+        const endpoint = `companies/${this.companyId()}/promissory-notes/preview`;
+        return this.apiService.post<{ html: string }>(endpoint, { creditStudyId }).pipe(
+            map((response) => ({ success: true, data: response.html })),
+            catchError((error) => {
+                console.error('Error al obtener vista previa del pagaré:', error);
+                const message = error?.error?.message ?? 'Error al generar la vista previa del pagaré';
+                return of({ success: false, error: message });
+            })
+        );
+    }
+
+    declinePromissoryNote(promissoryNoteId: number): Observable<{ success: boolean; error?: string }> {
+        const endpoint = `companies/${this.companyId()}/promissory-notes/${promissoryNoteId}/decline`;
+        return this.apiService.patch<any>(endpoint, {}).pipe(
+            map(() => ({ success: true })),
+            catchError((error) => {
+                console.error('Error al cancelar firma del pagaré:', error);
+                const message = error?.error?.message ?? 'Error al cancelar la firma del pagaré';
+                return of({ success: false, error: message });
+            })
+        );
+    }
+
     approveCreditStudy(creditStudyId: string): Observable<any> {
-        const endpoint = `companies/${this.companyId()}/promissory-notes`;
+        const endpoint = `companies/${this.companyId()}/promissory-notes/html`;
         return this.apiService.post<any>(endpoint, { creditStudyId });
     }
 

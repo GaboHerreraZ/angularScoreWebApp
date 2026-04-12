@@ -27,6 +27,10 @@ export class CustomerView {
         this.route.params.pipe(map(params => params['id']))
     );
 
+    private returnUrl = toSignal(
+        this.route.queryParams.pipe(map(qp => qp['returnUrl']))
+    );
+
     customer = signal<Customer | null>(null);
     loading = signal(false);
 
@@ -69,6 +73,11 @@ export class CustomerView {
     }
 
     onBack(): void {
-        this.router.navigate(['/app/clientes']);
+        const returnUrl = this.returnUrl();
+        if (returnUrl) {
+            this.router.navigateByUrl(returnUrl);
+        } else {
+            this.router.navigate(['/app/clientes']);
+        }
     }
 }

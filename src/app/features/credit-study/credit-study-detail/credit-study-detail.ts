@@ -1,5 +1,6 @@
-import { Component, DestroyRef, effect, inject, signal, computed } from '@angular/core';
+import { Component, DestroyRef, effect, inject, signal, computed, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
@@ -69,6 +70,7 @@ export class CreditStudyDetail  {
     private notificationService = inject(NotificationService);
     private parameterService = inject(ParameterService);
     private confirmationService = inject(ConfirmationService);
+    private sanitizer = inject(DomSanitizer);
 
     private authSerice = inject(AuthService);
 
@@ -161,7 +163,30 @@ export class CreditStudyDetail  {
     studyCompleted = signal(false);
     studyResult = signal<CreateCreditStudy | null>(null);
 
+    previewVisible = signal(false);
+    previewHtml = signal<SafeHtml>('');
+    loadingPreview = signal(false);
+
     studyCustomer = computed(() => (this.studyResult() as any)?.customer as { businessName?: string; identificationNumber?: string; city?: string } | undefined);
+
+    latestPromissoryNote = computed(() => {
+        const notes = this.studyResult()?.promissoryNotes;
+        if (!notes?.length) return null;
+        return notes.reduce((latest, note) =>
+            new Date(note.createdAt) > new Date(latest.createdAt) ? note : latest
+        , notes[0]);
+    });
+
+    promissoryNoteStatus = computed(() => this.latestPromissoryNote()?.status?.code ?? null);
+    signedDocumentUrl = computed(() => this.latestPromissoryNote()?.signedDocumentUrl ?? null);
+
+    isReadOnly = computed(() => {
+        const statusCode = this.studyResult()?.status?.code;
+        const noteStatus = this.promissoryNoteStatus();
+        return statusCode === 'estudioCompletado'
+            || noteStatus === 'PENDING_SIGNATURE'
+            || noteStatus === 'SIGNED';
+    });
 
     customerUrlParams = signal<Record<string, string | number>>({
         companyId: this.creditStudyService.companyId()
@@ -326,6 +351,14 @@ export class CreditStudyDetail  {
                     this.studyCompleted.set(true);
                 } else {
                     this.studyCompleted.set(false);
+                }
+
+                const noteStatus = creditStudy.promissoryNotes?.length
+                    ? creditStudy.promissoryNotes.reduce((l, n) => new Date(n.createdAt) > new Date(l.createdAt) ? n : l, creditStudy.promissoryNotes[0]).status?.code
+                    : null;
+                if (creditStudy.status?.code === 'estudioCompletado' || noteStatus === 'PENDING_SIGNATURE' || noteStatus === 'SIGNED') {
+                    this.step1Form.disable();
+                    this.step2Form.disable();
                 }
             }
         });
@@ -516,6 +549,14 @@ export class CreditStudyDetail  {
         this.extractedDataVisible.set(false);
     }
 
+    onViewCustomer(): void {
+        const customerId = this.customerIdSignal();
+        if (!customerId) return;
+        this.router.navigate(['/app/clientes/detalle-cliente', customerId, 'informacion'], {
+            queryParams: { returnUrl: this.router.url }
+        });
+    }
+
     onCancel(): void {
         const fromCustomerId = this.queryCustomerId();
         if (fromCustomerId) {
@@ -584,32 +625,73 @@ export class CreditStudyDetail  {
             return;
         }
 
+        this.loadingPreview.set(true);
+        this.creditStudyService.previewPromissoryNote(id).pipe(
+            finalize(() => this.loadingPreview.set(false)),
+            takeUntilDestroyed(this.destroyRef)
+        ).subscribe((result) => {
+            if (result.success && result.data) {
+                this.previewHtml.set(this.sanitizer.bypassSecurityTrustHtml(result.data));
+                this.previewVisible.set(true);
+            } else {
+                this.notificationService.error(result.error ?? 'Error al generar la vista previa', 'Error');
+            }
+        });
+    }
+
+    decliningSignature = signal(false);
+
+    onDeclineSignature(): void {
+        const note = this.latestPromissoryNote();
+        if (!note) return;
+
         this.confirmationService.confirm({
-            message:
-                '¿Está seguro de continuar? Se enviará un correo al cliente con el pagaré para que sea firmado.',
-            header: 'Aprobar Crédito',
-            icon: 'pi pi-check-circle',
-            acceptLabel: 'Sí, aprobar',
-            rejectLabel: 'Cancelar',
-            acceptButtonStyleClass: 'p-button-success',
+            message: '¿Está seguro de que desea cancelar la firma del pagaré? El documento dejará de estar disponible para el cliente.',
+            header: 'Cancelar Firma del Pagaré',
+            icon: 'pi pi-exclamation-triangle',
+            acceptLabel: 'Sí, cancelar firma',
+            rejectLabel: 'Volver',
+            acceptButtonStyleClass: 'p-button-danger',
             rejectButtonStyleClass: 'p-button-secondary p-button-outlined',
             accept: () => {
-                this.approvingCredit.set(true);
+                this.decliningSignature.set(true);
 
-                this.creditStudyService.approveCreditStudy(id).pipe(
-                    finalize(() => this.approvingCredit.set(false)),
+                this.creditStudyService.declinePromissoryNote(note.id).pipe(
+                    finalize(() => this.decliningSignature.set(false)),
                     takeUntilDestroyed(this.destroyRef)
-                ).subscribe({
-                    next: () => {
-                        this.notificationService.success(
-                            'Crédito aprobado. Se ha enviado el pagaré al cliente para su firma.',
-                            'Éxito'
-                        );
-                    },
-                    error: () => {
-                        // El errorInterceptor ya muestra la notificación de error
+                ).subscribe((result) => {
+                    if (result.success) {
+                        this.notificationService.success('La firma del pagaré ha sido cancelada.', 'Éxito');
+                        this.loadCreditStudy(this.creditStudyId()!);
+                    } else {
+                        this.notificationService.error(result.error ?? 'Error al cancelar la firma', 'Error');
                     }
                 });
+            }
+        });
+    }
+
+    onConfirmApproveCredit(): void {
+        const id = this.creditStudyId();
+        if (!id) {
+            return;
+        }
+
+        this.previewVisible.set(false);
+        this.approvingCredit.set(true);
+
+        this.creditStudyService.approveCreditStudy(id).pipe(
+            finalize(() => this.approvingCredit.set(false)),
+            takeUntilDestroyed(this.destroyRef)
+        ).subscribe({
+            next: () => {
+                this.notificationService.success(
+                    'Crédito aprobado. Se ha enviado el pagaré al cliente para su firma.',
+                    'Éxito'
+                );
+            },
+            error: () => {
+                // El errorInterceptor ya muestra la notificación de error
             }
         });
     }

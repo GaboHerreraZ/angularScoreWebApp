@@ -1,5 +1,31 @@
 <p-confirmDialog />
 
+<!-- Modal de vista previa del Pagaré -->
+<p-dialog
+    header="Vista Previa del Pagaré"
+    [(visible)]="previewVisible"
+    [modal]="true"
+    [closable]="true"
+    [dismissableMask]="false"
+    [style]="{ width: '90vw', maxWidth: '900px' }"
+    [contentStyle]="{ 'max-height': '80vh', 'overflow-y': 'auto' }"
+    [maximizable]="true"
+    [draggable]="false">
+
+    <p-message severity="warn" styleClass="mb-4">
+        <span>Revise cuidadosamente todos los datos del documento antes de enviarlo para firma. Una vez aprobado, se enviará al cliente por correo electrónico.</span>
+    </p-message>
+
+    <div class="border border-surface rounded-lg p-6 bg-white" [innerHTML]="previewHtml()"></div>
+
+    <ng-template #footer>
+        <div class="flex justify-end gap-2">
+            <p-button label="Cancelar" icon="pi pi-times" severity="secondary" [outlined]="true" (onClick)="previewVisible.set(false)" />
+            <p-button label="Aprobar y Enviar" icon="pi pi-check-circle" severity="success" (onClick)="onConfirmApproveCredit()" [loading]="approvingCredit()" />
+        </div>
+    </ng-template>
+</p-dialog>
+
 <!-- Modal de carga mientras se extrae el PDF -->
 <p-dialog
     [(visible)]="extractingPdf"
@@ -99,33 +125,60 @@
     </p-card>
     } @else {
     <p-card>
-        <div class="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
-            <div class="flex items-center gap-3 flex-1 min-w-0">
-                <p-button icon="pi pi-arrow-left" [rounded]="true" [text]="true" severity="secondary" (onClick)="onCancel()" />
-                <div class="flex items-center justify-center rounded-full shrink-0"
-                     [ngClass]="isEditMode() ? 'bg-blue-50 text-blue-500 dark:bg-blue-500/10 dark:text-blue-400' : 'bg-green-50 text-green-500 dark:bg-green-500/10 dark:text-green-400'"
-                     style="width: 2.75rem; height: 2.75rem;">
-                    <i class="pi text-lg" [ngClass]="isEditMode() ? 'pi-file-edit' : 'pi-file-plus'"></i>
+        <div class="flex flex-col gap-3">
+            <div class="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+                <div class="flex items-center gap-3 flex-1 min-w-0">
+                    <p-button icon="pi pi-arrow-left" [rounded]="true" [text]="true" severity="secondary" (onClick)="onCancel()" />
+                    <div class="flex items-center justify-center rounded-full shrink-0"
+                         [ngClass]="isEditMode() ? 'bg-blue-50 text-blue-500 dark:bg-blue-500/10 dark:text-blue-400' : 'bg-green-50 text-green-500 dark:bg-green-500/10 dark:text-green-400'"
+                         style="width: 2.75rem; height: 2.75rem;">
+                        <i class="pi text-lg" [ngClass]="isEditMode() ? 'pi-file-edit' : 'pi-file-plus'"></i>
+                    </div>
+                    <div class="flex flex-col min-w-0">
+                        <h2 class="text-xl sm:text-2xl font-semibold m-0 truncate">
+                            {{ isReadOnly() ? 'Estudio de Crédito' : (isEditMode() ? 'Editar Estudio de Crédito' : 'Nuevo Estudio de Crédito') }}
+                        </h2>
+                        <span class="text-muted-color text-sm">
+                            {{ isReadOnly() ? 'Este estudio ha sido completado y se encuentra en modo de solo lectura' : (isEditMode() ? 'Modifique los datos del estudio y guarde los cambios' : 'Complete los datos para crear un nuevo estudio') }}
+                        </span>
+                    </div>
                 </div>
-                <div class="flex flex-col min-w-0">
-                    <h2 class="text-xl sm:text-2xl font-semibold m-0 truncate">
-                        {{ isEditMode() ? 'Editar Estudio de Crédito' : 'Nuevo Estudio de Crédito' }}
-                    </h2>
-                    <span class="text-muted-color text-sm">
-                        {{ isEditMode() ? 'Modifique los datos del estudio y guarde los cambios' : 'Complete los datos para crear un nuevo estudio' }}
-                    </span>
+                <div class="flex gap-2 sm:ml-0 ml-12 shrink-0">
+                    <p-button label="Cancelar" icon="pi pi-times" severity="secondary" [outlined]="true" (onClick)="onCancel()" class="flex-1 sm:flex-none" />
+                    @if (isEditMode()) {
+                    <p-button label="Ver Cliente" icon="pi pi-user" severity="warn" [outlined]="true" (onClick)="onViewCustomer()" class="flex-1 sm:flex-none" />
+                    }
+                    @if (promissoryNoteStatus() === 'PENDING_SIGNATURE') {
+                    <p-button label="Cancelar Firma" icon="pi pi-times" severity="danger" [outlined]="true" (onClick)="onDeclineSignature()" [loading]="decliningSignature()" [disabled]="decliningSignature()" class="flex-1 sm:flex-none" />
+                    }
+                    @if (!isReadOnly()) {
+                        @if (canExtractPdf()) {
+                        <p-button label="Cargar Estados Financieros" icon="pi pi-file-pdf" severity="info" [outlined]="true" (onClick)="onUploadFinancialStatements()" [loading]="extractingPdf()" [disabled]="extractingPdf()" class="flex-1 sm:flex-none" />
+                        }
+                        @if (studyCompleted() && studyResult()) {
+                        <p-button label="Aprobar Crédito" icon="pi pi-check-circle" severity="help" (onClick)="onApproveCredit()" [loading]="approvingCredit() || loadingPreview()" [disabled]="approvingCredit() || loadingPreview()" class="flex-1 sm:flex-none" />
+                        }
+                        <p-button label="Guardar" icon="pi pi-check" severity="success" (onClick)="onSave()" class="flex-1 sm:flex-none" />
+                    }
                 </div>
             </div>
-            <div class="flex gap-2 sm:ml-0 ml-12 shrink-0">
-                <p-button label="Cancelar" icon="pi pi-times" severity="secondary" [outlined]="true" (onClick)="onCancel()" class="flex-1 sm:flex-none" />
-                @if (canExtractPdf()) {
-                <p-button label="Cargar Estados Financieros" icon="pi pi-file-pdf" severity="info" [outlined]="true" (onClick)="onUploadFinancialStatements()" [loading]="extractingPdf()" [disabled]="extractingPdf()" class="flex-1 sm:flex-none" />
-                }
-                @if (studyCompleted() && studyResult()) {
-                <p-button label="Aprobar Crédito" icon="pi pi-check-circle" severity="help" (onClick)="onApproveCredit()" [loading]="approvingCredit()" [disabled]="approvingCredit()" class="flex-1 sm:flex-none" />
-                }
-                <p-button label="Guardar" icon="pi pi-check" severity="success" (onClick)="onSave()" class="flex-1 sm:flex-none" />
+            @if (promissoryNoteStatus() === 'PENDING_SIGNATURE') {
+            <div class="flex items-center justify-center gap-3 px-4 py-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800">
+                <i class="pi pi-clock text-amber-600 dark:text-amber-400"></i>
+                <span class="text-sm font-medium text-amber-700 dark:text-amber-400">El documento pagaré ha sido enviado al cliente y se encuentra pendiente de firma.</span>
             </div>
+            }
+            @if (promissoryNoteStatus() === 'SIGNED') {
+            <div class="flex items-center justify-center gap-3 px-4 py-3 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
+                <i class="pi pi-check-circle text-green-600 dark:text-green-400"></i>
+                <span class="text-sm font-medium text-green-700 dark:text-green-400">El documento pagaré ha sido firmado por el cliente.</span>
+                @if (signedDocumentUrl()) {
+                <a [href]="signedDocumentUrl()" target="_blank" rel="noopener noreferrer">
+                    <p-button label="Descargar Pagaré" icon="pi pi-download" severity="success" size="small" [outlined]="true" />
+                </a>
+                }
+            </div>
+            }
         </div>
     </p-card>
     }
@@ -773,10 +826,12 @@
                         </div>
                         <div class="flex py-6 gap-2">
                             <p-button label="Volver" severity="secondary" (onClick)="activateCallback(2)" />
-                            @if (isEditMode() && canUseAi()) {
-                            <p-button label="Realizar Estudio" icon="pi pi-bolt" severity="success" (onClick)="onPerformStudy(activateCallback)" [disabled]="!canPerformStudy()" [loading]="performingStudy()" />
-                            } @else {
-                            <p-button label="Guardar" icon="pi pi-check" severity="success" (onClick)="onSave()" />
+                            @if (!isReadOnly()) {
+                                @if (isEditMode() && canUseAi()) {
+                                <p-button label="Realizar Estudio" icon="pi pi-bolt" severity="success" (onClick)="onPerformStudy(activateCallback)" [disabled]="!canPerformStudy()" [loading]="performingStudy()" />
+                                } @else {
+                                <p-button label="Guardar" icon="pi pi-check" severity="success" (onClick)="onSave()" />
+                                }
                             }
                         </div>
                     </ng-template>
@@ -795,6 +850,7 @@
                             [customer]="studyCustomer()"
                             [companyInfo]="company()"
                             [subscriptionName]="subscriptionName()"
+                            [readOnly]="isReadOnly()"
                         />
                         <div class="py-2">
                             <p-button label="Volver" severity="secondary" (onClick)="activateCallback(3)" />

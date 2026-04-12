@@ -33,7 +33,7 @@
     </div>
 
     <!-- Analisis IA -->
-    @if (isPro()) {
+    @if (isPro() && !readOnly()) {
     <div class="rounded-xl border border-purple-200 dark:border-purple-800 overflow-hidden">
         @if (!aiRequested()) {
         <!-- Boton para solicitar analisis -->
