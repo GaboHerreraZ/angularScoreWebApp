@@ -77,7 +77,9 @@ export class Company {
     });
 
     saving = signal(false);
+    uploadingLogo = signal(false);
     company = signal<CompanyModel | null>(null);
+    logoPreview = signal<string | null>(null);
 
     subscriptionUsageResource = resource<SubscriptionUsage, string>({
         params: () => this.company()?.id as string,
@@ -184,12 +186,15 @@ export class Company {
         createdAt: new FormControl({ value: '', disabled: true }, { nonNullable: true })
     });
 
+    currentLogoUrl = computed(() => this.logoPreview() ?? this.company()?.logoSignedUrl ?? null);
+
     constructor() {
         effect(() => {
             const companies = this.companyResource.value();
             if (companies?.length) {
                 const c: CompanyModel = companies[0];
                 this.company.set(c);
+                this.logoPreview.set(null);
                 this.form.patchValue({
                     name: c.name,
                     nit: c.nit,
@@ -204,6 +209,41 @@ export class Company {
                 });
             }
         });
+    }
+
+    onUploadLogo(): void {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/png,image/jpeg,image/webp';
+
+        input.onchange = () => {
+            const file = input.files?.[0];
+            if (!file) return;
+
+            if (file.size > 2 * 1024 * 1024) {
+                this.notificationService.error('El logo no puede superar los 2 MB', 'Archivo muy grande');
+                return;
+            }
+
+            const companyId = this.company()?.id;
+            if (!companyId) return;
+
+            this.uploadingLogo.set(true);
+            this.companyService.uploadLogo(companyId, file).pipe(
+                finalize(() => this.uploadingLogo.set(false)),
+                takeUntilDestroyed(this.destroyRef)
+            ).subscribe({
+                next: (updated) => {
+                    this.logoPreview.set(updated.logoSignedUrl);
+                    this.notificationService.success('Logo actualizado correctamente', 'Ok');
+                },
+                error: () => {
+                    this.notificationService.error('No se pudo subir el logo', 'Error');
+                }
+            });
+        };
+
+        input.click();
     }
 
     onSave(): void {

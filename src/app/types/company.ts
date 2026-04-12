@@ -13,6 +13,8 @@ export interface Company {
     accountTypeId: number | null;
     accountBankId: number | null;
     accountNumber: string | null;
+    logoUrl: string | null;
+    logoSignedUrl: string | null;
     isActive: boolean;
     createdAt: string;
     updatedAt: string;

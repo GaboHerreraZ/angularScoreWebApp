@@ -68,6 +68,32 @@
                 <span class="text-muted-color text-sm">Información general de tu empresa. Puedes actualizar el nombre, ciudad y sector.</span>
             </ng-template>
 
+            <!-- Logo -->
+            <div class="flex items-center gap-5 mb-6 pb-6 border-b border-surface">
+                <div class="relative group cursor-pointer" (click)="onUploadLogo()">
+                    @if (currentLogoUrl()) {
+                    <img [src]="currentLogoUrl()" alt="Logo de la empresa" class="w-20 h-20 rounded-xl object-cover border border-surface shadow-sm" />
+                    } @else {
+                    <div class="w-20 h-20 rounded-xl bg-primary/10 flex items-center justify-center border border-surface">
+                        <i class="pi pi-building text-3xl text-primary"></i>
+                    </div>
+                    }
+                    <div class="absolute inset-0 rounded-xl bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <i class="pi pi-camera text-white text-lg"></i>
+                    </div>
+                    @if (uploadingLogo()) {
+                    <div class="absolute inset-0 rounded-xl bg-black/50 flex items-center justify-center">
+                        <i class="pi pi-spin pi-spinner text-white text-lg"></i>
+                    </div>
+                    }
+                </div>
+                <div class="flex flex-col gap-1">
+                    <span class="font-medium">Logo de la empresa</span>
+                    <span class="text-muted-color text-sm">PNG, JPG o WebP. Máximo 2 MB.</span>
+                    <p-button label="Cambiar logo" icon="pi pi-upload" severity="secondary" size="small" [outlined]="true" [loading]="uploadingLogo()" (onClick)="onUploadLogo()" styleClass="mt-1" />
+                </div>
+            </div>
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
                 <div class="flex flex-col gap-1">
                     <p-floatlabel variant="on">

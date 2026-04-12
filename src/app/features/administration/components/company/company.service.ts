@@ -22,6 +22,12 @@ export class CompanyService {
         return this.api.patch<Company>(`companies/${id}`, payload);
     }
 
+    uploadLogo(companyId: string, file: File): Observable<Company> {
+        const formData = new FormData();
+        formData.append('logo', file);
+        return this.api.patch<Company>(`companies/${companyId}/logo`, formData);
+    }
+
     getSubscriptionUsage(companyId: string): Observable<SubscriptionUsage> {
         return this.api.get<SubscriptionUsage>(`companies/${companyId}/subscription-usage`);
     }
