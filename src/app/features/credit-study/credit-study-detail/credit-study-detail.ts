@@ -157,6 +157,7 @@ export class CreditStudyDetail  {
     extractingPdf = signal(false);
     activeStep = 1;
     performingStudy = signal(false);
+    approvingCredit = signal(false);
     studyCompleted = signal(false);
     studyResult = signal<CreateCreditStudy | null>(null);
 
@@ -571,6 +572,42 @@ export class CreditStudyDetail  {
                         setTimeout(() => activateCallback(4), 300);
                     } else {
                         this.notificationService.error(result.error ?? 'Error al realizar el estudio', 'Error');
+                    }
+                });
+            }
+        });
+    }
+
+    onApproveCredit(): void {
+        const id = this.creditStudyId();
+        if (!id) {
+            return;
+        }
+
+        this.confirmationService.confirm({
+            message:
+                '¿Está seguro de continuar? Se enviará un correo al cliente con el pagaré para que sea firmado.',
+            header: 'Aprobar Crédito',
+            icon: 'pi pi-check-circle',
+            acceptLabel: 'Sí, aprobar',
+            rejectLabel: 'Cancelar',
+            acceptButtonStyleClass: 'p-button-success',
+            rejectButtonStyleClass: 'p-button-secondary p-button-outlined',
+            accept: () => {
+                this.approvingCredit.set(true);
+
+                this.creditStudyService.approveCreditStudy(id).pipe(
+                    finalize(() => this.approvingCredit.set(false)),
+                    takeUntilDestroyed(this.destroyRef)
+                ).subscribe({
+                    next: () => {
+                        this.notificationService.success(
+                            'Crédito aprobado. Se ha enviado el pagaré al cliente para su firma.',
+                            'Éxito'
+                        );
+                    },
+                    error: () => {
+                        // El errorInterceptor ya muestra la notificación de error
                     }
                 });
             }

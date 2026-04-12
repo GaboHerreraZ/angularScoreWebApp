@@ -121,6 +121,9 @@
                 @if (canExtractPdf()) {
                 <p-button label="Cargar Estados Financieros" icon="pi pi-file-pdf" severity="info" [outlined]="true" (onClick)="onUploadFinancialStatements()" [loading]="extractingPdf()" [disabled]="extractingPdf()" class="flex-1 sm:flex-none" />
                 }
+                @if (studyCompleted() && studyResult()) {
+                <p-button label="Aprobar Crédito" icon="pi pi-check-circle" severity="help" (onClick)="onApproveCredit()" [loading]="approvingCredit()" [disabled]="approvingCredit()" class="flex-1 sm:flex-none" />
+                }
                 <p-button label="Guardar" icon="pi pi-check" severity="success" (onClick)="onSave()" class="flex-1 sm:flex-none" />
             </div>
         </div>

@@ -120,6 +120,11 @@ export class CreditStudyService {
         );
     }
 
+    approveCreditStudy(creditStudyId: string): Observable<any> {
+        const endpoint = `companies/${this.companyId()}/promissory-notes`;
+        return this.apiService.post<any>(endpoint, { creditStudyId });
+    }
+
     performAiAnalysis(creditStudyId: string): Observable<{ success: boolean; error?: string; data?: AiAnalysisResponse }> {
         const endpoint = `companies/${this.companyId()}/ai-analyses/credit-studies/${creditStudyId}`;
 
