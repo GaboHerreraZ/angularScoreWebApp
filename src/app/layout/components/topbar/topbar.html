@@ -30,8 +30,14 @@
     </ul>
 
     <div class="topbar-actions">
-        <p-button icon="pi pi-question-circle" rounded severity="contrast" (onClick)="onHelpButtonClick()" pTooltip="Centro de Ayuda" tooltipPosition="bottom"></p-button>
-        <p-button icon="pi pi-palette" rounded severity="contrast" (onClick)="onConfigButtonClick()"></p-button>
+        <p-button icon="pi pi-question-circle" rounded severity="help" (onClick)="onHelpButtonClick()" pTooltip="Centro de Ayuda" tooltipPosition="bottom" size="small" styleClass="!text-base"></p-button>
+        <p-button icon="pi pi-palette" rounded severity="secondary" (onClick)="onConfigButtonClick()" pTooltip="Configuración" tooltipPosition="bottom" size="small" styleClass="!text-base"></p-button>
+        <span class="relative">
+            <p-button icon="pi pi-bell" rounded severity="warn" (onClick)="onNotificationButtonClick()" pTooltip="Notificaciones" tooltipPosition="bottom" size="small" styleClass="!text-base"></p-button>
+            @if (notificationCenterService.hasUnread()) {
+            <p-badge [value]="notificationCenterService.unreadCount().toString()" severity="danger" styleClass="absolute -top-2 -right-2 text-[10px] min-w-4 h-4 flex items-center justify-center animate-pulse-badge pointer-events-none"></p-badge>
+            }
+        </span>
         <!--      <div class="topbar-search" [ngClass]="{ 'topbar-search-active': searchActive() }">
             <button pButton [rounded]="true" severity="secondary" type="button" icon="pi pi-search" (click)="activateSearch()"></button>
 

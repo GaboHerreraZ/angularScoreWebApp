@@ -29,6 +29,7 @@ interface LayoutState {
     overlayMenuActive: boolean;
     configSidebarVisible: boolean;
     helpPanelVisible: boolean;
+    notificationPanelVisible: boolean;
     mobileMenuActive: boolean;
     menuHoverActive: boolean;
     activePath: any;
@@ -52,6 +53,7 @@ export class LayoutService {
         overlayMenuActive: false,
         configSidebarVisible: false,
         helpPanelVisible: false,
+        notificationPanelVisible: false,
         mobileMenuActive: false,
         menuHoverActive: false,
         activePath: null
@@ -140,6 +142,13 @@ export class LayoutService {
         this.layoutState.update((prev) => ({
             ...prev,
             helpPanelVisible: !prev.helpPanelVisible
+        }));
+    }
+
+    toggleNotificationPanel() {
+        this.layoutState.update((prev) => ({
+            ...prev,
+            notificationPanelVisible: !prev.notificationPanelVisible
         }));
     }
 

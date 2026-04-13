@@ -3,6 +3,22 @@
 @use './layout/layout.scss';
 @use './demo/demo.scss';
 
+/* Notification badge pulse */
+@keyframes pulse-badge {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.7;
+        transform: scale(1.15);
+    }
+}
+
+.animate-pulse-badge {
+    animation: pulse-badge 2s ease-in-out infinite;
+}
+
 /* Scroll animations */
 .scroll-animate {
     opacity: 0;

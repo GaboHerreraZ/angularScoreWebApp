@@ -9,11 +9,12 @@ import { Sidebar } from './sidebar/sidebar';
 import { Topbar } from './topbar/topbar';
 import { Notification } from '@/app/shared/components/notification/notification';
 import { HelpPanel } from '@/app/shared/components/help-panel/help-panel';
+import { NotificationCenter } from './notification-center/notification-center';
 
 @Component({
     selector: 'app-layout',
     standalone: true,
-    imports: [CommonModule, Topbar, Sidebar, RouterModule, Footer, Configurator, Breadcrumb, Notification, HelpPanel],
+    imports: [CommonModule, Topbar, Sidebar, RouterModule, Footer, Configurator, Breadcrumb, Notification, HelpPanel, NotificationCenter],
     templateUrl: './layout.html'
 })
 export class Layout {

@@ -11,11 +11,13 @@ import { SupabaseService } from '@/app/core/services/supabase.service';
 import { Router } from '@angular/router';
 import { AvatarModule } from 'primeng/avatar';
 import { TooltipModule } from 'primeng/tooltip';
+import { BadgeModule } from 'primeng/badge';
+import { NotificationCenterService } from '@/app/core/services/notification-center.service';
 
 @Component({
     selector: '[app-topbar]',
     standalone: true,
-    imports: [RouterModule, CommonModule, StyleClassModule, FormsModule, Ripple, ButtonModule, AvatarModule, TooltipModule],
+    imports: [RouterModule, CommonModule, StyleClassModule, FormsModule, Ripple, ButtonModule, AvatarModule, TooltipModule, BadgeModule],
     templateUrl: './topbar.html',
     host: {
         class: 'layout-topbar'
@@ -33,6 +35,8 @@ export class Topbar {
     searchActive = signal<boolean>(false);
 
     tabs = computed(() => this.layoutService.tabs());
+
+    notificationCenterService = inject(NotificationCenterService);
 
     user = this.authService.currentProfile();
 
@@ -63,6 +67,13 @@ export class Topbar {
 
     onHelpButtonClick() {
         this.layoutService.toggleHelpPanel();
+    }
+
+    onNotificationButtonClick() {
+        this.layoutService.toggleNotificationPanel();
+        if (this.layoutService.layoutState().notificationPanelVisible) {
+            this.notificationCenterService.loadNotifications();
+        }
     }
 
     removeTab(event: Event, index: number) {
