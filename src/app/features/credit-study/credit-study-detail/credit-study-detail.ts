@@ -222,7 +222,7 @@ export class CreditStudyDetail  {
         customerName: new FormControl<string>({ value: '', disabled: true }), // Para edición
         studyDate: new FormControl<Date | null>(null, { validators: [Validators.required] }),
         requestedTerm: new FormControl<number | null>(null, { validators: [Validators.required] }),
-        requestedMonthlyCreditLine: new FormControl<number | null>(null, { validators: [Validators.required] }),
+        requestedCreditLine: new FormControl<number | null>(null, { validators: [Validators.required] }),
         notes: new FormControl('', { nonNullable: true  })
     });
 
@@ -311,7 +311,7 @@ export class CreditStudyDetail  {
                     customerName: (creditStudy as any).customer?.businessName ?? '',
                     studyDate: creditStudy.studyDate ? new Date(creditStudy.studyDate) : null,
                     requestedTerm: creditStudy.requestedTerm ?? null,
-                    requestedMonthlyCreditLine: creditStudy.requestedMonthlyCreditLine ?? null,
+                    requestedCreditLine: creditStudy.requestedCreditLine ?? null,
                     notes: creditStudy.notes ?? ''
                 });
 
@@ -392,7 +392,6 @@ export class CreditStudyDetail  {
         this.loading.set(true);
         const step1Data = this.step1Form.getRawValue();
         const step2Data = this.step2Form.getRawValue();
-
         const customerId = this.isEditMode()
             ? this.customerIdSignal()
             : step1Data.customerId?.id.toString() ?? '';
@@ -402,7 +401,7 @@ export class CreditStudyDetail  {
             studyDate: step1Data.studyDate,
             notes: step1Data.notes,
             requestedTerm: step1Data.requestedTerm ?? 0,
-            requestedMonthlyCreditLine: step1Data.requestedMonthlyCreditLine ?? 0,
+            requestedCreditLine: step1Data.requestedCreditLine ?? 0,
             balanceSheetDate: step2Data.balanceSheetDate ?? undefined,
             cashAndEquivalents: step2Data.cashAndEquivalents ?? 0,
             accountsReceivable1: step2Data.accountsReceivable1 ?? 0,

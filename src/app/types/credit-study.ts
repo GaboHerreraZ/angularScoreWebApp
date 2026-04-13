@@ -4,15 +4,28 @@ export interface ViabilityAlert {
     dimension: string;
 }
 
+export interface PaymentSuggestion {
+    type: string;
+    description: string;
+    paymentAmount: number;
+    suggestedTerm: number;
+    suggestedCredit: number;
+    numberOfPayments: number;
+}
+
 export interface ViabilityDimension {
     label: string;
     score: number;
     maxScore: number;
     status: string;
+    reason?: string;
     ratio?: number;
     marginPercent?: number;
     realTerm?: number;
     requestedTerm?: number;
+    monthlyObligation?: number;
+    maxCreditForRequestedTerm?: number;
+    suggestions?: PaymentSuggestion[];
 }
 
 export interface ViabilitySummary {
@@ -34,7 +47,7 @@ export interface ViabilityConditions {
 export interface CreateCreditStudy {
     id: string;
     requestedTerm?: number;
-    requestedMonthlyCreditLine?: number;
+    requestedCreditLine?: number;
     customerId: string;
     studyDate: Date | null;
     notes?: string;
@@ -79,6 +92,7 @@ export interface CreateCreditStudy {
     accountsReceivableTurnover?: number;
     inventoryTurnover?: number;
     suppliersTurnover?: number;
+    paymentTimeSuppliers?: number;
     maximumPaymentTime?: number;
     averagePaymentTime?: number;
     recommendedTerm?: number;

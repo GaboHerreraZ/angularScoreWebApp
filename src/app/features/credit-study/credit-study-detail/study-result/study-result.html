@@ -8,10 +8,10 @@
         <p class="text-sm text-muted-color m-0 text-center max-w-lg">{{ statusConfig().description }}</p>
 
         <!-- Metricas principales -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 w-full mt-4 pt-4 border-t" [ngClass]="statusConfig().border">
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 w-full mt-4 pt-4 border-t" [ngClass]="statusConfig().border">
             <div class="flex flex-col items-center gap-1">
                 <span class="text-xs font-bold text-muted-color">Cupo Solicitado</span>
-                <span class="font-semibold text-base">{{ study().requestedMonthlyCreditLine | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</span>
+                <span class="font-semibold text-base">{{ study().requestedCreditLine | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</span>
             </div>
             <div class="flex flex-col items-center gap-1">
                 <span class="text-xs font-bold text-muted-color">Cupo Recomendado</span>
@@ -22,8 +22,12 @@
                 <span class="font-semibold text-base">{{ (summary()?.monthlyPaymentCapacity ?? study().monthlyPaymentCapacity) | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</span>
             </div>
             <div class="flex flex-col items-center gap-1">
-                <span class="text-xs font-bold text-muted-color">Plazo Recomendado</span>
-                <span class="font-semibold text-base">{{ summary()?.recommendedTerm ?? study().recommendedTerm }} dias</span>
+                <span class="text-xs font-bold text-muted-color">Rotacion de Cartera</span>
+                <span class="font-semibold text-base">{{ study().accountsReceivableTurnover ?? 0 }} dias</span>
+            </div>
+            <div class="flex flex-col items-center gap-1">
+                <span class="text-xs font-bold text-muted-color">Pago a Proveedores</span>
+                <span class="font-semibold text-base">{{ study().paymentTimeSuppliers ?? 0 }} dias</span>
             </div>
             <div class="flex flex-col items-center gap-1">
                 <span class="text-xs font-bold text-muted-color">Score</span>
@@ -177,6 +181,9 @@
                 </div>
                 <span class="text-sm font-semibold text-muted-color whitespace-nowrap">{{ dim.score }} / {{ dim.maxScore }}</span>
             </div>
+            @if (dim.reason) {
+            <p class="text-xs text-muted-color mt-2 m-0">{{ dim.reason }}</p>
+            }
             @if (dim.key === 'termCoherence' && dim.realTerm != null) {
             <div class="text-xs text-muted-color mt-1">
                 Plazo solicitado: <span class="font-semibold">{{ dim.requestedTerm }} dias</span> &middot; Plazo real: <span class="font-semibold">{{ dim.realTerm }} dias</span>
@@ -195,6 +202,49 @@
         </p-card>
         }
     </div>
+    }
+
+    <!-- Sugerencias de Pago -->
+    @if (paymentSuggestions(); as ps) {
+    <p-card>
+        <div class="flex items-center gap-2 mb-4">
+            <i class="pi pi-lightbulb text-primary"></i>
+            <h6 class="font-bold text-base m-0">{{ ps.label }}</h6>
+            @if (dimensionTooltips['paymentSuggestions']) {
+            <app-help-tooltip [text]="dimensionTooltips['paymentSuggestions']" />
+            }
+        </div>
+        <p class="text-sm text-muted-color mb-4 m-0">Opciones calculadas a partir de la capacidad de pago para facilitar la negociacion con el cliente.</p>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            @for (s of ps.suggestions!; track $index) {
+            <div class="rounded-lg border border-surface p-4 flex flex-col gap-3">
+                <div class="flex items-center gap-2">
+                    <i class="pi text-sm" [ngClass]="{
+                        'pi-calendar-clock text-blue-500': s.type === 'adjusted_term',
+                        'pi-wallet text-amber-500': s.type === 'adjusted_credit',
+                        'pi-star text-green-500': s.type === 'recommended_term'
+                    }"></i>
+                    <span class="text-sm font-semibold">{{ getSuggestionLabel(s.type) }}</span>
+                </div>
+                <p class="text-xs text-muted-color m-0">{{ s.description }}</p>
+                <div class="flex flex-col gap-2">
+                    <div class="flex justify-between text-sm">
+                        <span class="text-muted-color">Cupo</span>
+                        <span class="font-semibold">{{ s.suggestedCredit | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-muted-color">Plazo</span>
+                        <span class="font-semibold">{{ s.suggestedTerm }} dias</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-muted-color">Cuota</span>
+                        <span class="font-semibold">{{ s.numberOfPayments }} x {{ s.paymentAmount | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</span>
+                    </div>
+                </div>
+            </div>
+            }
+        </div>
+    </p-card>
     }
 
     <!-- Score crediticio + Alertas -->
@@ -262,7 +312,7 @@
                 </div>
                 <div class="flex justify-between items-center py-2">
                     <span class="text-sm text-muted-color">Cupo Solicitado:</span>
-                    <span class="text-sm font-semibold">{{ study().requestedMonthlyCreditLine | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</span>
+                    <span class="text-sm font-semibold">{{ study().requestedCreditLine | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</span>
                 </div>
             </div>
             <div class="flex flex-col gap-3">

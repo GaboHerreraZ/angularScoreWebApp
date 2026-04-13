@@ -33,7 +33,7 @@ export interface RecentStudy {
     customerName: string;
     studyDate: string;
     statusLabel: string;
-    requestedMonthlyCreditLine: number;
+    requestedCreditLine: number;
 }
 
 export interface BasicDashboard {

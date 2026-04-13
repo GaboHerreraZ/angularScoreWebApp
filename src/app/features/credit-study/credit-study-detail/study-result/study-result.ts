@@ -113,7 +113,16 @@ export class StudyResult {
     dimensions = computed(() => {
         const dims = this.viability()?.dimensions;
         if (!dims) return [];
-        return Object.entries(dims).map(([key, dim]) => ({ key, ...dim }));
+        return Object.entries(dims)
+            .filter(([key]) => key !== 'paymentSuggestions')
+            .map(([key, dim]) => ({ key, ...dim }));
+    });
+
+    paymentSuggestions = computed(() => {
+        const dims = this.viability()?.dimensions;
+        if (!dims) return null;
+        const ps = dims['paymentSuggestions'];
+        return ps?.suggestions?.length ? ps : null;
     });
 
     summary = computed(() => this.viability()?.summary);
@@ -136,8 +145,18 @@ export class StudyResult {
         financialHealth: 'Evalua la solidez financiera general de la empresa mediante indicadores clave como el nivel de endeudamiento, la relacion entre activos y pasivos, y la capacidad de generar utilidades. Un puntaje alto indica estabilidad y bajo riesgo de insolvencia.',
         paymentCapacity: 'Mide si la empresa genera suficiente flujo de caja para cubrir el cupo solicitado. Compara la capacidad de pago mensual (basada en EBITDA ajustado menos deuda actual) contra el monto del cupo. Un margen amplio indica holgura financiera.',
         termCoherence: 'Compara el plazo de pago solicitado contra los tiempos reales de operacion del negocio (rotacion de cartera, inventarios y proveedores). Un plazo solicitado muy inferior al ciclo operativo real indica alto riesgo de incumplimiento.',
-        creditLineAdequacy: 'Verifica que el cupo solicitado sea proporcional a la capacidad financiera real de la empresa. Compara el monto solicitado contra el cupo maximo recomendado calculado a partir de la capacidad de pago y el plazo.'
+        creditLineAdequacy: 'Verifica que el cupo solicitado sea proporcional a la capacidad financiera real de la empresa. Compara el monto solicitado contra el cupo maximo recomendado calculado a partir de la capacidad de pago y el plazo.',
+        paymentSuggestions: 'Alternativas de cupo y plazo calculadas a partir de la capacidad de pago real de la empresa, para facilitar la negociacion con el cliente.'
     };
+
+    getSuggestionLabel(type: string): string {
+        const labels: Record<string, string> = {
+            adjusted_term: 'Ajustando plazo',
+            adjusted_credit: 'Ajustando cupo',
+            recommended_term: 'Plazo recomendado'
+        };
+        return labels[type] ?? type;
+    }
 
     getDimensionStatusConfig(dim: ViabilityDimension & { key: string }): { label: string; bg: string; color: string } {
         const ratio = dim.score / dim.maxScore;

@@ -39,8 +39,8 @@ export class CreditStudy implements OnInit {
                 minWidth: '14rem'
             },
             {
-                header: 'Cupo Mensual Solicitado',
-                field: 'requestedMonthlyCreditLine',
+                header: 'Cupo Solicitado',
+                field: 'requestedCreditLine',
                 type: 'currency',
                 currencyCode: 'COP',
                 minWidth: '12rem'

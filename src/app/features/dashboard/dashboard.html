@@ -190,7 +190,7 @@
                         <td>
                             <p-tag [value]="study.statusLabel" [severity]="getStatusSeverity(study.statusLabel)" />
                         </td>
-                        <td class="text-right text-sm font-semibold">{{ study.requestedMonthlyCreditLine | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</td>
+                        <td class="text-right text-sm font-semibold">{{ study.requestedCreditLine | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</td>
                     </tr>
                 </ng-template>
                 <ng-template pTemplate="emptymessage">
