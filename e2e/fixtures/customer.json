@@ -1,0 +1,27 @@
+{
+  "natural": {
+    "businessName": "Cliente Test E2E Natural",
+    "identificationNumber": "1234567890",
+    "seniority": 3,
+    "email": "cliente.natural.e2e@test.com",
+    "phone": "3001234567",
+    "address": "Calle 123 #45-67",
+    "commercialRef1Name": "Empresa Referencia 1",
+    "commercialRef1Contact": "Juan Pérez",
+    "commercialRef1Phone": "3009876543",
+    "observations": "Cliente creado por pruebas e2e automatizadas"
+  },
+  "juridica": {
+    "businessName": "Empresa Test E2E Jurídica SAS",
+    "identificationNumber": "900123456",
+    "seniority": 5,
+    "legalRepName": "María García",
+    "legalRepId": "52345678",
+    "legalRepEmail": "rep.legal.e2e@test.com",
+    "legalRepPhone": "3101234567",
+    "email": "empresa.juridica.e2e@test.com",
+    "phone": "3201234567",
+    "address": "Carrera 7 #89-10 Oficina 301",
+    "observations": "Empresa creada por pruebas e2e automatizadas"
+  }
+}
