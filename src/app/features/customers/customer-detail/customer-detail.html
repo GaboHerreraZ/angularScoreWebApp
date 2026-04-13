@@ -58,7 +58,10 @@
                 </div>
             </ng-template>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-5">
+                <p-skeleton height="3rem" />
+                <p-skeleton height="3rem" />
+                <p-skeleton height="3rem" />
                 <p-skeleton height="3rem" />
                 <p-skeleton height="3rem" />
             </div>
@@ -208,19 +211,52 @@
                 </div>
             </ng-template>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-5">
                 <div class="flex flex-col gap-1">
                     <p-floatlabel variant="on">
-                        <input pInputText id="legalRepName" [formControl]="form.controls.legalRepName" />
-                        <label for="legalRepName">Nombre del Representante</label>
+                        <input pInputText id="legalRepName" [formControl]="form.controls.legalRepName" [invalid]="isInvalid('legalRepName')" />
+                        <label for="legalRepName">Nombre del Representante {{ isJuridica() ? '*' : '' }}</label>
                     </p-floatlabel>
+                    @if (isInvalid('legalRepName')) {
+                    <small class="text-red-500">{{ getErrorMessage('legalRepName') }}</small>
+                    }
                 </div>
 
                 <div class="flex flex-col gap-1">
                     <p-floatlabel variant="on">
-                        <input pInputText id="legalRepId" [formControl]="form.controls.legalRepId" />
-                        <label for="legalRepId">Identificación del Representante</label>
+                        <p-select id="legalRepIdentificationTypeId" [options]="identificationTypes()" optionLabel="label" [formControl]="form.controls.legalRepIdentificationTypeId" [invalid]="isInvalid('legalRepIdentificationTypeId')" />
+                        <label for="legalRepIdentificationTypeId">Tipo de Identificación {{ isJuridica() ? '*' : '' }}</label>
                     </p-floatlabel>
+                    @if (isInvalid('legalRepIdentificationTypeId')) {
+                    <small class="text-red-500">{{ getErrorMessage('legalRepIdentificationTypeId') }}</small>
+                    }
+                </div>
+
+                <div class="flex flex-col gap-1">
+                    <p-floatlabel variant="on">
+                        <input pInputText id="legalRepId" [formControl]="form.controls.legalRepId" [invalid]="isInvalid('legalRepId')" />
+                        <label for="legalRepId">Número de Identificación {{ isJuridica() ? '*' : '' }}</label>
+                    </p-floatlabel>
+                    @if (isInvalid('legalRepId')) {
+                    <small class="text-red-500">{{ getErrorMessage('legalRepId') }}</small>
+                    }
+                </div>
+
+                <div class="flex flex-col gap-1">
+                    <p-floatlabel variant="on">
+                        <input pInputText id="legalRepEmail" [formControl]="form.controls.legalRepEmail" [invalid]="isInvalid('legalRepEmail')" />
+                        <label for="legalRepEmail">Correo Electrónico {{ isJuridica() ? '*' : '' }}</label>
+                    </p-floatlabel>
+                    @if (isInvalid('legalRepEmail')) {
+                    <small class="text-red-500">{{ getErrorMessage('legalRepEmail') }}</small>
+                    }
+                </div>
+
+                <div class="flex flex-col gap-1">
+                    <app-phone-input inputId="legalRepPhone" [label]="'Teléfono ' + (isJuridica() ? '*' : '')" variant="on" [formControl]="form.controls.legalRepPhone" [invalid]="isInvalid('legalRepPhone')" />
+                    @if (isInvalid('legalRepPhone')) {
+                    <small class="text-red-500">{{ getErrorMessage('legalRepPhone') }}</small>
+                    }
                 </div>
             </div>
         </p-card>

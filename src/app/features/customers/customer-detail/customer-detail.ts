@@ -70,6 +70,7 @@ export class CustomerDetail {
     cityControl = viewChild<CityControl>('cityControl');
 
     loading = signal(false);
+    isJuridica = signal(false);
     selectedDepartmentId = signal<number | null>(null);
 
     // Pending data to match when loading a customer in edit mode
@@ -89,6 +90,9 @@ export class CustomerDetail {
         identificationNumber: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
         legalRepName: new FormControl('', { nonNullable: true }),
         legalRepId: new FormControl('', { nonNullable: true }),
+        legalRepIdentificationTypeId: new FormControl<Parameter | null>(null),
+        legalRepEmail: new FormControl('', { nonNullable: true }),
+        legalRepPhone: new FormControl('', { nonNullable: true }),
         economicActivityId: new FormControl({}, { nonNullable: true, validators:[Validators.required] }),
         seniority: new FormControl(0, { nonNullable: true, validators: [Validators.required, Validators.min(0)] }),
         email: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.email] }),
@@ -112,6 +116,32 @@ export class CustomerDetail {
             const id = this.customerId();
             if (id) {
                 this.loadCustomer(id);
+            }
+        });
+
+        // Toggle legal rep validators based on person type
+        this.form.controls.personTypeId.valueChanges.pipe(
+            takeUntilDestroyed(this.destroyRef)
+        ).subscribe(value => {
+            const code = (value as any as Parameter)?.code;
+            const isJuridica = code === 'personaJuridica';
+            this.isJuridica.set(isJuridica);
+            const legalRepControls = [
+                this.form.controls.legalRepName,
+                this.form.controls.legalRepId,
+                this.form.controls.legalRepIdentificationTypeId,
+                this.form.controls.legalRepEmail,
+                this.form.controls.legalRepPhone
+            ];
+            for (const control of legalRepControls) {
+                if (isJuridica) {
+                    control.setValidators(control === this.form.controls.legalRepEmail
+                        ? [Validators.required, Validators.email]
+                        : [Validators.required]);
+                } else {
+                    control.clearValidators();
+                }
+                control.updateValueAndValidity();
             }
         });
 
@@ -173,6 +203,9 @@ export class CustomerDetail {
                     identificationNumber: customer.identificationNumber,
                     legalRepName: customer.legalRepName ?? '',
                     legalRepId: customer.legalRepId ?? '',
+                    legalRepIdentificationTypeId: this.identificationTypes()?.find(i => i.id === customer.legalRepIdentificationTypeId) ?? null,
+                    legalRepEmail: customer.legalRepEmail ?? '',
+                    legalRepPhone: customer.legalRepPhone ?? '',
                     economicActivityId: economicActivity,
                     seniority: customer.seniority ?? 0,
                     email: customer.email ?? '',
@@ -205,6 +238,7 @@ export class CustomerDetail {
             personTypeId: (formData.personTypeId as any as Parameter).id,
             identificationTypeId: (formData.identificationTypeId as any as Parameter).id,
             economicActivityId: (formData.economicActivityId as any as Parameter).id,
+            legalRepIdentificationTypeId: (formData.legalRepIdentificationTypeId as any as Parameter)?.id ?? undefined,
             state: formData.state?.name ?? undefined,
             city: formData.city?.name ?? undefined
         } as unknown as Customer;

@@ -18,6 +18,9 @@ export interface Customer {
     identificationNumber: string;
     legalRepName?: string;
     legalRepId?: string;
+    legalRepIdentificationTypeId?: number;
+    legalRepEmail?: string;
+    legalRepPhone?: string;
     economicActivityId?: number;
     seniority: number;
     email?: string;
