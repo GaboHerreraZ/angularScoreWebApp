@@ -688,6 +688,7 @@ export class CreditStudyDetail  {
                     'Crédito aprobado. Se ha enviado el pagaré al cliente para su firma.',
                     'Éxito'
                 );
+                this.loadCreditStudy(this.creditStudyId()!);
             },
             error: () => {
                 // El errorInterceptor ya muestra la notificación de error
