@@ -24,6 +24,7 @@ export const appRoutes: Routes = [
     { path: 'legal/privacidad', loadComponent: () => import('@/app/features/legal/privacy-policy').then((c) => c.PrivacyPolicy) },
     { path: 'legal/terminos', loadComponent: () => import('@/app/features/legal/terms-conditions').then((c) => c.TermsConditions) },
     { path: 'legal/habeas-data', loadComponent: () => import('@/app/features/legal/habeas-data').then((c) => c.HabeasData) },
+    { path: 'servicio-no-disponible', loadComponent: () => import('@/app/features/service-unavailable/service-unavailable').then((c) => c.ServiceUnavailable) },
     { path: 'no-encontrado', loadComponent: () => import('@/app/features/not-found/not-found').then((c) => c.NotFound) },
     { path: '**', redirectTo: '/no-encontrado' }
 ];

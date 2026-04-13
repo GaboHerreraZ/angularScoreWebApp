@@ -1,0 +1,11 @@
+<div class="bg-surface-50 dark:bg-surface-950 h-screen w-screen flex items-center justify-center">
+    <div class="bg-surface-0 dark:bg-surface-900 py-16 px-8 sm:px-16 shadow flex flex-col items-center w-11/12 sm:w-120 text-center" style="border-radius: 14px">
+        <div class="w-20 h-20 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center mb-6">
+            <i class="pi pi-server text-4xl text-red-500 dark:text-red-400"></i>
+        </div>
+        <h1 class="font-bold text-2xl mt-0 mb-2">Servicio No Disponible</h1>
+        <p class="text-muted-color mb-2">No fue posible conectar con el servidor. Esto puede deberse a un problema temporal de red o a que el servicio se encuentra en mantenimiento.</p>
+        <p class="text-muted-color mb-8">Por favor intente nuevamente en unos minutos.</p>
+        <p-button label="Reintentar" icon="pi pi-refresh" (onClick)="onReload()" />
+    </div>
+</div>

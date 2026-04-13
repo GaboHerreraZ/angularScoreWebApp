@@ -1,13 +1,22 @@
 import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
 import { inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
 import { NotificationService } from '@/app/shared/components/notification/notification.service';
+import { SupabaseService } from '@/app/core/services/supabase.service';
 
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
     const notificationService = inject(NotificationService);
+    const supabaseService = inject(SupabaseService);
+    const router = inject(Router);
 
     return next(req).pipe(
         catchError((error: HttpErrorResponse) => {
+            if (error.status === 0 && supabaseService.isAuthenticated()) {
+                router.navigate(['/servicio-no-disponible']);
+                return throwError(() => error);
+            }
+
             const message = error.error?.message || error.error?.error || getDefaultMessage(error.status);
             notificationService.error(message);
             return throwError(() => error);
