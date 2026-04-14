@@ -103,9 +103,9 @@ export class Company {
             status: inv.status.label,
             statusCode: inv.status.code,
             createdAt: new Date(inv.createdAt).toLocaleDateString('es-CO'),
-            canResend: inv.status.code === 'rechazada',
-            canDeactivate: inv.status.code === 'aceptada',
-            canActivate: inv.status.code === 'cancelado'
+            canResend: inv.status.code === 'rejected',
+            canDeactivate: inv.status.code === 'accepted',
+            canActivate: inv.status.code === 'canceled'
         }));
     });
 

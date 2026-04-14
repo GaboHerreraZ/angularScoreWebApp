@@ -18,7 +18,7 @@ export const subscriptionGuard: CanActivateFn = async () => {
     }
 
     const userCompany = userCompanies[0];
-    if (!userCompany.isActive && profile.role?.code === 'auxiliar') {
+    if (!userCompany.isActive && profile.role?.code === 'assistant') {
         return router.createUrlTree(['/'], {
             queryParams: { blocked: 'true' }
         });
@@ -30,7 +30,7 @@ export const subscriptionGuard: CanActivateFn = async () => {
     }
 
     const activeSubscription = company.companySubscriptions.find(
-        sub => sub.isCurrent && sub.status?.code === 'activa'
+        sub => sub.isCurrent && sub.status?.code === 'active'
     );
 
     if (!activeSubscription) {

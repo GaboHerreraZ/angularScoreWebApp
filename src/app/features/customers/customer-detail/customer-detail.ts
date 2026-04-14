@@ -77,7 +77,7 @@ export class CustomerDetail {
     private pendingStateName: string | null = null;
     private pendingCityName: string | null = null;
 
-    personTypes = toSignal(this.parameterService.getByType('personType'));
+    personTypes = toSignal(this.parameterService.getByType('person_type'));
 
     sectorTypes = toSignal(this.parameterService.getByType('sector'));
 
@@ -124,7 +124,7 @@ export class CustomerDetail {
             takeUntilDestroyed(this.destroyRef)
         ).subscribe(value => {
             const code = (value as any as Parameter)?.code;
-            const isJuridica = code === 'personaJuridica';
+            const isJuridica = code === 'legalEntity';
             this.isJuridica.set(isJuridica);
             const legalRepControls = [
                 this.form.controls.legalRepName,

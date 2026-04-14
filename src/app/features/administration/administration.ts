@@ -32,7 +32,7 @@ export class Administration {
 
     isAdmin = computed(() => {
         const role = this.authService.currentProfile()?.role;
-        return role?.code === 'administrador';
+        return role?.code === 'administrator';
     });
 
     onTabChange(value: string | number | undefined): void {

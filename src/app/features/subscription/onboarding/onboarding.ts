@@ -148,7 +148,7 @@ export class Onboarding {
                 }
 
                 const hasActiveSubscription = company.company.companySubscriptions.some(
-                    sub => sub.isCurrent && sub.status?.code === 'activa'
+                    sub => sub.isCurrent && sub.status?.code === 'active'
                 );
 
                 if (hasActiveSubscription) {

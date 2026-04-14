@@ -183,9 +183,9 @@ export class CreditStudyDetail  {
     isReadOnly = computed(() => {
         const statusCode = this.studyResult()?.status?.code;
         const noteStatus = this.promissoryNoteStatus();
-        return statusCode === 'estudioCompletado'
-            || noteStatus === 'PENDING_SIGNATURE'
-            || noteStatus === 'SIGNED';
+        return statusCode === 'studyClosed'
+            || noteStatus === 'pendingSignature'
+            || noteStatus === 'signed';
     });
 
     customerUrlParams = signal<Record<string, string | number>>({
@@ -356,9 +356,14 @@ export class CreditStudyDetail  {
                 const noteStatus = creditStudy.promissoryNotes?.length
                     ? creditStudy.promissoryNotes.reduce((l, n) => new Date(n.createdAt) > new Date(l.createdAt) ? n : l, creditStudy.promissoryNotes[0]).status?.code
                     : null;
-                if (creditStudy.status?.code === 'estudioCompletado' || noteStatus === 'PENDING_SIGNATURE' || noteStatus === 'SIGNED') {
+                if (creditStudy.status?.code === 'studyClosed' || noteStatus === 'pendingSignature' || noteStatus === 'signed') {
                     this.step1Form.disable();
                     this.step2Form.disable();
+                } else {
+                    this.step1Form.enable();
+                    this.step2Form.enable();
+                    // customerName is always display-only in edit mode
+                    this.step1Form.get('customerName')?.disable();
                 }
             }
         });

@@ -148,10 +148,10 @@
                     @if (isEditMode()) {
                     <p-button label="Ver Cliente" icon="pi pi-user" severity="warn" [outlined]="true" (onClick)="onViewCustomer()" />
                     }
-                    @if (promissoryNoteStatus() === 'PENDING_SIGNATURE') {
+                    @if (promissoryNoteStatus() === 'pendingSignature') {
                     <p-button label="Cancelar Firma" icon="pi pi-times" severity="danger" [outlined]="true" (onClick)="onDeclineSignature()" [loading]="decliningSignature()" [disabled]="decliningSignature()" />
                     }
-                    @if (promissoryNoteStatus() === 'SIGNED' && signedDocumentUrl()) {
+                    @if (promissoryNoteStatus() === 'signed' && signedDocumentUrl()) {
                     <a [href]="signedDocumentUrl()" target="_blank" rel="noopener noreferrer">
                         <p-button label="Descargar Pagaré" icon="pi pi-download" severity="success" [outlined]="true" />
                     </a>
@@ -167,13 +167,13 @@
                     }
                 </div>
             </div>
-            @if (promissoryNoteStatus() === 'PENDING_SIGNATURE') {
+            @if (promissoryNoteStatus() === 'pendingSignature') {
             <div class="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3 px-4 py-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800">
                 <i class="pi pi-clock text-amber-600 dark:text-amber-400 shrink-0"></i>
                 <span class="text-sm font-medium text-amber-700 dark:text-amber-400 text-center">El documento pagaré ha sido enviado al cliente y se encuentra pendiente de firma.</span>
             </div>
             }
-            @if (promissoryNoteStatus() === 'SIGNED') {
+            @if (promissoryNoteStatus() === 'signed') {
             <div class="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3 px-4 py-3 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
                 <i class="pi pi-check-circle text-green-600 dark:text-green-400 shrink-0"></i>
                 <span class="text-sm font-medium text-green-700 dark:text-green-400 text-center">El documento pagaré ha sido firmado por el cliente.</span>
