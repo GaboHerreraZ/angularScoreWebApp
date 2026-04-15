@@ -51,6 +51,7 @@ export class WompiService {
             amountInCents: transaction.amountInCents,
             reference: transaction.paymentId,
             publicKey: environment.wompiPublicKey,
+            redirectUrl: environment.wompiRedirectUrl,
             signature: { integrity: transaction.integrityHash },
         });
 

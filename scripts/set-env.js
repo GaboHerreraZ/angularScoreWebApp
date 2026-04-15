@@ -11,6 +11,7 @@ const supabaseUrl = process.env.SUPABASE_URL || '';
 const supabaseKey = process.env.SUPABASE_KEY || '';
 const apiUrl = process.env.API_URL || '';
 const wompiPublicKey = process.env.WOMPI_PUBLIC_KEY || '';
+const wompiRedirectUrl = process.env.WOMPI_REDIRECT_URL || '';
 
 console.log('Generating environment files...');
 console.log('SUPABASE_URL:', supabaseUrl ? 'SET' : 'MISSING');
@@ -24,6 +25,7 @@ const envContent = `export const environment = {
     supabaseKey: '${supabaseKey}',
     apiUrl: '${apiUrl}',
     wompiPublicKey: '${wompiPublicKey}',
+    wompiRedirectUrl:'${wompiRedirectUrl}',
 };
 `;
 
@@ -33,6 +35,7 @@ const envProdContent = `export const environment = {
     supabaseKey: '${supabaseKey}',
     apiUrl: '${apiUrl}',
     wompiPublicKey: '${wompiPublicKey}',
+    wompiRedirectUrl:'${wompiRedirectUrl}',
 };
 `;
 

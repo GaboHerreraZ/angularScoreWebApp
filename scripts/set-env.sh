@@ -15,6 +15,8 @@ export const environment = {
     supabaseKey: '${SUPABASE_KEY}',
     apiUrl: '${API_URL}',
     wompiPublicKey: '${WOMPI_PUBLIC_KEY}',
+    wompiRedirectUrl: '${WOMPI_REDIRECT_URL}',
+
 };
 EOF
 
@@ -26,6 +28,7 @@ export const environment = {
     supabaseKey: '${SUPABASE_KEY}',
     apiUrl: '${API_URL}',
     wompiPublicKey: '${WOMPI_PUBLIC_KEY}',
+    wompiRedirectUrl: '${WOMPI_REDIRECT_URL}',
 };
 EOF
 
