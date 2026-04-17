@@ -180,6 +180,7 @@ export interface OnboardingSetupRequest {
         position: string | null;
         identificationTypeId: number;
         identificationNumber: string;
+        roleId: number;
     };
     company: {
         name: string;

@@ -93,7 +93,7 @@ export class Onboarding {
     // Resources
     rolesResource = resource<Parameter[], {}>({
         params: () => ({}),
-        loader: () => firstValueFrom(this.parameterService.getByType('rol'))
+        loader: () => firstValueFrom(this.parameterService.getByType('user_company_role'))
     });
 
     adminRole = computed(() => {
@@ -331,6 +331,7 @@ export class Onboarding {
                     position: profileData.position,
                     identificationTypeId: profileData.identificationType!.id,
                     identificationNumber: profileData.identificationNumber,
+                    roleId: this.adminRole()!.id
                 },
                 company: {
                     name: companyData.name,

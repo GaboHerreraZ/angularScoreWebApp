@@ -34,7 +34,7 @@ export class Dashboard implements OnInit {
     private dashboardService = inject(DashboardService);
     private destroyRef = inject(DestroyRef);
 
-    floor = Math.floor;
+    floor = (value: number | null | undefined) => Math.floor(value ?? 0);
     loading = signal(false);
     dashboardLevel = this.dashboardService.dashboardLevel;
 
