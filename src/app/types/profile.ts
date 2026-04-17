@@ -6,6 +6,8 @@ export interface Profile {
   phone: string;
   roleId: number;
   position: string;
+  identificationTypeId?: number;
+  identificationNumber?: string;
   metadata: Record<string, any>;
   createdAt: string;
   updatedAt: string;

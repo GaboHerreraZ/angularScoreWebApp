@@ -84,7 +84,7 @@
             <div class="flex items-baseline gap-2">
                 <span class="text-4xl font-extrabold text-color">{{ formatPrice(plan.displayPrice) }}</span>
                 @if (plan.displayPrice > 0) {
-                <span class="text-muted-color text-sm">COP / año</span>
+                <span class="text-muted-color text-sm">COP / {{ plan.isMonthly ? 'mes' : 'año' }}</span>
                 }
             </div>
         </div>

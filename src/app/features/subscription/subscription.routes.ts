@@ -4,7 +4,6 @@ import { authGuard } from '@/app/core/guards/auth.guard';
 export default [
     {
         path: 'registro',
-        canActivate: [authGuard],
         loadComponent: () => import('./onboarding/onboarding').then(c => c.Onboarding)
     },
     {

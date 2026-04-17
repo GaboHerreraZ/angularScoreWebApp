@@ -3,377 +3,636 @@
 <div class="min-h-screen w-screen bg-surface-100 dark:bg-surface-950 flex flex-col">
     <div class="flex-1 flex items-center justify-center p-6 sm:p-12">
         <div class="w-full max-w-7xl flex flex-col gap-6">
-            <!-- Header -->
-            <div class="flex flex-col items-center gap-2 mb-2">
-                <h2 class="text-2xl font-bold m-0 flex items-center gap-2">
-                    <i class="pi pi-user-plus text-primary"></i>
-                    Configura tu cuenta
-                </h2>
-                <p class="text-muted-color text-sm m-0">Completa los siguientes pasos para comenzar a usar la plataforma.</p>
-            </div>
-            <p-card>
-                <!-- Stepper -->
-                <p-stepper [value]="activeStep()" [linear]="true">
-                    <p-step-list>
-                        <p-step [value]="1">Perfil</p-step>
-                        <p-step [value]="2">Empresa</p-step>
-                        <p-step [value]="3">Plan</p-step>
-                    </p-step-list>
-                    <p-step-panels>
-                        <!-- Step 1: Perfil -->
-                        <p-step-panel [value]="1">
-                            <ng-template #content let-activateCallback="activateCallback">
-                                @if (rolesResource.isLoading() || savingProfile()) {
-                                <div class="flex flex-col gap-4 p-6">
-                                    <div class="flex items-center gap-2">
-                                        <p-skeleton width="1.5rem" height="1.5rem" shape="circle" />
-                                        <p-skeleton width="12rem" height="1.5rem" />
-                                    </div>
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <p-skeleton height="2.5rem" />
-                                        <p-skeleton height="2.5rem" />
-                                        <p-skeleton height="2.5rem" />
-                                        <p-skeleton height="2.5rem" />
-                                        <p-skeleton height="2.5rem" />
-                                        <p-skeleton height="2.5rem" />
-                                    </div>
-                                    <div class="flex justify-end">
-                                        <p-skeleton width="12rem" height="2.5rem" borderRadius="6px" />
-                                    </div>
+
+            @if (subscriptionComplete()) {
+                <!-- ==================== Confirmation Screen ==================== -->
+                <p-card>
+                    <div class="flex flex-col items-center gap-6 py-12 text-center">
+                        <div class="w-24 h-24 rounded-full bg-green-500/10 flex items-center justify-center">
+                            <i class="pi pi-check-circle text-green-500 text-6xl"></i>
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <h2 class="text-2xl font-bold m-0">¡Bienvenido a Creditia!</h2>
+                            <p class="text-muted-color text-sm m-0 max-w-md">
+                                Tu suscripción al plan <strong>{{ selectedPlan()?.name }}</strong> ha sido activada exitosamente.
+                                Ya puedes comenzar a tomar decisiones de crédito inteligentes.
+                            </p>
+                        </div>
+
+                        <div class="bg-surface-50 dark:bg-surface-800 rounded-xl p-5 w-full max-w-sm">
+                            <div class="flex justify-between text-sm mb-3">
+                                <span class="text-muted-color">Plan</span>
+                                <span class="font-semibold">{{ selectedPlan()?.name }}</span>
+                            </div>
+                            @if (selectedPlan()!.price > 0) {
+                                <div class="flex justify-between text-sm mb-3">
+                                    <span class="text-muted-color">Facturación</span>
+                                    <span class="font-semibold">{{ selectedPlan()?.isMonthly ? 'Mensual' : 'Anual' }}</span>
                                 </div>
+                            }
+                            <div class="flex justify-between text-sm">
+                                <span class="text-muted-color">Valor</span>
+                                @if (selectedPlan()!.price === 0) {
+                                    <span class="font-semibold text-green-600 dark:text-green-400">Gratis</span>
                                 } @else {
-                                <p-card class="mt-4">
-                                    <ng-template #title>
-                                        <div class="flex items-center gap-2">
-                                            <i class="pi pi-id-card text-primary"></i>
-                                            <span>Información Personal</span>
-                                        </div>
-                                    </ng-template>
-
-                                    <p-fluid>
-                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
-                                            <div class="flex flex-col gap-1">
-                                                <p-floatlabel variant="on">
-                                                    <input pInputText id="onb-name" [formControl]="profileForm.controls.name" [invalid]="isInvalid(profileForm, 'name')" />
-                                                    <label for="onb-name">Nombre *</label>
-                                                </p-floatlabel>
-                                                @if (isInvalid(profileForm, 'name')) {
-                                                <small class="text-red-500">{{ getErrorMessage(profileForm, 'name') }}</small>
-                                                }
-                                            </div>
-
-                                            <div class="flex flex-col gap-1">
-                                                <p-floatlabel variant="on">
-                                                    <input pInputText id="onb-lastName" [formControl]="profileForm.controls.lastName" [invalid]="isInvalid(profileForm, 'lastName')" />
-                                                    <label for="onb-lastName">Apellido *</label>
-                                                </p-floatlabel>
-                                                @if (isInvalid(profileForm, 'lastName')) {
-                                                <small class="text-red-500">{{ getErrorMessage(profileForm, 'lastName') }}</small>
-                                                }
-                                            </div>
-
-                                            <div class="flex flex-col gap-1">
-                                                <p-floatlabel variant="on">
-                                                    <input pInputText id="onb-email" [formControl]="profileForm.controls.email" [invalid]="isInvalid(profileForm, 'email')" />
-                                                    <label for="onb-email">Correo Electrónico *</label>
-                                                </p-floatlabel>
-                                                @if (isInvalid(profileForm, 'email')) {
-                                                <small class="text-red-500">{{ getErrorMessage(profileForm, 'email') }}</small>
-                                                }
-                                            </div>
-
-                                            <div class="flex flex-col gap-1">
-                                                <app-phone-input inputId="onb-phone" label="Teléfono" variant="on" [formControl]="profileForm.controls.phone" />
-                                            </div>
-
-                                            <div class="flex flex-col gap-1">
-                                                <p-floatlabel variant="on">
-                                                    <input pInputText id="onb-position" [formControl]="profileForm.controls.position" />
-                                                    <label for="onb-position">Cargo en la Empresa</label>
-                                                </p-floatlabel>
-                                            </div>
-                                        </div>
-                                    </p-fluid>
-                                </p-card>
-
-                                <div class="flex justify-end mt-4">
-                                    <p-button label="Guardar y continuar" icon="pi pi-arrow-right" iconPos="right" [loading]="savingProfile()" (onClick)="onSaveProfile()" />
-                                </div>
+                                    <span class="font-semibold text-green-600 dark:text-green-400">{{ getDiscountedPrice(selectedPlan()!.price) | number:'1.0-0' }} COP</span>
                                 }
-                            </ng-template>
-                        </p-step-panel>
+                            </div>
+                        </div>
 
-                        <!-- Step 2: Empresa -->
-                        <p-step-panel [value]="2">
-                            <ng-template #content let-activateCallback="activateCallback">
-                                @if (sectorsResource.isLoading() || savingCompany()) {
-                                <div class="flex flex-col gap-4 p-6">
-                                    <div class="flex items-center gap-2">
-                                        <p-skeleton width="1.5rem" height="1.5rem" shape="circle" />
-                                        <p-skeleton width="12rem" height="1.5rem" />
-                                    </div>
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <p-skeleton height="2.5rem" />
-                                        <p-skeleton height="2.5rem" />
-                                        <p-skeleton height="2.5rem" />
-                                        <p-skeleton height="2.5rem" />
-                                        <p-skeleton height="2.5rem" />
-                                        <p-skeleton height="2.5rem" styleClass="md:col-span-2" />
-                                    </div>
-                                    <div class="flex justify-end">
-                                        <p-skeleton width="12rem" height="2.5rem" borderRadius="6px" />
-                                    </div>
-                                </div>
-                                } @else {
-                                <p-card class="mt-4">
-                                    <ng-template #title>
-                                        <div class="flex items-center gap-2">
-                                            <i class="pi pi-building text-primary"></i>
-                                            <span>Datos de la Empresa</span>
+                        <p-button
+                            label="Ir al panel"
+                            icon="pi pi-arrow-right"
+                            iconPos="right"
+                            styleClass="mt-2"
+                            (onClick)="goToDashboard()"
+                        />
+                    </div>
+                </p-card>
+
+            } @else if (processing() || tokenizing()) {
+                <!-- ==================== Processing Screen ==================== -->
+                <p-card>
+                    <div class="flex flex-col items-center gap-5 py-12">
+                        <p-progressSpinner strokeWidth="4" styleClass="w-16 h-16" />
+                        <h3 class="text-xl font-bold m-0">Procesando tu suscripción...</h3>
+                        <p class="text-muted-color text-sm text-center m-0 max-w-md">Estamos validando tu información y activando tu plan. No cierres esta ventana.</p>
+                        <div class="w-full max-w-sm flex flex-col gap-3 mt-2">
+                            <p-skeleton height="1rem" width="80%" />
+                            <p-skeleton height="1rem" width="60%" />
+                            <p-skeleton height="1rem" width="70%" />
+                        </div>
+                    </div>
+                </p-card>
+
+            } @else {
+                <!-- ==================== Onboarding Stepper ==================== -->
+                <!-- Header -->
+                <div class="flex flex-col items-center gap-2 mb-2">
+                    <h2 class="text-2xl font-bold m-0 flex items-center gap-2">
+                        <i class="pi pi-sparkles text-primary"></i>
+                        Bienvenido a Creditia
+                    </h2>
+                    <p class="text-muted-color text-sm m-0">Cada vez más cerca de tomar decisiones de crédito inteligentes.</p>
+                </div>
+
+                <p-card>
+                    <p-stepper [value]="activeStep()" [linear]="true">
+                        <p-step-list>
+                            <p-step [value]="1">Cuenta</p-step>
+                            <p-step [value]="2">Perfil y Empresa</p-step>
+                            <p-step [value]="3">Plan</p-step>
+                            <p-step [value]="4">Pago</p-step>
+                        </p-step-list>
+
+                        <p-step-panels>
+                            <!-- ==================== Step 1: Account Creation ==================== -->
+                            <p-step-panel [value]="1">
+                                <ng-template #content>
+                                    <div class="flex justify-center mt-6">
+                                        <div class="w-full max-w-md flex flex-col gap-5">
+                                            <div class="text-center mb-2">
+                                                <h3 class="text-xl font-bold m-0">Crea tu cuenta</h3>
+                                                <p class="text-muted-color text-sm mt-1 m-0">Regístrate con Google o correo electrónico para comenzar.</p>
+                                            </div>
+
+                                            @if (pendingEmailConfirmation()) {
+                                                <!-- Email confirmation pending -->
+                                                <div class="flex flex-col items-center gap-4 py-6">
+                                                    <div class="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center">
+                                                        <i class="pi pi-envelope text-primary text-5xl"></i>
+                                                    </div>
+                                                    <h3 class="text-lg font-bold m-0">Revisa tu correo electrónico</h3>
+                                                    <p class="text-muted-color text-sm text-center m-0 max-w-sm">
+                                                        Te enviamos un enlace de confirmación a tu correo. Confirma tu cuenta y vuelve a esta página para continuar.
+                                                    </p>
+                                                    <p-button
+                                                        label="Ya confirmé mi correo"
+                                                        icon="pi pi-refresh"
+                                                        [outlined]="true"
+                                                        (onClick)="logout()"
+                                                    />
+                                                </div>
+                                            } @else {
+                                                <!-- Google button -->
+                                                <button
+                                                    type="button"
+                                                    class="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-lg border border-surface-300 dark:border-surface-600 bg-surface-0 dark:bg-surface-800 hover:bg-surface-100 dark:hover:bg-surface-700 transition-colors cursor-pointer"
+                                                    (click)="onSignInWithGoogle()"
+                                                    [disabled]="googleLoading()"
+                                                >
+                                                    @if (googleLoading()) {
+                                                        <i class="pi pi-spin pi-spinner text-lg"></i>
+                                                    } @else {
+                                                        <svg width="20" height="20" viewBox="0 0 48 48">
+                                                            <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+                                                            <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+                                                            <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+                                                            <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+                                                        </svg>
+                                                    }
+                                                    <span class="font-medium text-surface-700 dark:text-surface-200">Continuar con Google</span>
+                                                </button>
+
+                                                <!-- Separator -->
+                                                <div class="flex items-center gap-3">
+                                                    <div class="flex-1 border-t border-surface-300 dark:border-surface-600"></div>
+                                                    <span class="text-muted-color text-sm">o regístrate con correo</span>
+                                                    <div class="flex-1 border-t border-surface-300 dark:border-surface-600"></div>
+                                                </div>
+
+                                                <!-- Register form -->
+                                                <form [formGroup]="registerForm" (ngSubmit)="onRegister()" class="flex flex-col gap-4">
+                                                    <p-floatlabel variant="on">
+                                                        <input pInputText id="reg-email" formControlName="email" class="w-full" />
+                                                        <label for="reg-email">Correo electrónico *</label>
+                                                    </p-floatlabel>
+                                                    @if (isInvalid(registerForm, 'email')) {
+                                                        <small class="text-red-500 -mt-3">{{ getErrorMessage(registerForm, 'email') }}</small>
+                                                    }
+
+                                                    <p-floatlabel variant="on">
+                                                        <p-password id="reg-password" formControlName="password" [toggleMask]="true" [feedback]="false" styleClass="w-full" inputStyleClass="w-full" />
+                                                        <label for="reg-password">Contraseña *</label>
+                                                    </p-floatlabel>
+                                                    @if (isInvalid(registerForm, 'password')) {
+                                                        <small class="text-red-500 -mt-3">{{ getErrorMessage(registerForm, 'password') }}</small>
+                                                    }
+
+                                                    <p-floatlabel variant="on">
+                                                        <p-password id="reg-confirm" formControlName="confirmPassword" [toggleMask]="true" [feedback]="false" styleClass="w-full" inputStyleClass="w-full" />
+                                                        <label for="reg-confirm">Confirmar contraseña *</label>
+                                                    </p-floatlabel>
+                                                    @if (registerForm.errors?.['passwordMismatch'] && registerForm.controls.confirmPassword.touched) {
+                                                        <small class="text-red-500 -mt-3">Las contraseñas no coinciden</small>
+                                                    }
+
+                                                    @if (errorMessage()) {
+                                                        <p-message severity="error" [text]="errorMessage()!" styleClass="w-full" />
+                                                    }
+
+                                                    <p-button
+                                                        type="submit"
+                                                        label="Crear cuenta"
+                                                        icon="pi pi-user-plus"
+                                                        styleClass="w-full"
+                                                        [loading]="registering()"
+                                                        [disabled]="registerForm.invalid || registering()"
+                                                    />
+                                                </form>
+
+                                                <div class="text-center">
+                                                    <span class="text-muted-color text-sm">¿Ya tienes cuenta? </span>
+                                                    <a routerLink="/auth/iniciar-sesion" class="text-primary font-semibold cursor-pointer no-underline hover:underline text-sm">Inicia sesión</a>
+                                                </div>
+                                            }
                                         </div>
-                                    </ng-template>
+                                    </div>
+                                </ng-template>
+                            </p-step-panel>
 
-                                    <p-fluid>
-                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
-                                            <div class="flex flex-col gap-1">
-                                                <p-floatlabel variant="on">
-                                                    <input pInputText id="onb-companyName" [formControl]="companyForm.controls.name" [invalid]="isInvalid(companyForm, 'name')" />
-                                                    <label for="onb-companyName">Nombre de la Empresa *</label>
-                                                </p-floatlabel>
-                                                @if (isInvalid(companyForm, 'name')) {
-                                                <small class="text-red-500">{{ getErrorMessage(companyForm, 'name') }}</small>
-                                                }
+                            <!-- ==================== Step 2: Profile & Company ==================== -->
+                            <p-step-panel [value]="2">
+                                <ng-template #content>
+                                    @if (step2Loading()) {
+                                        <div class="flex flex-col gap-6 p-6">
+                                            <div class="flex flex-col gap-4">
+                                                <div class="flex items-center gap-2">
+                                                    <p-skeleton width="1.5rem" height="1.5rem" shape="circle" />
+                                                    <p-skeleton width="14rem" height="1.5rem" />
+                                                </div>
+                                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                    @for (_ of [1,2,3,4,5,6,7]; track $index) {
+                                                        <p-skeleton height="2.5rem" />
+                                                    }
+                                                </div>
                                             </div>
-
-                                            <div class="flex flex-col gap-1">
-                                                <p-floatlabel variant="on">
-                                                    <input pInputText id="onb-nit" [formControl]="companyForm.controls.nit" [invalid]="isInvalid(companyForm, 'nit')" />
-                                                    <label for="onb-nit">NIT *</label>
-                                                </p-floatlabel>
-                                                @if (isInvalid(companyForm, 'nit')) {
-                                                <small class="text-red-500">{{ getErrorMessage(companyForm, 'nit') }}</small>
-                                                }
+                                            <div class="flex flex-col gap-4">
+                                                <div class="flex items-center gap-2">
+                                                    <p-skeleton width="1.5rem" height="1.5rem" shape="circle" />
+                                                    <p-skeleton width="14rem" height="1.5rem" />
+                                                </div>
+                                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                    @for (_ of [1,2,3,4,5,6]; track $index) {
+                                                        <p-skeleton height="2.5rem" />
+                                                    }
+                                                </div>
                                             </div>
-
-                                            <div class="flex flex-col gap-1">
-                                                <p-floatlabel variant="on">
-                                                    <p-select id="onb-sector" [formControl]="companyForm.controls.sectorId" [options]="sectorsResource.value() ?? []" optionLabel="label" [invalid]="isInvalid(companyForm, 'sectorId')" />
-                                                    <label for="onb-sector">Sector *</label>
-                                                </p-floatlabel>
-                                                @if (isInvalid(companyForm, 'sectorId')) {
-                                                <small class="text-red-500">{{ getErrorMessage(companyForm, 'sectorId') }}</small>
-                                                }
-                                            </div>
-
-                                            <div class="flex flex-col gap-1">
-                                                <app-state-control inputId="onb-state" label="Departamento *" variant="on" [formControl]="companyForm.controls.state" [invalid]="isInvalid(companyForm, 'state')" />
-                                                @if (isInvalid(companyForm, 'state')) {
-                                                <small class="text-red-500">{{ getErrorMessage(companyForm, 'state') }}</small>
-                                                }
-                                            </div>
-
-                                            <div class="flex flex-col gap-1">
-                                                <app-city-control inputId="onb-city" label="Ciudad *" variant="on" [departmentId]="selectedDepartmentId()" [formControl]="companyForm.controls.city" [invalid]="isInvalid(companyForm, 'city')" />
-                                                @if (isInvalid(companyForm, 'city')) {
-                                                <small class="text-red-500">{{ getErrorMessage(companyForm, 'city') }}</small>
-                                                }
-                                            </div>
-
-                                            <div class="flex flex-col gap-1 md:col-span-2">
-                                                <p-floatlabel variant="on">
-                                                    <input pInputText id="onb-address" [formControl]="companyForm.controls.address" [invalid]="isInvalid(companyForm, 'address')" />
-                                                    <label for="onb-address">Dirección *</label>
-                                                </p-floatlabel>
-                                                @if (isInvalid(companyForm, 'address')) {
-                                                <small class="text-red-500">{{ getErrorMessage(companyForm, 'address') }}</small>
-                                                }
+                                            <div class="flex justify-end">
+                                                <p-skeleton width="10rem" height="2.5rem" borderRadius="6px" />
                                             </div>
                                         </div>
-                                    </p-fluid>
-                                </p-card>
+                                    } @else {
+                                        <div class="mt-4 flex flex-col gap-6">
+                                            <!-- Profile card -->
+                                            <p-card>
+                                                <ng-template #title>
+                                                    <div class="flex items-center gap-2">
+                                                        <i class="pi pi-id-card text-primary"></i>
+                                                        <span>Información Personal</span>
+                                                    </div>
+                                                </ng-template>
 
-                                <div class="flex justify-end mt-4">
-                                    <p-button label="Guardar y continuar" icon="pi pi-arrow-right" iconPos="right" [loading]="savingCompany()" (onClick)="onSaveCompany(activateCallback)" />
-                                </div>
-                                }
-                            </ng-template>
-                        </p-step-panel>
+                                                <p-fluid>
+                                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+                                                        <div class="flex flex-col gap-1">
+                                                            <p-floatlabel variant="on">
+                                                                <input pInputText id="onb-name" [formControl]="profileForm.controls.name" [invalid]="isInvalid(profileForm, 'name')" />
+                                                                <label for="onb-name">Nombre *</label>
+                                                            </p-floatlabel>
+                                                            @if (isInvalid(profileForm, 'name')) {
+                                                                <small class="text-red-500">{{ getErrorMessage(profileForm, 'name') }}</small>
+                                                            }
+                                                        </div>
 
-                        <!-- Step 3: Plan -->
-                        <p-step-panel [value]="3">
-                            <ng-template #content let-activateCallback="activateCallback">
-                                @if (plansResource.isLoading()) {
-                                <div class="flex flex-col gap-4 p-6">
-                                    <div class="flex items-center justify-between">
-                                        <p-skeleton width="14rem" height="1.75rem" />
-                                        <p-skeleton width="12rem" height="2.5rem" borderRadius="2rem" />
-                                    </div>
-                                    <p-skeleton width="22rem" height="1rem" />
-                                    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mt-2">
-                                        @for (_ of [1, 2]; track $index) {
-                                        <div class="flex flex-col gap-4 rounded-xl border border-surface p-6">
-                                            <p-skeleton width="8rem" height="1.5rem" />
-                                            <p-skeleton width="100%" height="1rem" />
-                                            <p-skeleton width="10rem" height="2.5rem" />
-                                            <p-skeleton width="100%" height="1px" />
-                                            <p-skeleton width="100%" height="1rem" />
-                                            <p-skeleton width="100%" height="1rem" />
-                                            <p-skeleton width="100%" height="1rem" />
-                                            <p-skeleton width="100%" height="1rem" />
+                                                        <div class="flex flex-col gap-1">
+                                                            <p-floatlabel variant="on">
+                                                                <input pInputText id="onb-lastName" [formControl]="profileForm.controls.lastName" [invalid]="isInvalid(profileForm, 'lastName')" />
+                                                                <label for="onb-lastName">Apellido *</label>
+                                                            </p-floatlabel>
+                                                            @if (isInvalid(profileForm, 'lastName')) {
+                                                                <small class="text-red-500">{{ getErrorMessage(profileForm, 'lastName') }}</small>
+                                                            }
+                                                        </div>
+
+                                                        <div class="flex flex-col gap-1">
+                                                            <p-floatlabel variant="on">
+                                                                <input pInputText id="onb-email" [formControl]="profileForm.controls.email" [invalid]="isInvalid(profileForm, 'email')" />
+                                                                <label for="onb-email">Correo Electrónico *</label>
+                                                            </p-floatlabel>
+                                                        </div>
+
+                                                        <div class="flex flex-col gap-1">
+                                                            <app-phone-input inputId="onb-phone" label="Teléfono" variant="on" [formControl]="profileForm.controls.phone" />
+                                                        </div>
+
+                                                        <div class="flex flex-col gap-1">
+                                                            <p-floatlabel variant="on">
+                                                                <p-select id="onb-idType" [formControl]="profileForm.controls.identificationType" [options]="identificationTypesResource.value() ?? []" optionLabel="label" [invalid]="isInvalid(profileForm, 'identificationType')" />
+                                                                <label for="onb-idType">Tipo de Documento *</label>
+                                                            </p-floatlabel>
+                                                            @if (isInvalid(profileForm, 'identificationType')) {
+                                                                <small class="text-red-500">{{ getErrorMessage(profileForm, 'identificationType') }}</small>
+                                                            }
+                                                        </div>
+
+                                                        <div class="flex flex-col gap-1">
+                                                            <p-floatlabel variant="on">
+                                                                <input pInputText id="onb-idNumber" [formControl]="profileForm.controls.identificationNumber" [invalid]="isInvalid(profileForm, 'identificationNumber')" />
+                                                                <label for="onb-idNumber">Número de Documento *</label>
+                                                            </p-floatlabel>
+                                                            @if (isInvalid(profileForm, 'identificationNumber')) {
+                                                                <small class="text-red-500">{{ getErrorMessage(profileForm, 'identificationNumber') }}</small>
+                                                            }
+                                                        </div>
+
+                                                        <div class="flex flex-col gap-1">
+                                                            <p-floatlabel variant="on">
+                                                                <input pInputText id="onb-position" [formControl]="profileForm.controls.position" />
+                                                                <label for="onb-position">Cargo en la Empresa</label>
+                                                            </p-floatlabel>
+                                                        </div>
+                                                    </div>
+                                                </p-fluid>
+                                            </p-card>
+
+                                            <!-- Company card -->
+                                            <p-card>
+                                                <ng-template #title>
+                                                    <div class="flex items-center gap-2">
+                                                        <i class="pi pi-building text-primary"></i>
+                                                        <span>Datos de la Empresa</span>
+                                                    </div>
+                                                </ng-template>
+
+                                                <p-fluid>
+                                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+                                                        <div class="flex flex-col gap-1">
+                                                            <p-floatlabel variant="on">
+                                                                <input pInputText id="onb-companyName" [formControl]="companyForm.controls.name" [invalid]="isInvalid(companyForm, 'name')" />
+                                                                <label for="onb-companyName">Nombre de la Empresa *</label>
+                                                            </p-floatlabel>
+                                                            @if (isInvalid(companyForm, 'name')) {
+                                                                <small class="text-red-500">{{ getErrorMessage(companyForm, 'name') }}</small>
+                                                            }
+                                                        </div>
+
+                                                        <div class="flex flex-col gap-1">
+                                                            <p-floatlabel variant="on">
+                                                                <input pInputText id="onb-nit" [formControl]="companyForm.controls.nit" [invalid]="isInvalid(companyForm, 'nit')" />
+                                                                <label for="onb-nit">NIT *</label>
+                                                            </p-floatlabel>
+                                                            @if (isInvalid(companyForm, 'nit')) {
+                                                                <small class="text-red-500">{{ getErrorMessage(companyForm, 'nit') }}</small>
+                                                            }
+                                                        </div>
+
+                                                        <div class="flex flex-col gap-1">
+                                                            <p-floatlabel variant="on">
+                                                                <p-select id="onb-sector" [formControl]="companyForm.controls.sectorId" [options]="sectorsResource.value() ?? []" optionLabel="label" [invalid]="isInvalid(companyForm, 'sectorId')" />
+                                                                <label for="onb-sector">Sector *</label>
+                                                            </p-floatlabel>
+                                                            @if (isInvalid(companyForm, 'sectorId')) {
+                                                                <small class="text-red-500">{{ getErrorMessage(companyForm, 'sectorId') }}</small>
+                                                            }
+                                                        </div>
+
+                                                        <div class="flex flex-col gap-1">
+                                                            <app-state-control inputId="onb-state" label="Departamento *" variant="on" [formControl]="companyForm.controls.state" [invalid]="isInvalid(companyForm, 'state')" />
+                                                            @if (isInvalid(companyForm, 'state')) {
+                                                                <small class="text-red-500">{{ getErrorMessage(companyForm, 'state') }}</small>
+                                                            }
+                                                        </div>
+
+                                                        <div class="flex flex-col gap-1">
+                                                            <app-city-control inputId="onb-city" label="Ciudad *" variant="on" [departmentId]="selectedDepartmentId()" [formControl]="companyForm.controls.city" [invalid]="isInvalid(companyForm, 'city')" />
+                                                            @if (isInvalid(companyForm, 'city')) {
+                                                                <small class="text-red-500">{{ getErrorMessage(companyForm, 'city') }}</small>
+                                                            }
+                                                        </div>
+
+                                                        <div class="flex flex-col gap-1">
+                                                            <p-floatlabel variant="on">
+                                                                <input pInputText id="onb-address" [formControl]="companyForm.controls.address" [invalid]="isInvalid(companyForm, 'address')" />
+                                                                <label for="onb-address">Dirección *</label>
+                                                            </p-floatlabel>
+                                                            @if (isInvalid(companyForm, 'address')) {
+                                                                <small class="text-red-500">{{ getErrorMessage(companyForm, 'address') }}</small>
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                </p-fluid>
+                                            </p-card>
+
+                                            <div class="flex justify-end">
+                                                <p-button label="Continuar" icon="pi pi-arrow-right" iconPos="right" [loading]="savingProfileAndCompany()" (onClick)="onSaveProfileAndCompany()" />
+                                            </div>
                                         </div>
-                                        }
-                                    </div>
-                                </div>
-                                } @else {
-
-                                <div class="mt-4">
-                                    <!-- Campaign banner -->
-                                    @if (campaign()) {
-                                    <div class="bg-primary/10 border border-primary/30 rounded-xl p-4 mb-6 text-center">
-                                        <div class="flex items-center justify-center gap-2 mb-1">
-                                            <i class="pi pi-tag text-primary"></i>
-                                            <span class="text-primary font-bold">{{ campaign()!.name }}</span>
-                                        </div>
-                                        <p class="text-color text-sm m-0 mb-1">{{ campaign()!.description }}</p>
-                                        <span class="text-muted-color text-xs">Válido hasta el {{ formatCampaignEndDate() }}</span>
-                                    </div>
                                     }
+                                </ng-template>
+                            </p-step-panel>
 
-                                    <!-- Plan header -->
-                                    <div class="flex flex-col items-center gap-1 mb-6 text-center">
-                                        <h3 class="text-xl font-bold m-0 flex items-center gap-2">
-                                            <i class="pi pi-credit-card text-primary"></i>
-                                            Elige tu plan para comenzar
-                                        </h3>
-                                        <p class="text-muted-color text-sm mt-1 mb-0">Selecciona el plan ideal para tu negocio. Todos los planes son de facturación anual.</p>
+                            <!-- ==================== Step 3: Plan Selection ==================== -->
+                            <p-step-panel [value]="3">
+                                <ng-template #content>
+                                    <div class="mt-4">
+                                        <div class="flex flex-col items-center gap-1 mb-6 text-center">
+                                            <h3 class="text-xl font-bold m-0 flex items-center gap-2">
+                                                <i class="pi pi-credit-card text-primary"></i>
+                                                Elige tu plan
+                                            </h3>
+                                            <p class="text-muted-color text-sm mt-1 mb-0">Selecciona el plan ideal para tu negocio.</p>
+                                        </div>
+
+                                        <app-subscription-plans-list
+                                            [plans]="plans()"
+                                            [campaign]="campaign()"
+                                            [loading]="plansResource.isLoading()"
+                                            (planAction)="onSelectPlan($event)"
+                                        />
                                     </div>
+                                </ng-template>
+                            </p-step-panel>
 
-                                    <!-- Plans grid -->
-                                    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-6">
-                                        @for (plan of plans(); track plan.id) {
-                                        <div
-                                            class="relative flex flex-col rounded-xl border-2 p-6 w-full transition-all duration-300 ease-in-out hover:shadow-lg hover:-translate-y-1"
-                                            [ngClass]="{
-                                                'opacity-50 pointer-events-none': processing() && selectedPlanId() !== plan.id,
-                                                'border-primary shadow-lg': highlightedPlanId() === plan.id,
-                                                'border-surface hover:border-primary/50': highlightedPlanId() !== plan.id
-                                            }"
-                                        >
-                                            <!-- Recommended badge -->
-                                            @if (highlightedPlanId() === plan.id) {
-                                            <div class="absolute -top-3 left-1/2 -translate-x-1/2">
-                                                <span class="bg-primary text-primary-contrast text-xs font-bold px-4 py-1 rounded-full shadow-sm whitespace-nowrap">Recomendado</span>
-                                            </div>
-                                            }
+                            <!-- ==================== Step 4: Billing & Payment ==================== -->
+                            <p-step-panel [value]="4">
+                                <ng-template #content>
+                                    <div class="mt-4 flex flex-col gap-6">
 
-                                            <!-- Plan header -->
-                                            <div class="flex flex-col gap-2 mb-4 text-center" [class.mt-2]="highlightedPlanId() === plan.id">
-                                                <h3 class="text-2xl font-extrabold m-0">{{ plan.name }}</h3>
-                                                <p class="text-muted-color text-sm m-0">{{ plan.description }}</p>
-                                            </div>
+                                        <!-- Selected plan summary - full width -->
+                                        @if (selectedPlan()) {
+                                            <div class="bg-green-500/10 border border-green-500/30 rounded-xl p-5">
+                                                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                                                    <div class="flex items-center gap-3">
+                                                        <div class="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center">
+                                                            <i class="pi pi-check-circle text-green-500 text-xl"></i>
+                                                        </div>
+                                                        <div>
+                                                            <span class="text-xs text-muted-color">Plan seleccionado</span>
+                                                            <h4 class="font-bold m-0 text-color">{{ selectedPlan()!.name }}</h4>
+                                                        </div>
+                                                    </div>
 
-                                            <!-- Price -->
-                                            @if (campaign() && plan.price > 0) {
-                                            <div class="flex items-center gap-2 mb-1">
-                                                <span class="text-lg text-muted-color line-through">{{ plan.price | number:'1.0-0' }}</span>
-                                                <span class="bg-green-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">-{{ campaign()!.discount }}%</span>
-                                            </div>
-                                            }
-                                            <div class="flex items-baseline gap-2">
-                                                @if (plan.price === 0) {
-                                                <span class="text-4xl font-extrabold">Gratis</span>
-                                                } @else {
-                                                <span class="text-4xl font-extrabold">{{ getDiscountedPrice(plan.price) | number:'1.0-0' }}</span>
-                                                <span class="text-muted-color text-sm">COP / año</span>
-                                                }
-                                            </div>
-
-                                            <p-divider />
-
-                                            <!-- Limits -->
-                                            <div class="flex flex-col gap-3 mb-4">
-                                                <span class="text-sm font-semibold text-muted-color uppercase tracking-wide">Límites</span>
-
-                                                <div class="flex items-center gap-3">
-                                                    <i class="pi pi-users text-primary w-5 text-center"></i>
-                                                    <span class="text-sm">Hasta <strong>{{ plan.maxUsers }}</strong> usuarios</span>
-                                                </div>
-
-                                                <div class="flex items-center gap-3">
-                                                    <i class="pi pi-building text-primary w-5 text-center"></i>
-                                                    <span class="text-sm">Hasta <strong>{{ plan.maxCompanies }}</strong> {{ plan.maxCompanies === 1 ? 'empresa' : 'empresas' }}</span>
-                                                </div>
-
-                                                <div class="flex items-center gap-3">
-                                                    <i class="pi pi-address-book text-primary w-5 text-center"></i>
-                                                    <span class="text-sm"> @if (plan.maxCustomers === null) { Clientes <strong>ilimitados</strong> } @else { Hasta <strong>{{ plan.maxCustomers }}</strong> clientes } </span>
-                                                </div>
-
-                                                <div class="flex items-center gap-3">
-                                                    <i class="pi pi-file-check text-primary w-5 text-center"></i>
-                                                    <span class="text-sm"> @if (plan.maxStudiesPerMonth === null) { Estudios <strong>ilimitados</strong> / mes } @else { Hasta <strong>{{ plan.maxStudiesPerMonth }}</strong> estudios / mes } </span>
+                                                    <div class="flex items-center gap-6">
+                                                        @if (campaign() && selectedPlan()!.price > 0) {
+                                                            <div class="flex flex-col items-end">
+                                                                <span class="text-sm text-muted-color line-through">{{ selectedPlan()!.price | number:'1.0-0' }} COP</span>
+                                                                <span class="text-xs text-green-500 font-semibold">-{{ campaign()!.discount }}% descuento</span>
+                                                            </div>
+                                                        }
+                                                        <div class="flex flex-col items-end">
+                                                            <span class="text-2xl font-extrabold text-green-600 dark:text-green-400">{{ getDiscountedPrice(selectedPlan()!.price) | number:'1.0-0' }}</span>
+                                                            <span class="text-xs text-muted-color">COP / {{ selectedPlan()!.isMonthly ? 'mes' : 'año' }}</span>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
+                                        }
 
-                                            <p-divider />
+                                        <!-- Two columns: Billing + Card -->
+                                        <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+                                            <!-- Billing info -->
+                                            <div class="lg:col-span-3">
+                                                <p-card styleClass="h-full">
+                                                    <ng-template #title>
+                                                        <div class="flex items-center gap-2">
+                                                            <i class="pi pi-file-edit text-primary"></i>
+                                                            <span>Datos de Facturación</span>
+                                                        </div>
+                                                    </ng-template>
 
-                                            <!-- Features -->
-                                            <div class="flex flex-col gap-3 mb-5">
-                                                <span class="text-sm font-semibold text-muted-color uppercase tracking-wide">Características</span>
+                                                    <p-fluid>
+                                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+                                                            <div class="flex flex-col gap-1">
+                                                                <p-floatlabel variant="on">
+                                                                    <input pInputText id="bill-name" [formControl]="billingForm.controls.name" [invalid]="isInvalid(billingForm, 'name')" />
+                                                                    <label for="bill-name">Nombres *</label>
+                                                                </p-floatlabel>
+                                                                @if (isInvalid(billingForm, 'name')) {
+                                                                    <small class="text-red-500">{{ getErrorMessage(billingForm, 'name') }}</small>
+                                                                }
+                                                            </div>
 
-                                                <div class="flex items-center gap-3">
-                                                    <i class="pi w-5 text-center" [ngClass]="plan.excelReports ? 'pi-check-circle text-green-500' : 'pi-times-circle text-red-400'"></i>
-                                                    <span class="text-sm">Reportes Excel</span>
-                                                </div>
+                                                            <div class="flex flex-col gap-1">
+                                                                <p-floatlabel variant="on">
+                                                                    <input pInputText id="bill-lastName" [formControl]="billingForm.controls.lastName" [invalid]="isInvalid(billingForm, 'lastName')" />
+                                                                    <label for="bill-lastName">Apellidos *</label>
+                                                                </p-floatlabel>
+                                                                @if (isInvalid(billingForm, 'lastName')) {
+                                                                    <small class="text-red-500">{{ getErrorMessage(billingForm, 'lastName') }}</small>
+                                                                }
+                                                            </div>
 
-                                                <div class="flex items-center gap-3">
-                                                    <i class="pi w-5 text-center" [ngClass]="plan.emailNotifications ? 'pi-check-circle text-green-500' : 'pi-times-circle text-red-400'"></i>
-                                                    <span class="text-sm">Notificaciones por correo</span>
-                                                </div>
+                                                            <div class="flex flex-col gap-1">
+                                                                <p-floatlabel variant="on">
+                                                                    <p-select id="bill-docType" [formControl]="billingForm.controls.docType" [options]="identificationTypesResource.value() ?? []" optionLabel="label" [invalid]="isInvalid(billingForm, 'docType')" />
+                                                                    <label for="bill-docType">Tipo de Documento *</label>
+                                                                </p-floatlabel>
+                                                                @if (isInvalid(billingForm, 'docType')) {
+                                                                    <small class="text-red-500">{{ getErrorMessage(billingForm, 'docType') }}</small>
+                                                                }
+                                                            </div>
 
-                                                <div class="flex items-center gap-3">
-                                                    <i class="pi w-5 text-center" [ngClass]="plan.themeCustomization ? 'pi-check-circle text-green-500' : 'pi-times-circle text-red-400'"></i>
-                                                    <span class="text-sm">Personalización de tema</span>
-                                                </div>
+                                                            <div class="flex flex-col gap-1">
+                                                                <p-floatlabel variant="on">
+                                                                    <input pInputText id="bill-docNumber" [formControl]="billingForm.controls.docNumber" [invalid]="isInvalid(billingForm, 'docNumber')" />
+                                                                    <label for="bill-docNumber">Número de Documento *</label>
+                                                                </p-floatlabel>
+                                                                @if (isInvalid(billingForm, 'docNumber')) {
+                                                                    <small class="text-red-500">{{ getErrorMessage(billingForm, 'docNumber') }}</small>
+                                                                }
+                                                            </div>
 
-                                                <div class="flex items-center gap-3">
-                                                    <i class="pi pi-chart-bar text-primary w-5 text-center"></i>
-                                                    <span class="text-sm">Dashboard <strong>{{ dashboardLevelLabel(plan.dashboardLevel?.label) }}</strong></span>
-                                                </div>
+                                                            <div class="flex flex-col gap-1">
+                                                                <p-floatlabel variant="on">
+                                                                    <input pInputText id="bill-email" [formControl]="billingForm.controls.email" [invalid]="isInvalid(billingForm, 'email')" />
+                                                                    <label for="bill-email">Correo Electrónico *</label>
+                                                                </p-floatlabel>
+                                                                @if (isInvalid(billingForm, 'email')) {
+                                                                    <small class="text-red-500">{{ getErrorMessage(billingForm, 'email') }}</small>
+                                                                }
+                                                            </div>
 
-                                                <div class="flex items-center gap-3">
-                                                    <i class="pi pi-headphones text-primary w-5 text-center"></i>
-                                                    <span class="text-sm">Soporte <strong>{{ supportLevelLabel(plan.supportLevel?.label) }}</strong></span>
-                                                </div>
+                                                            <div class="flex flex-col gap-1">
+                                                                <app-phone-input inputId="bill-phone" label="Teléfono *" variant="on" [formControl]="billingForm.controls.phone" />
+                                                                @if (isInvalid(billingForm, 'phone')) {
+                                                                    <small class="text-red-500">{{ getErrorMessage(billingForm, 'phone') }}</small>
+                                                                }
+                                                            </div>
+
+                                                            <div class="flex flex-col gap-1">
+                                                                <p-floatlabel variant="on">
+                                                                    <input pInputText id="bill-address" [formControl]="billingForm.controls.address" [invalid]="isInvalid(billingForm, 'address')" />
+                                                                    <label for="bill-address">Dirección *</label>
+                                                                </p-floatlabel>
+                                                                @if (isInvalid(billingForm, 'address')) {
+                                                                    <small class="text-red-500">{{ getErrorMessage(billingForm, 'address') }}</small>
+                                                                }
+                                                            </div>
+
+                                                            <div class="flex flex-col gap-1">
+                                                                <app-state-control inputId="bill-state" label="Departamento *" variant="on" [formControl]="billingForm.controls.state" [invalid]="isInvalid(billingForm, 'state')" />
+                                                                @if (isInvalid(billingForm, 'state')) {
+                                                                    <small class="text-red-500">{{ getErrorMessage(billingForm, 'state') }}</small>
+                                                                }
+                                                            </div>
+
+                                                            <div class="flex flex-col gap-1">
+                                                                <app-city-control inputId="bill-city" label="Ciudad *" variant="on" [departmentId]="billingDepartmentId()" [formControl]="billingForm.controls.city" [invalid]="isInvalid(billingForm, 'city')" />
+                                                                @if (isInvalid(billingForm, 'city')) {
+                                                                    <small class="text-red-500">{{ getErrorMessage(billingForm, 'city') }}</small>
+                                                                }
+                                                            </div>
+                                                        </div>
+                                                    </p-fluid>
+                                                </p-card>
                                             </div>
 
-                                            <!-- Action -->
-                                            <div class="mt-auto">
-                                                <p-button
-                                                    [label]="plan.price === 0 ? 'Comenzar gratis' : 'Elegir plan'"
-                                                    icon="pi pi-arrow-right"
-                                                    styleClass="w-full"
-                                                    [loading]="processing() && selectedPlanId() === plan.id"
-                                                    [disabled]="processing()"
-                                                    (onClick)="onSelectPlan(plan)"
-                                                />
+                                            <!-- Card form -->
+                                            <div class="lg:col-span-2">
+                                                <div class="rounded-xl border border-surface bg-surface-0 dark:bg-surface-950 p-5 h-full flex flex-col">
+                                                    <div class="flex items-center gap-2 mb-4">
+                                                        <i class="pi pi-credit-card text-primary"></i>
+                                                        <span class="font-semibold text-sm">Tarjeta de crédito</span>
+                                                        @if (cardBrand()) {
+                                                            <img [src]="cardBrand()!.icon" [alt]="cardBrand()!.label" class="ml-auto h-7 w-11 object-contain" />
+                                                        }
+                                                    </div>
+
+                                                    <div class="flex flex-col gap-4">
+                                                        <div class="flex flex-col gap-1">
+                                                            <p-floatlabel variant="on">
+                                                                <input pInputText id="card-number" [formControl]="cardForm.controls.cardNumber" [invalid]="isInvalid(cardForm, 'cardNumber')" maxlength="19" (input)="onCardNumberInput($event)" class="w-full" />
+                                                                <label for="card-number">Número de Tarjeta *</label>
+                                                            </p-floatlabel>
+                                                            @if (isInvalid(cardForm, 'cardNumber')) {
+                                                                <small class="text-red-500 text-xs">{{ getErrorMessage(cardForm, 'cardNumber') }}</small>
+                                                            }
+                                                        </div>
+
+                                                        <div class="flex flex-col gap-1">
+                                                            <p-floatlabel variant="on">
+                                                                <input pInputText id="card-name" [formControl]="cardForm.controls.cardName" [invalid]="isInvalid(cardForm, 'cardName')" class="w-full" />
+                                                                <label for="card-name">Nombre del Titular *</label>
+                                                            </p-floatlabel>
+                                                            @if (isInvalid(cardForm, 'cardName')) {
+                                                                <small class="text-red-500 text-xs">{{ getErrorMessage(cardForm, 'cardName') }}</small>
+                                                            }
+                                                        </div>
+
+                                                        <div class="grid grid-cols-3 gap-3">
+                                                            <div class="flex flex-col gap-1">
+                                                                <p-floatlabel variant="on">
+                                                                    <p-select id="card-expMonth" [formControl]="cardForm.controls.expMonth" [options]="expiryMonths" [invalid]="isInvalid(cardForm, 'expMonth')" styleClass="w-full" />
+                                                                    <label for="card-expMonth">Mes *</label>
+                                                                </p-floatlabel>
+                                                            </div>
+                                                            <div class="flex flex-col gap-1">
+                                                                <p-floatlabel variant="on">
+                                                                    <p-select id="card-expYear" [formControl]="cardForm.controls.expYear" [options]="expiryYears" [invalid]="isInvalid(cardForm, 'expYear')" styleClass="w-full" />
+                                                                    <label for="card-expYear">Año *</label>
+                                                                </p-floatlabel>
+                                                            </div>
+                                                            <div class="flex flex-col gap-1">
+                                                                <p-floatlabel variant="on">
+                                                                    <input pInputText id="card-cvc" [formControl]="cardForm.controls.cvc" [invalid]="isInvalid(cardForm, 'cvc')" [maxlength]="cardType() === 'amex' ? 4 : 3" type="password" class="w-full" />
+                                                                    <label for="card-cvc">CVC *</label>
+                                                                </p-floatlabel>
+                                                                @if (isInvalid(cardForm, 'cvc')) {
+                                                                    <small class="text-red-500 text-xs">{{ getErrorMessage(cardForm, 'cvc') }}</small>
+                                                                }
+                                                            </div>
+                                                        </div>
+                                                        @if (getExpiryError()) {
+                                                            <small class="text-red-500 text-xs -mt-2">{{ getExpiryError() }}</small>
+                                                        }
+
+                                                        <div class="flex items-center gap-2 text-muted-color text-xs mt-auto">
+                                                            <i class="pi pi-lock text-xs"></i>
+                                                            <span>Pago seguro. No almacenamos tu tarjeta.</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
-                                        }
-                                    </div>
-                                </div>
 
-                                }
-                            </ng-template>
-                        </p-step-panel>
-                    </p-step-panels>
-                </p-stepper>
-            </p-card>
+                                        <!-- Actions - full width -->
+                                        <div class="flex justify-between items-center">
+                                            <p-button
+                                                label="Volver a planes"
+                                                icon="pi pi-arrow-left"
+                                                [outlined]="true"
+                                                (onClick)="activeStep.set(3)"
+                                            />
+                                            <p-button
+                                                label="Suscribirme"
+                                                icon="pi pi-check"
+                                                [disabled]="billingForm.invalid || cardForm.invalid"
+                                                (onClick)="onSubscribe()"
+                                            />
+                                        </div>
+                                    </div>
+                                </ng-template>
+                            </p-step-panel>
+                        </p-step-panels>
+                    </p-stepper>
+                </p-card>
+            }
         </div>
     </div>
 
     <!-- Footer -->
     <div class="text-center py-4">
-        <button type="button" class="text-muted-color hover:text-primary text-sm cursor-pointer bg-transparent border-0 p-0 transition-colors" (click)="logout()"><i class="pi pi-sign-out mr-1"></i> Cerrar sesión</button>
+        @if (subscriptionComplete()) {
+            <span class="text-muted-color text-sm">Gracias por confiar en Creditia</span>
+        } @else if (isAuthenticated()) {
+            <button type="button" class="text-muted-color hover:text-primary text-sm cursor-pointer bg-transparent border-0 p-0 transition-colors" (click)="logout()">
+                <i class="pi pi-sign-out mr-1"></i> Cerrar sesión
+            </button>
+        } @else {
+            <a routerLink="/" class="text-muted-color hover:text-primary text-sm cursor-pointer no-underline transition-colors">
+                <i class="pi pi-arrow-left mr-1"></i> Volver al inicio
+            </a>
+        }
     </div>
 </div>

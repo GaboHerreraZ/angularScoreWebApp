@@ -68,6 +68,7 @@ export interface PlanItem {
     themeCustomization: boolean;
     supportLevel?: Parameter;
     supportLevelId?: number;
+    epaycoPlanId: string | null;
     isActive: boolean;
     isCurrent?: boolean;
     createdAt: string;
@@ -125,6 +126,7 @@ export interface CompanySubscription {
     pricePaid: number;
     cancelledAt: string | null;
     paymentId: string;
+    sessionId: string;
     integrityHash: string;
     amountInCents: number;
     createdAt: string;
@@ -140,5 +142,51 @@ export interface CompanySubscription {
         isActive: boolean;
         createdAt: string;
         updatedAt: string;
+    };
+}
+
+export interface CardTokenRequest {
+    cardNumber: string;
+    cardName: string;
+    cvc: string;
+    expMonth: string;
+    expYear: string;
+}
+
+export interface BillingInfo {
+    name: string;
+    lastName: string;
+    docType: string;
+    docNumber: string;
+    email: string;
+    address: string;
+    state: string;
+    city: string;
+    phone: string;
+}
+
+export interface SubscribeRequest {
+    subscriptionId: string;
+    card: CardTokenRequest;
+    billing: BillingInfo;
+}
+
+export interface OnboardingSetupRequest {
+    profile: {
+        name: string;
+        lastName: string;
+        email: string;
+        phone: string;
+        position: string | null;
+        identificationTypeId: number;
+        identificationNumber: string;
+    };
+    company: {
+        name: string;
+        nit: string;
+        sectorId: number;
+        state: string;
+        city: string;
+        address: string;
     };
 }

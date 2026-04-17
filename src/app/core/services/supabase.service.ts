@@ -83,8 +83,8 @@ export class SupabaseService implements OnDestroy {
         return { error: error as Error | null };
     }
 
-    async signInWithGoogle(invitationId?: string, token?: string): Promise<{ error: Error | null }> {
-        let redirectTo = window.location.origin + '/auth/callback';
+    async signInWithGoogle(invitationId?: string, token?: string, customRedirectTo?: string): Promise<{ error: Error | null }> {
+        let redirectTo = customRedirectTo ?? (window.location.origin + '/auth/callback');
         const params = new URLSearchParams();
         if (invitationId) params.set('invitation', invitationId);
         if (token) params.set('token', token);
