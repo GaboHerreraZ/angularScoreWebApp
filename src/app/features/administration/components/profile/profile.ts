@@ -1,6 +1,6 @@
 import { Component, DestroyRef, effect, inject, signal } from '@angular/core';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
@@ -14,7 +14,9 @@ import { PhoneInput } from '@/app/shared/components/phone-input/phone-input';
 import { ProfileService } from './profile.service';
 import { SupabaseService } from '@/app/core/services/supabase.service';
 import { AuthService } from '@/app/core/services/auth.service';
+import { ParameterService } from '@/app/core/services/parameter.service';
 import { NotificationService } from '@/app/shared/components/notification/notification.service';
+import { Parameter } from '@/app/types/parameter';
 
 @Component({
     selector: 'app-profile',
@@ -38,7 +40,10 @@ export class Profile {
     private profileService = inject(ProfileService);
     private supabaseService = inject(SupabaseService);
     private authService = inject(AuthService);
+    private parameterService = inject(ParameterService);
     private notificationService = inject(NotificationService);
+
+    identificationTypes = toSignal(this.parameterService.getByType('identification_type'));
 
     user = this.supabaseService.currentUser();
     profile = this.authService.currentProfile;
@@ -51,11 +56,16 @@ export class Profile {
             const profile = this.profile();
             if (profile) {
                 this.isEditing.set(true);
+                const idTypes = this.identificationTypes() ?? [];
+                const idType = idTypes.find(t => t.id === profile.identificationTypeId) ?? null;
+
                 this.form.patchValue({
                     email: profile.email,
                     name: profile.name,
                     lastName: profile.lastName,
                     phone: profile.phone,
+                    identificationType: idType,
+                    identificationNumber: profile.identificationNumber ?? '',
                     roleName: (profile as any).role?.label || '',
                     position: profile.position
                 });
@@ -68,6 +78,8 @@ export class Profile {
         name: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
         lastName: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
         phone: new FormControl('', { nonNullable: true }),
+        identificationType: new FormControl<Parameter | null>(null),
+        identificationNumber: new FormControl('', { nonNullable: true }),
         roleName: new FormControl({ value: '', disabled: true }),
         roleId: new FormControl('', { nonNullable: true }),
         position: new FormControl<string | null>(null)
@@ -94,7 +106,9 @@ export class Profile {
             name: formData.name,
             lastName: formData.lastName,
             phone: formData.phone,
-            position: formData.position
+            position: formData.position,
+            identificationTypeId: formData.identificationType?.id ?? null,
+            identificationNumber: formData.identificationNumber || null
         };
 
         this.profileService.updateProfile(this.user!.id as string, payload as any).pipe(

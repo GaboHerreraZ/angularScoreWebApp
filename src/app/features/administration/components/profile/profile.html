@@ -72,6 +72,20 @@
                     <small class="text-red-500">{{ getErrorMessage('phone') }}</small>
                     }
                 </div>
+
+                <div class="flex flex-col gap-1">
+                    <p-floatlabel variant="on">
+                        <p-select id="identificationType" [formControl]="form.controls.identificationType" [options]="identificationTypes() ?? []" optionLabel="label" />
+                        <label for="identificationType">Tipo de Documento</label>
+                    </p-floatlabel>
+                </div>
+
+                <div class="flex flex-col gap-1">
+                    <p-floatlabel variant="on">
+                        <input pInputText id="identificationNumber" [formControl]="form.controls.identificationNumber" />
+                        <label for="identificationNumber">Número de Documento</label>
+                    </p-floatlabel>
+                </div>
             </div>
         </p-card>
 
