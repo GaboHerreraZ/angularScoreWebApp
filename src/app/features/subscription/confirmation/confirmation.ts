@@ -35,6 +35,7 @@ export class Confirmation implements OnInit, OnDestroy {
 
     ngOnInit(): void {
         const ref = this.route.snapshot.queryParamMap.get('ref')
+            ?? this.route.snapshot.queryParamMap.get('ref_payco')
             ?? this.route.snapshot.queryParamMap.get('id');
 
         if (!ref) {

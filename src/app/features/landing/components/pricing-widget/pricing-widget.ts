@@ -39,7 +39,8 @@ export class PricingWidget {
         return 'Empezar Ahora';
     };
 
-    onPlanSelected(_plan: PlanItem): void {
-        this.router.navigate(['/auth/iniciar-sesion']);
+    onPlanSelected(plan: PlanItem): void {
+        sessionStorage.setItem('onboarding_plan_id', plan.id);
+        this.router.navigate(['/suscripcion/registro']);
     }
 }

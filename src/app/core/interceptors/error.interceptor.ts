@@ -10,8 +10,13 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
     const supabaseService = inject(SupabaseService);
     const router = inject(Router);
 
-    return next(req).pipe(
+    const silent = req.headers.has('X-Silent-Error');
+    const cleanReq = silent ? req.clone({ headers: req.headers.delete('X-Silent-Error') }) : req;
+
+    return next(cleanReq).pipe(
         catchError((error: HttpErrorResponse) => {
+            if (silent) return throwError(() => error);
+
             if (error.status === 0 && supabaseService.isAuthenticated()) {
                 router.navigate(['/servicio-no-disponible']);
                 return throwError(() => error);

@@ -12,7 +12,7 @@ export class AuthService {
     async loadProfile(userId: string): Promise<Profile | null> {
         try {
             const profile = await firstValueFrom(
-                this.api.get<Profile>(`profiles/${userId}`)
+                this.api.get<Profile>(`profiles/${userId}`, { headers: { 'X-Silent-Error': 'true' } })
             );
             this.currentProfile.set(profile);
             return profile;
