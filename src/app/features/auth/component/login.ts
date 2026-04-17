@@ -75,7 +75,12 @@ export class Login {
 
         if (error) {
             this.loading.set(false);
-            this.errorMessage.set('Correo o contraseña incorrectos.');
+            const code = (error as any)?.code ?? '';
+            this.errorMessage.set(
+                code === 'email_not_confirmed'
+                    ? 'Tu correo electrónico aún no ha sido confirmado. Revisa tu bandeja de entrada.'
+                    : 'Correo o contraseña incorrectos.'
+            );
             return;
         }
 
