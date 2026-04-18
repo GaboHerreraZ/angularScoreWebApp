@@ -279,7 +279,7 @@
     </p-fluid>
 
     <!-- Sección de Usuarios Invitados -->
-    <app-custom-table [tableSettings]="invitationsTableSettings" [data]="invitationsData()" [totalRecords]="invitationsData().length" (actionClick)="onInvitationAction($event)" (addClick)="onInviteUser()" />
+    <app-custom-table [tableSettings]="invitationsTableSettings()" [data]="invitationsData()" [totalRecords]="invitationsData().length" (actionClick)="onInvitationAction($event)" (addClick)="onInviteUser()" />
     }
 </div>
 

@@ -12,6 +12,7 @@ import { AiAnalysisResponse, CreateCreditStudy, ViabilityConditions, ViabilityDi
 import { CreditStudyService } from '../../credit-study.service';
 import { NotificationService } from '@/app/shared/components/notification/notification.service';
 import { HelpTooltip } from '@/app/shared/components/help-tooltip/help-tooltip';
+import { AuthService } from '@/app/core/services/auth.service';
 
 @Component({
     selector: 'app-study-result',
@@ -25,14 +26,15 @@ export class StudyResult {
     private creditStudyService = inject(CreditStudyService);
     private notificationService = inject(NotificationService);
     private confirmationService = inject(ConfirmationService);
+    private authService = inject(AuthService);
+
 
     study = input.required<CreateCreditStudy>();
     customer = input<{ businessName?: string; identificationNumber?: string; city?: string }>();
     companyInfo = input<{ name: string; city: string; nit: string }>();
-    subscriptionName = input<string>('');
     readOnly = input<boolean>(false);
 
-    isPro = computed(() => this.subscriptionName().toLowerCase().includes('pro'));
+
 
     aiLoading = signal(false);
     aiAnalysis = signal<AiAnalysisResponse | null>(null);
@@ -43,6 +45,11 @@ export class StudyResult {
         return analyses
             .filter(a => a.result != null && a.result.trim() !== '')
             .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    });
+
+    canUseAi = computed(() => {
+        const user = this.authService.currentProfile();
+        return user?.permissions.canMakeAiAnalysis;
     });
 
     hasExistingAnalyses = computed(() => this.existingAiAnalyses().length > 0);

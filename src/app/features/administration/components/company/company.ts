@@ -17,6 +17,7 @@ import { PhoneInput } from '@/app/shared/components/phone-input/phone-input';
 import { StateControl } from '@/app/shared/components/state-control/state-control';
 import { CityControl } from '@/app/shared/components/city-control/city-control';
 import { CompanyService } from './company.service';
+import { AuthService } from '@/app/core/services/auth.service';
 import { ParameterService } from '@/app/core/services/parameter.service';
 import { SupabaseService } from '@/app/core/services/supabase.service';
 import { NotificationService } from '@/app/shared/components/notification/notification.service';
@@ -50,9 +51,12 @@ import { TableActionEvent, TableSettings } from '@/app/types/table';
 export class Company {
     private destroyRef = inject(DestroyRef);
     private companyService = inject(CompanyService);
+    private authService = inject(AuthService);
     private parameterService = inject(ParameterService);
     private supabaseService = inject(SupabaseService);
     private notificationService = inject(NotificationService);
+
+    private canAddUser = computed(() => this.authService.currentProfile()?.permissions?.canAddUser ?? false);
 
     user = this.supabaseService.currentUser();
 
@@ -107,7 +111,7 @@ export class Company {
         }));
     });
 
-    invitationsTableSettings: TableSettings = {
+    invitationsTableSettings = computed<TableSettings>(() => ({
         title: 'Usuarios Invitados',
         titleIcon: 'pi pi-users',
         columns: [
@@ -122,17 +126,19 @@ export class Company {
             { id: 'deactivateUser', icon: 'pi pi-ban', severity: 'danger', tooltip: 'Desactivar usuario', visibleField: 'canDeactivate' },
             { id: 'activateUser', icon: 'pi pi-check-circle', severity: 'success', tooltip: 'Activar usuario', visibleField: 'canActivate' }
         ],
-        addButton: {
-            label: 'Invitar usuario',
-            icon: 'pi pi-user-plus',
-            severity: 'success'
-        },
+        ...(this.canAddUser() ? {
+            addButton: {
+                label: 'Invitar usuario',
+                icon: 'pi pi-user-plus',
+                severity: 'success'
+            }
+        } : {}),
         rows: 5,
         rowsPerPageOptions: [5, 10],
         showGridlines: false,
         showSearch: false,
         showColumnFilters: false
-    };
+    }));
 
     billingDepartmentId = signal<number | null>(null);
 

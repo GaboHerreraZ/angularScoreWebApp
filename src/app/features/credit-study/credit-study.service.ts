@@ -50,8 +50,7 @@ export class CreditStudyService {
 
     constructor() {
         const currentUser = this.authService.currentProfile();
-        const { userCompanies } = currentUser ?? {};
-        this.companyId.set(userCompanies ? userCompanies[0].companyId : '');
+        this.companyId.set(currentUser ? currentUser!.companyId : '');
     }
 
     private get basePath(): string {

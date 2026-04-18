@@ -238,13 +238,12 @@ export class Onboarding {
                 return;
             }
 
-            if (!profile.userCompanies?.length) {
+            if (!profile.hasCompany) {
                 this.activeStep.set(2);
                 return;
             }
 
-            const company = profile.userCompanies[0];
-            if (!company?.company?.companySubscriptions?.length) {
+            if (!profile.permissions.hasSubscription) {
                 const savedPlanId = sessionStorage.getItem('onboarding_plan_id');
                 if (savedPlanId) {
                     this.selectedPlanId.set(savedPlanId);
@@ -253,9 +252,7 @@ export class Onboarding {
                 return;
             }
 
-            const hasActiveSubscription = company.company.companySubscriptions.some(
-                sub => sub.isCurrent && sub.status?.code === 'active'
-            );
+            const hasActiveSubscription = profile.permissions.subscriptionStatus === 'active';
 
             if (hasActiveSubscription) {
                 this.router.navigate(['/app']);
@@ -362,7 +359,7 @@ export class Onboarding {
         this.selectedPlanId.set(plan.id);
 
         try {
-            const companyId = this.authService.currentProfile()?.userCompanies?.[0]?.companyId;
+            const companyId = this.authService.currentProfile()?.companyId;
             if (!companyId) {
                 this.notificationService.error('No se encontró la empresa asociada a tu cuenta.');
                 return;
@@ -408,7 +405,7 @@ export class Onboarding {
         this.tokenizing.set(true);
 
         try {
-            const companyId = this.authService.currentProfile()?.userCompanies?.[0]?.companyId;
+            const companyId = this.authService.currentProfile()?.companyId;
             if (!companyId) {
                 this.notificationService.error('No se encontró la empresa asociada a tu cuenta.');
                 return;

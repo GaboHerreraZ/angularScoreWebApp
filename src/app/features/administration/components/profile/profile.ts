@@ -66,7 +66,7 @@ export class Profile {
                     phone: profile.phone,
                     identificationType: idType,
                     identificationNumber: profile.identificationNumber ?? '',
-                    roleName: (profile as any).role?.label || '',
+                    roleName: profile.roleName|| '',
                     position: profile.position
                 });
                 this.form.markAsPristine();
