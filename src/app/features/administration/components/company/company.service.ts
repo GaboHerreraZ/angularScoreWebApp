@@ -32,6 +32,10 @@ export class CompanyService {
         return this.api.get<SubscriptionDetails>(`companies/${companyId}/subscription-details`);
     }
 
+    cancelSubscription(companyId: string): Observable<void> {
+        return this.api.post<void>(`companies/${companyId}/subscriptions/cancel`, {});
+    }
+
     inviteUser(companyId: string, email: string): Observable<void> {
         return this.api.post<void>(`companies/${companyId}/invitations`, { email });
     }

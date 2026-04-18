@@ -1,6 +1,8 @@
-import { Component, computed, inject, resource, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, resource, signal } from '@angular/core';
 import { DecimalPipe, NgClass } from '@angular/common';
-import { firstValueFrom } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Router } from '@angular/router';
+import { finalize, firstValueFrom } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { TagModule } from 'primeng/tag';
@@ -10,6 +12,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { DialogModule } from 'primeng/dialog';
 import { CompanyService } from '../company/company.service';
 import { AuthService } from '@/app/core/services/auth.service';
+import { NotificationService } from '@/app/shared/components/notification/notification.service';
 import { PlanItem, SubscriptionDetails } from '@/app/types/subscription';
 import { SubscriptionPlansList } from '@/app/shared/components/subscription-plans-list/subscription-plans-list';
 import { CustomTable } from '@/app/shared/components/table/table';
@@ -34,8 +37,11 @@ import { TableSettings } from '@/app/types/table';
     templateUrl: './plan-billing.html'
 })
 export class PlanBilling {
+    private destroyRef = inject(DestroyRef);
+    private router = inject(Router);
     private companyService = inject(CompanyService);
     private authService = inject(AuthService);
+    private notificationService = inject(NotificationService);
 
     private companyId = computed(() => {
         const profile = this.authService.currentProfile();
@@ -125,21 +131,44 @@ export class PlanBilling {
 
     cancelDialogVisible = signal(false);
     cancellingSubscription = signal(false);
+    cancellationComplete = signal(false);
 
     isPaidPlan = computed(() => {
-        const usage = this.subscriptionUsage();
-        return !!usage && usage.subscription.price > 0;
+        const profile = this.authService.currentProfile();
+
+        return !profile?.isFreeSubscription;
     });
 
     onOpenCancelDialog(): void {
+        this.cancellationComplete.set(false);
         this.cancelDialogVisible.set(true);
     }
 
     onConfirmCancelSubscription(): void {
-        this.cancelSubscription();
+        const companyId = this.authService.currentProfile()?.companyId;
+        if (!companyId) return;
+
+        this.cancellingSubscription.set(true);
+        this.companyService.cancelSubscription(companyId).pipe(
+            finalize(() => this.cancellingSubscription.set(false)),
+            takeUntilDestroyed(this.destroyRef)
+        ).subscribe({
+            next: () => {
+                this.cancellationComplete.set(true);
+            },
+            error: () => {
+                this.notificationService.error('No se pudo cancelar la suscripción. Intenta de nuevo.', 'Error');
+            }
+        });
     }
 
-    private cancelSubscription(): void {
-        // TODO: implementar llamada al servicio para cancelar suscripción
+    async onContinueAfterCancellation(): Promise<void> {
+        const userId = this.authService.currentProfile()?.id;
+        this.cancelDialogVisible.set(false);
+        if (userId) {
+            await this.authService.loadProfile(userId);
+        }
+        this.detailsResource.reload();
+        this.router.navigate(['/app/panel']);
     }
 }
