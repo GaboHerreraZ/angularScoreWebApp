@@ -1,10 +1,12 @@
-import { Component, OnInit, DestroyRef, inject } from '@angular/core';
+import { Component, computed, OnInit, DestroyRef, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CustomTable } from '@/app/shared/components/table/table';
 import { TableSettings, TablePageChangeEvent, TableSearchEvent, TableActionEvent } from '@/app/types/table';
 import { CreditStudyService } from './credit-study.service';
+import { AuthService } from '@/app/core/services/auth.service';
+import { NotificationService } from '@/app/shared/components/notification/notification.service';
 
 @Component({
     selector: 'app-credit-study',
@@ -14,7 +16,14 @@ import { CreditStudyService } from './credit-study.service';
 })
 export class CreditStudy implements OnInit {
     private destroyRef = inject(DestroyRef);
-    tableSettings: TableSettings = {
+    private authService = inject(AuthService);
+    private notificationService = inject(NotificationService);
+
+    exporting = signal(false);
+
+    private canExportExcel = computed(() => this.authService.currentProfile()?.permissions?.canExportExcel ?? false);
+
+    tableSettings = computed<TableSettings>(() => ({
         title: 'Gestión de Estudios de Crédito',
         dataKey: 'customerId',
         rows: 10,
@@ -26,6 +35,14 @@ export class CreditStudy implements OnInit {
             icon: 'pi pi-plus',
             severity: 'success'
         },
+        ...(this.canExportExcel() ? {
+            exportButton: {
+                label: 'Exportar',
+                icon: 'pi pi-file-excel',
+                severity: 'secondary' as const,
+                loading: this.exporting()
+            }
+        } : {}),
         actions: [
             { id: 'edit', icon: 'pi pi-pencil', severity: 'info', tooltip: 'Editar' },
             { id: 'delete', icon: 'pi pi-trash', severity: 'danger', tooltip: 'Eliminar' }
@@ -73,7 +90,7 @@ export class CreditStudy implements OnInit {
                 ]
             }
         ]
-    };
+    }));
 
     constructor(
         public creditStudyService: CreditStudyService,
@@ -108,5 +125,41 @@ export class CreditStudy implements OnInit {
 
     onAdd(): void {
         this.router.navigate(['/app/estudio-credito/detalle-estudio']);
+    }
+
+    onExport(): void {
+        this.exporting.set(true);
+        this.creditStudyService.exportToExcel().pipe(
+            takeUntilDestroyed(this.destroyRef)
+        ).subscribe({
+            next: (response) => {
+                const blob = response.body;
+                if (!blob) {
+                    this.exporting.set(false);
+                    return;
+                }
+
+                const fileName = this.extractFileName(response.headers.get('Content-Disposition'))
+                    ?? `estudios-credito-${new Date().toISOString().slice(0, 10)}.xlsx`;
+
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = fileName;
+                link.click();
+                window.URL.revokeObjectURL(url);
+                this.exporting.set(false);
+            },
+            error: () => {
+                this.notificationService.error('No se pudo exportar los estudios de crédito. Intenta de nuevo.', 'Error');
+                this.exporting.set(false);
+            }
+        });
+    }
+
+    private extractFileName(contentDisposition: string | null): string | null {
+        if (!contentDisposition) return null;
+        const match = /filename="?([^"]+)"?/.exec(contentDisposition);
+        return match?.[1] ?? null;
     }
 }

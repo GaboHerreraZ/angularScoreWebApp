@@ -27,6 +27,7 @@ export class CustomTable {
     search = output<TableSearchEvent>();
     actionClick = output<TableActionEvent>();
     addClick = output<void>();
+    exportClick = output<void>();
 
     searchValue = signal<string>('');
 
@@ -47,6 +48,7 @@ export class CustomTable {
     actions = computed(() => this.tableSettings().actions ?? []);
     actionsHeader = computed(() => this.tableSettings().actionsHeader ?? 'Acciones');
     addButton = computed(() => this.tableSettings().addButton ?? null);
+    exportButton = computed(() => this.tableSettings().exportButton ?? null);
     hasActions = computed(() => this.actions().length > 0);
     totalColumns = computed(() => this.columns().length + (this.hasActions() ? 1 : 0));
     globalFilterFields = computed(() => this.columns().map((col) => col.textField ?? col.field));
@@ -95,6 +97,10 @@ export class CustomTable {
 
     onAddClick(): void {
         this.addClick.emit();
+    }
+
+    onExportClick(): void {
+        this.exportClick.emit();
     }
 
     onAction(action: TableAction, row: any): void {

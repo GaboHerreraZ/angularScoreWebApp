@@ -7,9 +7,15 @@
             }
             <span>{{ title() }}</span>
         </div>
-        } @if (addButton()) {
-        <button pButton class="ml-auto" [label]="addButton()!.label" [icon]="addButton()!.icon" [severity]="addButton()!.severity ?? 'success'" [disabled]="addButton()!.disabled ?? false" (click)="onAddClick()"></button>
         }
+        <div class="ml-auto flex items-center gap-2">
+            @if (exportButton()) {
+            <button pButton [label]="exportButton()!.label" [icon]="exportButton()!.icon" [severity]="exportButton()!.severity ?? 'success'" [disabled]="exportButton()!.disabled ?? false" [loading]="exportButton()!.loading ?? false" (click)="onExportClick()"></button>
+            }
+            @if (addButton()) {
+            <button pButton [label]="addButton()!.label" [icon]="addButton()!.icon" [severity]="addButton()!.severity ?? 'success'" [disabled]="addButton()!.disabled ?? false" (click)="onAddClick()"></button>
+            }
+        </div>
     </div>
 
     <p-table

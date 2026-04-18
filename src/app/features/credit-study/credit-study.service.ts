@@ -1,8 +1,10 @@
 import { inject, Injectable, signal } from '@angular/core';
+import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable, BehaviorSubject, of, map, catchError, tap, switchMap } from 'rxjs';
 import { ApiService } from '@/app/core/services/api.service';
 import { AuthService } from '@/app/core/services/auth.service';
 import { AiAnalysisResponse, CreateCreditStudy, ExtractedFinancialData } from '@/app/types/credit-study';
+import { environment } from '@/environments/environment';
 
 interface LoadCreditStudiesParams {
     page: number;
@@ -14,6 +16,7 @@ interface LoadCreditStudiesParams {
 export class CreditStudyService {
     private apiService = inject(ApiService);
     private authService = inject(AuthService);
+    private http = inject(HttpClient);
 
     companyId = signal<string>('');
 
@@ -59,6 +62,13 @@ export class CreditStudyService {
 
     loadCreditStudies(page: number = 1, rows: number = 10, search: string = ''): void {
         this.loadTrigger$.next({ page, rows, search });
+    }
+
+    exportToExcel(): Observable<HttpResponse<Blob>> {
+        return this.http.get(`${environment.apiUrl}/companies/${this.companyId()}/credit-studies/export`, {
+            responseType: 'blob',
+            observe: 'response'
+        });
     }
 
     createCreditStudy(creditStudy: Omit<CreateCreditStudy,'id'| 'createdBy' | 'updatedBy' | 'createdAt' | 'updatedAt' | 'statusId'>): Observable<{ success: boolean; error?: string; data?: CreateCreditStudy }> {

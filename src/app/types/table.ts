@@ -67,6 +67,13 @@ export interface TableSettings {
         severity?: 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast';
         disabled?: boolean;
     };
+    exportButton?: {
+        label: string;
+        icon: string;
+        severity?: 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast';
+        disabled?: boolean;
+        loading?: boolean;
+    };
 }
 
 export interface TablePageChangeEvent {

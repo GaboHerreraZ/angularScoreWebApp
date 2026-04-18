@@ -1,4 +1,5 @@
 import { inject, Injectable, Signal, signal } from '@angular/core';
+import { HttpClient, HttpResponse } from '@angular/common/http';
 import { BehaviorSubject, Observable, switchMap, tap, catchError, of, map } from 'rxjs';
 import { ApiService } from '@/app/core/services/api.service';
 import { Customer } from '@/app/types/customer';
@@ -6,6 +7,7 @@ import { CustomerCreditStudyResponse } from '@/app/types/credit-study';
 import { AuthService } from '@/app/core/services/auth.service';
 import { ParameterService } from '@/app/core/services/parameter.service';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { environment } from '@/environments/environment';
 
 interface LoadCustomersParams {
     page: number;
@@ -51,6 +53,8 @@ export class CustomersService {
             this.loading.set(false);
         })
     );
+
+    private http = inject(HttpClient);
 
     constructor(private apiService: ApiService) {
             const currentUser = this.authSerive.currentProfile();
@@ -102,6 +106,13 @@ export class CustomersService {
                 return of(null);
             })
         );
+    }
+
+    exportToExcel(): Observable<HttpResponse<Blob>> {
+        return this.http.get(`${environment.apiUrl}/companies/${this.companyId()}/customers/export`, {
+            responseType: 'blob',
+            observe: 'response'
+        });
     }
 
     getCustomerCreditStudies(
