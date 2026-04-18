@@ -1,21 +1,295 @@
 <div class="flex flex-col gap-6">
-    <!-- Header -->
-    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div>
-            <h2 class="text-2xl font-bold m-0 flex items-center gap-2">
-                <i class="pi pi-credit-card text-primary"></i>
-                Planes disponibles
-            </h2>
-            <p class="text-muted-color text-sm mt-1 mb-0">Selecciona el plan que mejor se adapte a las necesidades de tu empresa.</p>
-        </div>
+
+    @if (detailsResource.isLoading()) {
+        <!-- Skeleton -->
+        <p-card>
+            <div class="flex flex-col gap-4">
+                <p-skeleton width="12rem" height="1.5rem" />
+                <p-skeleton height="4rem" borderRadius="0.5rem" />
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+                    @for (_ of [1,2,3,4,5]; track $index) {
+                        <p-skeleton height="8rem" borderRadius="0.5rem" />
+                    }
+                </div>
+            </div>
+        </p-card>
+    } @else {
+
+        <!-- Sección de Consumo actual -->
+        @if (subscriptionUsage(); as data) {
+            <p-card>
+                <ng-template #title>
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                        <div class="flex items-center gap-2">
+                            <i class="pi pi-crown text-primary"></i>
+                            <span>Suscripción</span>
+                        </div>
+                        @if (isPaidPlan()) {
+                            <p-button label="Cancelar suscripción" icon="pi pi-times" severity="danger" [outlined]="true" (onClick)="onOpenCancelDialog()" styleClass="w-full sm:w-auto" />
+                        }
+                    </div>
+                </ng-template>
+                <ng-template #subtitle>
+                    <span class="text-muted-color text-sm">Detalles de tu plan actual y consumo de recursos.</span>
+                </ng-template>
+
+                <div class="flex flex-col gap-5">
+                    <!-- Plan info -->
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-primary/5 rounded-lg p-4">
+                        <div class="flex items-center gap-3">
+                            <i class="pi pi-star-fill text-primary text-2xl"></i>
+                            <div>
+                                <span class="text-muted-color text-sm">Plan actual</span>
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <p class="text-xl font-semibold m-0">{{ data.subscription.name }}</p>
+                                    <p-tag [value]="data.subscription.isActive ? 'Activa' : 'Inactiva'" [severity]="data.subscription.isActive ? 'success' : 'danger'" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="sm:text-right">
+                            <span class="text-muted-color text-sm">Precio</span>
+                            <p class="text-xl font-semibold m-0">{{ data.subscription.price | number:'1.0-0' }} COP / {{ data.subscription.isMonthly ? 'mes' : 'año' }}</p>
+                        </div>
+                    </div>
+
+                    <!-- Consumo de recursos -->
+                    <div>
+                        <h3 class="text-lg font-semibold mb-3">Consumo de recursos</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+                            <!-- Usuarios -->
+                            <div class="rounded-lg border border-surface p-4 flex flex-col gap-3">
+                                <div class="flex items-center gap-2">
+                                    <i class="pi pi-users text-primary"></i>
+                                    <span class="font-medium">Usuarios</span>
+                                </div>
+                                <div class="flex items-baseline justify-between">
+                                    <span class="text-2xl font-bold">{{ data.usage.users.used }}</span>
+                                    <span class="text-muted-color text-sm">de {{ data.usage.users.max }}</span>
+                                </div>
+                                <p-progressBar [value]="usagePercentage(data.usage.users.used, data.usage.users.max)" [showValue]="false" />
+                                <span class="text-sm" [ngClass]="{
+                                    'text-green-500': usageSeverity(data.usage.users.used, data.usage.users.max) === 'success',
+                                    'text-yellow-500': usageSeverity(data.usage.users.used, data.usage.users.max) === 'warn',
+                                    'text-red-500': usageSeverity(data.usage.users.used, data.usage.users.max) === 'danger'
+                                }">
+                                    {{ data.usage.users.remaining }} disponibles
+                                </span>
+                            </div>
+
+                            <!-- Clientes -->
+                            <div class="rounded-lg border border-surface p-4 flex flex-col gap-3">
+                                <div class="flex items-center gap-2">
+                                    <i class="pi pi-address-book text-primary"></i>
+                                    <span class="font-medium">Clientes</span>
+                                </div>
+                                @if (data.usage.customers.unlimited) {
+                                    <div class="flex items-baseline justify-between">
+                                        <span class="text-2xl font-bold">{{ data.usage.customers.used }}</span>
+                                        <span class="text-muted-color text-sm">Ilimitados</span>
+                                    </div>
+                                    <p-progressBar [value]="100" [showValue]="false" />
+                                    <span class="text-sm text-primary">Sin límite</span>
+                                } @else {
+                                    <div class="flex items-baseline justify-between">
+                                        <span class="text-2xl font-bold">{{ data.usage.customers.used }}</span>
+                                        <span class="text-muted-color text-sm">de {{ data.usage.customers.max }}</span>
+                                    </div>
+                                    <p-progressBar [value]="usagePercentage(data.usage.customers.used, data.usage.customers.max)" [showValue]="false" />
+                                    <span class="text-sm" [ngClass]="{
+                                        'text-green-500': usageSeverity(data.usage.customers.used, data.usage.customers.max) === 'success',
+                                        'text-yellow-500': usageSeverity(data.usage.customers.used, data.usage.customers.max) === 'warn',
+                                        'text-red-500': usageSeverity(data.usage.customers.used, data.usage.customers.max) === 'danger'
+                                    }">
+                                        {{ data.usage.customers.remaining }} disponibles
+                                    </span>
+                                }
+                            </div>
+
+                            <!-- Estudios -->
+                            <div class="rounded-lg border border-surface p-4 flex flex-col gap-3">
+                                <div class="flex items-center gap-2">
+                                    <i class="pi pi-file-check text-primary"></i>
+                                    <span class="font-medium">Estudios este mes</span>
+                                </div>
+                                @if (data.usage.studiesThisMonth.unlimited) {
+                                    <div class="flex items-baseline justify-between">
+                                        <span class="text-2xl font-bold">{{ data.usage.studiesThisMonth.used }}</span>
+                                        <span class="text-muted-color text-sm">Ilimitados</span>
+                                    </div>
+                                    <p-progressBar [value]="100" [showValue]="false" />
+                                    <span class="text-sm text-primary">Sin límite</span>
+                                } @else {
+                                    <div class="flex items-baseline justify-between">
+                                        <span class="text-2xl font-bold">{{ data.usage.studiesThisMonth.used }}</span>
+                                        <span class="text-muted-color text-sm">de {{ data.usage.studiesThisMonth.max }}</span>
+                                    </div>
+                                    <p-progressBar [value]="usagePercentage(data.usage.studiesThisMonth.used, data.usage.studiesThisMonth.max)" [showValue]="false" />
+                                    <span class="text-sm" [ngClass]="{
+                                        'text-green-500': usageSeverity(data.usage.studiesThisMonth.used, data.usage.studiesThisMonth.max) === 'success',
+                                        'text-yellow-500': usageSeverity(data.usage.studiesThisMonth.used, data.usage.studiesThisMonth.max) === 'warn',
+                                        'text-red-500': usageSeverity(data.usage.studiesThisMonth.used, data.usage.studiesThisMonth.max) === 'danger'
+                                    }">
+                                        {{ data.usage.studiesThisMonth.remaining }} disponibles
+                                    </span>
+                                }
+                            </div>
+
+                            <!-- Análisis IA -->
+                            <div class="rounded-lg border border-surface p-4 flex flex-col gap-3">
+                                <div class="flex items-center gap-2">
+                                    <i class="pi pi-sparkles text-primary"></i>
+                                    <span class="font-medium">Análisis IA este mes</span>
+                                </div>
+                                @if (data.usage.aiAnalysesThisMonth.unlimited) {
+                                    <div class="flex items-baseline justify-between">
+                                        <span class="text-2xl font-bold">{{ data.usage.aiAnalysesThisMonth.used }}</span>
+                                        <span class="text-muted-color text-sm">Ilimitados</span>
+                                    </div>
+                                    <p-progressBar [value]="100" [showValue]="false" />
+                                    <span class="text-sm text-primary">Sin límite</span>
+                                } @else {
+                                    <div class="flex items-baseline justify-between">
+                                        <span class="text-2xl font-bold">{{ data.usage.aiAnalysesThisMonth.used }}</span>
+                                        <span class="text-muted-color text-sm">de {{ data.usage.aiAnalysesThisMonth.max }}</span>
+                                    </div>
+                                    <p-progressBar [value]="usagePercentage(data.usage.aiAnalysesThisMonth.used, data.usage.aiAnalysesThisMonth.max)" [showValue]="false" />
+                                    <span class="text-sm" [ngClass]="{
+                                        'text-green-500': usageSeverity(data.usage.aiAnalysesThisMonth.used, data.usage.aiAnalysesThisMonth.max) === 'success',
+                                        'text-yellow-500': usageSeverity(data.usage.aiAnalysesThisMonth.used, data.usage.aiAnalysesThisMonth.max) === 'warn',
+                                        'text-red-500': usageSeverity(data.usage.aiAnalysesThisMonth.used, data.usage.aiAnalysesThisMonth.max) === 'danger'
+                                    }">
+                                        {{ data.usage.aiAnalysesThisMonth.remaining }} disponibles
+                                    </span>
+                                }
+                            </div>
+
+                            <!-- Extracciones PDF -->
+                            <div class="rounded-lg border border-surface p-4 flex flex-col gap-3">
+                                <div class="flex items-center gap-2">
+                                    <i class="pi pi-file-pdf text-teal-500"></i>
+                                    <span class="font-medium">Extracciones PDF este mes</span>
+                                </div>
+                                @if (data.usage.pdfExtractionsThisMonth.unlimited) {
+                                    <div class="flex items-baseline justify-between">
+                                        <span class="text-2xl font-bold">{{ data.usage.pdfExtractionsThisMonth.used }}</span>
+                                        <span class="text-muted-color text-sm">Ilimitadas</span>
+                                    </div>
+                                    <p-progressBar [value]="100" [showValue]="false" />
+                                    <span class="text-sm text-teal-500">Sin límite</span>
+                                } @else {
+                                    <div class="flex items-baseline justify-between">
+                                        <span class="text-2xl font-bold">{{ data.usage.pdfExtractionsThisMonth.used }}</span>
+                                        <span class="text-muted-color text-sm">de {{ data.usage.pdfExtractionsThisMonth.max }}</span>
+                                    </div>
+                                    <p-progressBar [value]="usagePercentage(data.usage.pdfExtractionsThisMonth.used, data.usage.pdfExtractionsThisMonth.max)" [showValue]="false" />
+                                    <span class="text-sm" [ngClass]="{
+                                        'text-green-500': usageSeverity(data.usage.pdfExtractionsThisMonth.used, data.usage.pdfExtractionsThisMonth.max) === 'success',
+                                        'text-yellow-500': usageSeverity(data.usage.pdfExtractionsThisMonth.used, data.usage.pdfExtractionsThisMonth.max) === 'warn',
+                                        'text-red-500': usageSeverity(data.usage.pdfExtractionsThisMonth.used, data.usage.pdfExtractionsThisMonth.max) === 'danger'
+                                    }">
+                                        {{ data.usage.pdfExtractionsThisMonth.remaining }} disponibles
+                                    </span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Características del plan -->
+                    <div>
+                        <h3 class="text-lg font-semibold mb-3">Características del plan</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                            <div class="flex items-center gap-3 rounded-lg border border-surface p-3">
+                                <i class="pi pi-chart-bar text-lg text-primary"></i>
+                                <div class="flex flex-col">
+                                    <span class="text-sm text-muted-color">Dashboard</span>
+                                    <span class="font-medium">{{ dashboardLevelLabel(data.features.dashboardLevel.code) }}</span>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center gap-3 rounded-lg border border-surface p-3">
+                                <i class="pi pi-headphones text-lg text-primary"></i>
+                                <div class="flex flex-col">
+                                    <span class="text-sm text-muted-color">Soporte</span>
+                                    <span class="font-medium">{{ supportLevelLabel(data.features.supportLevel.code) }}</span>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center gap-3 rounded-lg border border-surface p-3" [pTooltip]="data.features.excelReports ? 'Incluido en tu plan' : 'No incluido en tu plan'" tooltipPosition="top">
+                                <i class="pi text-lg" [ngClass]="data.features.excelReports ? 'pi-check-circle text-green-500' : 'pi-times-circle text-red-400'"></i>
+                                <span class="font-medium">Reportes Excel</span>
+                            </div>
+
+                            <div class="flex items-center gap-3 rounded-lg border border-surface p-3" [pTooltip]="data.features.emailNotifications ? 'Incluido en tu plan' : 'No incluido en tu plan'" tooltipPosition="top">
+                                <i class="pi text-lg" [ngClass]="data.features.emailNotifications ? 'pi-check-circle text-green-500' : 'pi-times-circle text-red-400'"></i>
+                                <span class="font-medium">Notificaciones por correo</span>
+                            </div>
+
+                            <div class="flex items-center gap-3 rounded-lg border border-surface p-3" [pTooltip]="data.features.themeCustomization ? 'Incluido en tu plan' : 'No incluido en tu plan'" tooltipPosition="top">
+                                <i class="pi text-lg" [ngClass]="data.features.themeCustomization ? 'pi-check-circle text-green-500' : 'pi-times-circle text-red-400'"></i>
+                                <span class="font-medium">Personalización de tema</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </p-card>
+        }
+
+        <!-- Historial de pagos -->
+        @if (paymentHistory().length > 0) {
+            <app-custom-table
+                [tableSettings]="paymentHistoryTableSettings"
+                [data]="paymentHistory()"
+                [totalRecords]="paymentHistory().length"
+            />
+        }
+
+        <!-- Planes disponibles -->
+        <p-card>
+            <ng-template #title>
+                <div class="flex items-center gap-2">
+                    <i class="pi pi-credit-card text-primary"></i>
+                    <span>Planes disponibles</span>
+                </div>
+            </ng-template>
+            <ng-template #subtitle>
+                <span class="text-muted-color text-sm">
+                    Elige el plan que mejor se adapte a tu empresa. Puedes cambiar de plan en cualquier momento y el ajuste se aplicará de forma inmediata.
+                    El cobro se calculará proporcionalmente y los recursos disponibles se actualizarán según el nuevo plan seleccionado.
+                </span>
+            </ng-template>
+
+            <div class="mt-8">
+                <app-subscription-plans-list
+                    [plans]="availablePlans()"
+                    [loading]="detailsResource.isLoading()"
+                    [ctaLabelFn]="ctaLabelFn"
+                    [ctaDisabledFn]="ctaDisabledFn"
+                    [showCurrentBadge]="true"
+                    (planAction)="onUpgrade($event)"
+                />
+            </div>
+        </p-card>
+    }
+</div>
+
+<!-- Dialog Confirmación Cancelar Suscripción -->
+<p-dialog header="Cancelar suscripción" [(visible)]="cancelDialogVisible" [modal]="true" [style]="{ width: '32rem' }" [closable]="!cancellingSubscription()" [draggable]="false">
+    <div class="flex flex-col items-center gap-4 text-center">
+        <i class="pi pi-exclamation-triangle text-4xl text-red-500"></i>
+        <p class="text-color m-0">
+            ¿Estás seguro de que deseas cancelar tu suscripción actual?
+        </p>
+        <p class="text-muted-color text-sm m-0">
+            Tu plan actual será cancelado y tu cuenta pasará automáticamente al plan <strong>Gratis</strong>.
+            Perderás acceso a las funcionalidades premium y los límites de recursos se ajustarán al plan gratuito.
+            Esta acción no se puede deshacer, pero podrás volver a suscribirte a un plan pago en cualquier momento.
+        </p>
     </div>
 
-    <app-subscription-plans-list
-        [plans]="plans()"
-        [loading]="plansResource.isLoading()"
-        [ctaLabelFn]="ctaLabelFn"
-        [ctaDisabledFn]="ctaDisabledFn"
-        [showCurrentBadge]="true"
-        (planAction)="onUpgrade($event)"
-    />
-</div>
+    <ng-template #footer>
+        <div class="flex justify-end gap-2">
+            <p-button label="Volver" severity="secondary" [text]="true" (onClick)="cancelDialogVisible.set(false)" [disabled]="cancellingSubscription()" />
+            <p-button label="Sí, cancelar suscripción" icon="pi pi-times" severity="danger" [loading]="cancellingSubscription()" (onClick)="onConfirmCancelSubscription()" />
+        </div>
+    </ng-template>
+</p-dialog>

@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Company } from '@/app/types/company';
 import { Invitation, InvitationsResponse, PendingInvitationResponse } from '@/app/types/invitation';
-import { AvailablePlans, SubscriptionUsage } from '@/app/types/subscription';
+import { SubscriptionDetails } from '@/app/types/subscription';
 
 @Injectable({ providedIn: 'root' })
 export class CompanyService {
@@ -28,12 +28,8 @@ export class CompanyService {
         return this.api.patch<Company>(`companies/${companyId}/logo`, formData);
     }
 
-    getSubscriptionUsage(companyId: string): Observable<SubscriptionUsage> {
-        return this.api.get<SubscriptionUsage>(`companies/${companyId}/subscription-usage`);
-    }
-
-    getAvailablePlans(companyId: string): Observable<AvailablePlans> {
-        return this.api.get<AvailablePlans>(`companies/${companyId}/available-plans`);
+    getSubscriptionDetails(companyId: string): Observable<SubscriptionDetails> {
+        return this.api.get<SubscriptionDetails>(`companies/${companyId}/subscription-details`);
     }
 
     inviteUser(companyId: string, email: string): Observable<void> {

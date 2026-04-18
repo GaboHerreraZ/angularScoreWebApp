@@ -430,7 +430,8 @@ export class Onboarding {
                     billing: {
                         name: billingData.name,
                         lastName: billingData.lastName,
-                        docType: billingData.docType?.code ?? '',
+                        docType: billingData.docType!.id,
+                        docTypeCode: billingData.docType?.code ?? '',
                         docNumber: billingData.docNumber,
                         email: billingData.email,
                         address: billingData.address,

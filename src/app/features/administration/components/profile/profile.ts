@@ -69,6 +69,7 @@ export class Profile {
                     roleName: (profile as any).role?.label || '',
                     position: profile.position
                 });
+                this.form.markAsPristine();
             }
         });
     }
@@ -117,6 +118,7 @@ export class Profile {
         ).subscribe({
             next: (updatedProfile) => {
                 this.authService.updateCurrentProfile(updatedProfile);
+                this.form.markAsPristine();
                 this.notificationService.success('Perfil Actualizado Correctamente', 'Ok');
             }
         });
@@ -140,6 +142,7 @@ export class Profile {
             next: (createdProfile) => {
                 this.authService.currentProfile.set(createdProfile);
                 this.isEditing.set(true);
+                this.form.markAsPristine();
                 this.notificationService.success('Perfil Guardado Correctamente', 'Ok');
             }
         });

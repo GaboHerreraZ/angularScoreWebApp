@@ -1,7 +1,6 @@
-import { Component, computed, DestroyRef, effect, inject, resource, signal } from '@angular/core';
+import { Component, computed, DestroyRef, effect, inject, resource, signal, viewChild } from '@angular/core';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { NgClass, DecimalPipe } from '@angular/common';
 import { finalize, firstValueFrom } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
@@ -11,10 +10,12 @@ import { FloatLabelModule } from 'primeng/floatlabel';
 import { FluidModule } from 'primeng/fluid';
 import { TagModule } from 'primeng/tag';
 import { SkeletonModule } from 'primeng/skeleton';
-import { ProgressBarModule } from 'primeng/progressbar';
 import { TooltipModule } from 'primeng/tooltip';
 import { DialogModule } from 'primeng/dialog';
 import { CustomTable } from '@/app/shared/components/table/table';
+import { PhoneInput } from '@/app/shared/components/phone-input/phone-input';
+import { StateControl } from '@/app/shared/components/state-control/state-control';
+import { CityControl } from '@/app/shared/components/city-control/city-control';
 import { CompanyService } from './company.service';
 import { ParameterService } from '@/app/core/services/parameter.service';
 import { SupabaseService } from '@/app/core/services/supabase.service';
@@ -22,7 +23,6 @@ import { NotificationService } from '@/app/shared/components/notification/notifi
 import { Company as CompanyModel } from '@/app/types/company';
 import { InvitationsResponse } from '@/app/types/invitation';
 import { Parameter } from '@/app/types/parameter';
-import { SubscriptionUsage } from '@/app/types/subscription';
 import { TableActionEvent, TableSettings } from '@/app/types/table';
 
 @Component({
@@ -30,8 +30,6 @@ import { TableActionEvent, TableSettings } from '@/app/types/table';
     standalone: true,
     imports: [
         ReactiveFormsModule,
-        DecimalPipe,
-        NgClass,
         ButtonModule,
         CardModule,
         InputTextModule,
@@ -40,10 +38,12 @@ import { TableActionEvent, TableSettings } from '@/app/types/table';
         FluidModule,
         TagModule,
         SkeletonModule,
-        ProgressBarModule,
         TooltipModule,
         DialogModule,
-        CustomTable
+        CustomTable,
+        PhoneInput,
+        StateControl,
+        CityControl
     ],
     templateUrl: './company.html'
 })
@@ -81,12 +81,10 @@ export class Company {
     company = signal<CompanyModel | null>(null);
     logoPreview = signal<string | null>(null);
 
-    subscriptionUsageResource = resource<SubscriptionUsage, string>({
-        params: () => this.company()?.id as string,
-        loader: ({ params: companyId }) => firstValueFrom(this.companyService.getSubscriptionUsage(companyId))
+    identificationTypesResource = resource<Parameter[], string>({
+        params: () => 'identification_type',
+        loader: ({ params: type }) => firstValueFrom(this.parameterService.getByType(type))
     });
-
-    subscriptionUsage = computed(() => this.subscriptionUsageResource.value() ?? null);
 
     invitationsResource = resource<InvitationsResponse, string>({
         params: () => this.user!.id as string,
@@ -136,42 +134,25 @@ export class Company {
         showColumnFilters: false
     };
 
-    usagePercentage(used: number, max: number): number {
-        if (max === 0) return 0;
-        return Math.round((used / max) * 100);
-    }
+    billingDepartmentId = signal<number | null>(null);
 
-    usageSeverity(used: number, max: number): string {
-        const pct = this.usagePercentage(used, max);
-        if (pct >= 90) return 'danger';
-        if (pct >= 70) return 'warn';
-        return 'success';
-    }
+    billingStateControl = viewChild<StateControl>('billingStateControl');
+    billingCityControl = viewChild<CityControl>('billingCityControl');
 
-    usageProgressColor(used: number, max: number): string {
-        const pct = this.usagePercentage(used, max);
-        if (pct >= 90) return 'var(--red-500)';
-        if (pct >= 70) return 'var(--yellow-500)';
-        return 'var(--green-500)';
-    }
+    private pendingBillingStateName: string | null = null;
+    private pendingBillingCityName: string | null = null;
 
-    supportLevelLabel(level: string): string {
-        const labels: Record<string, string> = {
-            email: 'Correo electrónico',
-            priority: 'Prioritario',
-            dedicated: 'Dedicado'
-        };
-        return labels[level] ?? level;
-    }
-
-    dashboardLevelLabel(level: string): string {
-        const labels: Record<string, string> = {
-            basic: 'Básico',
-            advanced: 'Avanzado',
-            full: 'Completo'
-        };
-        return labels[level] ?? level;
-    }
+    billingForm = new FormGroup({
+        billingName: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+        billingLastName: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+        billingDocType: new FormControl<Parameter | null>(null, { validators: [Validators.required] }),
+        billingDocNumber: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+        billingEmail: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.email] }),
+        billingAddress: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+        billingState: new FormControl<{ id: number; name: string } | null>(null, { validators: [Validators.required] }),
+        billingCity: new FormControl<{ id: number; name: string } | null>(null, { validators: [Validators.required] }),
+        billingPhone: new FormControl('', { nonNullable: true, validators: [Validators.required] })
+    });
 
     form = new FormGroup({
         name: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
@@ -189,6 +170,39 @@ export class Company {
     currentLogoUrl = computed(() => this.logoPreview() ?? this.company()?.logoSignedUrl ?? null);
 
     constructor() {
+        this.billingForm.controls.billingState.valueChanges.pipe(
+            takeUntilDestroyed(this.destroyRef)
+        ).subscribe(state => {
+            this.billingDepartmentId.set(state?.id ?? null);
+            this.billingForm.controls.billingCity.reset();
+        });
+
+        effect(() => {
+            const ctrl = this.billingStateControl();
+            const departments = ctrl?.departmentsResource.value();
+            if (this.pendingBillingStateName && departments?.length) {
+                const match = departments.find(d => d.name === this.pendingBillingStateName);
+                if (match) {
+                    this.billingForm.controls.billingState.setValue(match, { emitEvent: true });
+                    this.billingForm.markAsPristine();
+                    this.pendingBillingStateName = null;
+                }
+            }
+        });
+
+        effect(() => {
+            const ctrl = this.billingCityControl();
+            const cities = ctrl?.citiesResource.value();
+            if (this.pendingBillingCityName && cities?.length) {
+                const match = cities.find(c => c.name === this.pendingBillingCityName);
+                if (match) {
+                    this.billingForm.controls.billingCity.setValue(match, { emitEvent: false });
+                    this.billingForm.markAsPristine();
+                    this.pendingBillingCityName = null;
+                }
+            }
+        });
+
         effect(() => {
             const companies = this.companyResource.value();
             if (companies?.length) {
@@ -207,6 +221,25 @@ export class Company {
                     isActive: c.isActive,
                     createdAt: new Date(c.createdAt).toLocaleDateString('es-CO')
                 });
+
+                const idTypes = this.identificationTypesResource.value() ?? [];
+                const docType = idTypes.find(t => t.id === c.billingDocTypeId) ?? null;
+
+                this.pendingBillingStateName = c.billingState ?? null;
+                this.pendingBillingCityName = c.billingCity ?? null;
+
+                this.billingForm.patchValue({
+                    billingName: c.billingName ?? '',
+                    billingLastName: c.billingLastName ?? '',
+                    billingDocType: docType,
+                    billingDocNumber: c.billingDocNumber ?? '',
+                    billingEmail: c.billingEmail ?? '',
+                    billingAddress: c.billingAddress ?? '',
+                    billingPhone: c.billingPhone ?? ''
+                });
+
+                this.form.markAsPristine();
+                this.billingForm.markAsPristine();
             }
         });
     }
@@ -247,19 +280,30 @@ export class Company {
     }
 
     onSave(): void {
-        if (this.form.invalid) {
+        if (this.form.invalid || this.billingForm.invalid) {
             this.form.markAllAsTouched();
+            this.billingForm.markAllAsTouched();
             return;
         }
 
         const formData = this.form.getRawValue();
+        const billingData = this.billingForm.getRawValue();
         const payload = {
             name: formData.name,
             city: formData.city,
             sectorId: formData.sectorId,
             accountTypeId: formData.accountTypeId,
             accountBankId: formData.accountBankId,
-            accountNumber: formData.accountNumber
+            accountNumber: formData.accountNumber,
+            billingName: billingData.billingName,
+            billingLastName: billingData.billingLastName,
+            billingDocTypeId: billingData.billingDocType?.id ?? null,
+            billingDocNumber: billingData.billingDocNumber,
+            billingEmail: billingData.billingEmail,
+            billingAddress: billingData.billingAddress,
+            billingState: billingData.billingState?.name ?? null,
+            billingCity: billingData.billingCity?.name ?? null,
+            billingPhone: billingData.billingPhone
         };
 
         this.saving.set(true);
@@ -268,6 +312,8 @@ export class Company {
             takeUntilDestroyed(this.destroyRef)
         ).subscribe({
             next: () => {
+                this.form.markAsPristine();
+                this.billingForm.markAsPristine();
                 this.notificationService.success('Empresa Actualizada Correctamente', 'Ok');
             }
         });
@@ -395,15 +441,16 @@ export class Company {
         });
     }
 
-    isInvalid(controlName: string): boolean {
-        const control = this.form.get(controlName);
+    isInvalid(controlName: string, form: FormGroup = this.form): boolean {
+        const control = form.get(controlName);
         return !!control && control.invalid && control.touched;
     }
 
-    getErrorMessage(controlName: string): string {
-        const control = this.form.get(controlName);
+    getErrorMessage(controlName: string, form: FormGroup = this.form): string {
+        const control = form.get(controlName);
         if (!control || !control.errors || !control.touched) return '';
         if (control.errors['required']) return 'Este campo es obligatorio';
+        if (control.errors['email']) return 'Ingrese un email válido';
         if (control.errors['maxlength']) return `Máximo ${control.errors['maxlength'].requiredLength} caracteres`;
         return '';
     }

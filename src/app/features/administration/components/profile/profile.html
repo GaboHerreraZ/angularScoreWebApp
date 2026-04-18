@@ -24,9 +24,12 @@
         <!-- Avatar e Información Personal -->
         <p-card>
             <ng-template #title>
-                <div class="flex items-center gap-2">
-                    <i class="pi pi-id-card text-primary"></i>
-                    <span>Información Personal</span>
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <div class="flex items-center gap-2">
+                        <i class="pi pi-id-card text-primary"></i>
+                        <span>Información Personal</span>
+                    </div>
+                    <p-button label="Guardar" icon="pi pi-check" severity="success" [loading]="saving()" [disabled]="form.invalid || form.pristine" (onClick)="onSave()" styleClass="w-full sm:w-auto" />
                 </div>
             </ng-template>
 
@@ -115,10 +118,5 @@
             </div>
         </p-card>
     </p-fluid>
-
-    <!-- Footer con botón guardar -->
-    <div class="flex justify-end">
-        <p-button [label]="isEditing() ? 'Actualizar' : 'Guardar'" icon="pi pi-check" severity="success" [loading]="saving()" (onClick)="onSave()" />
-    </div>
     }
 </div>

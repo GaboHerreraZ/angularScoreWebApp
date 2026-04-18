@@ -11,10 +11,6 @@ export class SubscriptionService {
         return this.api.get<PublicPlansResponse>('subscriptions');
     }
 
-    createTransaction(companyId: string, request: CreateTransactionRequest): Observable<CompanySubscription> {
-        return this.api.post<CompanySubscription>(`companies/${companyId}/subscriptions/create-transaction`, request);
-    }
-
     checkTransaction(paymentId: string): Observable<CompanySubscription> {
         return this.api.get<CompanySubscription>(`subscriptions/check-transaction/${paymentId}`);
     }

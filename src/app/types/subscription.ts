@@ -97,6 +97,28 @@ export interface AvailablePlans {
     plans: PlanItem[];
 }
 
+export interface PaymentHistoryItem {
+    id: string;
+    companySubscriptionId: string;
+    periodStart: string;
+    periodEnd: string;
+    amount: number;
+    currencyCode: string;
+    epaycoRef: string | null;
+    epaycoTransactionId: string | null;
+    responseCode: number;
+    responseMessage: string;
+    franchise: string | null;
+    approvalCode: string | null;
+    createdAt: string;
+}
+
+export interface SubscriptionDetails {
+    availablePlans: AvailablePlans;
+    subscriptionUsage: SubscriptionUsage | null;
+    paymentHistory: PaymentHistoryItem[];
+}
+
 export interface CreateTransactionRequest {
     subscriptionId: string;
 }
@@ -156,7 +178,8 @@ export interface CardTokenRequest {
 export interface BillingInfo {
     name: string;
     lastName: string;
-    docType: string;
+    docType: number;
+    docTypeCode: string;
     docNumber: string;
     email: string;
     address: string;
