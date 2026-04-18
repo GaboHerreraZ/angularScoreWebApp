@@ -1,10 +1,12 @@
-import { Component, DestroyRef, inject, OnInit } from '@angular/core';
+import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CustomTable } from '@/app/shared/components/table/table';
 import { TableSettings, TablePageChangeEvent, TableSearchEvent, TableActionEvent } from '@/app/types/table';
 import { CustomersService } from './customers.service';
+import { AuthService } from '@/app/core/services/auth.service';
+import { NotificationService } from '@/app/shared/components/notification/notification.service';
 
 @Component({
     selector: 'app-customers',
@@ -14,8 +16,15 @@ import { CustomersService } from './customers.service';
 })
 export class Customers implements OnInit {
     private destroyRef = inject(DestroyRef);
+    private authService = inject(AuthService);
+    private notificationService = inject(NotificationService);
 
-    tableSettings: TableSettings = {
+    exporting = signal(false);
+
+    private canExportExcel = computed(() => this.authService.currentProfile()?.permissions?.canExportExcel ?? false);
+
+
+    tableSettings = computed<TableSettings>(() => ({
         title: 'Gestión de Clientes',
         dataKey: 'id',
         rows: 10,
@@ -27,6 +36,14 @@ export class Customers implements OnInit {
             icon: 'pi pi-plus',
             severity: 'success'
         },
+        ...(this.canExportExcel() ? {
+            exportButton: {
+                label: 'Exportar',
+                icon: 'pi pi-file-excel',
+                severity: 'secondary' as const,
+                loading: this.exporting()
+            }
+        } : {}),
         actions: [
             { id: 'edit', icon: 'pi pi-pencil', severity: 'info', tooltip: 'Editar' },
             { id: 'delete', icon: 'pi pi-trash', severity: 'danger', tooltip: 'Eliminar' }
@@ -64,7 +81,7 @@ export class Customers implements OnInit {
                 minWidth: '10rem'
             }
         ]
-    };
+    }));
 
     constructor(
         public customersService: CustomersService,
@@ -106,5 +123,41 @@ export class Customers implements OnInit {
 
     onAdd(): void {
         this.router.navigate(['/app/clientes/detalle-cliente']);
+    }
+
+    onExport(): void {
+        this.exporting.set(true);
+        this.customersService.exportToExcel().pipe(
+            takeUntilDestroyed(this.destroyRef)
+        ).subscribe({
+            next: (response) => {
+                const blob = response.body;
+                if (!blob) {
+                    this.exporting.set(false);
+                    return;
+                }
+
+                const fileName = this.extractFileName(response.headers.get('Content-Disposition'))
+                    ?? `clientes-${new Date().toISOString().slice(0, 10)}.xlsx`;
+
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = fileName;
+                link.click();
+                window.URL.revokeObjectURL(url);
+                this.exporting.set(false);
+            },
+            error: () => {
+                this.notificationService.error('No se pudo exportar los clientes. Intenta de nuevo.', 'Error');
+                this.exporting.set(false);
+            }
+        });
+    }
+
+    private extractFileName(contentDisposition: string | null): string | null {
+        if (!contentDisposition) return null;
+        const match = /filename="?([^"]+)"?/.exec(contentDisposition);
+        return match?.[1] ?? null;
     }
 }

@@ -1,5 +1,5 @@
 <app-custom-table
-    [tableSettings]="tableSettings"
+    [tableSettings]="tableSettings()"
     [data]="customersService.customers()"
     [totalRecords]="customersService.totalRecords()"
     [loading]="customersService.loading()"
@@ -7,4 +7,5 @@
     (search)="onSearch($event)"
     (actionClick)="onActionClick($event)"
     (addClick)="onAdd()"
+    (exportClick)="onExport()"
 />
