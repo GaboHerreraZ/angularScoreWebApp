@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from '@/app/core/services/api.service';
-import { PublicPlansResponse, CreateTransactionRequest, CompanySubscription, SubscribeRequest, OnboardingSetupRequest } from '@/app/types/subscription';
+import { PublicPlansResponse, CompanySubscription, SubscribeRequest, OnboardingSetupRequest } from '@/app/types/subscription';
 
 @Injectable({ providedIn: 'root' })
 export class SubscriptionService {
@@ -9,10 +9,6 @@ export class SubscriptionService {
 
     getPublicPlans(): Observable<PublicPlansResponse> {
         return this.api.get<PublicPlansResponse>('subscriptions');
-    }
-
-    checkTransaction(paymentId: string): Observable<CompanySubscription> {
-        return this.api.get<CompanySubscription>(`subscriptions/check-transaction/${paymentId}`);
     }
 
     setupOnboarding(payload: OnboardingSetupRequest): Observable<void> {

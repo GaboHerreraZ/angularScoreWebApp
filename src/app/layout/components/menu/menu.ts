@@ -25,12 +25,12 @@ export class Menu {
         },
         {
             label: 'Clientes',
-            icon: 'pi pi-building-columns',
+            icon: 'pi pi-address-book',
             path: '/app/clientes',
             items: [
                 {
                     label: 'Gestión de Clientes',
-                    icon: 'pi pi-building-columns',
+                    icon: 'pi pi-address-book',
                     routerLink: ['/app/clientes']
                 }
             ]
