@@ -15,6 +15,15 @@ export interface Company {
     accountNumber: string | null;
     logoUrl: string | null;
     logoSignedUrl: string | null;
+    billingName: string | null;
+    billingLastName: string | null;
+    billingDocTypeId: number | null;
+    billingDocNumber: string | null;
+    billingEmail: string | null;
+    billingAddress: string | null;
+    billingState: string | null;
+    billingCity: string | null;
+    billingPhone: string | null;
     isActive: boolean;
     createdAt: string;
     updatedAt: string;
