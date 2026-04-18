@@ -25,8 +25,7 @@ export class NotificationCenterService {
 
     private get companyId(): string {
         const profile = this.authService.currentProfile();
-        const userCompanies = profile?.userCompanies;
-        return userCompanies ? userCompanies[0].companyId : '';
+        return profile ? profile.companyId : '';
     }
 
     private get basePath(): string {

@@ -16,10 +16,8 @@ export class DashboardService {
 
     constructor() {
         const currentUser = this.authService.currentProfile();
-        const { userCompanies } = currentUser ?? {};
-        this.companyId.set(userCompanies ? userCompanies[0].companyId : '');
-        const subscription = userCompanies?.[0]?.company?.companySubscriptions[0].subscription;
-        this.dashboardLevel.set((subscription?.dashboardLevel.code as DashboardLevel) ?? 'basic');
+        this.companyId.set(currentUser ? currentUser.companyId : '');
+        this.dashboardLevel.set((currentUser?.permissions.dashboardLevel as DashboardLevel) ?? 'basic');
     }
 
     private get basePath(): string {

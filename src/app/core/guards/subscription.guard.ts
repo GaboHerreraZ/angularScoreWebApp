@@ -8,34 +8,17 @@ export const subscriptionGuard: CanActivateFn = async () => {
 
     const profile = authService.currentProfile();
 
-    if (!profile) {
+    if (!profile || !profile.hasCompany || !profile.permissions.hasSubscription) {
         return router.createUrlTree(['/suscripcion/registro']);
     }
 
-    const userCompanies = profile.userCompanies;
-    if (!userCompanies?.length) {
-        return router.createUrlTree(['/suscripcion/registro']);
-    }
 
-    const userCompany = userCompanies[0];
-    if (!userCompany.isActive && profile.role?.code === 'assistant') {
+    if (!profile.isUserActiveInCompany && profile.role === 'assistant') {
         return router.createUrlTree(['/'], {
             queryParams: { blocked: 'true' }
         });
     }
 
-    const company = userCompany.company;
-    if (!company?.companySubscriptions?.length) {
-        return router.createUrlTree(['/suscripcion/registro']);
-    }
-
-    const activeSubscription = company.companySubscriptions.find(
-        sub => sub.isCurrent && sub.status?.code === 'active'
-    );
-
-    if (!activeSubscription) {
-        return router.createUrlTree(['/suscripcion/registro']);
-    }
 
     return true;
 };

@@ -47,7 +47,7 @@ export class Confirmation implements OnInit, OnDestroy {
     }
 
     private getCompanyId(): string | null {
-        return this.authService.currentProfile()?.userCompanies?.[0]?.companyId ?? null;
+        return this.authService.currentProfile()?.companyId ?? null;
     }
 
     private mapStatusCode(code: string): ConfirmationState {

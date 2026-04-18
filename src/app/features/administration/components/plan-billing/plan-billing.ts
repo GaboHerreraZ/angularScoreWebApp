@@ -39,7 +39,7 @@ export class PlanBilling {
 
     private companyId = computed(() => {
         const profile = this.authService.currentProfile();
-        return profile?.userCompanies?.[0]?.companyId ?? null;
+        return profile?.companyId ?? null;
     });
 
     detailsResource = resource<SubscriptionDetails, string>({
