@@ -11,6 +11,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { TextareaModule } from 'primeng/textarea';
 import { SelectModule } from 'primeng/select';
+import { AutoCompleteModule, AutoCompleteCompleteEvent } from 'primeng/autocomplete';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { FluidModule } from 'primeng/fluid';
 import { MessageModule } from 'primeng/message';
@@ -36,6 +37,7 @@ import { NotificationService } from '@/app/shared/components/notification/notifi
         InputNumberModule,
         TextareaModule,
         SelectModule,
+        AutoCompleteModule,
         FloatLabelModule,
         FluidModule,
         MessageModule,
@@ -80,6 +82,18 @@ export class CustomerDetail {
     personTypes = toSignal(this.parameterService.getByType('person_type'));
 
     sectorTypes = toSignal(this.parameterService.getByType('sector'));
+
+    filteredEconomicActivities = signal<Parameter[]>([]);
+
+    onSearchEconomicActivity(event: AutoCompleteCompleteEvent): void {
+        const query = (event.query ?? '').toLowerCase().trim();
+        const all = this.sectorTypes() ?? [];
+        if (!query) {
+            this.filteredEconomicActivities.set(all);
+            return;
+        }
+        this.filteredEconomicActivities.set(all.filter(s => s.label.toLowerCase().includes(query)));
+    }
 
     identificationTypes = toSignal(this.parameterService.getByType('identification_type'));
 
