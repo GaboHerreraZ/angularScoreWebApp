@@ -6,6 +6,7 @@ import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
+import { AutoCompleteModule, AutoCompleteCompleteEvent } from 'primeng/autocomplete';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { FluidModule } from 'primeng/fluid';
 import { TagModule } from 'primeng/tag';
@@ -35,6 +36,7 @@ import { TableActionEvent, TableSettings } from '@/app/types/table';
         CardModule,
         InputTextModule,
         SelectModule,
+        AutoCompleteModule,
         FloatLabelModule,
         FluidModule,
         TagModule,
@@ -69,6 +71,18 @@ export class Company {
         params: () => 'sector',
         loader: ({ params: type }) => firstValueFrom(this.parameterService.getByType(type))
     });
+
+    filteredSectors = signal<Parameter[]>([]);
+
+    onSearchSector(event: AutoCompleteCompleteEvent): void {
+        const query = (event.query ?? '').toLowerCase().trim();
+        const all = this.sectorsResource.value() ?? [];
+        if (!query) {
+            this.filteredSectors.set(all);
+            return;
+        }
+        this.filteredSectors.set(all.filter(s => s.label.toLowerCase().includes(query)));
+    }
 
     accountTypesResource = resource<Parameter[], string>({
         params: () => 'account_type',
@@ -165,7 +179,7 @@ export class Company {
         nit: new FormControl({ value: '', disabled: true }, { nonNullable: true }),
         state: new FormControl({value:'', disabled: true}, { nonNullable: true }),
         city: new FormControl({value:'', disabled: true}, { nonNullable: true  }),
-        sectorId: new FormControl<number | null>(null, { validators: [Validators.required] }),
+        sectorId: new FormControl<Parameter | null>(null, { validators: [Validators.required] }),
         accountTypeId: new FormControl<number | null>(null),
         accountBankId: new FormControl<number | null>(null),
         accountNumber: new FormControl<string | null>(null, { validators: [Validators.maxLength(50)] }),
@@ -215,12 +229,16 @@ export class Company {
                 const c: CompanyModel = companies[0];
                 this.company.set(c);
                 this.logoPreview.set(null);
+
+                const sectors = this.sectorsResource.value() ?? [];
+                const sector = sectors.find(s => s.id === c.sectorId) ?? null;
+
                 this.form.patchValue({
                     name: c.name,
                     nit: c.nit,
                     city: c.city,
                     state: c.state,
-                    sectorId: c.sectorId,
+                    sectorId: sector,
                     accountTypeId: c.accountTypeId,
                     accountBankId: c.accountBankId,
                     accountNumber: c.accountNumber,
@@ -297,7 +315,7 @@ export class Company {
         const payload = {
             name: formData.name,
             city: formData.city,
-            sectorId: formData.sectorId,
+            sectorId: formData.sectorId?.id ?? null,
             accountTypeId: formData.accountTypeId,
             accountBankId: formData.accountBankId,
             accountNumber: formData.accountNumber,
