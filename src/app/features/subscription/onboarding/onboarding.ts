@@ -8,6 +8,7 @@ import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
+import { AutoCompleteModule, AutoCompleteCompleteEvent } from 'primeng/autocomplete';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { FluidModule } from 'primeng/fluid';
 import { StepperModule } from 'primeng/stepper';
@@ -42,6 +43,7 @@ import { cardNumberValidator, cardExpiryValidator, cvcValidator, detectCardType,
         CardModule,
         InputTextModule,
         SelectModule,
+        AutoCompleteModule,
         FloatLabelModule,
         FluidModule,
         StepperModule,
@@ -105,6 +107,18 @@ export class Onboarding {
         params: () => ({}),
         loader: () => firstValueFrom(this.parameterService.getByType('sector'))
     });
+
+    filteredSectors = signal<Parameter[]>([]);
+
+    onSearchSector(event: AutoCompleteCompleteEvent): void {
+        const query = (event.query ?? '').toLowerCase().trim();
+        const all = this.sectorsResource.value() ?? [];
+        if (!query) {
+            this.filteredSectors.set(all);
+            return;
+        }
+        this.filteredSectors.set(all.filter(s => s.label.toLowerCase().includes(query)));
+    }
 
     identificationTypesResource = resource<Parameter[], {}>({
         params: () => ({}),

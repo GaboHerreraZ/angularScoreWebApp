@@ -329,7 +329,7 @@
 
                                                         <div class="flex flex-col gap-1">
                                                             <p-floatlabel variant="on">
-                                                                <p-select id="onb-sector" [formControl]="companyForm.controls.sectorId" [options]="sectorsResource.value() ?? []" optionLabel="label" [invalid]="isInvalid(companyForm, 'sectorId')" />
+                                                                <p-autoComplete id="onb-sector" [formControl]="companyForm.controls.sectorId" [suggestions]="filteredSectors()" (completeMethod)="onSearchSector($event)" optionLabel="label" [dropdown]="true" [forceSelection]="true" [invalid]="isInvalid(companyForm, 'sectorId')" styleClass="w-full" />
                                                                 <label for="onb-sector">Sector *</label>
                                                             </p-floatlabel>
                                                             @if (isInvalid(companyForm, 'sectorId')) {
