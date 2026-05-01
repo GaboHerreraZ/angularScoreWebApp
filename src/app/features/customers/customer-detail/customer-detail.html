@@ -182,7 +182,7 @@
 
                 <div class="flex flex-col gap-1">
                     <p-floatlabel variant="on">
-                        <p-select id="economicActivity" [options]="sectorTypes()" optionLabel="label" [formControl]="form.controls.economicActivityId" [invalid]="isInvalid('economicActivityId')" />
+                        <p-autoComplete id="economicActivity" [formControl]="form.controls.economicActivityId" [suggestions]="filteredEconomicActivities()" (completeMethod)="onSearchEconomicActivity($event)" optionLabel="label" [dropdown]="true" [forceSelection]="true" [invalid]="isInvalid('economicActivityId')" styleClass="w-full" />
                         <label for="economicActivity">Actividad Económica *</label>
                     </p-floatlabel>
                     @if (isInvalid('economicActivityId')) {

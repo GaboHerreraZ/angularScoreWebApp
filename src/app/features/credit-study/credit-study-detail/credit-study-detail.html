@@ -788,22 +788,22 @@
 
                         <h4 class="text-sm font-semibold text-muted-color mb-4 mt-4">Indicadores Calculados</h4>
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            <div class="flex items-center justify-between bg-gray-50 rounded-lg px-4 py-3">
-                                <span class="text-sm text-muted-color">Total Activos</span>
-                                <span class="font-semibold">{{ totalAssets() | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</span>
-                            </div>
-                            <div class="flex items-center justify-between bg-gray-50 rounded-lg px-4 py-3">
-                                <span class="text-sm text-muted-color">Total Pasivos</span>
-                                <span class="font-semibold">{{ totalLiabilities() | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</span>
-                            </div>
-                            <div class="flex items-center justify-between bg-gray-50 rounded-lg px-4 py-3">
-                                <span class="text-sm text-muted-color">Patrimonio</span>
-                                <span class="font-semibold">{{ equity() | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</span>
-                            </div>
-                            <div class="flex items-center justify-between bg-gray-50 rounded-lg px-4 py-3">
-                                <span class="text-sm text-muted-color">Utilidad Bruta</span>
-                                <span class="font-semibold">{{ grossProfit() | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</span>
-                            </div>
+                            <p-floatlabel variant="on">
+                                <input pInputText id="totalAssets" [value]="totalAssets() | currency:'COP':'symbol-narrow':'1.0-0':'es-CO'" disabled class="w-full" />
+                                <label for="totalAssets">Total Activos</label>
+                            </p-floatlabel>
+                            <p-floatlabel variant="on">
+                                <input pInputText id="totalLiabilities" [value]="totalLiabilities() | currency:'COP':'symbol-narrow':'1.0-0':'es-CO'" disabled class="w-full" />
+                                <label for="totalLiabilities">Total Pasivos</label>
+                            </p-floatlabel>
+                            <p-floatlabel variant="on">
+                                <input pInputText id="equity" [value]="equity() | currency:'COP':'symbol-narrow':'1.0-0':'es-CO'" disabled class="w-full" />
+                                <label for="equity">Patrimonio</label>
+                            </p-floatlabel>
+                            <p-floatlabel variant="on">
+                                <input pInputText id="grossProfit" [value]="grossProfit() | currency:'COP':'symbol-narrow':'1.0-0':'es-CO'" disabled class="w-full" />
+                                <label for="grossProfit">Utilidad Bruta</label>
+                            </p-floatlabel>
                         </div>
                         <div class="flex py-6 gap-2">
                             <p-button label="Volver" severity="secondary" (onClick)="activateCallback(2)" />
