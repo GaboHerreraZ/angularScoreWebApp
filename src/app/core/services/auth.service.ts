@@ -9,18 +9,30 @@ export class AuthService {
 
     currentProfile = signal<Profile | null>(null);
 
-    async loadProfile(userId: string): Promise<Profile | null> {
-        try {
-            const profile = await firstValueFrom(
-                this.api.get<Profile>(`profiles/${userId}`, { headers: { 'X-Silent-Error': 'true' } })
-            );
-            this.currentProfile.set(profile);
-            return profile;
-        } catch (error) {
-            console.error('Error loading profile:', error);
-            this.currentProfile.set(null);
-            return null;
+    private loadProfilePromise: Promise<Profile | null> | null = null;
+
+    loadProfile(userId: string): Promise<Profile | null> {
+        if (this.loadProfilePromise) {
+            return this.loadProfilePromise;
         }
+
+        this.loadProfilePromise = firstValueFrom(
+            this.api.get<Profile>(`profiles/${userId}`, { headers: { 'X-Silent-Error': 'true' } })
+        )
+            .then(profile => {
+                this.currentProfile.set(profile);
+                return profile;
+            })
+            .catch(error => {
+                console.error('Error loading profile:', error);
+                this.currentProfile.set(null);
+                return null;
+            })
+            .finally(() => {
+                this.loadProfilePromise = null;
+            });
+
+        return this.loadProfilePromise;
     }
 
 
