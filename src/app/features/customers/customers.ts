@@ -22,6 +22,7 @@ export class Customers implements OnInit {
     exporting = signal(false);
 
     private canExportExcel = computed(() => this.authService.currentProfile()?.permissions?.canExportExcel ?? false);
+    private canAddCustomer = computed(() => this.authService.currentProfile()?.permissions?.canAddCustomer ?? false);
 
 
     tableSettings = computed<TableSettings>(() => ({
@@ -31,11 +32,13 @@ export class Customers implements OnInit {
         rowsPerPageOptions: [10, 25, 50],
         searchPlaceholder: 'Buscar clientes...',
         emptyMessage: 'No se encontraron clientes.',
-        addButton: {
-            label: 'Agregar Cliente',
-            icon: 'pi pi-plus',
-            severity: 'success'
-        },
+        ...(this.canAddCustomer() ? {
+            addButton: {
+                label: 'Nuevo Cliente',
+                icon: 'pi pi-plus',
+                severity: 'success' as const
+            }
+        } : {}),
         ...(this.canExportExcel() ? {
             exportButton: {
                 label: 'Exportar',
