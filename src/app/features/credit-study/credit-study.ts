@@ -22,6 +22,7 @@ export class CreditStudy implements OnInit {
     exporting = signal(false);
 
     private canExportExcel = computed(() => this.authService.currentProfile()?.permissions?.canExportExcel ?? false);
+    private canAddCreditStudy = computed(() => this.authService.currentProfile()?.permissions?.canAddCreditStudy ?? false);
 
     tableSettings = computed<TableSettings>(() => ({
         title: 'Gestión de Estudios de Crédito',
@@ -30,11 +31,13 @@ export class CreditStudy implements OnInit {
         rowsPerPageOptions: [10, 25, 50],
         searchPlaceholder: 'Buscar estudios de crédito...',
         emptyMessage: 'No se encontraron estudios de crédito.',
-        addButton: {
-            label: 'Nuevo Estudio',
-            icon: 'pi pi-plus',
-            severity: 'success'
-        },
+        ...(this.canAddCreditStudy() ? {
+            addButton: {
+                label: 'Nuevo Estudio',
+                icon: 'pi pi-plus',
+                severity: 'success' as const
+            }
+        } : {}),
         ...(this.canExportExcel() ? {
             exportButton: {
                 label: 'Exportar',

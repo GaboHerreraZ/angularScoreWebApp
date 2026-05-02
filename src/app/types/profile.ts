@@ -24,6 +24,7 @@ export interface Profile {
 }
 
 export interface Permissions {
+  canAddCreditStudy: boolean;
   canAddUser: boolean;
   canAddCustomer: boolean;
   canMakeAiAnalysis: boolean;
