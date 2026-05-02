@@ -1,59 +1,50 @@
 <section id="features" class="px-6 sm:px-12 lg:px-20 py-16 lg:py-24 bg-surface-0 dark:bg-surface-950">
     <div class="max-w-screen-2xl mx-auto">
         <div class="text-center mb-16" appScrollAnimate="fade-up">
-            <span class="text-primary font-bold text-sm uppercase tracking-widest">Características</span>
-            <h2 class="font-extrabold text-3xl sm:text-4xl lg:text-5xl mt-3 mb-4 text-color">Todo lo que necesitas para decisiones de crédito acertadas</h2>
-            <p class="text-lg text-muted-color max-w-2xl mx-auto">Herramientas diseñadas para optimizar cada paso del análisis crediticio</p>
+            <span class="text-primary font-bold text-sm uppercase tracking-widest">Capacidades</span>
+            <h2 class="font-extrabold text-3xl sm:text-4xl lg:text-5xl mt-3 mb-4 text-color">Diseñado para el flujo real de crédito</h2>
+            <p class="text-lg text-muted-color max-w-2xl mx-auto">Cada herramienta resuelve un paso concreto del proceso, desde la recepción del estado financiero hasta la firma del pagaré.</p>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <!-- Feature 1 -->
+            <!-- 1. PDF extraction -->
             <article appScrollAnimate="fade-up" class="bg-surface-50 dark:bg-surface-900 rounded-2xl p-8 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border border-transparent hover:border-primary/20">
                 <div class="w-14 h-14 rounded-xl bg-blue-500/10 flex items-center justify-center mb-6">
-                    <i class="pi pi-bolt text-blue-500 text-2xl"></i>
+                    <i class="pi pi-file-pdf text-blue-500 text-2xl"></i>
                 </div>
-                <h3 class="font-bold text-xl mb-3 mt-0 text-color">Análisis Automatizado</h3>
-                <p class="text-muted-color leading-relaxed m-0">Más de 15 indicadores financieros calculados al instante: EBITDA, capacidad de pago, rotación de cartera y más.</p>
+                <h3 class="font-bold text-xl mb-3 mt-0 text-color">Extracción desde PDF</h3>
+                <p class="text-muted-color leading-relaxed m-0">Carga el balance y el P&amp;L. Las cifras del estado financiero se leen y se cargan en el formulario por ti.</p>
             </article>
 
-            <!-- Feature 2 -->
+            <!-- 2. Indicators -->
             <article appScrollAnimate="fade-up" [animateDelay]="100" class="bg-surface-50 dark:bg-surface-900 rounded-2xl p-8 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border border-transparent hover:border-primary/20">
                 <div class="w-14 h-14 rounded-xl bg-green-500/10 flex items-center justify-center mb-6">
-                    <i class="pi pi-chart-pie text-green-500 text-2xl"></i>
+                    <i class="pi pi-calculator text-green-500 text-2xl"></i>
                 </div>
-                <h3 class="font-bold text-xl mb-3 mt-0 text-color">Scoring de Riesgo</h3>
-                <p class="text-muted-color leading-relaxed m-0">Calificación de 0 a 100 con categorización automática: riesgo bajo, moderado o alto para cada estudio.</p>
+                <h3 class="font-bold text-xl mb-3 mt-0 text-color">15+ indicadores financieros</h3>
+                <p class="text-muted-color leading-relaxed m-0">EBITDA, Z-Score de Altman, capacidad de pago, rotación de cartera, cobertura de deuda y más, calculados sin Excel.</p>
             </article>
 
-            <!-- Feature 3 -->
+            <!-- 3. Scoring -->
             <article appScrollAnimate="fade-up" [animateDelay]="200" class="bg-surface-50 dark:bg-surface-900 rounded-2xl p-8 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border border-transparent hover:border-primary/20">
-                <div class="w-14 h-14 rounded-xl bg-purple-500/10 flex items-center justify-center mb-6">
-                    <i class="pi pi-users text-purple-500 text-2xl"></i>
-                </div>
-                <h3 class="font-bold text-xl mb-3 mt-0 text-color">Gestión de Clientes</h3>
-                <p class="text-muted-color leading-relaxed m-0">Base de datos centralizada con información comercial, referencias y actividad económica de cada cliente.</p>
-            </article>
-
-            <!-- Feature 4 -->
-            <article appScrollAnimate="fade-up" [animateDelay]="300" class="bg-surface-50 dark:bg-surface-900 rounded-2xl p-8 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border border-transparent hover:border-primary/20">
                 <div class="w-14 h-14 rounded-xl bg-orange-500/10 flex items-center justify-center mb-6">
-                    <i class="pi pi-file-excel text-orange-500 text-2xl"></i>
+                    <i class="pi pi-bullseye text-orange-500 text-2xl"></i>
                 </div>
-                <h3 class="font-bold text-xl mb-3 mt-0 text-color">Reportes Profesionales</h3>
-                <p class="text-muted-color leading-relaxed m-0">Exporta estudios completos a Excel con todos los indicadores y la decisión crediticia para tus archivos.</p>
+                <h3 class="font-bold text-xl mb-3 mt-0 text-color">Score de 0 a 100</h3>
+                <p class="text-muted-color leading-relaxed m-0">Cuatro dimensiones de evaluación con peso explícito y categorización automática de riesgo bajo, moderado o alto.</p>
             </article>
 
-            <!-- Feature 5 -->
-            <article appScrollAnimate="fade-up" [animateDelay]="400" class="bg-surface-50 dark:bg-surface-900 rounded-2xl p-8 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border border-transparent hover:border-primary/20">
+            <!-- 4. Recommendation engine -->
+            <article appScrollAnimate="fade-up" [animateDelay]="300" class="bg-surface-50 dark:bg-surface-900 rounded-2xl p-8 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border border-transparent hover:border-primary/20">
                 <div class="w-14 h-14 rounded-xl bg-cyan-500/10 flex items-center justify-center mb-6">
-                    <i class="pi pi-building text-cyan-500 text-2xl"></i>
+                    <i class="pi pi-sliders-h text-cyan-500 text-2xl"></i>
                 </div>
-                <h3 class="font-bold text-xl mb-3 mt-0 text-color">Multi-empresa</h3>
-                <p class="text-muted-color leading-relaxed m-0">Gestiona múltiples compañías desde una sola cuenta con usuarios y roles independientes para cada una.</p>
+                <h3 class="font-bold text-xl mb-3 mt-0 text-color">Cupo y plazo recomendados</h3>
+                <p class="text-muted-color leading-relaxed m-0">Hasta tres alternativas de pago basadas en la capacidad real del cliente, listas para llevar a la mesa de negociación.</p>
             </article>
 
-            <!-- Feature 6: AI Analysis -->
-            <article appScrollAnimate="fade-up" [animateDelay]="500" class="relative bg-surface-50 dark:bg-surface-900 rounded-2xl p-8 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border border-transparent hover:border-purple-400/40 overflow-hidden group">
+            <!-- 5. AI Analysis -->
+            <article appScrollAnimate="fade-up" [animateDelay]="400" class="relative bg-surface-50 dark:bg-surface-900 rounded-2xl p-8 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border border-transparent hover:border-purple-400/40 overflow-hidden group">
                 <div class="absolute inset-0 bg-linear-to-br from-purple-500/5 via-transparent to-indigo-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                 <div class="relative">
                     <div class="flex items-center gap-3 mb-6">
@@ -62,18 +53,36 @@
                         </div>
                         <span class="text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full bg-linear-to-r from-purple-500 to-indigo-500 text-white">Nuevo</span>
                     </div>
-                    <h3 class="font-bold text-xl mb-3 mt-0 text-color">Analisis con IA</h3>
-                    <p class="text-muted-color leading-relaxed m-0">Obtiene recomendaciones inteligentes basadas en inteligencia artificial para cada estudio de credito. Analisis profundo automatico en segundos.</p>
+                    <h3 class="font-bold text-xl mb-3 mt-0 text-color">Análisis con IA</h3>
+                    <p class="text-muted-color leading-relaxed m-0">Una narrativa en español explica el porqué del score: fortalezas, alertas y argumentos para sustentar la decisión.</p>
                 </div>
             </article>
 
-            <!-- Feature 7 -->
+            <!-- 6. Promissory notes -->
+            <article appScrollAnimate="fade-up" [animateDelay]="500" class="bg-surface-50 dark:bg-surface-900 rounded-2xl p-8 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border border-transparent hover:border-primary/20">
+                <div class="w-14 h-14 rounded-xl bg-emerald-500/10 flex items-center justify-center mb-6">
+                    <i class="pi pi-pen-to-square text-emerald-500 text-2xl"></i>
+                </div>
+                <h3 class="font-bold text-xl mb-3 mt-0 text-color">Pagaré digital con firma</h3>
+                <p class="text-muted-color leading-relaxed m-0">Genera el pagaré con los términos aprobados, envíalo a firma electrónica y archiva el documento ya firmado.</p>
+            </article>
+
+            <!-- 7. Excel reports -->
             <article appScrollAnimate="fade-up" [animateDelay]="600" class="bg-surface-50 dark:bg-surface-900 rounded-2xl p-8 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border border-transparent hover:border-primary/20">
                 <div class="w-14 h-14 rounded-xl bg-pink-500/10 flex items-center justify-center mb-6">
-                    <i class="pi pi-chart-bar text-pink-500 text-2xl"></i>
+                    <i class="pi pi-file-excel text-pink-500 text-2xl"></i>
                 </div>
-                <h3 class="font-bold text-xl mb-3 mt-0 text-color">Dashboard Inteligente</h3>
-                <p class="text-muted-color leading-relaxed m-0">Visualiza el estado de tus clientes, estudios recientes y métricas clave en tiempo real desde un solo lugar.</p>
+                <h3 class="font-bold text-xl mb-3 mt-0 text-color">Exportes en Excel</h3>
+                <p class="text-muted-color leading-relaxed m-0">Descarga clientes, estudios e indicadores en hojas de cálculo listas para auditoría y archivo histórico.</p>
+            </article>
+
+            <!-- 8. Dashboard -->
+            <article appScrollAnimate="fade-up" [animateDelay]="700" class="bg-surface-50 dark:bg-surface-900 rounded-2xl p-8 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border border-transparent hover:border-primary/20">
+                <div class="w-14 h-14 rounded-xl bg-amber-500/10 flex items-center justify-center mb-6">
+                    <i class="pi pi-chart-bar text-amber-500 text-2xl"></i>
+                </div>
+                <h3 class="font-bold text-xl mb-3 mt-0 text-color">Dashboard de cartera</h3>
+                <p class="text-muted-color leading-relaxed m-0">Distribución de riesgo, estudios recientes y métricas operativas de tu cartera en un solo lugar.</p>
             </article>
         </div>
     </div>

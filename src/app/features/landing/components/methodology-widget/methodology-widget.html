@@ -1,0 +1,63 @@
+<section id="methodology" class="px-6 sm:px-12 lg:px-20 py-16 lg:py-24 bg-surface-50 dark:bg-surface-900">
+    <div class="max-w-screen-2xl mx-auto">
+        <div class="text-center mb-16" appScrollAnimate="fade-up">
+            <span class="text-primary font-bold text-sm uppercase tracking-widest">Metodología</span>
+            <h2 class="font-extrabold text-3xl sm:text-4xl lg:text-5xl mt-3 mb-4 text-color">Cuatro dimensiones, un solo score</h2>
+            <p class="text-lg text-muted-color max-w-2xl mx-auto">El puntaje de 0 a 100 se construye sobre indicadores financieros aceptados por la banca colombiana. Cada dimensión aporta hasta 25 puntos.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Dimension 1 -->
+            <article appScrollAnimate="fade-up" class="bg-surface-0 dark:bg-surface-950 rounded-2xl p-8 border border-surface hover:border-primary/30 transition-colors duration-300">
+                <div class="flex items-start justify-between mb-5">
+                    <div class="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center">
+                        <i class="pi pi-shield text-emerald-500 text-xl"></i>
+                    </div>
+                    <span class="text-xs font-bold uppercase tracking-widest text-muted-color">25 / 100</span>
+                </div>
+                <h3 class="font-bold text-xl mb-2 mt-0 text-color">Salud financiera</h3>
+                <p class="text-muted-color leading-relaxed m-0">Modelo Z-Score de Altman. Mide la probabilidad de insolvencia a partir de capital de trabajo, utilidades retenidas, EBITDA y estructura patrimonial.</p>
+            </article>
+
+            <!-- Dimension 2 -->
+            <article appScrollAnimate="fade-up" [animateDelay]="100" class="bg-surface-0 dark:bg-surface-950 rounded-2xl p-8 border border-surface hover:border-primary/30 transition-colors duration-300">
+                <div class="flex items-start justify-between mb-5">
+                    <div class="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center">
+                        <i class="pi pi-wallet text-blue-500 text-xl"></i>
+                    </div>
+                    <span class="text-xs font-bold uppercase tracking-widest text-muted-color">25 / 100</span>
+                </div>
+                <h3 class="font-bold text-xl mb-2 mt-0 text-color">Capacidad de pago</h3>
+                <p class="text-muted-color leading-relaxed m-0">Compara la cuota mensual estimada del crédito con el EBITDA ajustado del cliente, descontando el servicio de deuda actual.</p>
+            </article>
+
+            <!-- Dimension 3 -->
+            <article appScrollAnimate="fade-up" [animateDelay]="200" class="bg-surface-0 dark:bg-surface-950 rounded-2xl p-8 border border-surface hover:border-primary/30 transition-colors duration-300">
+                <div class="flex items-start justify-between mb-5">
+                    <div class="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center">
+                        <i class="pi pi-clock text-purple-500 text-xl"></i>
+                    </div>
+                    <span class="text-xs font-bold uppercase tracking-widest text-muted-color">25 / 100</span>
+                </div>
+                <h3 class="font-bold text-xl mb-2 mt-0 text-color">Coherencia de plazos</h3>
+                <p class="text-muted-color leading-relaxed m-0">Confronta el plazo solicitado contra la rotación real de cartera del cliente. Si pide menos tiempo del que tarda en cobrar, se penaliza.</p>
+            </article>
+
+            <!-- Dimension 4 -->
+            <article appScrollAnimate="fade-up" [animateDelay]="300" class="bg-surface-0 dark:bg-surface-950 rounded-2xl p-8 border border-surface hover:border-primary/30 transition-colors duration-300">
+                <div class="flex items-start justify-between mb-5">
+                    <div class="w-12 h-12 rounded-xl bg-orange-500/10 flex items-center justify-center">
+                        <i class="pi pi-chart-line text-orange-500 text-xl"></i>
+                    </div>
+                    <span class="text-xs font-bold uppercase tracking-widest text-muted-color">25 / 100</span>
+                </div>
+                <h3 class="font-bold text-xl mb-2 mt-0 text-color">Adecuación del cupo</h3>
+                <p class="text-muted-color leading-relaxed m-0">Verifica si el monto solicitado se ajusta a lo que el cliente realmente puede pagar en el plazo planteado, según su capacidad mensual.</p>
+            </article>
+        </div>
+
+        <p class="text-center text-sm text-muted-color mt-12 max-w-3xl mx-auto" appScrollAnimate="fade-up">
+            Creditia nunca recomienda un cupo mayor al solicitado. Si la capacidad alcanza, aprueba lo pedido; si no, sugiere monto y plazo alternativos.
+        </p>
+    </div>
+</section>
