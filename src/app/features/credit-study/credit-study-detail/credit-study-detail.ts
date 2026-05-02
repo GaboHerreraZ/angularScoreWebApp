@@ -281,70 +281,67 @@ export class CreditStudyDetail  {
             finalize(() => this.loading.set(false)),
             takeUntilDestroyed(this.destroyRef)
         ).subscribe((creditStudy) => {
-            if (creditStudy) {
-                this.customerIdSignal.set(creditStudy.customerId);
+            this.customerIdSignal.set(creditStudy.customerId);
 
-                const period = this.periods()?.find(p => p.id === creditStudy.incomeStatementId);
+            const period = this.periods()?.find(p => p.id === creditStudy.incomeStatementId);
 
-                this.step1Form.patchValue({
-                    customerId: null,
-                    customerName: (creditStudy as any).customer?.businessName ?? '',
-                    studyDate: creditStudy.studyDate ? new Date(creditStudy.studyDate) : null,
-                    requestedTerm: creditStudy.requestedTerm ?? null,
-                    requestedCreditLine: creditStudy.requestedCreditLine ?? null,
-                    notes: creditStudy.notes ?? ''
-                });
+            this.step1Form.patchValue({
+                customerId: null,
+                customerName: (creditStudy as any).customer?.businessName ?? '',
+                studyDate: creditStudy.studyDate ? new Date(creditStudy.studyDate) : null,
+                requestedTerm: creditStudy.requestedTerm ?? null,
+                requestedCreditLine: creditStudy.requestedCreditLine ?? null,
+                notes: creditStudy.notes ?? ''
+            });
 
-                this.step2Form.patchValue({
-                    cashAndEquivalents: creditStudy.cashAndEquivalents ?? null,
-                    accountsReceivable1: creditStudy.accountsReceivable1 ?? null,
-                    accountsReceivable2: creditStudy.accountsReceivable2 ?? null,
-                    balanceSheetDate: creditStudy.balanceSheetDate ? new Date(creditStudy.balanceSheetDate) : null,
-                    inventories1: creditStudy.inventories1 ?? null,
-                    inventories2: creditStudy.inventories2 ?? null,
-                    totalCurrentAssets: creditStudy.totalCurrentAssets ?? null,
-                    fixedAssetsProperty: creditStudy.fixedAssetsProperty ?? null,
-                    totalNonCurrentAssets: creditStudy.totalNonCurrentAssets ?? null,
-                    shortTermFinancialLiabilities: creditStudy.shortTermFinancialLiabilities ?? null,
-                    suppliers1: creditStudy.suppliers1 ?? null,
-                    suppliers2: creditStudy.suppliers2 ?? null,
-                    totalCurrentLiabilities: creditStudy.totalCurrentLiabilities ?? null,
-                    longTermFinancialLiabilities: creditStudy.longTermFinancialLiabilities ?? null,
-                    totalNonCurrentLiabilities: creditStudy.totalNonCurrentLiabilities ?? null,
-                    retainedEarnings: creditStudy.retainedEarnings ?? null,
-                    incomeStatementId: period ?? null,
-                    ordinaryActivityRevenue: creditStudy.ordinaryActivityRevenue ?? null,
-                    costOfSales: creditStudy.costOfSales ?? null,
-                    administrativeExpenses: creditStudy.administrativeExpenses ?? null,
-                    sellingExpenses: creditStudy.sellingExpenses ?? null,
-                    depreciation: creditStudy.depreciation ?? null,
-                    amortization: creditStudy.amortization ?? null,
-                    financialExpenses: creditStudy.financialExpenses ?? null,
-                    taxes: creditStudy.taxes ?? null,
-                    netIncome: creditStudy.netIncome ?? null
-                });
+            this.step2Form.patchValue({
+                cashAndEquivalents: creditStudy.cashAndEquivalents ?? null,
+                accountsReceivable1: creditStudy.accountsReceivable1 ?? null,
+                accountsReceivable2: creditStudy.accountsReceivable2 ?? null,
+                balanceSheetDate: creditStudy.balanceSheetDate ? new Date(creditStudy.balanceSheetDate) : null,
+                inventories1: creditStudy.inventories1 ?? null,
+                inventories2: creditStudy.inventories2 ?? null,
+                totalCurrentAssets: creditStudy.totalCurrentAssets ?? null,
+                fixedAssetsProperty: creditStudy.fixedAssetsProperty ?? null,
+                totalNonCurrentAssets: creditStudy.totalNonCurrentAssets ?? null,
+                shortTermFinancialLiabilities: creditStudy.shortTermFinancialLiabilities ?? null,
+                suppliers1: creditStudy.suppliers1 ?? null,
+                suppliers2: creditStudy.suppliers2 ?? null,
+                totalCurrentLiabilities: creditStudy.totalCurrentLiabilities ?? null,
+                longTermFinancialLiabilities: creditStudy.longTermFinancialLiabilities ?? null,
+                totalNonCurrentLiabilities: creditStudy.totalNonCurrentLiabilities ?? null,
+                retainedEarnings: creditStudy.retainedEarnings ?? null,
+                incomeStatementId: period ?? null,
+                ordinaryActivityRevenue: creditStudy.ordinaryActivityRevenue ?? null,
+                costOfSales: creditStudy.costOfSales ?? null,
+                administrativeExpenses: creditStudy.administrativeExpenses ?? null,
+                sellingExpenses: creditStudy.sellingExpenses ?? null,
+                depreciation: creditStudy.depreciation ?? null,
+                amortization: creditStudy.amortization ?? null,
+                financialExpenses: creditStudy.financialExpenses ?? null,
+                taxes: creditStudy.taxes ?? null,
+                netIncome: creditStudy.netIncome ?? null
+            });
 
-                this.formValuesSignal.set(this.step2Form.getRawValue());
+            this.formValuesSignal.set(this.step2Form.getRawValue());
 
-                if (creditStudy.viabilityStatus != null || creditStudy.stabilityFactor != null) {
-                    this.studyResult.set(creditStudy);
-                    this.studyCompleted.set(true);
-                } else {
-                    this.studyCompleted.set(false);
-                }
+            if (creditStudy.viabilityStatus != null || creditStudy.stabilityFactor != null) {
+                this.studyResult.set(creditStudy);
+                this.studyCompleted.set(true);
+            } else {
+                this.studyCompleted.set(false);
+            }
 
-                const noteStatus = creditStudy.promissoryNotes?.length
-                    ? creditStudy.promissoryNotes.reduce((l, n) => new Date(n.createdAt) > new Date(l.createdAt) ? n : l, creditStudy.promissoryNotes[0]).status?.code
-                    : null;
-                if (creditStudy.status?.code === 'studyClosed' || noteStatus === 'pendingSignature' || noteStatus === 'signed') {
-                    this.step1Form.disable();
-                    this.step2Form.disable();
-                } else {
-                    this.step1Form.enable();
-                    this.step2Form.enable();
-                    // customerName is always display-only in edit mode
-                    this.step1Form.get('customerName')?.disable();
-                }
+            const noteStatus = creditStudy.promissoryNotes?.length
+                ? creditStudy.promissoryNotes.reduce((l, n) => new Date(n.createdAt) > new Date(l.createdAt) ? n : l, creditStudy.promissoryNotes[0]).status?.code
+                : null;
+            if (creditStudy.status?.code === 'studyClosed' || noteStatus === 'pendingSignature' || noteStatus === 'signed') {
+                this.step1Form.disable();
+                this.step2Form.disable();
+            } else {
+                this.step1Form.enable();
+                this.step2Form.enable();
+                this.step1Form.get('customerName')?.disable();
             }
         });
     }
@@ -427,29 +424,24 @@ export class CreditStudyDetail  {
             finalize(() => this.loading.set(false)),
             takeUntilDestroyed(this.destroyRef)
         ).subscribe((result: any) => {
-            if (result.success) {
-                const message = this.creditStudyId()
-                    ? 'Estudio de crédito actualizado correctamente'
-                    : 'Estudio de crédito creado correctamente';
-                this.notificationService.success(message, 'OK');
+            const message = this.creditStudyId()
+                ? 'Estudio de crédito actualizado correctamente'
+                : 'Estudio de crédito creado correctamente';
+            this.notificationService.success(message, 'OK');
 
-                if (!this.creditStudyId() && result.data?.id) {
-                    const fromCustomerId = this.queryCustomerId();
-                    if (fromCustomerId) {
-                        this.router.navigate(['/app/clientes/detalle-cliente', fromCustomerId, 'estudios-credito']);
-                    } else {
-                        this.router.navigate(['/app/estudio-credito/detalle-estudio', result.data.id]).then(() => {
-                            setTimeout(() => {
-                                this.activeStep = 3;
-                            }, 100);
-                        });
-                    }
+            if (!this.creditStudyId() && result?.id) {
+                const fromCustomerId = this.queryCustomerId();
+                if (fromCustomerId) {
+                    this.router.navigate(['/app/clientes/detalle-cliente', fromCustomerId, 'estudios-credito']);
+                } else {
+                    this.router.navigate(['/app/estudio-credito/detalle-estudio', result.id]).then(() => {
+                        setTimeout(() => {
+                            this.activeStep = 3;
+                        }, 100);
+                    });
                 }
-                else if (this.creditStudyId()) {
-                    this.loadCreditStudy(this.creditStudyId()!);
-                }
-            } else {
-                this.notificationService.error(result.error ?? 'Error al guardar', 'Error');
+            } else if (this.creditStudyId()) {
+                this.loadCreditStudy(this.creditStudyId()!);
             }
         });
     }
@@ -496,12 +488,8 @@ export class CreditStudyDetail  {
             this.creditStudyService.extractFinancialData(file).pipe(
                 finalize(() => this.extractingPdf.set(false)),
                 takeUntilDestroyed(this.destroyRef)
-            ).subscribe((result) => {
-                if (result.success && result.data) {
-                    this.applyExtractedData(result.data);
-                } else {
-                    this.notificationService.error(result.error ?? 'Error al procesar el documento', 'Error');
-                }
+            ).subscribe((data) => {
+                this.applyExtractedData(data);
             });
         };
 
@@ -589,15 +577,11 @@ export class CreditStudyDetail  {
                 this.creditStudyService.performCreditStudy(this.creditStudyId()!).pipe(
                     finalize(() => this.performingStudy.set(false)),
                     takeUntilDestroyed(this.destroyRef)
-                ).subscribe((result: { success: boolean; error?: string; data?: any }) => {
-                    if (result.success) {
-                        this.notificationService.success('Estudio de crédito realizado exitosamente', 'Éxito');
-                        this.studyResult.set(result.data);
-                        this.studyCompleted.set(true);
-                        setTimeout(() => activateCallback(4), 300);
-                    } else {
-                        this.notificationService.error(result.error ?? 'Error al realizar el estudio', 'Error');
-                    }
+                ).subscribe((data: any) => {
+                    this.notificationService.success('Estudio de crédito realizado exitosamente', 'Éxito');
+                    this.studyResult.set(data);
+                    this.studyCompleted.set(true);
+                    setTimeout(() => activateCallback(4), 300);
                 });
             }
         });
@@ -613,13 +597,9 @@ export class CreditStudyDetail  {
         this.creditStudyService.previewPromissoryNote(id).pipe(
             finalize(() => this.loadingPreview.set(false)),
             takeUntilDestroyed(this.destroyRef)
-        ).subscribe((result) => {
-            if (result.success && result.data) {
-                this.previewHtml.set(this.sanitizer.bypassSecurityTrustHtml(result.data));
-                this.previewVisible.set(true);
-            } else {
-                this.notificationService.error(result.error ?? 'Error al generar la vista previa', 'Error');
-            }
+        ).subscribe((response) => {
+            this.previewHtml.set(this.sanitizer.bypassSecurityTrustHtml(response.html));
+            this.previewVisible.set(true);
         });
     }
 
@@ -643,13 +623,9 @@ export class CreditStudyDetail  {
                 this.creditStudyService.declinePromissoryNote(note.id).pipe(
                     finalize(() => this.decliningSignature.set(false)),
                     takeUntilDestroyed(this.destroyRef)
-                ).subscribe((result) => {
-                    if (result.success) {
-                        this.notificationService.success('La firma del pagaré ha sido cancelada.', 'Éxito');
-                        this.loadCreditStudy(this.creditStudyId()!);
-                    } else {
-                        this.notificationService.error(result.error ?? 'Error al cancelar la firma', 'Error');
-                    }
+                ).subscribe(() => {
+                    this.notificationService.success('La firma del pagaré ha sido cancelada.', 'Éxito');
+                    this.loadCreditStudy(this.creditStudyId()!);
                 });
             }
         });

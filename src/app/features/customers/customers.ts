@@ -2,11 +2,11 @@ import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angula
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { finalize } from 'rxjs';
 import { CustomTable } from '@/app/shared/components/table/table';
 import { TableSettings, TablePageChangeEvent, TableSearchEvent, TableActionEvent } from '@/app/types/table';
 import { CustomersService } from './customers.service';
 import { AuthService } from '@/app/core/services/auth.service';
-import { NotificationService } from '@/app/shared/components/notification/notification.service';
 
 @Component({
     selector: 'app-customers',
@@ -17,7 +17,6 @@ import { NotificationService } from '@/app/shared/components/notification/notifi
 export class Customers implements OnInit {
     private destroyRef = inject(DestroyRef);
     private authService = inject(AuthService);
-    private notificationService = inject(NotificationService);
 
     exporting = signal(false);
 
@@ -113,12 +112,8 @@ export class Customers implements OnInit {
             case 'delete':
                 this.customersService.deleteCustomer(event.row.id).pipe(
                     takeUntilDestroyed(this.destroyRef)
-                ).subscribe((result) => {
-                    if (result.success) {
-                        this.customersService.loadCustomers();
-                    } else {
-                        console.error(result.error);
-                    }
+                ).subscribe(() => {
+                    this.customersService.loadCustomers();
                 });
                 break;
         }
@@ -131,30 +126,21 @@ export class Customers implements OnInit {
     onExport(): void {
         this.exporting.set(true);
         this.customersService.exportToExcel().pipe(
+            finalize(() => this.exporting.set(false)),
             takeUntilDestroyed(this.destroyRef)
-        ).subscribe({
-            next: (response) => {
-                const blob = response.body;
-                if (!blob) {
-                    this.exporting.set(false);
-                    return;
-                }
+        ).subscribe((response) => {
+            const blob = response.body;
+            if (!blob) return;
 
-                const fileName = this.extractFileName(response.headers.get('Content-Disposition'))
-                    ?? `clientes-${new Date().toISOString().slice(0, 10)}.xlsx`;
+            const fileName = this.extractFileName(response.headers.get('Content-Disposition'))
+                ?? `clientes-${new Date().toISOString().slice(0, 10)}.xlsx`;
 
-                const url = window.URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = fileName;
-                link.click();
-                window.URL.revokeObjectURL(url);
-                this.exporting.set(false);
-            },
-            error: () => {
-                this.notificationService.error('No se pudo exportar los clientes. Intenta de nuevo.', 'Error');
-                this.exporting.set(false);
-            }
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = fileName;
+            link.click();
+            window.URL.revokeObjectURL(url);
         });
     }
 

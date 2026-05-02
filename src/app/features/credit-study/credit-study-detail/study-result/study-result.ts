@@ -206,13 +206,9 @@ export class StudyResult {
         this.creditStudyService.performAiAnalysis(studyId).pipe(
             finalize(() => this.aiLoading.set(false)),
             takeUntilDestroyed(this.destroyRef)
-        ).subscribe(result => {
-            if (result.success && result.data) {
-                this.aiAnalysis.set(result.data);
-                this.notificationService.success('Analisis de IA generado exitosamente', 'IA');
-            } else {
-                this.notificationService.error(result.error ?? 'Error al generar el analisis', 'Error');
-            }
+        ).subscribe(data => {
+            this.aiAnalysis.set(data);
+            this.notificationService.success('Analisis de IA generado exitosamente', 'IA');
         });
     }
 }

@@ -12,7 +12,6 @@ import { TooltipModule } from 'primeng/tooltip';
 import { DialogModule } from 'primeng/dialog';
 import { CompanyService } from '../company/company.service';
 import { AuthService } from '@/app/core/services/auth.service';
-import { NotificationService } from '@/app/shared/components/notification/notification.service';
 import { PlanItem, SubscriptionDetails } from '@/app/types/subscription';
 import { SubscriptionPlansList } from '@/app/shared/components/subscription-plans-list/subscription-plans-list';
 import { CustomTable } from '@/app/shared/components/table/table';
@@ -41,7 +40,6 @@ export class PlanBilling {
     private router = inject(Router);
     private companyService = inject(CompanyService);
     private authService = inject(AuthService);
-    private notificationService = inject(NotificationService);
 
     private companyId = computed(() => {
         const profile = this.authService.currentProfile();
@@ -152,13 +150,8 @@ export class PlanBilling {
         this.companyService.cancelSubscription(companyId).pipe(
             finalize(() => this.cancellingSubscription.set(false)),
             takeUntilDestroyed(this.destroyRef)
-        ).subscribe({
-            next: () => {
-                this.cancellationComplete.set(true);
-            },
-            error: () => {
-                this.notificationService.error('No se pudo cancelar la suscripción. Intenta de nuevo.', 'Error');
-            }
+        ).subscribe(() => {
+            this.cancellationComplete.set(true);
         });
     }
 

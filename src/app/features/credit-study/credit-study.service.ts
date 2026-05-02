@@ -1,6 +1,6 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
-import { Observable, BehaviorSubject, of, map, catchError, tap, switchMap } from 'rxjs';
+import { Observable, BehaviorSubject, of, catchError, tap, switchMap } from 'rxjs';
 import { ApiService } from '@/app/core/services/api.service';
 import { AuthService } from '@/app/core/services/auth.service';
 import { AiAnalysisResponse, CreateCreditStudy, ExtractedFinancialData } from '@/app/types/credit-study';
@@ -38,10 +38,7 @@ export class CreditStudyService {
             }
 
             return this.apiService.get<{ data: CreateCreditStudy[]; total: number }>(this.basePath, { params: queryParams }).pipe(
-                catchError((error) => {
-                    console.error('Error al cargar estudios de crédito:', error);
-                    return of({ data: [] as CreateCreditStudy[], total: 0 });
-                })
+                catchError(() => of({ data: [] as CreateCreditStudy[], total: 0 }))
             );
         }),
         tap((response) => {
@@ -71,103 +68,41 @@ export class CreditStudyService {
         });
     }
 
-    createCreditStudy(creditStudy: Omit<CreateCreditStudy,'id'| 'createdBy' | 'updatedBy' | 'createdAt' | 'updatedAt' | 'statusId'>): Observable<{ success: boolean; error?: string; data?: CreateCreditStudy }> {
-        return this.apiService.post<CreateCreditStudy>(this.basePath, creditStudy).pipe(
-            map((response) => ({ success: true, data: response })),
-            catchError((error) => {
-                console.error('Error al crear estudio de crédito:', error);
-                return of({ success: false, error: 'Error al crear el estudio de crédito' });
-            })
-        );
+    createCreditStudy(creditStudy: Omit<CreateCreditStudy, 'id' | 'createdBy' | 'updatedBy' | 'createdAt' | 'updatedAt' | 'statusId'>): Observable<CreateCreditStudy> {
+        return this.apiService.post<CreateCreditStudy>(this.basePath, creditStudy);
     }
 
-    updateCreditStudy(id: string, creditStudy: Omit<Partial<CreateCreditStudy>, 'createdBy' | 'updatedBy' | 'createdAt' | 'updatedAt'>): Observable<{ success: boolean; error?: string }> {
-        return this.apiService.patch<CreateCreditStudy>(`${this.basePath}/${id}`, creditStudy).pipe(
-            map(() => ({ success: true })),
-            catchError((error) => {
-                console.error('Error al actualizar estudio de crédito:', error);
-                return of({ success: false, error: 'Error al actualizar el estudio de crédito' });
-            })
-        );
+    updateCreditStudy(id: string, creditStudy: Omit<Partial<CreateCreditStudy>, 'createdBy' | 'updatedBy' | 'createdAt' | 'updatedAt'>): Observable<CreateCreditStudy> {
+        return this.apiService.patch<CreateCreditStudy>(`${this.basePath}/${id}`, creditStudy);
     }
 
-    getCreditStudyById(id: string): Observable<CreateCreditStudy | null> {
-        return this.apiService.get<CreateCreditStudy>(`${this.basePath}/${id}`).pipe(
-            catchError((error) => {
-                console.error('Error al obtener estudio de crédito:', error);
-                return of(null);
-            })
-        );
+    getCreditStudyById(id: string): Observable<CreateCreditStudy> {
+        return this.apiService.get<CreateCreditStudy>(`${this.basePath}/${id}`);
     }
 
-    performCreditStudy(id: string): Observable<{ success: boolean; error?: string; data?: any }> {
-        // TODO: Reemplazar con la ruta correcta del endpoint cuando esté disponible
-        const endpoint = `${this.basePath}/${id}/perform`;
-
-        return this.apiService.get<any>(endpoint, {}).pipe(
-            map((response) => ({ success: true, data: response })),
-            catchError((error) => {
-                console.error('Error al realizar estudio de crédito:', error);
-                return of({ success: false, error: 'Error al realizar el estudio de crédito' });
-            })
-        );
+    performCreditStudy(id: string): Observable<any> {
+        return this.apiService.get<any>(`${this.basePath}/${id}/perform`, {});
     }
 
-    extractFinancialData(file: File): Observable<{ success: boolean; error?: string; data?: ExtractedFinancialData }> {
+    extractFinancialData(file: File): Observable<ExtractedFinancialData> {
         const formData = new FormData();
         formData.append('file', file);
-
-        const endpoint = `companies/${this.companyId()}/ai-analyses/extract-pdf`;
-
-        return this.apiService.post<ExtractedFinancialData>(endpoint, formData).pipe(
-            map((response) => ({ success: true, data: response })),
-            catchError((error) => {
-                console.error('Error al extraer datos del PDF:', error);
-                const message = error?.error?.message ?? 'Error al procesar el documento PDF';
-                return of({ success: false, error: message });
-            })
-        );
+        return this.apiService.post<ExtractedFinancialData>(`companies/${this.companyId()}/ai-analyses/extract-pdf`, formData);
     }
 
-    previewPromissoryNote(creditStudyId: string): Observable<{ success: boolean; error?: string; data?: string }> {
-        const endpoint = `companies/${this.companyId()}/promissory-notes/preview`;
-        return this.apiService.post<{ html: string }>(endpoint, { creditStudyId }).pipe(
-            map((response) => ({ success: true, data: response.html })),
-            catchError((error) => {
-                console.error('Error al obtener vista previa del pagaré:', error);
-                const message = error?.error?.message ?? 'Error al generar la vista previa del pagaré';
-                return of({ success: false, error: message });
-            })
-        );
+    previewPromissoryNote(creditStudyId: string): Observable<{ html: string }> {
+        return this.apiService.post<{ html: string }>(`companies/${this.companyId()}/promissory-notes/preview`, { creditStudyId });
     }
 
-    declinePromissoryNote(promissoryNoteId: number): Observable<{ success: boolean; error?: string }> {
-        const endpoint = `companies/${this.companyId()}/promissory-notes/${promissoryNoteId}/decline`;
-        return this.apiService.patch<any>(endpoint, {}).pipe(
-            map(() => ({ success: true })),
-            catchError((error) => {
-                console.error('Error al cancelar firma del pagaré:', error);
-                const message = error?.error?.message ?? 'Error al cancelar la firma del pagaré';
-                return of({ success: false, error: message });
-            })
-        );
+    declinePromissoryNote(promissoryNoteId: number): Observable<any> {
+        return this.apiService.patch<any>(`companies/${this.companyId()}/promissory-notes/${promissoryNoteId}/decline`, {});
     }
 
     approveCreditStudy(creditStudyId: string): Observable<any> {
-        const endpoint = `companies/${this.companyId()}/promissory-notes/html`;
-        return this.apiService.post<any>(endpoint, { creditStudyId });
+        return this.apiService.post<any>(`companies/${this.companyId()}/promissory-notes/html`, { creditStudyId });
     }
 
-    performAiAnalysis(creditStudyId: string): Observable<{ success: boolean; error?: string; data?: AiAnalysisResponse }> {
-        const endpoint = `companies/${this.companyId()}/ai-analyses/credit-studies/${creditStudyId}`;
-
-        return this.apiService.post<AiAnalysisResponse>(endpoint, {}).pipe(
-            map((response) => ({ success: true, data: response })),
-            catchError((error) => {
-                console.error('Error al realizar análisis IA:', error);
-                const message = error?.error?.message ?? 'Error al realizar el análisis de inteligencia artificial';
-                return of({ success: false, error: message });
-            })
-        );
+    performAiAnalysis(creditStudyId: string): Observable<AiAnalysisResponse> {
+        return this.apiService.post<AiAnalysisResponse>(`companies/${this.companyId()}/ai-analyses/credit-studies/${creditStudyId}`, {});
     }
 }

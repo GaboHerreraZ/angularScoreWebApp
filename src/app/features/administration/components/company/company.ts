@@ -289,14 +289,9 @@ export class Company {
             this.companyService.uploadLogo(companyId, file).pipe(
                 finalize(() => this.uploadingLogo.set(false)),
                 takeUntilDestroyed(this.destroyRef)
-            ).subscribe({
-                next: (updated) => {
-                    this.logoPreview.set(updated.logoSignedUrl);
-                    this.notificationService.success('Logo actualizado correctamente', 'Ok');
-                },
-                error: () => {
-                    this.notificationService.error('No se pudo subir el logo', 'Error');
-                }
+            ).subscribe((updated) => {
+                this.logoPreview.set(updated.logoSignedUrl);
+                this.notificationService.success('Logo actualizado correctamente', 'Ok');
             });
         };
 
@@ -404,14 +399,9 @@ export class Company {
                 this.confirmDialogVisible.set(false);
             }),
             takeUntilDestroyed(this.destroyRef)
-        ).subscribe({
-            next: () => {
-                this.notificationService.success('Invitación reenviada correctamente. El usuario recibirá un nuevo correo.');
-                this.invitationsResource.reload();
-            },
-            error: () => {
-                this.notificationService.error('No se pudo reenviar la invitación. Intenta de nuevo.');
-            }
+        ).subscribe(() => {
+            this.notificationService.success('Invitación reenviada correctamente. El usuario recibirá un nuevo correo.');
+            this.invitationsResource.reload();
         });
     }
 
@@ -423,14 +413,9 @@ export class Company {
                 this.confirmDialogVisible.set(false);
             }),
             takeUntilDestroyed(this.destroyRef)
-        ).subscribe({
-            next: () => {
-                this.notificationService.success(isActive ? 'Usuario activado correctamente.' : 'Usuario desactivado correctamente.');
-                this.invitationsResource.reload();
-            },
-            error: () => {
-                this.notificationService.error(isActive ? 'No se pudo activar el usuario.' : 'No se pudo desactivar el usuario.');
-            }
+        ).subscribe(() => {
+            this.notificationService.success(isActive ? 'Usuario activado correctamente.' : 'Usuario desactivado correctamente.');
+            this.invitationsResource.reload();
         });
     }
 
@@ -452,16 +437,11 @@ export class Company {
         this.companyService.inviteUser(companyId, this.inviteForm.controls.email.value).pipe(
             finalize(() => this.inviting.set(false)),
             takeUntilDestroyed(this.destroyRef)
-        ).subscribe({
-            next: () => {
-                this.notificationService.success('Invitación enviada correctamente', 'Ok');
-                this.inviteDialogVisible.set(false);
-                this.companyResource.reload();
-                this.invitationsResource.reload();
-            },
-            error: () => {
-                this.notificationService.error('No se pudo enviar la invitación', 'Error');
-            }
+        ).subscribe(() => {
+            this.notificationService.success('Invitación enviada correctamente', 'Ok');
+            this.inviteDialogVisible.set(false);
+            this.companyResource.reload();
+            this.invitationsResource.reload();
         });
     }
 

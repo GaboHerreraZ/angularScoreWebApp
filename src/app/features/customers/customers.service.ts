@@ -1,12 +1,10 @@
-import { inject, Injectable, Signal, signal } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
-import { BehaviorSubject, Observable, switchMap, tap, catchError, of, map } from 'rxjs';
+import { BehaviorSubject, Observable, switchMap, tap, catchError, of } from 'rxjs';
 import { ApiService } from '@/app/core/services/api.service';
 import { Customer } from '@/app/types/customer';
 import { CustomerCreditStudyResponse } from '@/app/types/credit-study';
 import { AuthService } from '@/app/core/services/auth.service';
-import { ParameterService } from '@/app/core/services/parameter.service';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { environment } from '@/environments/environment';
 
 interface LoadCustomersParams {
@@ -17,7 +15,7 @@ interface LoadCustomersParams {
 
 @Injectable({ providedIn: 'root' })
 export class CustomersService {
-    companyId =  signal<string>(''); // TODO: obtener dinámicamente
+    companyId = signal<string>('');
 
     private loadTrigger$ = new BehaviorSubject<LoadCustomersParams>({ page: 1, rows: 10, search: '' });
 
@@ -26,7 +24,6 @@ export class CustomersService {
     totalRecords = signal<number>(0);
 
     authSerive = inject(AuthService);
-
 
     customers$ = this.loadTrigger$.pipe(
         tap(() => this.loading.set(true)),
@@ -39,12 +36,8 @@ export class CustomersService {
                 queryParams['search'] = params.search;
             }
 
-
             return this.apiService.get<{ data: Customer[]; total: number }>(this.basePath, { params: queryParams }).pipe(
-                catchError((error) => {
-                    console.error('Error al cargar clientes:', error);
-                    return of({ data: [] as Customer[], total: 0 });
-                })
+                catchError(() => of({ data: [] as Customer[], total: 0 }))
             );
         }),
         tap((response) => {
@@ -57,8 +50,8 @@ export class CustomersService {
     private http = inject(HttpClient);
 
     constructor(private apiService: ApiService) {
-            const currentUser = this.authSerive.currentProfile();
-            this.companyId.set(currentUser ? currentUser.companyId : '');
+        const currentUser = this.authSerive.currentProfile();
+        this.companyId.set(currentUser ? currentUser.companyId : '');
     }
 
     private get basePath(): string {
@@ -69,43 +62,20 @@ export class CustomersService {
         this.loadTrigger$.next({ page, rows, search });
     }
 
-    createCustomer(customer: Omit<Customer, 'id'>): Observable<{ success: boolean; error?: string; data?: Customer }> {
-        return this.apiService.post<Customer>(this.basePath, customer).pipe(
-            map((response) => ({ success: true, data: response })),
-            catchError((error) => {
-                console.error('Error al crear cliente:', error);
-                return of({ success: false, error: 'Error al crear el cliente' });
-            })
-        );
+    createCustomer(customer: Omit<Customer, 'id'>): Observable<Customer> {
+        return this.apiService.post<Customer>(this.basePath, customer);
     }
 
-    updateCustomer(id: number, customer: Partial<Customer>): Observable<{ success: boolean; error?: string }> {
-        return this.apiService.patch<Customer>(`${this.basePath}/${id}`, customer).pipe(
-            map(() => ({ success: true })),
-            catchError((error) => {
-                console.error('Error al actualizar cliente:', error);
-                return of({ success: false, error: 'Error al actualizar el cliente' });
-            })
-        );
+    updateCustomer(id: number, customer: Partial<Customer>): Observable<Customer> {
+        return this.apiService.patch<Customer>(`${this.basePath}/${id}`, customer);
     }
 
-    deleteCustomer(id: number): Observable<{ success: boolean; error?: string }> {
-        return this.apiService.delete(`${this.basePath}/${id}`).pipe(
-            map(() => ({ success: true })),
-            catchError((error) => {
-                console.error('Error al eliminar cliente:', error);
-                return of({ success: false, error: 'Error al eliminar el cliente' });
-            })
-        );
+    deleteCustomer(id: number): Observable<void> {
+        return this.apiService.delete<void>(`${this.basePath}/${id}`);
     }
 
-    getCustomerById(id: number): Observable<Customer | null> {
-        return this.apiService.get<Customer>(`${this.basePath}/${id}`).pipe(
-            catchError((error) => {
-                console.error('Error al obtener cliente:', error);
-                return of(null);
-            })
-        );
+    getCustomerById(id: number): Observable<Customer> {
+        return this.apiService.get<Customer>(`${this.basePath}/${id}`);
     }
 
     exportToExcel(): Observable<HttpResponse<Blob>> {
@@ -115,17 +85,7 @@ export class CustomersService {
         });
     }
 
-    getCustomerCreditStudies(
-        customerId: number,
-    ): Observable<CustomerCreditStudyResponse[]> {
-
-        return this.apiService.get<CustomerCreditStudyResponse[]>(
-            `${this.basePath}/${customerId}/credit-studies`,
-        ).pipe(
-            catchError((error) => {
-                console.error('Error al cargar estudios de crédito del cliente:', error);
-                return of([]);
-            })
-        );
+    getCustomerCreditStudies(customerId: number): Observable<CustomerCreditStudyResponse[]> {
+        return this.apiService.get<CustomerCreditStudyResponse[]>(`${this.basePath}/${customerId}/credit-studies`);
     }
 }

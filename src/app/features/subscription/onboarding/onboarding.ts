@@ -360,7 +360,7 @@ export class Onboarding {
             this.notificationService.success('Información guardada correctamente');
             this.activeStep.set(3);
         } catch {
-            this.notificationService.error('Error al guardar la información. Intenta de nuevo.');
+            // El errorInterceptor muestra el toast
         } finally {
             this.savingProfileAndCompany.set(false);
         }
@@ -395,7 +395,7 @@ export class Onboarding {
                 this.activeStep.set(4);
             }
         } catch {
-            this.notificationService.error('No se pudo iniciar el proceso. Intenta de nuevo.');
+            // El errorInterceptor muestra el toast
         } finally {
             this.processing.set(false);
         }
@@ -456,7 +456,7 @@ export class Onboarding {
             await this.authService.loadProfile(this.user()!.id as string);
             this.subscriptionComplete.set(true);
         } catch {
-            this.notificationService.error('Error al procesar el pago. Verifica los datos e intenta de nuevo.');
+            // El errorInterceptor muestra el toast
         } finally {
             this.tokenizing.set(false);
         }
