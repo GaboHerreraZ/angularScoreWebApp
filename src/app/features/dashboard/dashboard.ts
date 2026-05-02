@@ -1,5 +1,6 @@
 import { Component, inject, signal, computed, OnInit, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { finalize } from 'rxjs';
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { CardModule } from 'primeng/card';
@@ -322,11 +323,11 @@ export class Dashboard implements OnInit {
     private loadBasic(): void {
         this.loading.set(true);
         this.dashboardService.getBasicDashboard()
-            .pipe(takeUntilDestroyed(this.destroyRef))
-            .subscribe({
-                next: data => this.basicData.set(data),
-                complete: () => this.loading.set(false)
-            });
+            .pipe(
+                finalize(() => this.loading.set(false)),
+                takeUntilDestroyed(this.destroyRef)
+            )
+            .subscribe(data => this.basicData.set(data));
     }
 
     private loadAdvanced(): void {
@@ -338,11 +339,11 @@ export class Dashboard implements OnInit {
             this.toIsoDate(dateFrom),
             this.toIsoDate(dateTo)
         )
-            .pipe(takeUntilDestroyed(this.destroyRef))
-            .subscribe({
-                next: data => this.advancedData.set(data as AdvancedDashboard | null),
-                complete: () => this.loading.set(false)
-            });
+            .pipe(
+                finalize(() => this.loading.set(false)),
+                takeUntilDestroyed(this.destroyRef)
+            )
+            .subscribe(data => this.advancedData.set(data));
     }
 
     private toIsoDate(d: Date): string {

@@ -1,6 +1,5 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { Observable, catchError, of } from 'rxjs';
-import { HttpErrorResponse } from '@angular/common/http';
+import { Observable } from 'rxjs';
 import { ApiService } from '@/app/core/services/api.service';
 import { AuthService } from '@/app/core/services/auth.service';
 import { BasicDashboard, AdvancedDashboard, DashboardLevel } from '@/app/types/dashboard';
@@ -24,25 +23,13 @@ export class DashboardService {
         return `companies/${this.companyId()}/dashboard`;
     }
 
-    getBasicDashboard(): Observable<BasicDashboard | null> {
-        this.loading.set(true);
-        return this.apiService.get<BasicDashboard>(`${this.basePath}/basic`).pipe(
-            catchError((error) => {
-                console.error('Error al cargar dashboard básico:', error);
-                return of(null);
-            })
-        );
+    getBasicDashboard(): Observable<BasicDashboard> {
+        return this.apiService.get<BasicDashboard>(`${this.basePath}/basic`);
     }
 
-    getAdvancedDashboard(dateFrom: string, dateTo: string): Observable<AdvancedDashboard | null> {
-        this.loading.set(true);
+    getAdvancedDashboard(dateFrom: string, dateTo: string): Observable<AdvancedDashboard> {
         return this.apiService.get<AdvancedDashboard>(`${this.basePath}/advanced`, {
             params: { dateFrom, dateTo }
-        }).pipe(
-            catchError((error: HttpErrorResponse) => {
-                console.error('Error al cargar dashboard avanzado:', error);
-                return of(null);
-            })
-        );
+        });
     }
 }

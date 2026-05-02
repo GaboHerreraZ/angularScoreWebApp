@@ -200,41 +200,37 @@ export class CustomerDetail {
             finalize(() => this.loading.set(false)),
             takeUntilDestroyed(this.destroyRef)
         ).subscribe((customer) => {
-            if (customer) {
-                // Find the matching objects in the option arrays
-                const personType = this.personTypes()?.find(p => p.id === customer.personTypeId);
-                const identificationType = this.identificationTypes()?.find(i => i.id === customer.identificationTypeId);
-                const economicActivity = this.sectorTypes()?.find(s => s.id === customer.economicActivityId);
+            const personType = this.personTypes()?.find(p => p.id === customer.personTypeId);
+            const identificationType = this.identificationTypes()?.find(i => i.id === customer.identificationTypeId);
+            const economicActivity = this.sectorTypes()?.find(s => s.id === customer.economicActivityId);
 
-                // Store names to match once the resources finish loading
-                this.pendingStateName = customer.state ?? null;
-                this.pendingCityName = customer.city ?? null;
+            this.pendingStateName = customer.state ?? null;
+            this.pendingCityName = customer.city ?? null;
 
-                this.form.patchValue({
-                    personTypeId: personType,
-                    identificationTypeId: identificationType,
-                    businessName: customer.businessName,
-                    identificationNumber: customer.identificationNumber,
-                    legalRepName: customer.legalRepName ?? '',
-                    legalRepId: customer.legalRepId ?? '',
-                    legalRepIdentificationTypeId: this.identificationTypes()?.find(i => i.id === customer.legalRepIdentificationTypeId) ?? null,
-                    legalRepEmail: customer.legalRepEmail ?? '',
-                    legalRepPhone: customer.legalRepPhone ?? '',
-                    economicActivityId: economicActivity,
-                    seniority: customer.seniority ?? 0,
-                    email: customer.email ?? '',
-                    phone: customer.phone ?? '',
-                    secondaryPhone: customer.secondaryPhone ?? '',
-                    address: customer.address ?? '',
-                    commercialRef1Name: customer.commercialRef1Name ?? '',
-                    commercialRef1Contact: customer.commercialRef1Contact ?? '',
-                    commercialRef1Phone: customer.commercialRef1Phone ?? '',
-                    commercialRef2Name: customer.commercialRef2Name ?? '',
-                    commercialRef2Contact: customer.commercialRef2Contact ?? '',
-                    commercialRef2Phone: customer.commercialRef2Phone ?? '',
-                    observations: customer.observations ?? ''
-                });
-            }
+            this.form.patchValue({
+                personTypeId: personType,
+                identificationTypeId: identificationType,
+                businessName: customer.businessName,
+                identificationNumber: customer.identificationNumber,
+                legalRepName: customer.legalRepName ?? '',
+                legalRepId: customer.legalRepId ?? '',
+                legalRepIdentificationTypeId: this.identificationTypes()?.find(i => i.id === customer.legalRepIdentificationTypeId) ?? null,
+                legalRepEmail: customer.legalRepEmail ?? '',
+                legalRepPhone: customer.legalRepPhone ?? '',
+                economicActivityId: economicActivity,
+                seniority: customer.seniority ?? 0,
+                email: customer.email ?? '',
+                phone: customer.phone ?? '',
+                secondaryPhone: customer.secondaryPhone ?? '',
+                address: customer.address ?? '',
+                commercialRef1Name: customer.commercialRef1Name ?? '',
+                commercialRef1Contact: customer.commercialRef1Contact ?? '',
+                commercialRef1Phone: customer.commercialRef1Phone ?? '',
+                commercialRef2Name: customer.commercialRef2Name ?? '',
+                commercialRef2Contact: customer.commercialRef2Contact ?? '',
+                commercialRef2Phone: customer.commercialRef2Phone ?? '',
+                observations: customer.observations ?? ''
+            });
         });
     }
 
@@ -264,19 +260,14 @@ export class CustomerDetail {
         operation$.pipe(
             finalize(() => this.loading.set(false)),
             takeUntilDestroyed(this.destroyRef)
-        ).subscribe((result:any) => {
-            if (result.success) {
-                const message = this.customerId() ? 'Cliente actualizado correctamente' : 'Cliente creado correctamente';
-                this.notificationService.success(message, 'OK');
+        ).subscribe((result: any) => {
+            const message = this.customerId() ? 'Cliente actualizado correctamente' : 'Cliente creado correctamente';
+            this.notificationService.success(message, 'OK');
 
-                // On create, navigate to edit mode with the new ID
-                if (!this.customerId() && result.data?.id) {
-                    this.router.navigate(['/app/clientes/detalle-cliente', result.data.id]);
-                }
-                // On edit, reload the updated data
-                else if (this.customerId()) {
-                    this.loadCustomer(this.customerId()!);
-                }
+            if (!this.customerId() && result?.id) {
+                this.router.navigate(['/app/clientes/detalle-cliente', result.id]);
+            } else if (this.customerId()) {
+                this.loadCustomer(this.customerId()!);
             }
         });
     }
