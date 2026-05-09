@@ -108,3 +108,28 @@
 .ai-btn-glow:hover {
     box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
 }
+
+/* Vista previa del pagaré: forzar tema claro sin importar el modo de la app */
+.promissory-preview,
+.promissory-preview * {
+    color: #1f2937 !important;
+    background-color: transparent !important;
+}
+
+.promissory-preview {
+    background-color: #ffffff !important;
+}
+
+.promissory-preview a {
+    color: #2563eb !important;
+}
+
+.promissory-preview table,
+.promissory-preview th,
+.promissory-preview td {
+    border-color: #d1d5db !important;
+}
+
+.promissory-preview th {
+    background-color: #f3f4f6 !important;
+}
