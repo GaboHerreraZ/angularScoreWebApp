@@ -35,7 +35,7 @@ export class PricingWidget {
     ctaLabelFn = (plan: PlanItem): string => {
         if (plan.price === 0) return 'Comenzar Gratis';
         const sorted = [...this.plans()].sort((a, b) => a.price - b.price);
-        if (sorted.length > 2 && sorted[sorted.length - 1]?.id === plan.id) return 'Contactar Ventas';
+        if (sorted.length > 2 && sorted[sorted.length - 1]?.id === plan.id) return 'Empezar Ahora';
         return 'Empezar Ahora';
     };
 
