@@ -49,12 +49,16 @@ export class SubscriptionPlansList {
         const popular = this.popularFn();
         const ctaLabel = this.ctaLabelFn();
         const ctaDisabled = this.ctaDisabledFn();
+        const hasCurrentPlan = this.showCurrentBadge() && sorted.some(p => p.isCurrent);
 
         return sorted.map((item, index) => {
             const isFree = item.price === 0;
             const hasDiscount = discount > 0 && !isFree;
             const displayPrice = hasDiscount ? Math.round(item.price * (1 - discount / 100)) : item.price;
-            const isPopular = popular ? popular(item) : sorted.length > 1 && index === Math.floor(sorted.length / 2);
+            const isPopular = hasCurrentPlan
+                ? false
+                : popular ? popular(item) : sorted.length > 1 && index === Math.floor(sorted.length / 2);
+            const isHighlighted = hasCurrentPlan ? !!item.isCurrent : isPopular;
 
             return {
                 ...item,
@@ -67,7 +71,7 @@ export class SubscriptionPlansList {
                 features: this.buildFeatures(item),
                 ctaLabel: ctaLabel(item),
                 ctaDisabled: ctaDisabled(item),
-                ctaOutlined: !isPopular
+                ctaOutlined: !isHighlighted
             };
         });
     });
