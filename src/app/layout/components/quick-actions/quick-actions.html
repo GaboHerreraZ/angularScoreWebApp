@@ -1,0 +1,13 @@
+@if (visible()) {
+    <div class="quick-actions-fab">
+        <p-speedDial
+            [model]="items()"
+            direction="up"
+            [transitionDelay]="60"
+            buttonClassName="p-button-primary"
+            showIcon="pi pi-plus"
+            hideIcon="pi pi-times"
+            [tooltipOptions]="{ tooltipPosition: 'left' }"
+        />
+    </div>
+}

@@ -1,0 +1,23 @@
+@if (hasAny()) {
+    <div class="recent-items-card">
+        <p class="recent-items-card__heading">Recientes</p>
+        <ul class="recent-items-card__list">
+            @if (customer(); as item) {
+                <li>
+                    <a [routerLink]="[item.route]" class="recent-items-card__item" [pTooltip]="item.label" tooltipPosition="right">
+                        <i class="pi pi-address-book"></i>
+                        <span class="truncate">{{ item.label }}</span>
+                    </a>
+                </li>
+            }
+            @if (creditStudy(); as item) {
+                <li>
+                    <a [routerLink]="[item.route]" class="recent-items-card__item" [pTooltip]="item.label" tooltipPosition="right">
+                        <i class="pi pi-credit-card"></i>
+                        <span class="truncate">{{ item.label }}</span>
+                    </a>
+                </li>
+            }
+        </ul>
+    </div>
+}

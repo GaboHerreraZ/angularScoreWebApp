@@ -208,7 +208,7 @@ export class StudyResult {
             takeUntilDestroyed(this.destroyRef)
         ).subscribe(data => {
             this.aiAnalysis.set(data);
-            this.notificationService.success('Analisis de IA generado exitosamente', 'IA');
+            this.notificationService.success('Análisis de IA generado exitosamente', 'IA');
         });
     }
 }

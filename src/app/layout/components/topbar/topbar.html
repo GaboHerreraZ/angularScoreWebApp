@@ -52,26 +52,42 @@
         </span>
         <div class="topbar-profile">
             <button class="topbar-profile-button" type="button" pStyleClass="@next" enterFromClass="hidden" enterActiveClass="animate-scalein" leaveToClass="hidden" leaveActiveClass="animate-fadeout" [hideOnOutsideClick]="true">
-                <p-avatar [label]="(user?.name?.charAt(0) || 'U') + (user?.name?.charAt(0) || '')" size="large" shape="circle" styleClass="text-lg mr-2 font-semibold bg-primary text-primary-contrast" />
+                <p-avatar [label]="userInitials()" size="large" shape="circle" styleClass="text-lg mr-2 font-semibold bg-primary text-primary-contrast" />
 
                 <span class="profile-details">
-                    <span class="profile-name">{{user?.name}}</span>
-                    <span class="profile-job">{{user?.role}}</span>
+                    <span class="profile-name">{{user()?.name}} {{user()?.lastName}}</span>
+                    <span class="profile-job">{{user()?.roleName || user()?.role}}</span>
                 </span>
                 <i class="pi pi-angle-down"></i>
             </button>
-            <ul class="list-none hidden p-2 sm:p-4 m-0 rounded-border shadow absolute bg-surface-0 dark:bg-surface-900 origin-top w-48 mt-2 right-0 top-auto">
-                <li class="flex items-start flex-col">
-                    <a pRipple routerLink="/app/administracion" class="flex p-2 rounded-border w-full items-center hover:bg-emphasis transition-colors duration-150 cursor-pointer">
-                        <i class="pi pi-briefcase mr-4"></i>
-                        <span>Administración</span>
+            <div class="profile-dropdown list-none hidden m-0 rounded-border shadow-lg absolute bg-surface-0 dark:bg-surface-900 origin-top w-72 mt-2 right-0 top-auto border border-surface-200 dark:border-surface-700 overflow-hidden">
+                <div class="flex items-center gap-3 p-4 border-b border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-800/50">
+                    <p-avatar [label]="userInitials()" size="large" shape="circle" styleClass="text-base font-semibold bg-primary text-primary-contrast shrink-0" />
+                    <div class="min-w-0 flex-1">
+                        <p class="text-sm font-semibold text-surface-800 dark:text-surface-100 truncate">{{ user()?.name }} {{ user()?.lastName }}</p>
+                        <p class="text-xs text-surface-500 truncate">{{ user()?.email }}</p>
+                        @if (user()?.companyName) {
+                            <p class="text-xs text-surface-400 truncate mt-0.5">
+                                <i class="pi pi-building text-[10px] mr-1"></i>{{ user()?.companyName }}
+                            </p>
+                        }
+                    </div>
+                </div>
+                <ul class="list-none m-0 p-2">
+                    <li>
+                        <a pRipple routerLink="/app/administracion" class="flex p-2 rounded-border w-full items-center hover:bg-emphasis transition-colors duration-150 cursor-pointer text-sm">
+                            <i class="pi pi-briefcase mr-3 text-surface-500"></i>
+                            <span>Administración</span>
+                        </a>
+                    </li>
+                </ul>
+                <div class="border-t border-surface-200 dark:border-surface-700 p-2">
+                    <a pRipple (click)="logout()" class="flex p-2 rounded-border w-full items-center hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 transition-colors duration-150 cursor-pointer text-sm">
+                        <i class="pi pi-sign-out mr-3"></i>
+                        <span>Cerrar sesión</span>
                     </a>
-                    <a pRipple (click)="logout()" class="flex p-2 rounded-border w-full items-center hover:bg-emphasis transition-colors duration-150 cursor-pointer">
-                        <i class="pi pi-power-off mr-4"></i>
-                        <span>Cerrar Sesión</span>
-                    </a>
-                </li>
-            </ul>
+                </div>
+            </div>
         </div>
     </div>
 </div>

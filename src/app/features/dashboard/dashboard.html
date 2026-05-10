@@ -1,10 +1,21 @@
 <div class="flex flex-col gap-6 p-4">
     <!-- Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+    <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
         <div>
-            <h1 class="text-2xl font-bold text-surface-800 dark:text-surface-100">Dashboard</h1>
-            <p class="text-surface-500 text-sm mt-1">Resumen de actividad de la empresa</p>
+            <h1 class="text-2xl font-bold text-surface-800 dark:text-surface-100">
+                {{ greeting() }}@if (userFirstName()) {, {{ userFirstName() }}}
+            </h1>
+            <p class="text-surface-500 text-sm mt-1 capitalize">{{ formattedDate() }}</p>
         </div>
+        @if (lastUpdatedLabel(); as updated) {
+            <div class="flex items-center gap-2 text-xs text-surface-500">
+                <span class="inline-flex items-center gap-1.5">
+                    <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                    Actualizado {{ updated }}
+                </span>
+                <p-button icon="pi pi-refresh" rounded text size="small" severity="secondary" (onClick)="refresh()" pTooltip="Actualizar" tooltipPosition="bottom" [loading]="loading()" />
+            </div>
+        }
     </div>
 
     @if (loading()) {
@@ -32,94 +43,59 @@
              SECCIÓN 1 — KPI Cards: Resumen General
         ════════════════════════════════════════════════════════════ -->
     <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-        <p-card styleClass="h-full">
-            <div class="flex items-center gap-3">
-                <div class="flex items-center justify-center w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-900/30">
-                    <i class="pi pi-users text-blue-600 dark:text-blue-400 text-xl"></i>
-                </div>
-                <div>
-                    <p class="text-surface-500 text-sm">Total clientes</p>
-                    <p class="text-2xl font-bold text-surface-800 dark:text-surface-100">{{ d.summary.totalCustomers }}</p>
-                </div>
-            </div>
-        </p-card>
-
-        <p-card styleClass="h-full">
-            <div class="flex items-center gap-3">
-                <div class="flex items-center justify-center w-12 h-12 rounded-xl bg-purple-100 dark:bg-purple-900/30">
-                    <i class="pi pi-file-edit text-purple-600 dark:text-purple-400 text-xl"></i>
-                </div>
-                <div>
-                    <p class="text-surface-500 text-sm">Total estudios</p>
-                    <p class="text-2xl font-bold text-surface-800 dark:text-surface-100">{{ d.summary.totalStudies }}</p>
-                </div>
-            </div>
-        </p-card>
-
-        <p-card styleClass="h-full">
-            <div class="flex items-center gap-3">
-                <div class="flex items-center justify-center w-12 h-12 rounded-xl bg-green-100 dark:bg-green-900/30">
-                    <i class="pi pi-calendar text-green-600 dark:text-green-400 text-xl"></i>
-                </div>
-                <div>
-                    <p class="text-surface-500 text-sm">Estudios este mes</p>
-                    <p class="text-2xl font-bold text-surface-800 dark:text-surface-100">{{ d.summary.studiesThisMonth }}</p>
-                </div>
-            </div>
-        </p-card>
-
-        <p-card styleClass="h-full">
-            <div class="flex items-center gap-3">
-                <div class="flex items-center justify-center w-12 h-12 rounded-xl bg-orange-100 dark:bg-orange-900/30">
-                    <i class="pi pi-user-plus text-orange-600 dark:text-orange-400 text-xl"></i>
-                </div>
-                <div>
-                    <p class="text-surface-500 text-sm">Usuarios activos</p>
-                    <p class="text-2xl font-bold text-surface-800 dark:text-surface-100">{{ d.summary.activeUsers }}</p>
-                </div>
-            </div>
-        </p-card>
+        <app-kpi-card
+            label="Total clientes"
+            icon="pi pi-users text-blue-600 dark:text-blue-400"
+            color="bg-blue-100 dark:bg-blue-900/30"
+            [kpi]="d.summary.totalCustomers"
+        />
+        <app-kpi-card
+            label="Total estudios"
+            icon="pi pi-file-edit text-purple-600 dark:text-purple-400"
+            color="bg-purple-100 dark:bg-purple-900/30"
+            [kpi]="d.summary.totalStudies"
+        />
+        <app-kpi-card
+            label="Estudios este mes"
+            icon="pi pi-calendar text-green-600 dark:text-green-400"
+            color="bg-green-100 dark:bg-green-900/30"
+            [kpi]="d.summary.studiesThisMonth"
+        />
+        <app-kpi-card
+            label="Usuarios activos"
+            icon="pi pi-user-plus text-orange-600 dark:text-orange-400"
+            color="bg-orange-100 dark:bg-orange-900/30"
+            [kpi]="d.summary.activeUsers"
+        />
     </div>
 
     <!-- ══════════════════════════════════════════════════════════
              SECCIÓN 4 — KPI Cards: Totales de Cupo
         ════════════════════════════════════════════════════════════ -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <p-card styleClass="h-full">
-            <div class="flex items-center gap-3">
-                <div class="flex items-center justify-center w-12 h-12 rounded-xl bg-teal-100 dark:bg-teal-900/30">
-                    <i class="pi pi-dollar text-teal-600 dark:text-teal-400 text-xl"></i>
-                </div>
-                <div>
-                    <p class="text-surface-500 text-sm">Cupo total solicitado (mes)</p>
-                    <p class="text-xl font-bold text-surface-800 dark:text-surface-100">{{ d.creditSummary.totalRequestedThisMonth | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</p>
-                </div>
-            </div>
-        </p-card>
-
-        <p-card styleClass="h-full">
-            <div class="flex items-center gap-3">
-                <div class="flex items-center justify-center w-12 h-12 rounded-xl bg-cyan-100 dark:bg-cyan-900/30">
-                    <i class="pi pi-chart-bar text-cyan-600 dark:text-cyan-400 text-xl"></i>
-                </div>
-                <div>
-                    <p class="text-surface-500 text-sm">Cupo promedio (mes)</p>
-                    <p class="text-xl font-bold text-surface-800 dark:text-surface-100">{{ d.creditSummary.avgRequestedThisMonth | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</p>
-                </div>
-            </div>
-        </p-card>
-
-        <p-card styleClass="h-full">
-            <div class="flex items-center gap-3">
-                <div class="flex items-center justify-center w-12 h-12 rounded-xl bg-pink-100 dark:bg-pink-900/30">
-                    <i class="pi pi-clock text-pink-600 dark:text-pink-400 text-xl"></i>
-                </div>
-                <div>
-                    <p class="text-surface-500 text-sm">Plazo promedio</p>
-                    <p class="text-2xl font-bold text-surface-800 dark:text-surface-100">{{ d.creditSummary.avgRequestedTerm }} <span class="text-sm font-normal text-surface-500">meses</span></p>
-                </div>
-            </div>
-        </p-card>
+        <app-kpi-card
+            label="Cupo total solicitado (mes)"
+            icon="pi pi-dollar text-teal-600 dark:text-teal-400"
+            color="bg-teal-100 dark:bg-teal-900/30"
+            [kpi]="d.creditSummary.totalRequestedThisMonth"
+            [formattedValue]="formatCurrency(d.creditSummary.totalRequestedThisMonth.value)"
+            [formattedPrevious]="formatCurrency(d.creditSummary.totalRequestedThisMonth.previous)"
+        />
+        <app-kpi-card
+            label="Cupo promedio (mes)"
+            icon="pi pi-chart-bar text-cyan-600 dark:text-cyan-400"
+            color="bg-cyan-100 dark:bg-cyan-900/30"
+            [kpi]="d.creditSummary.avgRequestedThisMonth"
+            [formattedValue]="formatCurrency(d.creditSummary.avgRequestedThisMonth.value)"
+            [formattedPrevious]="formatCurrency(d.creditSummary.avgRequestedThisMonth.previous)"
+        />
+        <app-kpi-card
+            label="Plazo promedio"
+            icon="pi pi-clock text-pink-600 dark:text-pink-400"
+            color="bg-pink-100 dark:bg-pink-900/30"
+            [kpi]="d.creditSummary.avgRequestedTerm"
+            suffix="meses"
+        />
     </div>
 
     <!-- ══════════════════════════════════════════════════════════
@@ -209,53 +185,40 @@
 
     <!-- KPIs Financieros -->
     <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-        <p-card styleClass="h-full">
-            <div class="flex items-center gap-3">
-                <div class="flex items-center justify-center w-12 h-12 rounded-xl bg-emerald-100 dark:bg-emerald-900/30">
-                    <i class="pi pi-chart-line text-emerald-600 dark:text-emerald-400 text-xl"></i>
-                </div>
-                <div>
-                    <p class="text-surface-500 text-sm">EBITDA promedio</p>
-                    <p class="text-lg font-bold text-surface-800 dark:text-surface-100">{{ formatCompactCurrency(adv.financialIndicators.avgEbitda) }}</p>
-                </div>
-            </div>
-        </p-card>
-
-        <p-card styleClass="h-full">
-            <div class="flex items-center gap-3">
-                <div class="flex items-center justify-center w-12 h-12 rounded-xl bg-violet-100 dark:bg-violet-900/30">
-                    <i class="pi pi-wallet text-violet-600 dark:text-violet-400 text-xl"></i>
-                </div>
-                <div>
-                    <p class="text-surface-500 text-sm">Cap. pago mensual prom.</p>
-                    <p class="text-lg font-bold text-surface-800 dark:text-surface-100">{{ formatCompactCurrency(adv.financialIndicators.avgMonthlyPaymentCapacity) }}</p>
-                </div>
-            </div>
-        </p-card>
-
-        <p-card styleClass="h-full">
-            <div class="flex items-center gap-3">
-                <div class="flex items-center justify-center w-12 h-12 rounded-xl bg-amber-100 dark:bg-amber-900/30">
-                    <i class="pi pi-shield text-amber-600 dark:text-amber-400 text-xl"></i>
-                </div>
-                <div>
-                    <p class="text-surface-500 text-sm">Factor estabilidad prom.</p>
-                    <p class="text-2xl font-bold text-surface-800 dark:text-surface-100">{{ adv.financialIndicators.avgStabilityFactor | number:'1.2-2' }}</p>
-                </div>
-            </div>
-        </p-card>
-
-        <p-card styleClass="h-full">
-            <div class="flex items-center gap-3">
-                <div class="flex items-center justify-center w-12 h-12 rounded-xl bg-rose-100 dark:bg-rose-900/30">
-                    <i class="pi pi-calendar-times text-rose-600 dark:text-rose-400 text-xl"></i>
-                </div>
-                <div>
-                    <p class="text-surface-500 text-sm">Plazo máx. pago prom.</p>
-                    <p class="text-2xl font-bold text-surface-800 dark:text-surface-100">{{ floor(adv.financialIndicators.avgMaxPaymentTime) }} <span class="text-sm font-normal text-surface-500">días</span></p>
-                </div>
-            </div>
-        </p-card>
+        <app-kpi-card
+            label="EBITDA promedio"
+            icon="pi pi-chart-line text-emerald-600 dark:text-emerald-400"
+            color="bg-emerald-100 dark:bg-emerald-900/30"
+            [kpi]="adv.financialIndicators.avgEbitda"
+            [formattedValue]="formatCompactCurrency(adv.financialIndicators.avgEbitda.value)"
+            [formattedPrevious]="formatCompactCurrency(adv.financialIndicators.avgEbitda.previous)"
+        />
+        <app-kpi-card
+            label="Cap. pago mensual prom."
+            icon="pi pi-wallet text-violet-600 dark:text-violet-400"
+            color="bg-violet-100 dark:bg-violet-900/30"
+            [kpi]="adv.financialIndicators.avgMonthlyPaymentCapacity"
+            [formattedValue]="formatCompactCurrency(adv.financialIndicators.avgMonthlyPaymentCapacity.value)"
+            [formattedPrevious]="formatCompactCurrency(adv.financialIndicators.avgMonthlyPaymentCapacity.previous)"
+        />
+        <app-kpi-card
+            label="Factor estabilidad prom."
+            icon="pi pi-shield text-amber-600 dark:text-amber-400"
+            color="bg-amber-100 dark:bg-amber-900/30"
+            [kpi]="adv.financialIndicators.avgStabilityFactor"
+            [formattedValue]="(adv.financialIndicators.avgStabilityFactor.value | number:'1.2-2') ?? ''"
+            [formattedPrevious]="(adv.financialIndicators.avgStabilityFactor.previous | number:'1.2-2') ?? ''"
+        />
+        <app-kpi-card
+            label="Plazo pago a proveedores"
+            icon="pi pi-calendar-times text-rose-600 dark:text-rose-400"
+            color="bg-rose-100 dark:bg-rose-900/30"
+            [kpi]="adv.financialIndicators.avgPaymentTimeSuppliers"
+            [formattedValue]="floor(adv.financialIndicators.avgPaymentTimeSuppliers.value).toString()"
+            [formattedPrevious]="floor(adv.financialIndicators.avgPaymentTimeSuppliers.previous).toString()"
+            suffix="días"
+            [invertTrend]="true"
+        />
     </div>
 
     <!-- Distribución estabilidad + Evolución cap. pago -->
@@ -352,7 +315,7 @@
                     </div>
                     <div class="mt-1 text-xs text-surface-400">
                         Deuda/Patrimonio:
-                        <span class="font-semibold text-surface-600 dark:text-surface-300">{{ adv.avgDebtStructure.debtToEquityRatio | number:'1.2-2' }}x</span>
+                        <span class="font-semibold text-surface-600 dark:text-surface-300">{{ adv.avgDebtStructure.debtToEquityRatio.value | number:'1.2-2' }}x</span>
                     </div>
                 </div>
             </ng-template>

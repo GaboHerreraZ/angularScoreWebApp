@@ -37,7 +37,15 @@ export class Topbar {
 
     notificationCenterService = inject(NotificationCenterService);
 
-    user = this.authService.currentProfile();
+    user = computed(() => this.authService.currentProfile());
+
+    userInitials = computed(() => {
+        const profile = this.authService.currentProfile();
+        const first = profile?.name?.trim().charAt(0) ?? '';
+        const last = profile?.lastName?.trim().charAt(0) ?? '';
+        const initials = (first + last).toUpperCase();
+        return initials || 'U';
+    });
 
     logo = computed(() => '/logo/creditia-isotype.svg');
 

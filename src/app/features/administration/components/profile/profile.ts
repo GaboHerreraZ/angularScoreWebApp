@@ -1,4 +1,4 @@
-import { Component, DestroyRef, effect, inject, signal } from '@angular/core';
+import { Component, computed, DestroyRef, effect, inject, signal } from '@angular/core';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
@@ -50,6 +50,7 @@ export class Profile {
 
     saving = signal(false);
     isEditing = signal(false);
+    loadingProfile = computed(() => !this.profile());
 
     constructor() {
         effect(() => {
@@ -119,7 +120,7 @@ export class Profile {
             next: (updatedProfile) => {
                 this.authService.updateCurrentProfile(updatedProfile);
                 this.form.markAsPristine();
-                this.notificationService.success('Perfil Actualizado Correctamente', 'Ok');
+                this.notificationService.success('Perfil actualizado correctamente');
             }
         });
     }
@@ -143,7 +144,7 @@ export class Profile {
                 this.authService.currentProfile.set(createdProfile);
                 this.isEditing.set(true);
                 this.form.markAsPristine();
-                this.notificationService.success('Perfil Guardado Correctamente', 'Ok');
+                this.notificationService.success('Perfil guardado correctamente');
             }
         });
     }

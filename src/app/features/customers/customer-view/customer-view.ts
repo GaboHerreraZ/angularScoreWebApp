@@ -10,6 +10,7 @@ import { SkeletonModule } from 'primeng/skeleton';
 import { TagModule } from 'primeng/tag';
 import { CustomersService } from '../customers.service';
 import { Customer } from '@/app/types/customer';
+import { RecentItemsService } from '@/app/shared/services/recent-items.service';
 
 @Component({
     selector: 'app-customer-view',
@@ -22,6 +23,7 @@ export class CustomerView {
     private route = inject(ActivatedRoute);
     private destroyRef = inject(DestroyRef);
     private customersService = inject(CustomersService);
+    private recentItemsService = inject(RecentItemsService);
 
     customerId = toSignal(
         this.route.params.pipe(map(params => params['id']))
@@ -64,6 +66,9 @@ export class CustomerView {
             takeUntilDestroyed(this.destroyRef)
         ).subscribe(customer => {
             this.customer.set(customer);
+            if (customer?.id && customer.businessName) {
+                this.recentItemsService.setCustomer(String(customer.id), customer.businessName);
+            }
         });
     }
 

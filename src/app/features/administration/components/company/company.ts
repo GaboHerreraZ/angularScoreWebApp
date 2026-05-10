@@ -239,7 +239,7 @@ export class Company {
                 takeUntilDestroyed(this.destroyRef)
             ).subscribe((updated) => {
                 this.logoPreview.set(updated.logoSignedUrl);
-                this.notificationService.success('Logo actualizado correctamente', 'Ok');
+                this.notificationService.success('Logo actualizado correctamente');
             });
         };
 
@@ -281,7 +281,7 @@ export class Company {
             next: () => {
                 this.form.markAsPristine();
                 this.billingForm.markAsPristine();
-                this.notificationService.success('Empresa Actualizada Correctamente', 'Ok');
+                this.notificationService.success('Empresa actualizada correctamente');
             }
         });
     }
@@ -386,7 +386,7 @@ export class Company {
             finalize(() => this.inviting.set(false)),
             takeUntilDestroyed(this.destroyRef)
         ).subscribe(() => {
-            this.notificationService.success('Invitación enviada correctamente', 'Ok');
+            this.notificationService.success('Invitación enviada correctamente');
             this.inviteDialogVisible.set(false);
             this.companyResource.reload();
             this.invitationsResource.reload();

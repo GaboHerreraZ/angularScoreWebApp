@@ -193,6 +193,9 @@
         border-radius: var(--border-radius);
         position: relative;
         flex-shrink: 0;
+        margin-left: 1rem;
+        padding-left: 1rem;
+        border-left: 1px solid var(--p-content-border-color);
 
         .topbar-profile-button {
             display: flex;

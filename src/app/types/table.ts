@@ -45,6 +45,15 @@ export interface TableActionEvent {
     row: any;
 }
 
+export interface TableEmptyState {
+    icon?: string;
+    title?: string;
+    description?: string;
+    actionLabel?: string;
+    actionIcon?: string;
+    actionSeverity?: 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast';
+}
+
 export interface TableSettings {
     columns: TableColumn[];
     dataKey?: string;
@@ -54,6 +63,7 @@ export interface TableSettings {
     rowHover?: boolean;
     searchPlaceholder?: string;
     emptyMessage?: string;
+    emptyState?: TableEmptyState;
     loadingMessage?: string;
     title?: string;
     titleIcon?: string;

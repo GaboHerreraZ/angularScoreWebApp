@@ -22,7 +22,6 @@ import { SkeletonModule } from 'primeng/skeleton';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DialogModule } from 'primeng/dialog';
 import { TableModule } from 'primeng/table';
-import { ConfirmationService } from 'primeng/api';
 import { CreditStudyService } from '../credit-study.service';
 import { CreateCreditStudy, ExtractedFinancialData } from '@/app/types/credit-study';
 import { NotificationService } from '@/app/shared/components/notification/notification.service';
@@ -32,6 +31,9 @@ import { AutoCompleteOption } from '@/app/shared/components/auto-complete/auto-c
 import { ParameterService } from '@/app/core/services/parameter.service';
 import { Parameter } from '@/app/types/parameter';
 import { AuthService } from '@/app/core/services/auth.service';
+import { HelpTooltip } from '@/app/shared/components/help-tooltip/help-tooltip';
+import { ConfirmService, provideConfirm } from '@/app/shared/services/confirm.service';
+import { RecentItemsService } from '@/app/shared/services/recent-items.service';
 
 @Component({
     selector: 'app-credit-study-detail',
@@ -57,9 +59,10 @@ import { AuthService } from '@/app/core/services/auth.service';
         DialogModule,
         TableModule,
         AutoCompleteComponent,
-        StudyResult
+        StudyResult,
+        HelpTooltip
     ],
-    providers: [ConfirmationService],
+    providers: [provideConfirm()],
     templateUrl: './credit-study-detail.html'
 })
 export class CreditStudyDetail  {
@@ -69,7 +72,8 @@ export class CreditStudyDetail  {
     private creditStudyService = inject(CreditStudyService);
     private notificationService = inject(NotificationService);
     private parameterService = inject(ParameterService);
-    private confirmationService = inject(ConfirmationService);
+    private confirmService = inject(ConfirmService);
+    private recentItemsService = inject(RecentItemsService);
     private sanitizer = inject(DomSanitizer);
 
     private authService = inject(AuthService);
@@ -283,6 +287,11 @@ export class CreditStudyDetail  {
         ).subscribe((creditStudy) => {
             this.customerIdSignal.set(creditStudy.customerId);
 
+            const businessName = (creditStudy as any).customer?.businessName ?? '';
+            if (creditStudy.id && businessName) {
+                this.recentItemsService.setCreditStudy(String(creditStudy.id), `Estudio · ${businessName}`);
+            }
+
             const period = this.periods()?.find(p => p.id === creditStudy.incomeStatementId);
 
             this.step1Form.patchValue({
@@ -427,7 +436,7 @@ export class CreditStudyDetail  {
             const message = this.creditStudyId()
                 ? 'Estudio de crédito actualizado correctamente'
                 : 'Estudio de crédito creado correctamente';
-            this.notificationService.success(message, 'OK');
+            this.notificationService.success(message);
 
             if (!this.creditStudyId() && result?.id) {
                 const fromCustomerId = this.queryCustomerId();
@@ -447,18 +456,16 @@ export class CreditStudyDetail  {
     }
 
     onUploadFinancialStatements(): void {
-        this.confirmationService.confirm({
+        this.confirmService.confirm({
+            title: 'Cargar Estados Financieros',
             message: `Para una extracción exitosa, el archivo debe cumplir con las siguientes condiciones:\n\n` +
                 `- Formato PDF\n` +
                 `- Peso máximo de ${this.MAX_PDF_SIZE_MB} MB\n` +
                 `- Debe ser un documento digital legible (no se aceptan copias escaneadas, fotografías ni capturas de pantalla)`,
-            header: 'Cargar Estados Financieros',
+            kind: 'info',
             icon: 'pi pi-file-pdf',
             acceptLabel: 'Proceder',
-            rejectLabel: 'Cancelar',
-            acceptButtonStyleClass: 'p-button-info',
-            rejectButtonStyleClass: 'p-button-secondary p-button-outlined',
-            accept: () => this.openFileSelector()
+            onAccept: () => this.openFileSelector()
         });
     }
 
@@ -563,22 +570,19 @@ export class CreditStudyDetail  {
             return;
         }
 
-        this.confirmationService.confirm({
+        this.confirmService.confirm({
+            title: 'Confirmar Estudio',
             message: '¿Está seguro de que desea iniciar el proceso de estudio de crédito? Esta acción no se puede deshacer.',
-            header: 'Confirmar Estudio',
-            icon: 'pi pi-exclamation-triangle',
+            kind: 'warn',
             acceptLabel: 'Sí, realizar estudio',
-            rejectLabel: 'Cancelar',
-            acceptButtonStyleClass: 'p-button-success',
-            rejectButtonStyleClass: 'p-button-secondary p-button-outlined',
-            accept: () => {
+            onAccept: () => {
                 this.performingStudy.set(true);
 
                 this.creditStudyService.performCreditStudy(this.creditStudyId()!).pipe(
                     finalize(() => this.performingStudy.set(false)),
                     takeUntilDestroyed(this.destroyRef)
                 ).subscribe((data: any) => {
-                    this.notificationService.success('Estudio de crédito realizado exitosamente', 'Éxito');
+                    this.notificationService.success('Estudio de crédito realizado exitosamente');
                     this.studyResult.set(data);
                     this.studyCompleted.set(true);
                     setTimeout(() => activateCallback(4), 300);
@@ -609,22 +613,20 @@ export class CreditStudyDetail  {
         const note = this.latestPromissoryNote();
         if (!note) return;
 
-        this.confirmationService.confirm({
+        this.confirmService.confirm({
+            title: 'Cancelar Firma del Pagaré',
             message: '¿Está seguro de que desea cancelar la firma del pagaré? El documento dejará de estar disponible para el cliente.',
-            header: 'Cancelar Firma del Pagaré',
-            icon: 'pi pi-exclamation-triangle',
+            kind: 'danger',
             acceptLabel: 'Sí, cancelar firma',
             rejectLabel: 'Volver',
-            acceptButtonStyleClass: 'p-button-danger',
-            rejectButtonStyleClass: 'p-button-secondary p-button-outlined',
-            accept: () => {
+            onAccept: () => {
                 this.decliningSignature.set(true);
 
                 this.creditStudyService.declinePromissoryNote(note.id).pipe(
                     finalize(() => this.decliningSignature.set(false)),
                     takeUntilDestroyed(this.destroyRef)
                 ).subscribe(() => {
-                    this.notificationService.success('La firma del pagaré ha sido cancelada.', 'Éxito');
+                    this.notificationService.success('La firma del pagaré ha sido cancelada.');
                     this.loadCreditStudy(this.creditStudyId()!);
                 });
             }
@@ -646,8 +648,7 @@ export class CreditStudyDetail  {
         ).subscribe({
             next: () => {
                 this.notificationService.success(
-                    'Crédito aprobado. Se ha enviado el pagaré al cliente para su firma.',
-                    'Éxito'
+                    'Crédito aprobado. Se ha enviado el pagaré al cliente para su firma.'
                 );
                 this.loadCreditStudy(this.creditStudyId()!);
             },
