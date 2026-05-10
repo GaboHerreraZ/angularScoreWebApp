@@ -5,7 +5,6 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { MessageModule } from 'primeng/message';
 import { CardModule } from 'primeng/card';
-import { Configurator } from '@/app/layout/components/configurator/configurator';
 import { SupabaseService } from '@/app/core/services/supabase.service';
 import { AuthService } from '@/app/core/services/auth.service';
 import { NotificationService } from '@/app/shared/components/notification/notification.service';
@@ -28,7 +27,6 @@ import { PasswordModule } from 'primeng/password';
         InputTextModule,
         MessageModule,
         CardModule,
-        Configurator,
         FloatLabelModule,
         PasswordModule,
         Notification
