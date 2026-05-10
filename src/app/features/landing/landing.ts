@@ -8,6 +8,7 @@ import { DialogModule } from 'primeng/dialog';
 import { SupabaseService } from '@/app/core/services/supabase.service';
 import { HeaderWidget } from './components/header-widget/header-widget';
 import { HeroWidget } from './components/hero-widget/hero-widget';
+import { OverviewWidget } from './components/overview-widget/overview-widget';
 import { StatsWidget } from './components/stats-widget/stats-widget';
 import { FeaturesWidget } from './components/features-widget/features-widget';
 import { SecurityWidget } from './components/security-widget/security-widget';
@@ -20,7 +21,7 @@ import { FooterWidget } from './components/footer-widget/footer-widget';
 @Component({
     selector: 'app-landing',
     standalone: true,
-    imports: [RouterModule, RippleModule, StyleClassModule, ButtonModule, DividerModule, DialogModule, HeaderWidget, HeroWidget, StatsWidget, FeaturesWidget, MethodologyWidget, SecurityWidget, JoinWidget, PricingWidget, FaqWidget, FooterWidget],
+    imports: [RouterModule, RippleModule, StyleClassModule, ButtonModule, DividerModule, DialogModule, HeaderWidget, HeroWidget, OverviewWidget, StatsWidget, FeaturesWidget, MethodologyWidget, SecurityWidget, JoinWidget, PricingWidget, FaqWidget, FooterWidget],
     templateUrl: './landing.html'
 })
 export class Landing {

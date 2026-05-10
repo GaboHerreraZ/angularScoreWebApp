@@ -1,4 +1,4 @@
-import { Component, computed, DestroyRef, inject, resource, signal } from '@angular/core';
+import { Component, computed, DestroyRef, effect, inject, resource, signal } from '@angular/core';
 import { DecimalPipe, NgClass } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
@@ -10,11 +10,21 @@ import { ProgressBarModule } from 'primeng/progressbar';
 import { SkeletonModule } from 'primeng/skeleton';
 import { TooltipModule } from 'primeng/tooltip';
 import { DialogModule } from 'primeng/dialog';
+import { CheckboxModule } from 'primeng/checkbox';
+import { FormsModule } from '@angular/forms';
 import { CompanyService } from '../company/company.service';
 import { AuthService } from '@/app/core/services/auth.service';
-import { PlanItem, SubscriptionDetails } from '@/app/types/subscription';
+import { ChangePlanRequest, PlanItem, SubscriptionDetails } from '@/app/types/subscription';
+import { Company as CompanyModel } from '@/app/types/company';
+import { Parameter } from '@/app/types/parameter';
 import { SubscriptionPlansList } from '@/app/shared/components/subscription-plans-list/subscription-plans-list';
 import { CustomTable } from '@/app/shared/components/table/table';
+import { CardForm } from '@/app/shared/components/card-form/card-form';
+import { buildCardForm } from '@/app/shared/components/card-form/card-form.builder';
+import { BillingForm } from '@/app/shared/components/billing-form/billing-form';
+import { buildBillingForm } from '@/app/shared/components/billing-form/billing-form.builder';
+import { ParameterService } from '@/app/core/services/parameter.service';
+import { detectCardType, getCardBrand } from '@/app/shared/validators/card.validators';
 import { TableSettings } from '@/app/types/table';
 
 @Component({
@@ -23,6 +33,7 @@ import { TableSettings } from '@/app/types/table';
     imports: [
         DecimalPipe,
         NgClass,
+        FormsModule,
         ButtonModule,
         CardModule,
         TagModule,
@@ -30,8 +41,11 @@ import { TableSettings } from '@/app/types/table';
         SkeletonModule,
         TooltipModule,
         DialogModule,
+        CheckboxModule,
         SubscriptionPlansList,
-        CustomTable
+        CustomTable,
+        CardForm,
+        BillingForm
     ],
     templateUrl: './plan-billing.html'
 })
@@ -40,6 +54,7 @@ export class PlanBilling {
     private router = inject(Router);
     private companyService = inject(CompanyService);
     private authService = inject(AuthService);
+    private parameterService = inject(ParameterService);
 
     private companyId = computed(() => {
         const profile = this.authService.currentProfile();
@@ -123,18 +138,15 @@ export class PlanBilling {
         return labels[level] ?? level;
     }
 
-    onUpgrade(plan: PlanItem): void {
-        console.log('Upgrade to plan:', plan.id, plan.name);
-    }
+    // ==================== Cancel subscription ====================
 
     cancelDialogVisible = signal(false);
     cancellingSubscription = signal(false);
     cancellationComplete = signal(false);
 
     isPaidPlan = computed(() => {
-        const profile = this.authService.currentProfile();
-
-        return !profile?.isFreeSubscription;
+        const name = this.subscriptionUsage()?.subscription?.name?.toLowerCase() ?? '';
+        return !!name && name !== 'free';
     });
 
     onOpenCancelDialog(): void {
@@ -163,5 +175,167 @@ export class PlanBilling {
         }
         this.detailsResource.reload();
         this.router.navigate(['/app/panel']);
+    }
+
+    // ==================== Change plan ====================
+
+    changePlanDialogVisible = signal(false);
+    selectedNewPlan = signal<PlanItem | null>(null);
+    changingPlan = signal(false);
+    changeComplete = signal(false);
+    loadingCompany = signal(false);
+
+    currentCompany = signal<CompanyModel | null>(null);
+
+    replaceCard = signal(false);
+    replaceBilling = signal(false);
+
+    cardForm = buildCardForm(() => detectCardType(this.cardForm.get('cardNumber')?.value ?? ''));
+    cardBrand = computed(() => getCardBrand(detectCardType(this.cardForm.get('cardNumber')?.value ?? '')));
+
+    billingForm = buildBillingForm();
+    pendingBillingStateName = signal<string | null>(null);
+    pendingBillingCityName = signal<string | null>(null);
+
+    currentPlan = computed(() => this.subscriptionUsage()?.subscription ?? null);
+
+    isFreePlanSelected = computed(() => (this.selectedNewPlan()?.price ?? 0) === 0);
+
+    constructor() {
+        // Toggle billing form disabled state based on replaceBilling
+        effect(() => {
+            const replace = this.replaceBilling();
+            if (replace) {
+                this.billingForm.enable({ emitEvent: false });
+            } else {
+                this.billingForm.disable({ emitEvent: false });
+            }
+        });
+
+        // Toggle card form disabled state based on replaceCard
+        effect(() => {
+            const replace = this.replaceCard();
+            if (replace) {
+                this.cardForm.enable({ emitEvent: false });
+            } else {
+                this.cardForm.disable({ emitEvent: false });
+            }
+        });
+    }
+
+    onUpgrade(plan: PlanItem): void {
+        this.selectedNewPlan.set(plan);
+        this.replaceCard.set(false);
+        this.replaceBilling.set(false);
+        this.changeComplete.set(false);
+        this.cardForm.reset();
+        this.billingForm.reset();
+
+        const companyId = this.companyId();
+        if (!companyId) return;
+
+        this.loadingCompany.set(true);
+        this.companyService.getCompanyByUser(this.authService.currentProfile()!.id).pipe(
+            finalize(() => this.loadingCompany.set(false)),
+            takeUntilDestroyed(this.destroyRef)
+        ).subscribe(companies => {
+            const company = companies?.[0] ?? null;
+            this.currentCompany.set(company);
+            if (company) {
+                this.prefillBillingFromCompany(company);
+            }
+            this.changePlanDialogVisible.set(true);
+        });
+    }
+
+    private prefillBillingFromCompany(company: CompanyModel): void {
+        firstValueFrom(this.parameterService.getByType('identification_type')).then((idTypes: Parameter[]) => {
+            const docType = idTypes.find(t => t.id === company.billingDocTypeId) ?? null;
+
+            this.pendingBillingStateName.set(company.billingState ?? null);
+            this.pendingBillingCityName.set(company.billingCity ?? null);
+
+            this.billingForm.patchValue({
+                billingName: company.billingName ?? '',
+                billingLastName: company.billingLastName ?? '',
+                billingDocType: docType,
+                billingDocNumber: company.billingDocNumber ?? '',
+                billingEmail: company.billingEmail ?? '',
+                billingAddress: company.billingAddress ?? '',
+                billingPhone: company.billingPhone ?? ''
+            });
+        });
+    }
+
+    canConfirmChange = computed(() => {
+        if (this.changingPlan()) return false;
+        if (this.isFreePlanSelected()) return true;
+        if (this.replaceCard() && this.cardForm.invalid) return false;
+        if (this.replaceBilling() && this.billingForm.invalid) return false;
+        return true;
+    });
+
+    onConfirmChangePlan(): void {
+        const companyId = this.companyId();
+        const plan = this.selectedNewPlan();
+        if (!companyId || !plan) return;
+
+        const payload: ChangePlanRequest = { subscriptionId: plan.id };
+
+        if (!this.isFreePlanSelected()) {
+            if (this.replaceCard()) {
+                if (this.cardForm.invalid) {
+                    this.cardForm.markAllAsTouched();
+                    return;
+                }
+                const card = this.cardForm.getRawValue();
+                payload.card = {
+                    cardNumber: (card.cardNumber as string).replace(/\s/g, ''),
+                    cardName: card.cardName as string,
+                    cvc: card.cvc as string,
+                    expMonth: card.expMonth as string,
+                    expYear: card.expYear as string
+                };
+            }
+
+            if (this.replaceBilling()) {
+                if (this.billingForm.invalid) {
+                    this.billingForm.markAllAsTouched();
+                    return;
+                }
+                const b = this.billingForm.getRawValue();
+                payload.billing = {
+                    name: b.billingName,
+                    lastName: b.billingLastName,
+                    docType: b.billingDocType?.id,
+                    docTypeCode: b.billingDocType?.code ?? '',
+                    docNumber: b.billingDocNumber,
+                    email: b.billingEmail,
+                    address: b.billingAddress,
+                    state: b.billingState?.name ?? '',
+                    city: b.billingCity?.name ?? '',
+                    phone: b.billingPhone
+                };
+            }
+        }
+
+        this.changingPlan.set(true);
+        this.companyService.changePlan(companyId, payload).pipe(
+            finalize(() => this.changingPlan.set(false)),
+            takeUntilDestroyed(this.destroyRef)
+        ).subscribe(() => {
+            this.changeComplete.set(true);
+        });
+    }
+
+    onContinueAfterChange(): void {
+        this.changePlanDialogVisible.set(false);
+        window.location.reload();
+    }
+
+    onCloseChangePlanDialog(): void {
+        this.changePlanDialogVisible.set(false);
+        this.changeComplete.set(false);
+        this.selectedNewPlan.set(null);
     }
 }

@@ -1,33 +1,53 @@
-/* lato-300 - latin-ext_latin */
+/* Poppins 300 - Light */
 @font-face {
-    font-family: 'Lato';
+    font-family: 'Poppins';
     font-style: normal;
     font-weight: 300;
-    src:
-        local('Lato Light'),
-        local('Lato-Light'),
-        url('@/assets/layout/fonts/lato-v17-latin-ext_latin-300.woff2') format('woff2'),
-        /* Chrome 26+, Opera 23+, Firefox 39+ */ url('@/assets/layout/fonts/lato-v17-latin-ext_latin-300.woff') format('woff'); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+    font-display: swap;
+    src: url('/fonts/Poppins-Light.ttf') format('truetype');
 }
-/* lato-regular - latin-ext_latin */
+
+/* Poppins 400 - Regular */
 @font-face {
-    font-family: 'Lato';
+    font-family: 'Poppins';
     font-style: normal;
     font-weight: 400;
-    src:
-        local('Lato'),
-        local('Lato-Regular'),
-        url('@/assets/layout/fonts/lato-v17-latin-ext_latin-regular.woff2') format('woff2'),
-        /* Chrome 26+, Opera 23+, Firefox 39+ */ url('@/assets/layout/fonts/lato-v17-latin-ext_latin-regular.woff') format('woff'); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+    font-display: swap;
+    src: url('/fonts/Poppins-Regular.ttf') format('truetype');
 }
-/* lato-700 - latin-ext_latin */
+
+/* Poppins 500 - Medium */
 @font-face {
-    font-family: 'Lato';
+    font-family: 'Poppins';
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url('/fonts/Poppins-Medium.ttf') format('truetype');
+}
+
+/* Poppins 600 - SemiBold */
+@font-face {
+    font-family: 'Poppins';
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url('/fonts/Poppins-SemiBold.ttf') format('truetype');
+}
+
+/* Poppins 700 - Bold */
+@font-face {
+    font-family: 'Poppins';
     font-style: normal;
     font-weight: 700;
-    src:
-        local('Lato Bold'),
-        local('Lato-Bold'),
-        url('@/assets/layout/fonts/lato-v17-latin-ext_latin-700.woff2') format('woff2'),
-        /* Chrome 26+, Opera 23+, Firefox 39+ */ url('@/assets/layout/fonts/lato-v17-latin-ext_latin-700.woff') format('woff'); /* Chrome 6+, Firefox 3.6+, IE 9+, Safari 5.1+ */
+    font-display: swap;
+    src: url('/fonts/Poppins-Bold.ttf') format('truetype');
+}
+
+/* Poppins 800 - ExtraBold */
+@font-face {
+    font-family: 'Poppins';
+    font-style: normal;
+    font-weight: 800;
+    font-display: swap;
+    src: url('/fonts/Poppins-ExtraBold.ttf') format('truetype');
 }

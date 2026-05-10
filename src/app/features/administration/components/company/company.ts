@@ -1,4 +1,4 @@
-import { Component, computed, DestroyRef, effect, inject, resource, signal, viewChild } from '@angular/core';
+import { Component, computed, DestroyRef, effect, inject, resource, signal } from '@angular/core';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize, firstValueFrom } from 'rxjs';
@@ -14,9 +14,8 @@ import { SkeletonModule } from 'primeng/skeleton';
 import { TooltipModule } from 'primeng/tooltip';
 import { DialogModule } from 'primeng/dialog';
 import { CustomTable } from '@/app/shared/components/table/table';
-import { PhoneInput } from '@/app/shared/components/phone-input/phone-input';
-import { StateControl } from '@/app/shared/components/state-control/state-control';
-import { CityControl } from '@/app/shared/components/city-control/city-control';
+import { BillingForm } from '@/app/shared/components/billing-form/billing-form';
+import { buildBillingForm } from '@/app/shared/components/billing-form/billing-form.builder';
 import { CompanyService } from './company.service';
 import { AuthService } from '@/app/core/services/auth.service';
 import { ParameterService } from '@/app/core/services/parameter.service';
@@ -44,9 +43,7 @@ import { TableActionEvent, TableSettings } from '@/app/types/table';
         TooltipModule,
         DialogModule,
         CustomTable,
-        PhoneInput,
-        StateControl,
-        CityControl
+        BillingForm
     ],
     templateUrl: './company.html'
 })
@@ -154,25 +151,9 @@ export class Company {
         showColumnFilters: false
     }));
 
-    billingDepartmentId = signal<number | null>(null);
-
-    billingStateControl = viewChild<StateControl>('billingStateControl');
-    billingCityControl = viewChild<CityControl>('billingCityControl');
-
-    private pendingBillingStateName: string | null = null;
-    private pendingBillingCityName: string | null = null;
-
-    billingForm = new FormGroup({
-        billingName: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-        billingLastName: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-        billingDocType: new FormControl<Parameter | null>(null, { validators: [Validators.required] }),
-        billingDocNumber: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-        billingEmail: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.email] }),
-        billingAddress: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-        billingState: new FormControl<{ id: number; name: string } | null>(null, { validators: [Validators.required] }),
-        billingCity: new FormControl<{ id: number; name: string } | null>(null, { validators: [Validators.required] }),
-        billingPhone: new FormControl('', { nonNullable: true, validators: [Validators.required] })
-    });
+    billingForm = buildBillingForm();
+    pendingBillingStateName = signal<string | null>(null);
+    pendingBillingCityName = signal<string | null>(null);
 
     form = new FormGroup({
         name: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
@@ -190,39 +171,6 @@ export class Company {
     currentLogoUrl = computed(() => this.logoPreview() ?? this.company()?.logoSignedUrl ?? null);
 
     constructor() {
-        this.billingForm.controls.billingState.valueChanges.pipe(
-            takeUntilDestroyed(this.destroyRef)
-        ).subscribe(state => {
-            this.billingDepartmentId.set(state?.id ?? null);
-            this.billingForm.controls.billingCity.reset();
-        });
-
-        effect(() => {
-            const ctrl = this.billingStateControl();
-            const departments = ctrl?.departmentsResource.value();
-            if (this.pendingBillingStateName && departments?.length) {
-                const match = departments.find(d => d.name === this.pendingBillingStateName);
-                if (match) {
-                    this.billingForm.controls.billingState.setValue(match, { emitEvent: true });
-                    this.billingForm.markAsPristine();
-                    this.pendingBillingStateName = null;
-                }
-            }
-        });
-
-        effect(() => {
-            const ctrl = this.billingCityControl();
-            const cities = ctrl?.citiesResource.value();
-            if (this.pendingBillingCityName && cities?.length) {
-                const match = cities.find(c => c.name === this.pendingBillingCityName);
-                if (match) {
-                    this.billingForm.controls.billingCity.setValue(match, { emitEvent: false });
-                    this.billingForm.markAsPristine();
-                    this.pendingBillingCityName = null;
-                }
-            }
-        });
-
         effect(() => {
             const companies = this.companyResource.value();
             if (companies?.length) {
@@ -249,8 +197,8 @@ export class Company {
                 const idTypes = this.identificationTypesResource.value() ?? [];
                 const docType = idTypes.find(t => t.id === c.billingDocTypeId) ?? null;
 
-                this.pendingBillingStateName = c.billingState ?? null;
-                this.pendingBillingCityName = c.billingCity ?? null;
+                this.pendingBillingStateName.set(c.billingState ?? null);
+                this.pendingBillingCityName.set(c.billingCity ?? null);
 
                 this.billingForm.patchValue({
                     billingName: c.billingName ?? '',
