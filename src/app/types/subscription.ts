@@ -194,6 +194,12 @@ export interface SubscribeRequest {
     billing: BillingInfo;
 }
 
+export interface ChangePlanRequest {
+    subscriptionId: string;
+    card?: CardTokenRequest;
+    billing?: BillingInfo;
+}
+
 export interface OnboardingSetupRequest {
     profile: {
         name: string;

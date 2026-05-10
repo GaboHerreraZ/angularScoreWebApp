@@ -1,0 +1,96 @@
+<section class="px-6 sm:px-12 lg:px-20 py-16 lg:py-20 bg-surface-0 dark:bg-surface-950">
+    <div class="max-w-screen-2xl mx-auto">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+            <!-- Left: copy -->
+            <div appScrollAnimate="fade-up">
+                <span class="text-primary font-bold text-sm uppercase tracking-widest">Qué es Creditia</span>
+                <h2 class="font-extrabold text-3xl sm:text-4xl lg:text-5xl mt-3 mb-6 leading-tight text-color">
+                    No somos un banco. <span class="text-primary">Somos el filtro</span> antes de prestar.
+                </h2>
+                <p class="text-lg text-muted-color leading-relaxed mb-5">
+                    Si vendes a crédito —productos, materia prima, servicios— corres el riesgo de que tu cliente no pague.
+                    Creditia es la plataforma que evalúa la salud financiera de tus clientes para que sepas
+                    <span class="text-color font-semibold">a quién darle plazo, cuánto y por cuánto tiempo</span>.
+                </p>
+                <p class="text-lg text-muted-color leading-relaxed mb-6">
+                    Sin hojas de Excel armadas a mano, sin esperar 2 días al contador.
+                    Subes el estado financiero del cliente, Creditia lo lee, calcula los indicadores que la banca usa
+                    y te entrega una recomendación clara para tu cartera.
+                </p>
+                <div class="inline-flex items-center gap-3 bg-primary/5 border border-primary/20 rounded-xl px-5 py-3">
+                    <i class="pi pi-bolt text-primary text-lg"></i>
+                    <span class="text-color font-semibold">De un PDF a una decisión de crédito en 15 minutos.</span>
+                </div>
+            </div>
+
+            <!-- Right: side-by-side -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5" appScrollAnimate="fade-left" [animateDelay]="200">
+                <!-- For -->
+                <article class="flex flex-col rounded-2xl border border-emerald-500/30 bg-emerald-500/5 p-6 sm:p-7">
+                    <header class="flex items-center gap-3 pb-4 mb-5 border-b border-emerald-500/20">
+                        <div class="w-10 h-10 rounded-full bg-emerald-500/15 flex items-center justify-center shrink-0">
+                            <i class="pi pi-check text-emerald-500 text-base"></i>
+                        </div>
+                        <h3 class="font-bold text-base sm:text-lg text-color m-0">Es para ti</h3>
+                    </header>
+                    <ul class="flex flex-col gap-4 text-sm sm:text-[15px] text-color m-0 p-0 list-none">
+                        <li class="flex items-start gap-3">
+                            <span class="flex w-5 h-5 rounded-full bg-emerald-500/15 items-center justify-center shrink-0 mt-0.5">
+                                <i class="pi pi-check text-emerald-500 text-[10px]"></i>
+                            </span>
+                            <span class="leading-relaxed">Vendes productos o servicios con plazos de pago</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <span class="flex w-5 h-5 rounded-full bg-emerald-500/15 items-center justify-center shrink-0 mt-0.5">
+                                <i class="pi pi-check text-emerald-500 text-[10px]"></i>
+                            </span>
+                            <span class="leading-relaxed">Necesitas decidir cupos para clientes nuevos o existentes</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <span class="flex w-5 h-5 rounded-full bg-emerald-500/15 items-center justify-center shrink-0 mt-0.5">
+                                <i class="pi pi-check text-emerald-500 text-[10px]"></i>
+                            </span>
+                            <span class="leading-relaxed">Quieres reducir cartera vencida con datos, no con intuición</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <span class="flex w-5 h-5 rounded-full bg-emerald-500/15 items-center justify-center shrink-0 mt-0.5">
+                                <i class="pi pi-check text-emerald-500 text-[10px]"></i>
+                            </span>
+                            <span class="leading-relaxed">Tu equipo gasta horas analizando balances en Excel</span>
+                        </li>
+                    </ul>
+                </article>
+
+                <!-- Not for -->
+                <article class="flex flex-col rounded-2xl border border-surface bg-surface-50 dark:bg-surface-900 p-6 sm:p-7">
+                    <header class="flex items-center gap-3 pb-4 mb-5 border-b border-surface">
+                        <div class="w-10 h-10 rounded-full bg-surface-200/60 dark:bg-surface-800 flex items-center justify-center shrink-0">
+                            <i class="pi pi-times text-muted-color text-base"></i>
+                        </div>
+                        <h3 class="font-bold text-base sm:text-lg text-color m-0">No es para ti</h3>
+                    </header>
+                    <ul class="flex flex-col gap-4 text-sm sm:text-[15px] text-muted-color m-0 p-0 list-none">
+                        <li class="flex items-start gap-3">
+                            <span class="flex w-5 h-5 rounded-full bg-surface-200/60 dark:bg-surface-800 items-center justify-center shrink-0 mt-0.5">
+                                <i class="pi pi-times text-muted-color text-[10px]"></i>
+                            </span>
+                            <span class="leading-relaxed">Buscas un préstamo personal o empresarial</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <span class="flex w-5 h-5 rounded-full bg-surface-200/60 dark:bg-surface-800 items-center justify-center shrink-0 mt-0.5">
+                                <i class="pi pi-times text-muted-color text-[10px]"></i>
+                            </span>
+                            <span class="leading-relaxed">Necesitas reportar a centrales de riesgo</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <span class="flex w-5 h-5 rounded-full bg-surface-200/60 dark:bg-surface-800 items-center justify-center shrink-0 mt-0.5">
+                                <i class="pi pi-times text-muted-color text-[10px]"></i>
+                            </span>
+                            <span class="leading-relaxed">Quieres consultar tu propio score crediticio</span>
+                        </li>
+                    </ul>
+                </article>
+            </div>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,84 @@
+<p-fluid [formGroup]="formGroup()">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+        <div class="flex flex-col gap-1">
+            <p-floatlabel variant="on">
+                <input pInputText id="billingName" formControlName="billingName" [invalid]="isInvalid('billingName')" />
+                <label for="billingName">Nombres *</label>
+            </p-floatlabel>
+            @if (isInvalid('billingName')) {
+                <small class="text-red-500">{{ getErrorMessage('billingName') }}</small>
+            }
+        </div>
+
+        <div class="flex flex-col gap-1">
+            <p-floatlabel variant="on">
+                <input pInputText id="billingLastName" formControlName="billingLastName" [invalid]="isInvalid('billingLastName')" />
+                <label for="billingLastName">Apellidos *</label>
+            </p-floatlabel>
+            @if (isInvalid('billingLastName')) {
+                <small class="text-red-500">{{ getErrorMessage('billingLastName') }}</small>
+            }
+        </div>
+
+        <div class="flex flex-col gap-1">
+            <p-floatlabel variant="on">
+                <p-select id="billingDocType" formControlName="billingDocType" [options]="identificationTypesResource.value() ?? []" optionLabel="label" [invalid]="isInvalid('billingDocType')" />
+                <label for="billingDocType">Tipo de Documento *</label>
+            </p-floatlabel>
+            @if (isInvalid('billingDocType')) {
+                <small class="text-red-500">{{ getErrorMessage('billingDocType') }}</small>
+            }
+        </div>
+
+        <div class="flex flex-col gap-1">
+            <p-floatlabel variant="on">
+                <input pInputText id="billingDocNumber" formControlName="billingDocNumber" [invalid]="isInvalid('billingDocNumber')" />
+                <label for="billingDocNumber">Número de Documento *</label>
+            </p-floatlabel>
+            @if (isInvalid('billingDocNumber')) {
+                <small class="text-red-500">{{ getErrorMessage('billingDocNumber') }}</small>
+            }
+        </div>
+
+        <div class="flex flex-col gap-1">
+            <p-floatlabel variant="on">
+                <input pInputText id="billingEmail" formControlName="billingEmail" [invalid]="isInvalid('billingEmail')" />
+                <label for="billingEmail">Correo Electrónico *</label>
+            </p-floatlabel>
+            @if (isInvalid('billingEmail')) {
+                <small class="text-red-500">{{ getErrorMessage('billingEmail') }}</small>
+            }
+        </div>
+
+        <div class="flex flex-col gap-1">
+            <app-phone-input inputId="billingPhone" label="Teléfono *" variant="on" formControlName="billingPhone" />
+            @if (isInvalid('billingPhone')) {
+                <small class="text-red-500">{{ getErrorMessage('billingPhone') }}</small>
+            }
+        </div>
+
+        <div class="flex flex-col gap-1">
+            <p-floatlabel variant="on">
+                <input pInputText id="billingAddress" formControlName="billingAddress" [invalid]="isInvalid('billingAddress')" />
+                <label for="billingAddress">Dirección *</label>
+            </p-floatlabel>
+            @if (isInvalid('billingAddress')) {
+                <small class="text-red-500">{{ getErrorMessage('billingAddress') }}</small>
+            }
+        </div>
+
+        <div class="flex flex-col gap-1">
+            <app-state-control #stateRef inputId="billingState" label="Departamento *" variant="on" formControlName="billingState" [invalid]="isInvalid('billingState')" />
+            @if (isInvalid('billingState')) {
+                <small class="text-red-500">{{ getErrorMessage('billingState') }}</small>
+            }
+        </div>
+
+        <div class="flex flex-col gap-1">
+            <app-city-control #cityRef inputId="billingCity" label="Ciudad *" variant="on" [departmentId]="departmentId()" formControlName="billingCity" [invalid]="isInvalid('billingCity')" />
+            @if (isInvalid('billingCity')) {
+                <small class="text-red-500">{{ getErrorMessage('billingCity') }}</small>
+            }
+        </div>
+    </div>
+</p-fluid>

@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Company } from '@/app/types/company';
 import { Invitation, InvitationsResponse, PendingInvitationResponse } from '@/app/types/invitation';
-import { SubscriptionDetails } from '@/app/types/subscription';
+import { ChangePlanRequest, SubscriptionDetails } from '@/app/types/subscription';
 
 @Injectable({ providedIn: 'root' })
 export class CompanyService {
@@ -34,6 +34,10 @@ export class CompanyService {
 
     cancelSubscription(companyId: string): Observable<void> {
         return this.api.post<void>(`companies/${companyId}/subscriptions/cancel`, {});
+    }
+
+    changePlan(companyId: string, payload: ChangePlanRequest): Observable<void> {
+        return this.api.post<void>(`companies/${companyId}/subscriptions/change-plan`, payload);
     }
 
     inviteUser(companyId: string, email: string): Observable<void> {

@@ -17,11 +17,9 @@ export class HeaderWidget {
 
     isDark = computed(() => this.layoutService.isDarkTheme());
 
-    logo = computed(() => {
-        const path = '/layout/images/logo-';
-        const suffix = this.isDark() ? 'light.png' : 'dark.png';
-        return path + suffix;
-    });
+    logo = computed(() =>
+        this.isDark() ? '/logo/creditia-logo-dark.svg' : '/logo/creditia-logo.svg'
+    );
 
     toggleDarkMode() {
         this.layoutService.layoutConfig.update(prev => ({

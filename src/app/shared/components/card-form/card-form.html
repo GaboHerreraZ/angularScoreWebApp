@@ -1,0 +1,63 @@
+<div class="rounded-xl border border-surface bg-surface-0 dark:bg-surface-950 p-5 h-full flex flex-col" [formGroup]="formGroup()">
+    <div class="flex items-center gap-2 mb-4">
+        <i class="pi pi-credit-card text-primary"></i>
+        <span class="font-semibold text-sm">Tarjeta de crédito</span>
+        @if (cardBrand()) {
+            <img [src]="cardBrand()!.icon" [alt]="cardBrand()!.label" class="ml-auto h-7 w-11 object-contain" />
+        }
+    </div>
+
+    <div class="flex flex-col gap-4">
+        <div class="flex flex-col gap-1">
+            <p-floatlabel variant="on">
+                <input pInputText id="card-number" formControlName="cardNumber" [invalid]="isInvalid('cardNumber')" maxlength="19" (input)="onCardNumberInput($event)" class="w-full" />
+                <label for="card-number">Número de Tarjeta *</label>
+            </p-floatlabel>
+            @if (isInvalid('cardNumber')) {
+                <small class="text-red-500 text-xs">{{ getErrorMessage('cardNumber') }}</small>
+            }
+        </div>
+
+        <div class="flex flex-col gap-1">
+            <p-floatlabel variant="on">
+                <input pInputText id="card-name" formControlName="cardName" [invalid]="isInvalid('cardName')" class="w-full" />
+                <label for="card-name">Nombre del Titular *</label>
+            </p-floatlabel>
+            @if (isInvalid('cardName')) {
+                <small class="text-red-500 text-xs">{{ getErrorMessage('cardName') }}</small>
+            }
+        </div>
+
+        <div class="grid grid-cols-3 gap-3">
+            <div class="flex flex-col gap-1">
+                <p-floatlabel variant="on">
+                    <p-select id="card-expMonth" formControlName="expMonth" [options]="expiryMonths" [invalid]="isInvalid('expMonth')" styleClass="w-full" />
+                    <label for="card-expMonth">Mes *</label>
+                </p-floatlabel>
+            </div>
+            <div class="flex flex-col gap-1">
+                <p-floatlabel variant="on">
+                    <p-select id="card-expYear" formControlName="expYear" [options]="expiryYears" [invalid]="isInvalid('expYear')" styleClass="w-full" />
+                    <label for="card-expYear">Año *</label>
+                </p-floatlabel>
+            </div>
+            <div class="flex flex-col gap-1">
+                <p-floatlabel variant="on">
+                    <input pInputText id="card-cvc" formControlName="cvc" [invalid]="isInvalid('cvc')" [maxlength]="cardType() === 'amex' ? 4 : 3" type="password" class="w-full" />
+                    <label for="card-cvc">CVC *</label>
+                </p-floatlabel>
+                @if (isInvalid('cvc')) {
+                    <small class="text-red-500 text-xs">{{ getErrorMessage('cvc') }}</small>
+                }
+            </div>
+        </div>
+        @if (getExpiryError()) {
+            <small class="text-red-500 text-xs -mt-2">{{ getExpiryError() }}</small>
+        }
+
+        <div class="flex items-center gap-2 text-muted-color text-xs mt-auto">
+            <i class="pi pi-lock text-xs"></i>
+            <span>Pago seguro. No almacenamos tu tarjeta.</span>
+        </div>
+    </div>
+</div>

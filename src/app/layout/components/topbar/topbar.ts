@@ -40,11 +40,7 @@ export class Topbar {
 
     user = this.authService.currentProfile();
 
-    logo = computed(() => {
-        const path = '/layout/images/logo-';
-        const logo = this.layoutService.isDarkTheme() || this.layoutService.layoutConfig().layoutTheme === 'primaryColor' ? 'light.png' : 'dark.png';
-        return path + logo;
-    });
+    logo = computed(() => '/logo/creditia-isotype.svg');
 
     onMenuButtonClick() {
         this.layoutService.toggleMenu();
