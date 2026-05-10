@@ -20,6 +20,7 @@ import { CustomersService } from '../customers.service';
 import { PhoneInput } from '@/app/shared/components/phone-input/phone-input';
 import { StateControl } from '@/app/shared/components/state-control/state-control';
 import { CityControl } from '@/app/shared/components/city-control/city-control';
+import { HelpTooltip } from '@/app/shared/components/help-tooltip/help-tooltip';
 import { ParameterService } from '@/app/core/services/parameter.service';
 import { Parameter } from '@/app/types/parameter';
 import { Customer } from '@/app/types/customer';
@@ -44,7 +45,8 @@ import { NotificationService } from '@/app/shared/components/notification/notifi
         SkeletonModule,
         PhoneInput,
         StateControl,
-        CityControl
+        CityControl,
+        HelpTooltip
     ],
     templateUrl: './customer-detail.html'
 })
@@ -262,7 +264,7 @@ export class CustomerDetail {
             takeUntilDestroyed(this.destroyRef)
         ).subscribe((result: any) => {
             const message = this.customerId() ? 'Cliente actualizado correctamente' : 'Cliente creado correctamente';
-            this.notificationService.success(message, 'OK');
+            this.notificationService.success(message);
 
             if (!this.customerId() && result?.id) {
                 this.router.navigate(['/app/clientes/detalle-cliente', result.id]);

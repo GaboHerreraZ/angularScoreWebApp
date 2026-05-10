@@ -333,8 +333,9 @@
                     <ng-template #content let-activateCallback="activateCallback">
                         <form [formGroup]="step2Form">
                             <p-fluid>
+                                <p-message severity="info" text="Carga los estados financieros del cliente del último período. Estos datos alimentarán el cálculo de indicadores y la decisión de crédito." class="mb-4" />
                                 <!-- Activos Corrientes -->
-                                <h4 class="text-sm font-semibold text-muted-color mb-4">Activos Corrientes</h4>
+                                <h4 class="text-sm font-semibold text-muted-color mb-4 mt-4">Activos Corrientes</h4>
                                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-5 mb-6">
                                     <div class="flex flex-col gap-1">
                                         <p-floatlabel variant="on">
@@ -786,7 +787,10 @@
                     <ng-template #content let-activateCallback="activateCallback">
                         <p-message severity="info" text="Verifique los indicadores y ajuste los parámetros antes de ejecutar el análisis." class="mb-4" />
 
-                        <h4 class="text-sm font-semibold text-muted-color mb-4 mt-4">Indicadores Calculados</h4>
+                        <div class="flex items-center gap-2 mb-4 mt-4">
+                            <h4 class="text-sm font-semibold text-muted-color m-0">Indicadores Calculados</h4>
+                            <app-help-tooltip text="Valores calculados automáticamente a partir de los datos financieros del paso anterior. No son editables: revisa que cuadren antes de continuar." />
+                        </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                             <p-floatlabel variant="on">
                                 <input pInputText id="totalAssets" [value]="totalAssets() | currency:'COP':'symbol-narrow':'1.0-0':'es-CO'" disabled class="w-full" />

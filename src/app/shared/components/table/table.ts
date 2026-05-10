@@ -39,6 +39,8 @@ export class CustomTable {
     rowHover = computed(() => this.tableSettings().rowHover ?? true);
     searchPlaceholder = computed(() => this.tableSettings().searchPlaceholder ?? 'Buscar...');
     emptyMessage = computed(() => this.tableSettings().emptyMessage ?? 'No se encontraron registros.');
+    emptyState = computed(() => this.tableSettings().emptyState ?? null);
+    hasActiveSearch = computed(() => this.searchValue().trim().length > 0);
     loadingMessage = computed(() => this.tableSettings().loadingMessage ?? 'Cargando datos. Por favor espere.');
     title = computed(() => this.tableSettings().title ?? null);
     titleIcon = computed(() => this.tableSettings().titleIcon ?? null);
@@ -118,5 +120,9 @@ export class CustomTable {
         this.searchValue.set('');
         table.clear();
         this.search.emit({ query: '' });
+    }
+
+    onEmptyStateAction(): void {
+        this.addClick.emit();
     }
 }

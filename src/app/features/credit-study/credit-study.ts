@@ -30,6 +30,12 @@ export class CreditStudy implements OnInit {
         rowsPerPageOptions: [10, 25, 50],
         searchPlaceholder: 'Buscar estudios de crédito...',
         emptyMessage: 'No se encontraron estudios de crédito.',
+        emptyState: {
+            icon: 'pi pi-credit-card',
+            title: 'Aún no tienes estudios de crédito',
+            description: 'Crea tu primer estudio para analizar la capacidad financiera de un cliente.',
+            ...(this.canAddCreditStudy() ? { actionLabel: 'Crear primer estudio', actionIcon: 'pi pi-plus' } : {})
+        },
         ...(this.canAddCreditStudy() ? {
             addButton: {
                 label: 'Nuevo Estudio',

@@ -1,5 +1,6 @@
 import { Configurator } from '@/app/layout/components/configurator/configurator';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { Location } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 
@@ -9,4 +10,10 @@ import { ButtonModule } from 'primeng/button';
     imports: [RouterModule, ButtonModule, Configurator],
     templateUrl: './not-found.html'
 })
-export class NotFound {}
+export class NotFound {
+    private location = inject(Location);
+
+    goBack(): void {
+        this.location.back();
+    }
+}

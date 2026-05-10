@@ -1,12 +1,19 @@
-<ol>
+<ol class="flex items-center gap-1.5 text-sm text-surface-500">
     <li>
-        <a [routerLink]="['/app']">
-            <i class="pi pi-home"></i>
+        <a [routerLink]="['/app']" class="inline-flex items-center hover:text-primary transition-colors" aria-label="Inicio">
+            <i class="pi pi-home text-xs"></i>
         </a>
     </li>
-    <li class="layout-breadcrumb-chevron">/</li>
-    <ng-template ngFor let-item let-last="last" [ngForOf]="breadcrumbs$ | async">
-        <li style="cursor: pointer">{{ item.label }}</li>
-        <li *ngIf="!last" class="layout-breadcrumb-chevron">/</li>
-    </ng-template>
+    @for (item of breadcrumbs$ | async; track item.url; let last = $last) {
+        <li class="layout-breadcrumb-chevron flex items-center" aria-hidden="true">
+            <i class="pi pi-chevron-right text-[10px] text-surface-400"></i>
+        </li>
+        <li>
+            @if (!last && item.url) {
+                <a [routerLink]="[item.url]" class="hover:text-primary transition-colors">{{ item.label }}</a>
+            } @else {
+                <span class="text-surface-700 dark:text-surface-200 font-medium" aria-current="page">{{ item.label }}</span>
+            }
+        </li>
+    }
 </ol>

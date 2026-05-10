@@ -25,6 +25,7 @@ describe('NotificationService', () => {
             severity: 'success',
             summary: 'OK',
             detail: 'Operación exitosa',
+            life: 3500,
         });
     });
 
@@ -35,6 +36,7 @@ describe('NotificationService', () => {
             severity: 'error',
             summary: 'Error',
             detail: 'Algo falló',
+            life: 6000,
         });
     });
 
@@ -43,8 +45,9 @@ describe('NotificationService', () => {
         service.warn('Cuidado');
         expect(spy).toHaveBeenCalledWith({
             severity: 'warn',
-            summary: 'Advertencia',
+            summary: 'Atención',
             detail: 'Cuidado',
+            life: 5000,
         });
     });
 
@@ -55,6 +58,7 @@ describe('NotificationService', () => {
             severity: 'info',
             summary: 'Información',
             detail: 'Información importante',
+            life: 4000,
         });
     });
 

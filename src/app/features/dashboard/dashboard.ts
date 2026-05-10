@@ -12,6 +12,8 @@ import { ButtonModule } from 'primeng/button';
 import { DashboardService } from './dashboard.service';
 import { BasicDashboard, AdvancedDashboard } from '@/app/types/dashboard';
 import { HelpTooltip } from '@/app/shared/components/help-tooltip/help-tooltip';
+import { AuthService } from '@/app/core/services/auth.service';
+import { KpiCard } from '@/app/shared/components/kpi-card/kpi-card';
 
 @Component({
     selector: 'app-dashboard',
@@ -27,17 +29,57 @@ import { HelpTooltip } from '@/app/shared/components/help-tooltip/help-tooltip';
         ButtonModule,
         CurrencyPipe,
         DatePipe,
-        HelpTooltip
+        HelpTooltip,
+        KpiCard
     ],
     templateUrl: './dashboard.html'
 })
 export class Dashboard implements OnInit {
     private dashboardService = inject(DashboardService);
     private destroyRef = inject(DestroyRef);
+    private authService = inject(AuthService);
 
     floor = (value: number | null | undefined) => Math.floor(value ?? 0);
     loading = signal(false);
     dashboardLevel = this.dashboardService.dashboardLevel;
+    lastUpdated = signal<Date | null>(null);
+    currentTime = signal<Date>(new Date());
+
+    greeting = computed(() => {
+        const hour = this.currentTime().getHours();
+        if (hour < 12) return 'Buenos días';
+        if (hour < 19) return 'Buenas tardes';
+        return 'Buenas noches';
+    });
+
+    userFirstName = computed(() => {
+        const profile = this.authService.currentProfile();
+        return profile?.name?.trim().split(' ')[0] ?? '';
+    });
+
+    formattedDate = computed(() => {
+        return this.currentTime().toLocaleDateString('es-CO', {
+            weekday: 'long',
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric'
+        });
+    });
+
+    lastUpdatedLabel = computed(() => {
+        const updated = this.lastUpdated();
+        const now = this.currentTime();
+        if (!updated) return null;
+        const diffMs = now.getTime() - updated.getTime();
+        const diffMin = Math.floor(diffMs / 60000);
+        if (diffMin < 1) return 'hace unos segundos';
+        if (diffMin === 1) return 'hace 1 minuto';
+        if (diffMin < 60) return `hace ${diffMin} minutos`;
+        const diffHours = Math.floor(diffMin / 60);
+        if (diffHours === 1) return 'hace 1 hora';
+        if (diffHours < 24) return `hace ${diffHours} horas`;
+        return updated.toLocaleString('es-CO', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+    });
 
     chartTooltips: Record<string, string> = {
         studiesByStatus: 'Distribucion de los estudios de credito segun su estado actual (aprobado, pendiente, rechazado, realizado).',
@@ -175,7 +217,7 @@ export class Dashboard implements OnInit {
                 labels: ['Cartera (días)', 'Inventario (días)', 'Proveedores (días)', 'Plazo máx. (días)'],
                 datasets: [{
                     label: 'Días promedio',
-                    data: [t.accountsReceivableTurnover, t.inventoryTurnover, Math.abs(t.suppliersTurnover), t.maximumPaymentTime],
+                    data: [t.accountsReceivableTurnover.value, t.inventoryTurnover.value, Math.abs(t.suppliersTurnover.value), t.paymentTimeSuppliers.value],
                     backgroundColor: [
                         s.getPropertyValue('--p-blue-400').trim(),
                         s.getPropertyValue('--p-green-400').trim(),
@@ -242,7 +284,7 @@ export class Dashboard implements OnInit {
             data: {
                 labels: ['Pasivo corriente', 'Pasivo no corriente', 'Patrimonio'],
                 datasets: [{
-                    data: [ds.avgCurrentLiabilities, ds.avgNonCurrentLiabilities, ds.avgEquity],
+                    data: [ds.avgCurrentLiabilities.value, ds.avgNonCurrentLiabilities.value, ds.avgEquity.value],
                     backgroundColor: [
                         s.getPropertyValue('--p-red-400').trim(),
                         s.getPropertyValue('--p-orange-400').trim(),
@@ -295,6 +337,15 @@ export class Dashboard implements OnInit {
         if (this.dashboardLevel() === 'advanced') {
             this.loadAdvanced();
         }
+        const interval = setInterval(() => this.currentTime.set(new Date()), 60_000);
+        this.destroyRef.onDestroy(() => clearInterval(interval));
+    }
+
+    refresh(): void {
+        this.loadBasic();
+        if (this.dashboardLevel() === 'advanced') {
+            this.loadAdvanced();
+        }
     }
 
     getStatusSeverity(status: string): 'success' | 'info' | 'warn' | 'danger' | 'secondary' {
@@ -320,6 +371,15 @@ export class Dashboard implements OnInit {
         return `$${value}`;
     }
 
+    formatCurrency(value: number): string {
+        return new Intl.NumberFormat('es-CO', {
+            style: 'currency',
+            currency: 'COP',
+            currencyDisplay: 'narrowSymbol',
+            maximumFractionDigits: 0
+        }).format(value);
+    }
+
     private loadBasic(): void {
         this.loading.set(true);
         this.dashboardService.getBasicDashboard()
@@ -327,7 +387,10 @@ export class Dashboard implements OnInit {
                 finalize(() => this.loading.set(false)),
                 takeUntilDestroyed(this.destroyRef)
             )
-            .subscribe(data => this.basicData.set(data));
+            .subscribe(data => {
+                this.basicData.set(data);
+                this.lastUpdated.set(new Date());
+            });
     }
 
     private loadAdvanced(): void {
@@ -343,7 +406,10 @@ export class Dashboard implements OnInit {
                 finalize(() => this.loading.set(false)),
                 takeUntilDestroyed(this.destroyRef)
             )
-            .subscribe(data => this.advancedData.set(data));
+            .subscribe(data => {
+                this.advancedData.set(data);
+                this.lastUpdated.set(new Date());
+            });
     }
 
     private toIsoDate(d: Date): string {

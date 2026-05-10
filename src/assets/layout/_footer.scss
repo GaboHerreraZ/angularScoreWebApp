@@ -4,22 +4,52 @@ app-footer {
 
 .layout-footer {
     padding: 1rem 0;
+    margin-top: 2rem;
+    border-top: 1px solid var(--p-content-border-color);
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
 
     .footer-start {
         display: flex;
         align-items: center;
 
         img {
-            width: 2rem;
+            width: 1.75rem;
         }
 
         .app-name {
-            margin-left: .75rem;
-            font-size: 1.25rem;
+            font-size: 1.05rem;
             font-weight: 700;
+            margin-left: .75rem;
         }
+    }
+
+    .footer-links {
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
+        font-size: 0.8125rem;
+        color: var(--p-text-muted-color);
+        flex-wrap: wrap;
+        justify-content: center;
+
+        a {
+            color: inherit;
+        }
+    }
+
+    .footer-right {
+        display: flex;
+        align-items: center;
+    }
+}
+
+@media (max-width: 640px) {
+    .layout-footer {
+        flex-direction: column;
+        text-align: center;
     }
 }

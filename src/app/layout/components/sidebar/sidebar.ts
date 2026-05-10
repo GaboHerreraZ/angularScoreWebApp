@@ -3,13 +3,14 @@ import { NavigationEnd, Router } from '@angular/router';
 import { filter, Subject, takeUntil } from 'rxjs';
 import { LayoutService } from '@/app/layout/service/layout.service';
 import { Menu } from '../menu/menu';
+import { RecentItemsCard } from './recent-items-card/recent-items-card';
 
 const BREAKPOINT = 992;
 
 @Component({
     selector: '[app-sidebar]',
     standalone: true,
-    imports: [Menu],
+    imports: [Menu, RecentItemsCard],
     templateUrl: './sidebar.html'
 })
 export class Sidebar implements OnInit, OnDestroy {

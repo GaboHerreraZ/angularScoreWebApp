@@ -1,14 +1,21 @@
+export interface KpiValue {
+    value: number;
+    previous: number;
+    delta: number;
+    deltaPercent: number | null;
+}
+
 export interface DashboardSummary {
-    totalCustomers: number;
-    totalStudies: number;
-    studiesThisMonth: number;
-    activeUsers: number;
+    totalCustomers: KpiValue;
+    totalStudies: KpiValue;
+    studiesThisMonth: KpiValue;
+    activeUsers: KpiValue;
 }
 
 export interface DashboardCreditSummary {
-    totalRequestedThisMonth: number;
-    avgRequestedThisMonth: number;
-    avgRequestedTerm: number;
+    totalRequestedThisMonth: KpiValue;
+    avgRequestedThisMonth: KpiValue;
+    avgRequestedTerm: KpiValue;
 }
 
 export interface StudyByStatus {
@@ -47,10 +54,10 @@ export interface BasicDashboard {
 
 // Advanced-only fields
 export interface FinancialIndicators {
-    avgEbitda: number;
-    avgMonthlyPaymentCapacity: number;
-    avgStabilityFactor: number;
-    avgMaxPaymentTime: number;
+    avgEbitda: KpiValue;
+    avgMonthlyPaymentCapacity: KpiValue;
+    avgStabilityFactor: KpiValue;
+    avgPaymentTimeSuppliers: KpiValue;
 }
 
 export interface StabilityBand {
@@ -64,10 +71,10 @@ export interface PaymentCapacityTrendItem {
 }
 
 export interface AvgTurnoverIndicators {
-    accountsReceivableTurnover: number;
-    inventoryTurnover: number;
-    suppliersTurnover: number;
-    maximumPaymentTime: number;
+    accountsReceivableTurnover: KpiValue;
+    inventoryTurnover: KpiValue;
+    suppliersTurnover: KpiValue;
+    paymentTimeSuppliers: KpiValue;
 }
 
 export interface TopCustomerByCredit {
@@ -84,10 +91,10 @@ export interface RevenueVsNetIncomeItem {
 }
 
 export interface AvgDebtStructure {
-    avgCurrentLiabilities: number;
-    avgNonCurrentLiabilities: number;
-    avgEquity: number;
-    debtToEquityRatio: number;
+    avgCurrentLiabilities: KpiValue;
+    avgNonCurrentLiabilities: KpiValue;
+    avgEquity: KpiValue;
+    debtToEquityRatio: KpiValue;
 }
 
 export interface StudyByAnalyst {

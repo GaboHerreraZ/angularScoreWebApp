@@ -3,20 +3,24 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { CustomTable } from '@/app/shared/components/table/table';
 import { TableSettings, TablePageChangeEvent, TableSearchEvent, TableActionEvent } from '@/app/types/table';
 import { CustomersService } from './customers.service';
 import { AuthService } from '@/app/core/services/auth.service';
+import { ConfirmService, provideConfirm } from '@/app/shared/services/confirm.service';
 
 @Component({
     selector: 'app-customers',
     standalone: true,
-    imports: [CommonModule, CustomTable],
+    imports: [CommonModule, CustomTable, ConfirmDialogModule],
+    providers: [provideConfirm()],
     templateUrl: './customers.html'
 })
 export class Customers implements OnInit {
     private destroyRef = inject(DestroyRef);
     private authService = inject(AuthService);
+    private confirmService = inject(ConfirmService);
 
     exporting = signal(false);
 
@@ -31,6 +35,12 @@ export class Customers implements OnInit {
         rowsPerPageOptions: [10, 25, 50],
         searchPlaceholder: 'Buscar clientes...',
         emptyMessage: 'No se encontraron clientes.',
+        emptyState: {
+            icon: 'pi pi-address-book',
+            title: 'Aún no tienes clientes',
+            description: 'Crea tu primer cliente para empezar a registrar estudios de crédito.',
+            ...(this.canAddCustomer() ? { actionLabel: 'Crear primer cliente', actionIcon: 'pi pi-plus' } : {})
+        },
         ...(this.canAddCustomer() ? {
             addButton: {
                 label: 'Nuevo Cliente',
@@ -110,11 +120,16 @@ export class Customers implements OnInit {
                 this.router.navigate(['/app/clientes/detalle-cliente', event.row.id]);
                 break;
             case 'delete':
-                this.customersService.deleteCustomer(event.row.id).pipe(
-                    takeUntilDestroyed(this.destroyRef)
-                ).subscribe(() => {
-                    this.customersService.loadCustomers();
-                });
+                this.confirmService.delete(
+                    `el cliente "${event.row.businessName ?? event.row.name ?? ''}"`,
+                    () => {
+                        this.customersService.deleteCustomer(event.row.id).pipe(
+                            takeUntilDestroyed(this.destroyRef)
+                        ).subscribe(() => {
+                            this.customersService.loadCustomers();
+                        });
+                    }
+                );
                 break;
         }
     }
