@@ -29,6 +29,18 @@
         }
     </ul>
 
+    <button
+        type="button"
+        class="topbar-search-trigger hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-100 dark:bg-surface-800 hover:bg-surface-200 dark:hover:bg-surface-700 text-sm text-surface-500 transition-colors cursor-pointer w-72 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10"
+        (click)="searchService.open()"
+        pTooltip="Buscar (Ctrl+K)"
+        tooltipPosition="bottom"
+    >
+        <i class="pi pi-search text-xs"></i>
+        <span class="flex-1 text-left">Buscar...</span>
+        <kbd class="inline-flex items-center px-1.5 py-0.5 text-[10px] rounded border border-surface-300 dark:border-surface-600">Ctrl K</kbd>
+    </button>
+
     <div class="topbar-actions">
         <p-button icon="pi pi-question-circle" rounded severity="help" (onClick)="onHelpButtonClick()" pTooltip="Centro de Ayuda" tooltipPosition="bottom" size="small" styleClass="!text-base"></p-button>
         <p-button icon="pi pi-palette" rounded severity="secondary" (onClick)="onConfigButtonClick()" pTooltip="Configuración" tooltipPosition="bottom" size="small" styleClass="!text-base"></p-button>
@@ -38,17 +50,6 @@
             <p-badge [value]="notificationCenterService.unreadCount().toString()" severity="danger" styleClass="absolute -top-2 -right-2 text-[10px] min-w-4 h-4 flex items-center justify-center animate-pulse-badge pointer-events-none"></p-badge>
             }
         </span>
-        <!--      <div class="topbar-search" [ngClass]="{ 'topbar-search-active': searchActive() }">
-            <button pButton [rounded]="true" severity="secondary" type="button" icon="pi pi-search" (click)="activateSearch()"></button>
-
-            <div class="search-input-wrapper">
-                <p-icon-field>
-                    <input #searchinput type="text" pInputText placeholder="Search" (blur)="deactivateSearch()" (keydown.escape)="deactivateSearch()" />
-                    <p-inputicon class="pi pi-search" />
-                </p-icon-field>
-            </div>
-        </div> -->
-
         <div class="topbar-profile">
             <button class="topbar-profile-button" type="button" pStyleClass="@next" enterFromClass="hidden" enterActiveClass="animate-scalein" leaveToClass="hidden" leaveActiveClass="animate-fadeout" [hideOnOutsideClick]="true">
                 <p-avatar [label]="(user?.name?.charAt(0) || 'U') + (user?.name?.charAt(0) || '')" size="large" shape="circle" styleClass="text-lg mr-2 font-semibold bg-primary text-primary-contrast" />

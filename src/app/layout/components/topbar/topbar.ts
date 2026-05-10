@@ -1,4 +1,4 @@
-import { Component, computed, ElementRef, inject, signal, viewChild } from '@angular/core';
+import { Component, computed, ElementRef, inject, viewChild } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { StyleClassModule } from 'primeng/styleclass';
@@ -13,6 +13,7 @@ import { AvatarModule } from 'primeng/avatar';
 import { TooltipModule } from 'primeng/tooltip';
 import { BadgeModule } from 'primeng/badge';
 import { NotificationCenterService } from '@/app/core/services/notification-center.service';
+import { SearchService } from '@/app/shared/services/search.service';
 
 @Component({
     selector: '[app-topbar]',
@@ -28,11 +29,9 @@ export class Topbar {
 
     authService = inject(AuthService);
 
-    searchInput = viewChild<ElementRef>('searchinput');
+    searchService = inject(SearchService);
 
     menuButton = viewChild<ElementRef>('menubutton');
-
-    searchActive = signal<boolean>(false);
 
     tabs = computed(() => this.layoutService.tabs());
 
@@ -44,17 +43,6 @@ export class Topbar {
 
     onMenuButtonClick() {
         this.layoutService.toggleMenu();
-    }
-
-    activateSearch() {
-        this.searchActive.set(true);
-        setTimeout(() => {
-            this.searchInput()?.nativeElement.focus();
-        }, 100);
-    }
-
-    deactivateSearch() {
-        this.searchActive.set(false);
     }
 
     onConfigButtonClick() {

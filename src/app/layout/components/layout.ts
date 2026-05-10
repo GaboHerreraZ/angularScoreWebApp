@@ -10,11 +10,12 @@ import { Topbar } from './topbar/topbar';
 import { Notification } from '@/app/shared/components/notification/notification';
 import { HelpPanel } from '@/app/shared/components/help-panel/help-panel';
 import { NotificationCenter } from './notification-center/notification-center';
+import { SearchPalette } from '@/app/shared/components/search-palette/search-palette';
 
 @Component({
     selector: 'app-layout',
     standalone: true,
-    imports: [CommonModule, Topbar, Sidebar, RouterModule, Footer, Configurator, Breadcrumb, Notification, HelpPanel, NotificationCenter],
+    imports: [CommonModule, Topbar, Sidebar, RouterModule, Footer, Configurator, Breadcrumb, Notification, HelpPanel, NotificationCenter, SearchPalette],
     templateUrl: './layout.html'
 })
 export class Layout {
