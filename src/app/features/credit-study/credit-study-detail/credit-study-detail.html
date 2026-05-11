@@ -368,7 +368,7 @@
                                                 [minFractionDigits]="0"
                                                 [maxFractionDigits]="0"
                                             />
-                                            <label for="accountsReceivable2">Inventario Periodo Actual *</label>
+                                            <label for="accountsReceivable2">Cuentas Por Cobrar Periodo Actual *</label>
                                         </p-floatlabel>
                                         @if (isInvalid(step2Form, 'accountsReceivable2')) {
                                         <small class="text-red-500">{{ getErrorMessage(step2Form, 'accountsReceivable2') }}</small>
@@ -380,7 +380,7 @@
                                             <p-inputnumber id="accountsReceivable1" formControlName="accountsReceivable1"
                                                 [invalid]="isInvalid(step2Form, 'accountsReceivable1')" mode="currency" currency="COP" locale="es-CO"
                                                 [minFractionDigits]="0" [maxFractionDigits]="0" />
-                                            <label for="accountsReceivable1">Inventario Periodo Anterior *</label>
+                                            <label for="accountsReceivable1">Cuentas Por Cobrar Periodo Anterior *</label>
                                         </p-floatlabel>
                                         @if (isInvalid(step2Form, 'accountsReceivable1')) {
                                         <small class="text-red-500">{{ getErrorMessage(step2Form, 'accountsReceivable1') }}</small>
