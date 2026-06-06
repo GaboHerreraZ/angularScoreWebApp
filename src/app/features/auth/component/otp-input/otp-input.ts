@@ -6,26 +6,7 @@ import { InputTextModule } from 'primeng/inputtext';
     selector: 'app-otp-input',
     standalone: true,
     imports: [ReactiveFormsModule, InputTextModule],
-    template: `
-        <div class="flex items-center justify-center gap-2 sm:gap-3">
-            @for (control of controls; track $index) {
-                <input
-                    #otpField
-                    pInputText
-                    type="text"
-                    inputmode="numeric"
-                    maxlength="1"
-                    [formControl]="control"
-                    class="w-12 h-12 sm:w-14 sm:h-14 text-center text-2xl font-bold"
-                    (input)="onInput($index, $event)"
-                    (keydown)="onKeyDown($index, $event)"
-                    (paste)="onPaste($event)"
-                    (focus)="onFocus($index)"
-                    autocomplete="one-time-code"
-                />
-            }
-        </div>
-    `
+    templateUrl: './otp-input.html'
 })
 export class OtpInput {
     otpComplete = output<string>();

@@ -8,14 +8,7 @@ import { firstValueFrom } from 'rxjs';
 @Component({
     selector: 'app-callback',
     standalone: true,
-    template: `
-        <div class="h-screen w-screen flex items-center justify-center bg-surface-100 dark:bg-surface-950">
-            <div class="text-center">
-                <i class="pi pi-spin pi-spinner text-4xl text-primary-500 mb-4"></i>
-                <p class="text-muted-color">Verificando autenticación...</p>
-            </div>
-        </div>
-    `
+    templateUrl: './callback.html'
 })
 export class Callback implements OnInit {
     private route = inject(ActivatedRoute);

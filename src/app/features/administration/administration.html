@@ -5,6 +5,12 @@
                 <i class="pi pi-user mr-2"></i>
                 <span>Perfil</span>
             </p-tab>
+            @if (hasEmailProvider()) {
+            <p-tab value="seguridad">
+                <i class="pi pi-lock mr-2"></i>
+                <span>Seguridad</span>
+            </p-tab>
+            }
             @if (isAdmin()) {
             <p-tab value="empresa">
                 <i class="pi pi-building mr-2"></i>

@@ -41,6 +41,22 @@ export const noAuthGuard: CanActivateFn = async () => {
     return true;
 };
 
+/** Solo permite el acceso a usuarios con credenciales de correo/contraseña (los de OAuth no tienen contraseña que gestionar). */
+export const emailProviderGuard: CanActivateFn = async () => {
+    const supabaseService = inject(SupabaseService);
+    const router = inject(Router);
+
+    if (supabaseService.loading()) {
+        await waitForLoading(supabaseService);
+    }
+
+    if (supabaseService.hasEmailProvider()) {
+        return true;
+    }
+
+    return router.createUrlTree(['/app/administracion/perfil']);
+};
+
 function waitForLoading(service: SupabaseService): Promise<void> {
     return new Promise(resolve => {
         const check = () => {

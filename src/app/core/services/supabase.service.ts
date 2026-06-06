@@ -20,6 +20,14 @@ export class SupabaseService implements OnDestroy {
         }
     });
 
+    /** True si el usuario tiene credenciales de correo/contraseña (puede cambiar contraseña). False si solo entró por OAuth (ej. Google). */
+    hasEmailProvider = computed(() => {
+        const user = this.session()?.user ?? null;
+        if (!user) return false;
+        const identities = user.identities ?? [];
+        return identities.some((identity) => identity.provider === 'email');
+    });
+
     loading = signal<boolean>(true);
 
     constructor() {
@@ -94,6 +102,20 @@ export class SupabaseService implements OnDestroy {
             provider: 'google',
             options: { redirectTo }
         });
+        return { error: error as Error | null };
+    }
+
+    /** Envía el correo de recuperación. El link del correo abre la app con una sesión temporal. */
+    async resetPasswordForEmail(email: string): Promise<{ error: Error | null }> {
+        const { error } = await this.supabase.auth.resetPasswordForEmail(email, {
+            redirectTo: `${window.location.origin}/auth/nueva-contrasena`
+        });
+        return { error: error as Error | null };
+    }
+
+    /** Actualiza la contraseña del usuario autenticado (sirve para recuperación y para cambio desde perfil). */
+    async updatePassword(password: string): Promise<{ error: Error | null }> {
+        const { error } = await this.supabase.auth.updateUser({ password });
         return { error: error as Error | null };
     }
 
