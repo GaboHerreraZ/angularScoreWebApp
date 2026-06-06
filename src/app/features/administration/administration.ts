@@ -5,6 +5,7 @@ import { filter, map } from 'rxjs';
 import { TabsModule } from 'primeng/tabs';
 import { CardModule } from 'primeng/card';
 import { AuthService } from '@/app/core/services/auth.service';
+import { SupabaseService } from '@/app/core/services/supabase.service';
 
 @Component({
     selector: 'app-administration',
@@ -15,6 +16,9 @@ import { AuthService } from '@/app/core/services/auth.service';
 export class Administration {
     private router = inject(Router);
     private authService = inject(AuthService);
+    private supabaseService = inject(SupabaseService);
+
+    hasEmailProvider = this.supabaseService.hasEmailProvider;
 
     private url = toSignal(
         this.router.events.pipe(

@@ -73,7 +73,9 @@
                     <small class="text-red-500 mb-2 block">La contraseña debe tener al menos 6 caracteres.</small>
                 }
 
-                <div class="mb-4"></div>
+                <div class="text-right mb-4">
+                    <a routerLink="/auth/recuperar-contrasena" class="text-primary-500 text-sm font-medium cursor-pointer no-underline hover:underline">¿Olvidaste tu contraseña?</a>
+                </div>
 
                 @if (errorMessage()) {
                     <p-message severity="error" [text]="errorMessage()!" styleClass="mb-4 w-full" />
