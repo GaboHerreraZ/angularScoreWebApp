@@ -21,9 +21,8 @@ import { SelectModule } from 'primeng/select';
 import { SkeletonModule } from 'primeng/skeleton';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DialogModule } from 'primeng/dialog';
-import { TableModule } from 'primeng/table';
 import { CreditStudyService } from '../credit-study.service';
-import { CreateCreditStudy, ExtractedFinancialData } from '@/app/types/credit-study';
+import { CreateCreditStudy } from '@/app/types/credit-study';
 import { NotificationService } from '@/app/shared/components/notification/notification.service';
 import { StudyResult } from './study-result/study-result';
 import { AutoCompleteComponent } from '@/app/shared/components/auto-complete/auto-complete';
@@ -57,7 +56,6 @@ import { RecentItemsService } from '@/app/shared/services/recent-items.service';
         SkeletonModule,
         ConfirmDialogModule,
         DialogModule,
-        TableModule,
         AutoCompleteComponent,
         StudyResult,
         HelpTooltip
@@ -108,36 +106,6 @@ export class CreditStudyDetail  {
 
     private readonly MAX_PDF_SIZE_MB = 10;
     private readonly MAX_PDF_SIZE_BYTES = this.MAX_PDF_SIZE_MB * 1024 * 1024;
-
-    extractedDataVisible = signal(false);
-    extractedDataRows = signal<{ label: string; value: number | null }[]>([]);
-
-    private readonly extractionFields: { label: string; key: keyof ExtractedFinancialData }[] = [
-        { label: 'Efectivo y equivalentes', key: 'cashAndEquivalents' },
-        { label: 'Cuentas por cobrar (año reciente)', key: 'accountsReceivable1' },
-        { label: 'Cuentas por cobrar (año anterior)', key: 'accountsReceivable2' },
-        { label: 'Inventarios (año reciente)', key: 'inventories1' },
-        { label: 'Inventarios (año anterior)', key: 'inventories2' },
-        { label: 'Total activos corrientes', key: 'totalCurrentAssets' },
-        { label: 'Propiedades, planta y equipo', key: 'fixedAssetsProperty' },
-        { label: 'Total activos no corrientes', key: 'totalNonCurrentAssets' },
-        { label: 'Obligaciones financieras a corto plazo', key: 'shortTermFinancialLiabilities' },
-        { label: 'Proveedores (año reciente)', key: 'suppliers1' },
-        { label: 'Proveedores (año anterior)', key: 'suppliers2' },
-        { label: 'Total pasivos corrientes', key: 'totalCurrentLiabilities' },
-        { label: 'Obligaciones financieras a largo plazo', key: 'longTermFinancialLiabilities' },
-        { label: 'Total pasivos no corrientes', key: 'totalNonCurrentLiabilities' },
-        { label: 'Resultados acumulados', key: 'retainedEarnings' },
-        { label: 'Utilidad neta', key: 'netIncome' },
-        { label: 'Ingresos de actividades ordinarias', key: 'ordinaryActivityRevenue' },
-        { label: 'Costo de ventas', key: 'costOfSales' },
-        { label: 'Gastos de administración', key: 'administrativeExpenses' },
-        { label: 'Gastos de ventas', key: 'sellingExpenses' },
-        { label: 'Depreciación', key: 'depreciation' },
-        { label: 'Amortización', key: 'amortization' },
-        { label: 'Gastos financieros', key: 'financialExpenses' },
-        { label: 'Impuestos', key: 'taxes' },
-    ];
 
     loading = signal(false);
     extractingPdf = signal(false);
@@ -456,9 +424,20 @@ export class CreditStudyDetail  {
     }
 
     onUploadFinancialStatements(): void {
+        this.step1Form.markAllAsTouched();
+
+        if (this.step1Form.invalid) {
+            this.notificationService.warn(
+                'Complete los datos del cupo (cliente, fecha, plazo, cupo y observaciones) antes de cargar los estados financieros',
+                'Validación'
+            );
+            return;
+        }
+
         this.confirmService.confirm({
             title: 'Cargar Estados Financieros',
-            message: `Para una extracción exitosa, el archivo debe cumplir con las siguientes condiciones:\n\n` +
+            message: `Al cargar los estados financieros se creará el estudio de crédito automáticamente a partir del documento.\n\n` +
+                `Para una extracción exitosa, el archivo debe cumplir con las siguientes condiciones:\n\n` +
                 `- Formato PDF\n` +
                 `- Peso máximo de ${this.MAX_PDF_SIZE_MB} MB\n` +
                 `- Debe ser un documento digital legible (no se aceptan copias escaneadas, fotografías ni capturas de pantalla)`,
@@ -491,41 +470,48 @@ export class CreditStudyDetail  {
                 return;
             }
 
+            const step1Data = this.step1Form.getRawValue();
+            const customerId = step1Data.customerId?.id?.toString() ?? '';
+            const studyDate = step1Data.studyDate ? this.toIsoDate(step1Data.studyDate) : '';
+
+            if (!customerId || !studyDate) {
+                this.notificationService.warn('Complete los datos del cupo antes de cargar los estados financieros', 'Validación');
+                return;
+            }
+
             this.extractingPdf.set(true);
-            this.creditStudyService.extractFinancialData(file).pipe(
+            this.creditStudyService.extractFinancialData(file, {
+                customerId,
+                studyDate,
+                requestedTerm: step1Data.requestedTerm ?? 0,
+                requestedCreditLine: step1Data.requestedCreditLine ?? 0,
+                notes: step1Data.notes
+            }).pipe(
                 finalize(() => this.extractingPdf.set(false)),
                 takeUntilDestroyed(this.destroyRef)
-            ).subscribe((data) => {
-                this.applyExtractedData(data);
+            ).subscribe((study) => {
+                this.notificationService.success('Estudio de crédito creado a partir de los estados financieros');
+                this.navigateToCreatedStudy(study);
             });
         };
 
         input.click();
     }
 
-    private applyExtractedData(data: ExtractedFinancialData): void {
-        const patchData: Record<string, any> = {};
-        const rows: { label: string; value: number | null }[] = [];
-
-        for (const field of this.extractionFields) {
-            const value = data[field.key] ?? null;
-            patchData[field.key] = value;
-            rows.push({ label: field.label, value: value as number | null });
-        }
-
-        if (data.balanceSheetDate) {
-            patchData['balanceSheetDate'] = new Date(data.balanceSheetDate);
-        }
-
-        this.step2Form.patchValue(patchData);
-        this.step2Form.markAsDirty();
-        this.formValuesSignal.set(this.step2Form.getRawValue());
-        this.extractedDataRows.set(rows);
-        this.extractedDataVisible.set(true);
+    private toIsoDate(date: Date): string {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
     }
 
-    onCloseExtractedData(): void {
-        this.extractedDataVisible.set(false);
+    private navigateToCreatedStudy(study: CreateCreditStudy): void {
+        const fromCustomerId = this.queryCustomerId();
+        if (fromCustomerId) {
+            this.router.navigate(['/app/clientes/detalle-cliente', fromCustomerId, 'estudios-credito']);
+        } else if (study?.id) {
+            this.router.navigate(['/app/estudio-credito/detalle-estudio', study.id]);
+        }
     }
 
     onViewCustomer(): void {
@@ -562,11 +548,71 @@ export class CreditStudyDetail  {
     }
 
     canPerformStudy(): boolean {
-        return this.isEditMode() && this.step1Form.valid && this.step2Form.valid;
+        return this.isEditMode() && !!this.creditStudyId();
+    }
+
+    private readonly fieldLabels: Record<string, string> = {
+        customerId: 'Cliente',
+        studyDate: 'Fecha del Estudio',
+        requestedTerm: 'Plazo Solicitado',
+        requestedCreditLine: 'Cupo de Crédito Solicitado',
+        notes: 'Observaciones',
+        cashAndEquivalents: 'Efectivo y Equivalentes',
+        accountsReceivable1: 'Cuentas Por Cobrar Periodo Anterior',
+        accountsReceivable2: 'Cuentas Por Cobrar Periodo Actual',
+        balanceSheetDate: 'Fecha Balance General',
+        inventories1: 'Inventario Periodo Anterior',
+        inventories2: 'Inventario Periodo Actual',
+        totalCurrentAssets: 'Total Activos Corrientes',
+        fixedAssetsProperty: 'Activos Fijos / Propiedad',
+        totalNonCurrentAssets: 'Total Activos No Corrientes',
+        shortTermFinancialLiabilities: 'Obligaciones Financieras Corrientes',
+        suppliers1: 'Cuentas Comerciales Por Pagar Año Anterior',
+        suppliers2: 'Cuentas Comerciales Por Pagar Año Actual',
+        totalCurrentLiabilities: 'Total Pasivos Corrientes',
+        longTermFinancialLiabilities: 'Obligaciones Financieras No Corrientes',
+        totalNonCurrentLiabilities: 'Total Pasivos No Corrientes',
+        retainedEarnings: 'Ganancias Acumuladas',
+        incomeStatementId: 'Período',
+        ordinaryActivityRevenue: 'Ingresos Actividad Ordinaria',
+        costOfSales: 'Costos De Venta',
+        administrativeExpenses: 'Gastos Administrativos',
+        sellingExpenses: 'Gastos de Ventas o Distribución',
+        depreciation: 'Depreciación',
+        amortization: 'Amortización',
+        financialExpenses: 'Gastos Financieros',
+        taxes: 'Impuestos',
+        netIncome: 'Utilidad Neta del Ejercicio'
+    };
+
+    private getMissingRequiredFields(): string[] {
+        const missing: string[] = [];
+        const forms: FormGroup[] = [this.step1Form, this.step2Form];
+        for (const form of forms) {
+            Object.keys(form.controls).forEach(key => {
+                const control = form.get(key);
+                if (control?.invalid && control.errors?.['required']) {
+                    missing.push(this.fieldLabels[key] ?? key);
+                }
+            });
+        }
+        return missing;
     }
 
     onPerformStudy(activateCallback: (step: number) => void): void {
-        if (!this.canPerformStudy() || !this.creditStudyId()) {
+        if (!this.creditStudyId()) {
+            return;
+        }
+
+        this.step1Form.markAllAsTouched();
+        this.step2Form.markAllAsTouched();
+
+        const missing = this.getMissingRequiredFields();
+        if (missing.length) {
+            this.notificationService.warn(
+                `Faltan campos requeridos: ${missing.join(', ')}.`,
+                'Campos requeridos faltantes'
+            );
             return;
         }
 

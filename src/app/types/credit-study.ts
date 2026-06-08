@@ -44,6 +44,13 @@ export interface ViabilityConditions {
     dimensions: Record<string, ViabilityDimension>;
 }
 
+export interface ReliabilityFlag {
+    severity: 'danger' | 'warning' | 'info';
+    category: string;
+    title: string;
+    detail: string;
+}
+
 export interface CreateCreditStudy {
     id: string;
     requestedTerm?: number;
@@ -100,6 +107,7 @@ export interface CreateCreditStudy {
     viabilityScore?: number;
     viabilityStatus?: string;
     viabilityConditions?: ViabilityConditions;
+    reliabilityFlags?: ReliabilityFlag[];
     aiAnalyses?: AiAnalysisItem[];
     promissoryNotes?: PromissoryNote[];
     status?: {
