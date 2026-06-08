@@ -11,7 +11,6 @@ import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { TextareaModule } from 'primeng/textarea';
 import { SelectModule } from 'primeng/select';
-import { AutoCompleteModule, AutoCompleteCompleteEvent } from 'primeng/autocomplete';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { FluidModule } from 'primeng/fluid';
 import { MessageModule } from 'primeng/message';
@@ -20,6 +19,7 @@ import { CustomersService } from '../customers.service';
 import { PhoneInput } from '@/app/shared/components/phone-input/phone-input';
 import { StateControl } from '@/app/shared/components/state-control/state-control';
 import { CityControl } from '@/app/shared/components/city-control/city-control';
+import { SectorSelect } from '@/app/shared/components/sector-select/sector-select';
 import { HelpTooltip } from '@/app/shared/components/help-tooltip/help-tooltip';
 import { ParameterService } from '@/app/core/services/parameter.service';
 import { Parameter } from '@/app/types/parameter';
@@ -38,7 +38,6 @@ import { NotificationService } from '@/app/shared/components/notification/notifi
         InputNumberModule,
         TextareaModule,
         SelectModule,
-        AutoCompleteModule,
         FloatLabelModule,
         FluidModule,
         MessageModule,
@@ -46,6 +45,7 @@ import { NotificationService } from '@/app/shared/components/notification/notifi
         PhoneInput,
         StateControl,
         CityControl,
+        SectorSelect,
         HelpTooltip
     ],
     templateUrl: './customer-detail.html'
@@ -83,20 +83,6 @@ export class CustomerDetail {
 
     personTypes = toSignal(this.parameterService.getByType('person_type'));
 
-    sectorTypes = toSignal(this.parameterService.getByType('sector'));
-
-    filteredEconomicActivities = signal<Parameter[]>([]);
-
-    onSearchEconomicActivity(event: AutoCompleteCompleteEvent): void {
-        const query = (event.query ?? '').toLowerCase().trim();
-        const all = this.sectorTypes() ?? [];
-        if (!query) {
-            this.filteredEconomicActivities.set(all);
-            return;
-        }
-        this.filteredEconomicActivities.set(all.filter(s => s.label.toLowerCase().includes(query)));
-    }
-
     identificationTypes = toSignal(this.parameterService.getByType('identification_type'));
 
     form = new FormGroup({
@@ -109,7 +95,7 @@ export class CustomerDetail {
         legalRepIdentificationTypeId: new FormControl<Parameter | null>(null),
         legalRepEmail: new FormControl('', { nonNullable: true }),
         legalRepPhone: new FormControl('', { nonNullable: true }),
-        economicActivityId: new FormControl({}, { nonNullable: true, validators:[Validators.required] }),
+        economicActivityId: new FormControl<Parameter | null>(null, { validators: [Validators.required] }),
         seniority: new FormControl(0, { nonNullable: true, validators: [Validators.required, Validators.min(0)] }),
         email: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.email] }),
         phone: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
@@ -204,7 +190,6 @@ export class CustomerDetail {
         ).subscribe((customer) => {
             const personType = this.personTypes()?.find(p => p.id === customer.personTypeId);
             const identificationType = this.identificationTypes()?.find(i => i.id === customer.identificationTypeId);
-            const economicActivity = this.sectorTypes()?.find(s => s.id === customer.economicActivityId);
 
             this.pendingStateName = customer.state ?? null;
             this.pendingCityName = customer.city ?? null;
@@ -219,7 +204,8 @@ export class CustomerDetail {
                 legalRepIdentificationTypeId: this.identificationTypes()?.find(i => i.id === customer.legalRepIdentificationTypeId) ?? null,
                 legalRepEmail: customer.legalRepEmail ?? '',
                 legalRepPhone: customer.legalRepPhone ?? '',
-                economicActivityId: economicActivity,
+                // SectorSelect resolves the full Parameter from the id once its list loads.
+                economicActivityId: customer.economicActivityId != null ? ({ id: customer.economicActivityId } as Parameter) : null,
                 seniority: customer.seniority ?? 0,
                 email: customer.email ?? '',
                 phone: customer.phone ?? '',

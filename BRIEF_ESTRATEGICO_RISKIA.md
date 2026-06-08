@@ -10,7 +10,7 @@ Fecha: Marzo 2026
 ### 1.1 Identidad de Marca, Historia y Objetivos
 
 **Que es RISKIA:**
-RISKIA es una plataforma SaaS de analisis crediticio inteligente disenada para PYMEs colombianas. Automatiza el proceso de evaluacion financiera de clientes, calculando mas de 15 indicadores financieros (EBITDA, capacidad de pago, rotacion de inventarios, indices de endeudamiento, entre otros) y generando un scoring de riesgo de 0 a 100 que categoriza automaticamente el nivel de riesgo como bajo, moderado o alto.
+RISKIA es una plataforma SaaS de analisis crediticio inteligente disenada para PYMEs colombianas. Automatiza el proceso de evaluacion financiera de clientes, calculando mas de 10 indicadores financieros (EBITDA, capacidad de pago, rotacion de inventarios, indices de endeudamiento, entre otros) y generando un scoring de riesgo de 0 a 100 que categoriza automaticamente el nivel de riesgo como bajo, moderado o alto.
 
 **Esencia de la marca:**
 RISKIA nace de la necesidad real que enfrentan las PYMEs al momento de tomar decisiones de credito: procesos manuales, lentos, inconsistentes y propensos al error humano. La plataforma transforma un proceso que tradicionalmente toma dias en algo que se resuelve en minutos, con precision del 98%.
@@ -123,7 +123,7 @@ RISKIA se posiciona como una herramienta tecnologica especializada en analisis c
 
 **Estilo de comunicacion:**
 - Lenguaje directo, sin jerga financiera excesiva (traducir los terminos tecnicos)
-- Uso de cifras concretas para respaldar afirmaciones ("15+ indicadores", "resultados en minutos", "scoring de 0 a 100")
+- Uso de cifras concretas para respaldar afirmaciones ("10+ indicadores", "resultados en minutos", "scoring de 0 a 100")
 - Preguntas retoricas que conecten con el dolor: "Cuanto te ha costado un credito mal otorgado?"
 - Tuteo (coherente con el mercado colombiano) en redes sociales; usted/ustedes en comunicaciones formales
 
@@ -155,7 +155,7 @@ El mercado de analisis crediticio en Colombia esta dominado por dos extremos:
 | Precio de entrada | Gratis (plan Basico) | Desde $500.000+/mes | "Gratis" (costo oculto en errores) |
 | Tiempo de analisis | Minutos | Horas | Dias |
 | Implementacion | Inmediata (SaaS) | Semanas/meses | N/A |
-| Indicadores automaticos | 15+ | Variable | Manual |
+| Indicadores automaticos | 10+ | Variable | Manual |
 | Curva de aprendizaje | Baja (onboarding 3 pasos) | Alta | Media |
 | Multi-empresa | Si (desde plan Profesional) | Si | No estandarizado |
 

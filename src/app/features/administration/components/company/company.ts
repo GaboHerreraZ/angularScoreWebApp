@@ -6,7 +6,6 @@ import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
-import { AutoCompleteModule, AutoCompleteCompleteEvent } from 'primeng/autocomplete';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { FluidModule } from 'primeng/fluid';
 import { TagModule } from 'primeng/tag';
@@ -14,6 +13,7 @@ import { SkeletonModule } from 'primeng/skeleton';
 import { TooltipModule } from 'primeng/tooltip';
 import { DialogModule } from 'primeng/dialog';
 import { CustomTable } from '@/app/shared/components/table/table';
+import { SectorSelect } from '@/app/shared/components/sector-select/sector-select';
 import { BillingForm } from '@/app/shared/components/billing-form/billing-form';
 import { buildBillingForm } from '@/app/shared/components/billing-form/billing-form.builder';
 import { CompanyService } from './company.service';
@@ -35,7 +35,6 @@ import { TableActionEvent, TableSettings } from '@/app/types/table';
         CardModule,
         InputTextModule,
         SelectModule,
-        AutoCompleteModule,
         FloatLabelModule,
         FluidModule,
         TagModule,
@@ -43,7 +42,8 @@ import { TableActionEvent, TableSettings } from '@/app/types/table';
         TooltipModule,
         DialogModule,
         CustomTable,
-        BillingForm
+        BillingForm,
+        SectorSelect
     ],
     templateUrl: './company.html'
 })
@@ -63,23 +63,6 @@ export class Company {
         params: () => this.user!.id as string,
         loader: ({ params: userId }) => firstValueFrom(this.companyService.getCompanyByUser(userId))
     });
-
-    sectorsResource = resource<Parameter[], string>({
-        params: () => 'sector',
-        loader: ({ params: type }) => firstValueFrom(this.parameterService.getByType(type))
-    });
-
-    filteredSectors = signal<Parameter[]>([]);
-
-    onSearchSector(event: AutoCompleteCompleteEvent): void {
-        const query = (event.query ?? '').toLowerCase().trim();
-        const all = this.sectorsResource.value() ?? [];
-        if (!query) {
-            this.filteredSectors.set(all);
-            return;
-        }
-        this.filteredSectors.set(all.filter(s => s.label.toLowerCase().includes(query)));
-    }
 
     accountTypesResource = resource<Parameter[], string>({
         params: () => 'account_type',
@@ -178,15 +161,13 @@ export class Company {
                 this.company.set(c);
                 this.logoPreview.set(null);
 
-                const sectors = this.sectorsResource.value() ?? [];
-                const sector = sectors.find(s => s.id === c.sectorId) ?? null;
-
                 this.form.patchValue({
                     name: c.name,
                     nit: c.nit,
                     city: c.city,
                     state: c.state,
-                    sectorId: sector,
+                    // SectorSelect resolves the full Parameter from the id once its list loads.
+                    sectorId: c.sectorId != null ? ({ id: c.sectorId } as Parameter) : null,
                     accountTypeId: c.accountTypeId,
                     accountBankId: c.accountBankId,
                     accountNumber: c.accountNumber,
