@@ -3,7 +3,7 @@ import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable, BehaviorSubject, of, catchError, tap, switchMap } from 'rxjs';
 import { ApiService } from '@/app/core/services/api.service';
 import { AuthService } from '@/app/core/services/auth.service';
-import { AiAnalysisResponse, CreateCreditStudy, ExtractedFinancialData } from '@/app/types/credit-study';
+import { AiAnalysisResponse, CreateCreditStudy } from '@/app/types/credit-study';
 import { environment } from '@/environments/environment';
 
 interface LoadCreditStudiesParams {
@@ -84,10 +84,27 @@ export class CreditStudyService {
         return this.apiService.get<any>(`${this.basePath}/${id}/perform`, {});
     }
 
-    extractFinancialData(file: File): Observable<ExtractedFinancialData> {
+    extractFinancialData(file: File, params: {
+        customerId: string;
+        studyDate: string;
+        requestedTerm: number;
+        requestedCreditLine: number;
+        incomeStatementId?: number;
+        notes?: string;
+    }): Observable<CreateCreditStudy> {
         const formData = new FormData();
         formData.append('file', file);
-        return this.apiService.post<ExtractedFinancialData>(`companies/${this.companyId()}/ai-analyses/extract-pdf`, formData);
+        formData.append('customerId', params.customerId);
+        formData.append('studyDate', params.studyDate);
+        formData.append('requestedTerm', String(params.requestedTerm));
+        formData.append('requestedCreditLine', String(params.requestedCreditLine));
+        if (params.incomeStatementId != null) {
+            formData.append('incomeStatementId', String(params.incomeStatementId));
+        }
+        if (params.notes) {
+            formData.append('notes', params.notes);
+        }
+        return this.apiService.post<CreateCreditStudy>(`companies/${this.companyId()}/ai-analyses/extract-pdf`, formData);
     }
 
     previewPromissoryNote(creditStudyId: string): Observable<{ html: string }> {

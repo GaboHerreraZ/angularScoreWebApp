@@ -8,7 +8,7 @@ import { ButtonModule } from 'primeng/button';
 import { AccordionModule } from 'primeng/accordion';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
-import { AiAnalysisResponse, CreateCreditStudy, ViabilityConditions, ViabilityDimension } from '@/app/types/credit-study';
+import { AiAnalysisResponse, CreateCreditStudy, ReliabilityFlag, ViabilityConditions, ViabilityDimension } from '@/app/types/credit-study';
 import { CreditStudyService } from '../../credit-study.service';
 import { NotificationService } from '@/app/shared/components/notification/notification.service';
 import { HelpTooltip } from '@/app/shared/components/help-tooltip/help-tooltip';
@@ -117,6 +117,23 @@ export class StudyResult {
 
     alerts = computed(() => this.viability()?.alerts ?? []);
 
+    reliabilityFlags = computed<ReliabilityFlag[]>(() => {
+        const flags = this.study().reliabilityFlags;
+        if (!flags?.length) return [];
+        const order = { danger: 0, warning: 1, info: 2 } as Record<string, number>;
+        return [...flags].sort((a, b) => (order[a.severity] ?? 3) - (order[b.severity] ?? 3));
+    });
+
+    reliabilityFlagGroups = computed(() => {
+        const severities: ReliabilityFlag['severity'][] = ['danger', 'warning', 'info'];
+        return severities
+            .map(severity => ({
+                severity,
+                flags: this.reliabilityFlags().filter(f => f.severity === severity)
+            }))
+            .filter(group => group.flags.length > 0);
+    });
+
     dimensions = computed(() => {
         const dims = this.viability()?.dimensions;
         if (!dims) return [];
@@ -147,6 +164,46 @@ export class StudyResult {
         danger: 'pi pi-times-circle',
         info: 'pi pi-info-circle'
     };
+
+    reliabilityFlagConfig: Record<string, { icon: string; iconColor: string; bg: string; border: string; badgeBg: string; badgeColor: string; headerBg: string; label: string; groupLabel: string }> = {
+        danger: {
+            icon: 'pi pi-times-circle',
+            iconColor: 'text-red-600 dark:text-red-400',
+            bg: 'bg-red-50 dark:bg-red-900/20',
+            border: 'border-red-200 dark:border-red-800',
+            badgeBg: 'bg-red-100 dark:bg-red-900/30',
+            badgeColor: 'text-red-700 dark:text-red-400',
+            headerBg: 'bg-red-50/70 dark:bg-red-900/20',
+            label: 'Crítico',
+            groupLabel: 'Críticas'
+        },
+        warning: {
+            icon: 'pi pi-exclamation-triangle',
+            iconColor: 'text-amber-600 dark:text-amber-400',
+            bg: 'bg-amber-50 dark:bg-amber-900/20',
+            border: 'border-amber-200 dark:border-amber-800',
+            badgeBg: 'bg-amber-100 dark:bg-amber-900/30',
+            badgeColor: 'text-amber-700 dark:text-amber-400',
+            headerBg: 'bg-amber-50/70 dark:bg-amber-900/20',
+            label: 'Advertencia',
+            groupLabel: 'Advertencias'
+        },
+        info: {
+            icon: 'pi pi-info-circle',
+            iconColor: 'text-blue-600 dark:text-blue-400',
+            bg: 'bg-blue-50 dark:bg-blue-900/20',
+            border: 'border-blue-200 dark:border-blue-800',
+            badgeBg: 'bg-blue-100 dark:bg-blue-900/30',
+            badgeColor: 'text-blue-700 dark:text-blue-400',
+            headerBg: 'bg-blue-50/70 dark:bg-blue-900/20',
+            label: 'Informativo',
+            groupLabel: 'Informativas'
+        }
+    };
+
+    getReliabilityFlagConfig(severity: string) {
+        return this.reliabilityFlagConfig[severity] ?? this.reliabilityFlagConfig['info'];
+    }
 
     dimensionTooltips: Record<string, string> = {
         financialHealth: 'Evalua la solidez financiera general de la empresa mediante indicadores clave como el nivel de endeudamiento, la relacion entre activos y pasivos, y la capacidad de generar utilidades. Un puntaje alto indica estabilidad y bajo riesgo de insolvencia.',
