@@ -180,7 +180,7 @@ Dias promedio que la empresa tarda en pagar a sus proveedores. Es un dato **info
 
 ## 3. Sistema de Calificacion: 4 Dimensiones + Sugerencias de Pago
 
-El puntaje de viabilidad se calcula sobre 100 puntos, distribuidos en 4 dimensiones de 25 puntos cada una. Cada dimension evalua un aspecto diferente de la solicitud de credito y retorna:
+El puntaje de viabilidad se calcula sobre 100 puntos, distribuidos en 5 dimensiones de 25 puntos cada una. Cada dimension evalua un aspecto diferente de la solicitud de credito y retorna:
 
 - **score:** Puntaje obtenido (0, 12, 15 o 25)
 - **reason:** Explicacion breve del porque del score, con los valores concretos que lo determinaron

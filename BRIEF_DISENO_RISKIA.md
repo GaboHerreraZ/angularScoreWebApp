@@ -13,7 +13,7 @@ Fecha: Marzo 2026
 Riskia combina "Risk" (riesgo, en ingles) con el sufijo "-ia" que evoca tecnologia, inteligencia artificial y modernidad (similar a marcas tech como Nvidia, Sophia, Alexa). El nombre comunica inmediatamente el proposito de la marca: gestionar y evaluar riesgo crediticio. Es corto, memorable, facil de pronunciar en espanol e ingles, y tiene potencial de dominio web (.com, .co, .app).
 
 **Que hace Riskia:**
-Es una plataforma SaaS que automatiza el analisis crediticio para PYMEs colombianas. Calcula 15+ indicadores financieros, genera un scoring de riesgo de 0 a 100, y permite tomar decisiones de credito inteligentes en minutos. Reemplaza los procesos manuales en Excel por una herramienta profesional accesible.
+Es una plataforma SaaS que automatiza el analisis crediticio para PYMEs colombianas. Calcula 10+ indicadores financieros, genera un scoring de riesgo de 0 a 100, y permite tomar decisiones de credito inteligentes en minutos. Reemplaza los procesos manuales en Excel por una herramienta profesional accesible.
 
 **Publico objetivo:**
 - Gerentes y directores financieros de PYMEs (30-55 anos)

@@ -8,7 +8,6 @@ import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
-import { AutoCompleteModule, AutoCompleteCompleteEvent } from 'primeng/autocomplete';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { FluidModule } from 'primeng/fluid';
 import { StepperModule } from 'primeng/stepper';
@@ -23,6 +22,7 @@ import { Notification } from '@/app/shared/components/notification/notification'
 import { PhoneInput } from '@/app/shared/components/phone-input/phone-input';
 import { StateControl } from '@/app/shared/components/state-control/state-control';
 import { CityControl } from '@/app/shared/components/city-control/city-control';
+import { SectorSelect } from '@/app/shared/components/sector-select/sector-select';
 import { SubscriptionPlansList } from '@/app/shared/components/subscription-plans-list/subscription-plans-list';
 import { NotificationService } from '@/app/shared/components/notification/notification.service';
 import { AuthService } from '@/app/core/services/auth.service';
@@ -43,7 +43,6 @@ import { cardNumberValidator, cardExpiryValidator, cvcValidator, detectCardType,
         CardModule,
         InputTextModule,
         SelectModule,
-        AutoCompleteModule,
         FloatLabelModule,
         FluidModule,
         StepperModule,
@@ -58,6 +57,7 @@ import { cardNumberValidator, cardExpiryValidator, cvcValidator, detectCardType,
         PhoneInput,
         StateControl,
         CityControl,
+        SectorSelect,
         SubscriptionPlansList
     ],
     templateUrl: './onboarding.html'
@@ -103,23 +103,6 @@ export class Onboarding {
         return roles.find(r => r.code === 'administrator') ?? null;
     });
 
-    sectorsResource = resource<Parameter[], {}>({
-        params: () => ({}),
-        loader: () => firstValueFrom(this.parameterService.getByType('sector'))
-    });
-
-    filteredSectors = signal<Parameter[]>([]);
-
-    onSearchSector(event: AutoCompleteCompleteEvent): void {
-        const query = (event.query ?? '').toLowerCase().trim();
-        const all = this.sectorsResource.value() ?? [];
-        if (!query) {
-            this.filteredSectors.set(all);
-            return;
-        }
-        this.filteredSectors.set(all.filter(s => s.label.toLowerCase().includes(query)));
-    }
-
     identificationTypesResource = resource<Parameter[], {}>({
         params: () => ({}),
         loader: () => firstValueFrom(this.parameterService.getByType('identification_type'))
@@ -131,7 +114,7 @@ export class Onboarding {
     });
 
     step2Loading = computed(() =>
-        this.sectorsResource.isLoading() || this.identificationTypesResource.isLoading() || this.savingProfileAndCompany()
+        this.identificationTypesResource.isLoading() || this.savingProfileAndCompany()
     );
 
     campaign = computed(() => this.plansResource.value()?.campaign ?? null);

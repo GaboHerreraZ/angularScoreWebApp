@@ -1,0 +1,15 @@
+<p-floatlabel [variant]="variant()">
+    <p-autoComplete
+        [id]="inputId()"
+        [formControl]="innerControl"
+        [suggestions]="filtered()"
+        (completeMethod)="onSearch($event)"
+        optionLabel="codeLabel"
+        [dropdown]="true"
+        [forceSelection]="true"
+        [invalid]="invalid()"
+        (onBlur)="onBlur()"
+        [styleClass]="styleClass()"
+    />
+    <label [for]="inputId()">{{ label() }}</label>
+</p-floatlabel>
