@@ -18,8 +18,11 @@ export class Callback implements OnInit {
     private companyService = inject(CompanyService);
 
     async ngOnInit(): Promise<void> {
-        const invitationId = this.route.snapshot.queryParamMap.get('invitation');
-        const token = this.route.snapshot.queryParamMap.get('token');
+        // invitation/token viajan por sessionStorage (el redirectTo de OAuth debe ir sin query params),
+        // con fallback a los query params por compatibilidad.
+        const pending = this.readPendingInvitation();
+        const invitationId = pending?.invitationId ?? this.route.snapshot.queryParamMap.get('invitation');
+        const token = pending?.token ?? this.route.snapshot.queryParamMap.get('token');
 
         // Esperamos a que la sesión se establezca
         const maxAttempts = 20;
@@ -53,5 +56,17 @@ export class Callback implements OnInit {
         }
 
         this.router.navigate(['/auth/iniciar-sesion']);
+    }
+
+    /** Lee (y consume) la invitación pendiente guardada antes del redirect de OAuth. */
+    private readPendingInvitation(): { invitationId: string; token: string } | null {
+        const raw = sessionStorage.getItem('pending_invitation');
+        if (!raw) return null;
+        sessionStorage.removeItem('pending_invitation');
+        try {
+            return JSON.parse(raw);
+        } catch {
+            return null;
+        }
     }
 }

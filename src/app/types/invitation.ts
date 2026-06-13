@@ -1,10 +1,15 @@
+export type InvitationType = 'account_onboarding' | 'collaboration';
+
 export interface Invitation {
     id: string;
     companyId: string;
-    invitedBy: string;
+    invitedBy: string | null;
     email: string;
     roleId: number;
+    type: InvitationType;
     statusId: number;
+    token?: string;
+    expiresAt?: string;
     respondedAt: string | null;
     createdAt: string;
     updatedAt: string;
@@ -25,7 +30,7 @@ export interface Invitation {
         name: string;
         lastName: string;
         email: string;
-    };
+    } | null;
     status: {
         id: number;
         type: string;

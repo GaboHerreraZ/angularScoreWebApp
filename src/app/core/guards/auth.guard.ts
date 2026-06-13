@@ -18,6 +18,13 @@ export const authGuard: CanActivateFn = async (_route, state) => {
         if (user?.id && !authService.currentProfile()) {
             await authService.loadProfile(user.id);
         }
+
+        // Bloquear al asistente cuyo acceso fue revocado en su empresa.
+        const profile = authService.currentProfile();
+        if (profile && profile.role === 'assistant' && !profile.isUserActiveInCompany) {
+            return router.createUrlTree(['/'], { queryParams: { blocked: 'true' } });
+        }
+
         return true;
     }
 

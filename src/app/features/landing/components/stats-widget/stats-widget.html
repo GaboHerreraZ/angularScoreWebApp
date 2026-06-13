@@ -1,13 +1,13 @@
 <section id="how-it-works" class="px-6 sm:px-12 lg:px-20 py-16 lg:py-24 bg-surface-50 dark:bg-surface-900 max-w-screen-2xl mx-auto">
     <div class="text-center mb-16" appScrollAnimate="fade-up">
         <span class="text-primary font-bold text-sm uppercase tracking-widest">Cómo funciona</span>
-        <h2 class="font-extrabold text-3xl sm:text-4xl lg:text-5xl mt-3 mb-4 text-color">Del PDF al pagaré, en cuatro pasos</h2>
-        <p class="text-lg text-muted-color max-w-2xl mx-auto">Un flujo diseñado para analistas de crédito, contadores y gerentes financieros.</p>
+        <h2 class="font-extrabold text-3xl sm:text-4xl lg:text-5xl mt-3 mb-4 text-color">Del PDF al pagaré, en cinco pasos</h2>
+        <p class="text-lg text-muted-color max-w-2xl mx-auto">Un flujo diseñado para analistas de crédito, contadores y gerentes financieros: combinamos los datos que entrega el cliente con información oficial de las centrales de riesgo.</p>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 relative">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 relative">
         <!-- Connector line (desktop only) -->
-        <div class="hidden lg:block absolute top-16 left-[12.5%] right-[12.5%] h-0.5 bg-linear-to-r from-primary/20 via-primary/40 to-primary/20"></div>
+        <div class="hidden lg:block absolute top-16 left-[10%] right-[10%] h-0.5 bg-linear-to-r from-primary/20 via-primary/40 to-primary/20"></div>
 
         <!-- Step 1 -->
         <div class="flex flex-col items-center text-center group" appScrollAnimate="fade-up">
@@ -29,21 +29,31 @@
             <p class="text-muted-color leading-relaxed">EBITDA, Z-Score de Altman, capacidad de pago y rotación de cartera.</p>
         </div>
 
-        <!-- Step 3 -->
+        <!-- Step 3 - Datacrédito -->
         <div class="flex flex-col items-center text-center group" appScrollAnimate="fade-up" [animateDelay]="200">
-            <div class="relative z-10 w-16 h-16 rounded-2xl bg-linear-to-br from-orange-500 to-orange-600 flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300">
-                <i class="pi pi-bullseye text-white text-2xl"></i>
-                <span class="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-surface-0 dark:bg-surface-900 border-2 border-orange-500 text-orange-500 text-xs font-bold flex items-center justify-center">3</span>
+            <div class="relative z-10 w-16 h-16 rounded-2xl bg-linear-to-br from-red-500 to-red-600 flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                <i class="pi pi-shield text-white text-2xl"></i>
+                <span class="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-surface-0 dark:bg-surface-900 border-2 border-red-500 text-red-500 text-xs font-bold flex items-center justify-center">3</span>
             </div>
-            <h3 class="font-bold text-xl mb-3 text-color mt-0">Score y recomendación</h3>
-            <p class="text-muted-color leading-relaxed">Puntaje de 0 a 100 con cupo y plazo recomendado, listo para negociar.</p>
+            <h3 class="font-bold text-xl mb-3 text-color mt-0">Contraste con Datacrédito</h3>
+            <p class="text-muted-color leading-relaxed">Validamos la información del cliente contra su historial real en las centrales de riesgo vía <strong>Datacrédito</strong>.</p>
         </div>
 
         <!-- Step 4 -->
         <div class="flex flex-col items-center text-center group" appScrollAnimate="fade-up" [animateDelay]="300">
+            <div class="relative z-10 w-16 h-16 rounded-2xl bg-linear-to-br from-orange-500 to-orange-600 flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                <i class="pi pi-bullseye text-white text-2xl"></i>
+                <span class="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-surface-0 dark:bg-surface-900 border-2 border-orange-500 text-orange-500 text-xs font-bold flex items-center justify-center">4</span>
+            </div>
+            <h3 class="font-bold text-xl mb-3 text-color mt-0">Score de riesgo</h3>
+            <p class="text-muted-color leading-relaxed">Puntaje de 0 a 100 que combina los indicadores financieros con el comportamiento crediticio real.</p>
+        </div>
+
+        <!-- Step 5 -->
+        <div class="flex flex-col items-center text-center group" appScrollAnimate="fade-up" [animateDelay]="400">
             <div class="relative z-10 w-16 h-16 rounded-2xl bg-linear-to-br from-green-500 to-green-600 flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300">
                 <i class="pi pi-pen-to-square text-white text-2xl"></i>
-                <span class="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-surface-0 dark:bg-surface-900 border-2 border-green-500 text-green-500 text-xs font-bold flex items-center justify-center">4</span>
+                <span class="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-surface-0 dark:bg-surface-900 border-2 border-green-500 text-green-500 text-xs font-bold flex items-center justify-center">5</span>
             </div>
             <h3 class="font-bold text-xl mb-3 text-color mt-0">Pagaré digital</h3>
             <p class="text-muted-color leading-relaxed">Genera el pagaré con los términos aprobados y envíalo a firma electrónica.</p>

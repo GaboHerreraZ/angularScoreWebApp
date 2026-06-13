@@ -59,11 +59,11 @@
                     <li>
                         <a
                             class="block px-4 py-3 lg:py-2 cursor-pointer font-semibold text-muted-color hover:text-primary transition-colors duration-300 rounded-lg hover:bg-primary/5"
-                            (click)="scrollTo('security')"
+                            (click)="scrollTo('como-empezar')"
                             pStyleClass="#landing-menu"
                             leaveActiveClass="animate-fadeout"
                             leaveToClass="hidden"
-                        >Seguridad</a>
+                        >Cómo empezar</a>
                     </li>
                     <li>
                         <a
@@ -91,12 +91,15 @@
                     >
                         <button pButton pRipple label="Iniciar Sesión" icon="pi pi-sign-in" rounded outlined class="w-full lg:w-auto"></button>
                     </a>
-                    <a
-                        [routerLink]="['/auth/iniciar-sesion']"
+                    <button
+                        pButton
+                        pRipple
+                        label="Hablar con el área comercial"
+                        icon="pi pi-comments"
+                        rounded
                         class="w-full lg:w-auto"
-                    >
-                        <button pButton pRipple label="Registrarse" icon="pi pi-user-plus" rounded class="w-full lg:w-auto"></button>
-                    </a>
+                        (click)="scrollTo('como-empezar')"
+                    ></button>
                 </div>
             </div>
         </div>

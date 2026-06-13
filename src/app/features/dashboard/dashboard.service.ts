@@ -1,5 +1,5 @@
-import { inject, Injectable, signal } from '@angular/core';
-import { Observable } from 'rxjs';
+import { computed, inject, Injectable, signal } from '@angular/core';
+import { Observable, throwError } from 'rxjs';
 import { ApiService } from '@/app/core/services/api.service';
 import { AuthService } from '@/app/core/services/auth.service';
 import { BasicDashboard, AdvancedDashboard, DashboardLevel } from '@/app/types/dashboard';
@@ -9,25 +9,29 @@ export class DashboardService {
     private apiService = inject(ApiService);
     private authService = inject(AuthService);
 
-    companyId = signal<string>('');
-    dashboardLevel = signal<DashboardLevel>('basic');
+    // Derivado del perfil de forma reactiva: el servicio es singleton y el perfil
+    // puede no estar cargado cuando se construye (p. ej. justo tras el login/invitación).
+    companyId = computed(() => this.authService.currentProfile()?.companyId ?? '');
+    dashboardLevel = computed<DashboardLevel>(
+        () => (this.authService.currentProfile()?.permissions.dashboardLevel as DashboardLevel) ?? 'basic'
+    );
     loading = signal<boolean>(false);
-
-    constructor() {
-        const currentUser = this.authService.currentProfile();
-        this.companyId.set(currentUser ? currentUser.companyId : '');
-        this.dashboardLevel.set((currentUser?.permissions.dashboardLevel as DashboardLevel) ?? 'basic');
-    }
 
     private get basePath(): string {
         return `companies/${this.companyId()}/dashboard`;
     }
 
     getBasicDashboard(): Observable<BasicDashboard> {
+        if (!this.companyId()) {
+            return throwError(() => new Error('No hay una empresa asociada al usuario.'));
+        }
         return this.apiService.get<BasicDashboard>(`${this.basePath}/basic`);
     }
 
     getAdvancedDashboard(dateFrom: string, dateTo: string): Observable<AdvancedDashboard> {
+        if (!this.companyId()) {
+            return throwError(() => new Error('No hay una empresa asociada al usuario.'));
+        }
         return this.apiService.get<AdvancedDashboard>(`${this.basePath}/advanced`, {
             params: { dateFrom, dateTo }
         });

@@ -1,6 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
 import { take } from 'rxjs';
 import { SubscriptionService } from '@/app/features/subscription/subscription.service';
 import { Campaign, PlanItem } from '@/app/types/subscription';
@@ -15,7 +14,9 @@ import { SubscriptionPlansList } from '@/app/shared/components/subscription-plan
 })
 export class PricingWidget {
     private subscriptionService = inject(SubscriptionService);
-    private router = inject(Router);
+
+    /** Correo del área comercial para cotizar planes. */
+    readonly salesEmail = 'comercial@creditia.co';
 
     loading = signal(true);
     plans = signal<PlanItem[]>([]);
@@ -32,15 +33,14 @@ export class PricingWidget {
         });
     }
 
-    ctaLabelFn = (plan: PlanItem): string => {
-        if (plan.price === 0) return 'Comenzar Gratis';
-        const sorted = [...this.plans()].sort((a, b) => a.price - b.price);
-        if (sorted.length > 2 && sorted[sorted.length - 1]?.id === plan.id) return 'Empezar Ahora';
-        return 'Empezar Ahora';
-    };
+    ctaLabelFn = (): string => 'Hablar con el área comercial';
 
     onPlanSelected(plan: PlanItem): void {
-        sessionStorage.setItem('onboarding_plan_id', plan.id);
-        this.router.navigate(['/suscripcion/registro']);
+        // En vez de auto-suscribir, abrimos un correo al área comercial para cotizar el plan elegido.
+        const subject = encodeURIComponent(`Cotización plan ${plan.name} - CREDITIA`);
+        const body = encodeURIComponent(
+            `Hola, estoy interesado en el plan "${plan.name}" de CREDITIA y me gustaría recibir más información para cotizarlo.`
+        );
+        window.location.href = `mailto:${this.salesEmail}?subject=${subject}&body=${body}`;
     }
 }
