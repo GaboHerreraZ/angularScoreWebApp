@@ -11,9 +11,9 @@ import { HeroWidget } from './components/hero-widget/hero-widget';
 import { OverviewWidget } from './components/overview-widget/overview-widget';
 import { StatsWidget } from './components/stats-widget/stats-widget';
 import { FeaturesWidget } from './components/features-widget/features-widget';
-import { SecurityWidget } from './components/security-widget/security-widget';
 import { MethodologyWidget } from './components/methodology-widget/methodology-widget';
 import { JoinWidget } from './components/join-widget/join-widget';
+import { HowToStartWidget } from './components/how-to-start-widget/how-to-start-widget';
 import { PricingWidget } from './components/pricing-widget/pricing-widget';
 import { FaqWidget } from './components/faq-widget/faq-widget';
 import { FooterWidget } from './components/footer-widget/footer-widget';
@@ -21,7 +21,7 @@ import { FooterWidget } from './components/footer-widget/footer-widget';
 @Component({
     selector: 'app-landing',
     standalone: true,
-    imports: [RouterModule, RippleModule, StyleClassModule, ButtonModule, DividerModule, DialogModule, HeaderWidget, HeroWidget, OverviewWidget, StatsWidget, FeaturesWidget, MethodologyWidget, SecurityWidget, JoinWidget, PricingWidget, FaqWidget, FooterWidget],
+    imports: [RouterModule, RippleModule, StyleClassModule, ButtonModule, DividerModule, DialogModule, HeaderWidget, HeroWidget, OverviewWidget, StatsWidget, FeaturesWidget, MethodologyWidget, JoinWidget, HowToStartWidget, PricingWidget, FaqWidget, FooterWidget],
     templateUrl: './landing.html'
 })
 export class Landing {

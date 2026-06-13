@@ -75,10 +75,17 @@ export class SupabaseService implements OnDestroy {
         return { error: error as Error | null };
     }
 
-    async signUp(email: string, password: string): Promise<{ data: { id: string } | null; error: Error | null }> {
+    async signUp(email: string, password: string): Promise<{ data: { id: string; emailConfirmed: boolean; hasSession: boolean } | null; error: Error | null }> {
         const { data, error } = await this.supabase.auth.signUp({ email, password });
         return {
-            data: data.user ? { id: data.user.id } : null,
+            data: data.user
+                ? {
+                    id: data.user.id,
+                    // Supabase marca email_confirmed_at solo cuando el correo ya está verificado.
+                    emailConfirmed: !!data.user.email_confirmed_at,
+                    hasSession: !!data.session
+                }
+                : null,
             error: error as Error | null
         };
     }
@@ -92,12 +99,12 @@ export class SupabaseService implements OnDestroy {
     }
 
     async signInWithGoogle(invitationId?: string, token?: string, customRedirectTo?: string): Promise<{ error: Error | null }> {
-        let redirectTo = customRedirectTo ?? (window.location.origin + '/auth/callback');
-        const params = new URLSearchParams();
-        if (invitationId) params.set('invitation', invitationId);
-        if (token) params.set('token', token);
-        const qs = params.toString();
-        if (qs) redirectTo += `?${qs}`;
+        // El redirectTo debe coincidir EXACTAMENTE con una Redirect URL autorizada en Supabase.
+        // Pasar invitation/token como query rompería ese match, así que viajan por sessionStorage.
+        if (invitationId && token) {
+            sessionStorage.setItem('pending_invitation', JSON.stringify({ invitationId, token }));
+        }
+        const redirectTo = customRedirectTo ?? (window.location.origin + '/auth/callback');
         const { error } = await this.supabase.auth.signInWithOAuth({
             provider: 'google',
             options: { redirectTo }

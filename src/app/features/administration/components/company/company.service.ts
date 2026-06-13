@@ -56,16 +56,23 @@ export class CompanyService {
         return this.api.get<PendingInvitationResponse>(`invitations/pending/${email}`);
     }
 
-    getInvitationById(invitationId: string): Observable<Invitation> {
-        return this.api.get<Invitation>(`invitations/${invitationId}`);
+    /** Valida la invitación de forma pública (con token). Errores silenciados para manejarlos en la UI por código de estado. */
+    validateInvitation(invitationId: string, token: string): Observable<Invitation> {
+        return this.api.get<Invitation>(`invitations/${invitationId}`, {
+            params: { token },
+            headers: { 'X-Silent-Error': 'true' }
+        });
     }
 
     rejectInvitation(invitationId: string, token: string): Observable<void> {
         return this.api.post<void>(`invitations/${invitationId}/reject`, { token });
     }
 
-    acceptInvitationRegister(invitationId: string, userId: string, token: string): Observable<Invitation> {
-        return this.api.post<Invitation>(`invitations/${invitationId}/accept-register`, { userId, token });
+    /** Acepta y registra al invitado. Con `silent` se omite el toast global para manejar el error en la UI por código de estado. */
+    acceptInvitationRegister(invitationId: string, userId: string, token: string, silent = false): Observable<Invitation> {
+        return this.api.post<Invitation>(`invitations/${invitationId}/accept-register`, { userId, token },
+            silent ? { headers: { 'X-Silent-Error': 'true' } } : undefined
+        );
     }
 
     toggleInvitationStatus(invitationId: string, isActive: boolean): Observable<void> {

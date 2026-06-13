@@ -1,108 +1,306 @@
-<app-configurator [simple]="true" />
 <app-notification />
 
-<div class="h-screen w-screen flex items-center justify-center bg-surface-100 dark:bg-surface-950 p-6">
-    @if (invitationResource.isLoading()) {
-    <p-card styleClass="w-full max-w-md shadow-md">
-        <div class="flex flex-col items-center gap-4">
-            <p-skeleton shape="circle" width="4rem" height="4rem" />
-            <p-skeleton width="14rem" height="1.5rem" />
-            <p-skeleton width="20rem" height="1rem" />
-            <p-skeleton width="18rem" height="1rem" />
-            <p-skeleton width="100%" height="3rem" borderRadius="6px" />
-            <p-skeleton width="100%" height="3rem" borderRadius="6px" />
+<div class="h-screen w-screen flex flex-col lg:flex-row overflow-hidden">
+    <!-- Panel izquierdo: Branding -->
+    <div class="hidden lg:flex lg:w-1/2 items-center justify-center relative overflow-hidden" style="background: linear-gradient(135deg, var(--p-primary-600), var(--p-primary-400))">
+        <!-- Elementos decorativos -->
+        <div class="absolute inset-0 opacity-10">
+            <div class="absolute top-20 left-10 w-32 h-32 rounded-full border border-white"></div>
+            <div class="absolute bottom-32 right-16 w-48 h-48 rounded-full border border-white"></div>
+            <div class="absolute top-1/3 right-1/4 w-20 h-20 rounded-full border border-white"></div>
         </div>
-    </p-card>
-    } @else if (invitationResource.error()) {
-    <p-card styleClass="w-full max-w-md shadow-md">
-        <div class="flex flex-col items-center gap-4 text-center">
-            <i class="pi pi-exclamation-circle text-red-500 text-5xl"></i>
-            <h2 class="text-xl font-bold m-0">Invitación no válida</h2>
-            <p class="text-muted-color m-0">Esta invitación no existe, ya fue utilizada o ha expirado.</p>
-            <p-button label="Ir al inicio" icon="pi pi-home" styleClass="w-full" (onClick)="router.navigate(['/'])" />
+
+        <div class="flex flex-col items-center z-10 px-12 text-center">
+            <img src="/logo/creditia-logo-dark.svg" alt="Creditia" class="w-72 h-auto mb-10 drop-shadow-lg" />
+            @if (isOnboarding()) {
+            <p class="text-white/80 text-lg max-w-sm leading-relaxed">Tu empresa ya está configurada. Crea tu acceso de administrador y empieza a operar.</p>
+            } @else {
+            <p class="text-white/80 text-lg max-w-sm leading-relaxed">Has sido invitado a colaborar. Crea tu cuenta y únete al equipo en segundos.</p>
+            }
         </div>
-    </p-card>
-    } @else if (invitationResource.value(); as invitation) {
-    <p-card styleClass="w-full max-w-md shadow-md">
-        <div class="flex flex-col items-center gap-4 text-center">
-            <!-- Icon -->
-            <div class="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
-                <i class="pi pi-envelope text-primary text-3xl"></i>
-            </div>
+    </div>
 
-            <!-- Title -->
-            <h2 class="text-xl font-bold m-0">Has sido invitado</h2>
+    <!-- Panel derecho: Contenido -->
+    <div class="w-full lg:w-1/2 flex flex-col bg-surface-100 dark:bg-surface-950 overflow-y-auto">
+        <!-- Top bar: volver al inicio + logo móvil -->
+        <div class="flex items-center justify-between p-6">
+            <a routerLink="/" class="inline-flex items-center gap-2 text-muted-color hover:text-primary text-sm font-medium no-underline transition-colors">
+                <i class="pi pi-arrow-left"></i>
+                Ir a Creditia
+            </a>
+            <img [src]="logo()" alt="Creditia" class="h-7 w-auto lg:hidden" />
+        </div>
 
-            <!-- Company info -->
-            <p class="text-lg m-0">
-                <strong>{{ invitation.invitedByUser.name }} {{ invitation.invitedByUser.lastName }}</strong>
-                te ha invitado a unirte a
-            </p>
-            <div class="flex items-center gap-2 bg-surface-50 dark:bg-surface-800 rounded-lg px-4 py-3 w-full">
-                <i class="pi pi-building text-primary text-xl"></i>
-                <div class="flex flex-col text-left">
-                    <span class="font-semibold">{{ invitation.company.name }}</span>
-                    <span class="text-muted-color text-sm">NIT: {{ invitation.company.nit }}</span>
+        <!-- Centro: card de estados -->
+        <div class="flex-1 flex items-center justify-center px-6 pb-6">
+            @switch (loadState()) {
+
+            @case ('loading') {
+            <p-card styleClass="w-full max-w-md shadow-md">
+                <div class="flex flex-col items-center gap-4">
+                    <p-skeleton shape="circle" width="4rem" height="4rem" />
+                    <p-skeleton width="14rem" height="1.5rem" />
+                    <p-skeleton width="20rem" height="1rem" />
+                    <p-skeleton width="18rem" height="1rem" />
+                    <p-skeleton width="100%" height="3rem" borderRadius="6px" />
+                    <p-skeleton width="100%" height="3rem" borderRadius="6px" />
                 </div>
-            </div>
-
-            <p class="text-muted-color text-sm m-0">
-                Crea tu cuenta para empezar a colaborar en <strong>CREDITIA</strong>.
-            </p>
-
-            @if (errorMessage()) {
-            <p-message severity="error" [text]="errorMessage()!" styleClass="w-full" />
+            </p-card>
             }
 
-            <!-- Google button -->
-            <button
-                type="button"
-                class="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-lg border border-surface-300 dark:border-surface-600 bg-surface-0 dark:bg-surface-800 hover:bg-surface-100 dark:hover:bg-surface-700 transition-colors cursor-pointer"
-                (click)="joinWithGoogle()"
-                [disabled]="actionsDisabled()"
-            >
-                @if (googleLoading()) {
-                <i class="pi pi-spin pi-spinner text-lg"></i>
-                } @else {
-                <svg width="20" height="20" viewBox="0 0 48 48">
-                    <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
-                    <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
-                    <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
-                    <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
-                </svg>
-                }
-                <span class="font-medium text-surface-700 dark:text-surface-200">Unirme con Google</span>
-            </button>
+            @case ('expired') {
+            <p-card styleClass="w-full max-w-md shadow-md">
+                <div class="flex flex-col items-center gap-4 text-center">
+                    <i class="pi pi-clock text-amber-500 text-5xl"></i>
+                    <h2 class="text-xl font-bold m-0">Este enlace ha expirado</h2>
+                    <p class="text-muted-color m-0">La invitación ya no es válida. Solicita una nueva al administrador que te invitó.</p>
+                    <p-button label="Ir al inicio" icon="pi pi-home" styleClass="w-full" (onClick)="router.navigate(['/'])" />
+                </div>
+            </p-card>
+            }
 
-            <!-- Separator -->
-            <div class="flex items-center gap-3 w-full">
-                <div class="flex-1 border-t border-surface-300 dark:border-surface-600"></div>
-                <span class="text-muted-color text-sm">o</span>
-                <div class="flex-1 border-t border-surface-300 dark:border-surface-600"></div>
-            </div>
+            @case ('invalid') {
+            <p-card styleClass="w-full max-w-md shadow-md">
+                <div class="flex flex-col items-center gap-4 text-center">
+                    <i class="pi pi-exclamation-circle text-red-500 text-5xl"></i>
+                    <h2 class="text-xl font-bold m-0">Enlace no válido</h2>
+                    <p class="text-muted-color m-0">Esta invitación no existe, ya fue utilizada o el enlace es incorrecto.</p>
+                    <p-button label="Ir al inicio" icon="pi pi-home" styleClass="w-full" (onClick)="router.navigate(['/'])" />
+                </div>
+            </p-card>
+            }
 
-            <!-- Email register button -->
-            <p-button
-                label="Crear cuenta con email"
-                icon="pi pi-envelope"
-                styleClass="w-full"
-                [disabled]="actionsDisabled()"
-                (onClick)="registerWithEmail()"
-            />
+            @case ('accepted') {
+            <p-card styleClass="w-full max-w-md shadow-md">
+                <div class="flex flex-col items-center gap-4 text-center">
+                    <div class="w-16 h-16 rounded-full bg-emerald-500/10 flex items-center justify-center">
+                        <i class="pi pi-check-circle text-emerald-500 text-4xl"></i>
+                    </div>
 
-            <!-- Reject -->
-            <button
-                type="button"
-                class="text-muted-color hover:text-red-500 text-sm cursor-pointer bg-transparent border-0 p-0 transition-colors"
-                (click)="rejectInvitation()"
-                [disabled]="actionsDisabled()"
-            >
-                @if (rejecting()) {
-                <i class="pi pi-spin pi-spinner mr-1"></i>
-                }
-                Rechazar invitación
-            </button>
+                    <h2 class="text-xl font-bold m-0">¡Invitación aceptada!</h2>
+
+                    @if (invitation(); as invitation) {
+                    <p class="text-lg m-0">
+                        Ya formas parte de <strong>{{ invitation.company.name }}</strong>.
+                    </p>
+                    }
+
+                    <div class="flex items-start gap-3 bg-amber-500/10 rounded-lg px-4 py-3 w-full text-left">
+                        <i class="pi pi-envelope text-amber-500 text-xl mt-0.5"></i>
+                        <div class="flex flex-col">
+                            <span class="font-semibold text-color">Confirma tu correo</span>
+                            <span class="text-muted-color text-sm">
+                                Te enviamos un enlace a <strong>{{ email }}</strong>. Ábrelo para activar tu cuenta y poder iniciar sesión.
+                            </span>
+                        </div>
+                    </div>
+
+                    <p class="text-muted-color text-sm m-0">
+                        Una vez confirmado tu correo, inicia sesión para empezar a usar <strong>CREDITIA</strong>.
+                    </p>
+
+                    <p-button
+                        label="Ir a iniciar sesión"
+                        icon="pi pi-sign-in"
+                        styleClass="w-full"
+                        (onClick)="router.navigate(['/auth/iniciar-sesion'])"
+                    />
+                </div>
+            </p-card>
+            }
+
+            @case ('ready') {
+            @if (invitation(); as invitation) {
+            <p-card styleClass="w-full max-w-md shadow-md">
+                <div class="flex flex-col items-center gap-4 text-center">
+                    @if (isOnboarding()) {
+                    <!-- ====== Owner / Admin (account_onboarding) ====== -->
+                    <div class="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
+                        <img src="/logo/creditia-isotype.svg" alt="Creditia" class="w-9 h-9" />
+                    </div>
+
+                    <h2 class="text-xl font-bold m-0">¡Bienvenido a CREDITIA!</h2>
+
+                    <p class="text-lg m-0">
+                        Tu cuenta como administrador de
+                    </p>
+                    <div class="flex items-center gap-2 bg-surface-50 dark:bg-surface-800 rounded-lg px-4 py-3 w-full">
+                        <i class="pi pi-building text-primary text-xl"></i>
+                        <div class="flex flex-col text-left">
+                            <span class="font-semibold">{{ invitation.company.name }}</span>
+                            <span class="text-muted-color text-sm">NIT: {{ invitation.company.nit }}</span>
+                        </div>
+                    </div>
+
+                    <p class="text-muted-color text-sm m-0">
+                        @if (loginMode()) {
+                        Inicia sesión para administrar tu empresa.
+                        } @else {
+                        Crea tu acceso y empieza a gestionar tu empresa en <strong>CREDITIA</strong>.
+                        }
+                    </p>
+                    } @else {
+                    <!-- ====== Colaborador (collaboration) ====== -->
+                    <div class="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
+                        <i class="pi pi-users text-primary text-3xl"></i>
+                    </div>
+
+                    <h2 class="text-xl font-bold m-0">Te han invitado a colaborar</h2>
+
+                    <p class="text-lg m-0">
+                        @if (invitation.invitedByUser; as inviter) {
+                        <strong>{{ inviter.name }} {{ inviter.lastName }}</strong> te ha invitado a unirte a
+                        } @else {
+                        Has sido invitado a unirte a
+                        }
+                    </p>
+                    <div class="flex items-center gap-2 bg-surface-50 dark:bg-surface-800 rounded-lg px-4 py-3 w-full">
+                        <i class="pi pi-building text-primary text-xl"></i>
+                        <div class="flex flex-col text-left">
+                            <span class="font-semibold">{{ invitation.company.name }}</span>
+                            <span class="text-muted-color text-sm">NIT: {{ invitation.company.nit }}</span>
+                        </div>
+                    </div>
+
+                    <p class="text-muted-color text-sm m-0">
+                        @if (loginMode()) {
+                        Inicia sesión para unirte al equipo.
+                        } @else {
+                        Crea tu cuenta para empezar a colaborar en <strong>CREDITIA</strong>.
+                        }
+                    </p>
+                    }
+
+                    @if (errorMessage()) {
+                    <p-message severity="error" [text]="errorMessage()!" styleClass="w-full" />
+                    }
+
+                    <!-- Email + password form -->
+                    <form [formGroup]="form" (ngSubmit)="submitWithEmail()" class="flex flex-col gap-4 w-full">
+                        <p-floatlabel variant="on">
+                            <input pInputText id="email" formControlName="email" type="email" class="w-full" autocomplete="email" />
+                            <label for="email">Correo electrónico</label>
+                        </p-floatlabel>
+
+                        <p-floatlabel variant="on">
+                            <p-password
+                                inputId="password"
+                                formControlName="password"
+                                [feedback]="!loginMode()"
+                                [toggleMask]="true"
+                                styleClass="w-full"
+                                inputStyleClass="w-full"
+                                autocomplete="{{ loginMode() ? 'current-password' : 'new-password' }}"
+                            />
+                            <label for="password">Contraseña</label>
+                        </p-floatlabel>
+
+                        @if (!loginMode()) {
+                        <p-floatlabel variant="on">
+                            <p-password
+                                inputId="confirmPassword"
+                                formControlName="confirmPassword"
+                                [feedback]="false"
+                                [toggleMask]="true"
+                                styleClass="w-full"
+                                inputStyleClass="w-full"
+                                autocomplete="new-password"
+                            />
+                            <label for="confirmPassword">Confirmar contraseña</label>
+                        </p-floatlabel>
+
+                        @if (form.errors?.['passwordMismatch'] && form.controls.confirmPassword.dirty) {
+                        <small class="text-red-500 text-left -mt-2">Las contraseñas no coinciden.</small>
+                        }
+                        }
+
+                        <p-button
+                            type="submit"
+                            [label]="loginMode() ? 'Iniciar sesión y unirme' : 'Crear cuenta y unirme'"
+                            icon="pi pi-check"
+                            styleClass="w-full"
+                            [loading]="submitting()"
+                            [disabled]="actionsDisabled() || form.invalid"
+                        />
+                    </form>
+
+                    <!-- Toggle login / signup -->
+                    <button
+                        type="button"
+                        class="text-primary hover:underline text-sm cursor-pointer bg-transparent border-0 p-0"
+                        (click)="toggleLoginMode()"
+                        [disabled]="actionsDisabled()"
+                    >
+                        @if (loginMode()) {
+                        ¿No tienes cuenta? Crear contraseña
+                        } @else {
+                        ¿Ya tienes cuenta? Iniciar sesión
+                        }
+                    </button>
+
+                    <!-- Separator -->
+                    <div class="flex items-center gap-3 w-full">
+                        <div class="flex-1 border-t border-surface-300 dark:border-surface-600"></div>
+                        <span class="text-muted-color text-sm">o</span>
+                        <div class="flex-1 border-t border-surface-300 dark:border-surface-600"></div>
+                    </div>
+
+                    <!-- Google button -->
+                    <button
+                        type="button"
+                        class="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-lg border border-surface-300 dark:border-surface-600 bg-surface-0 dark:bg-surface-800 hover:bg-surface-100 dark:hover:bg-surface-700 transition-colors cursor-pointer"
+                        (click)="joinWithGoogle()"
+                        [disabled]="actionsDisabled()"
+                    >
+                        @if (googleLoading()) {
+                        <i class="pi pi-spin pi-spinner text-lg"></i>
+                        } @else {
+                        <svg width="20" height="20" viewBox="0 0 48 48">
+                            <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+                            <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+                            <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+                            <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+                        </svg>
+                        }
+                        <span class="font-medium text-surface-700 dark:text-surface-200">Unirme con Google</span>
+                    </button>
+
+                    <p class="text-muted-color text-xs m-0">
+                        Tu correo es <strong>{{ invitation.email }}</strong>. Debes usar este mismo correo para unirte.
+                    </p>
+
+                    <!-- Reject (solo para invitaciones de colaboración) -->
+                    @if (!isOnboarding()) {
+                    <button
+                        type="button"
+                        class="text-muted-color hover:text-red-500 text-sm cursor-pointer bg-transparent border-0 p-0 transition-colors"
+                        (click)="rejectInvitation()"
+                        [disabled]="actionsDisabled()"
+                    >
+                        @if (rejecting()) {
+                        <i class="pi pi-spin pi-spinner mr-1"></i>
+                        }
+                        Rechazar invitación
+                    </button>
+                    }
+                </div>
+            </p-card>
+            }
+            }
+
+            }
         </div>
-    </p-card>
-    }
+
+        <!-- Footer -->
+        <footer class="px-6 py-5 border-t border-surface-200 dark:border-surface-800">
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-muted-color">
+                <span>© {{ year }} CREDITIA. Todos los derechos reservados.</span>
+                <nav class="flex items-center gap-4">
+                    <a routerLink="/legal/terminos" class="hover:text-primary no-underline transition-colors">Términos</a>
+                    <a routerLink="/legal/privacidad" class="hover:text-primary no-underline transition-colors">Privacidad</a>
+                    <a routerLink="/legal/habeas-data" class="hover:text-primary no-underline transition-colors">Habeas Data</a>
+                </nav>
+            </div>
+        </footer>
+    </div>
 </div>

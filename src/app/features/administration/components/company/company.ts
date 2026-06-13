@@ -95,7 +95,7 @@ export class Company {
             id: inv.id,
             email: inv.email,
             company: inv.company.name,
-            invitedBy: `${inv.invitedByUser.name} ${inv.invitedByUser.lastName}`,
+            invitedBy: inv.invitedByUser ? `${inv.invitedByUser.name} ${inv.invitedByUser.lastName}` : '—',
             status: inv.status.label,
             statusCode: inv.status.code,
             createdAt: new Date(inv.createdAt).toLocaleDateString('es-CO'),

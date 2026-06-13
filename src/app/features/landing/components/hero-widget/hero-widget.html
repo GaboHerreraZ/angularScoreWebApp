@@ -10,13 +10,12 @@
                 Decide a quién darle crédito, <span class="text-primary">sin adivinar</span>
             </h1>
             <p class="text-lg sm:text-xl mb-8 leading-relaxed text-muted-color max-w-2xl">
-                Si tu empresa otorga plazos a sus clientes, Creditia analiza sus estados financieros y te dice cuánto cupo aprobar y a qué plazo,
-                en menos de 15 minutos. <span class="font-semibold text-color">No prestamos dinero</span>: te damos los datos para que tú decidas con criterio.
+                Si tu empresa vende a crédito, Creditia analiza los estados financieros de tu cliente y los contrasta con su historial
+                real en <span class="font-semibold text-color">Datacrédito</span> para decirte cuánto cupo aprobar, en menos de 15 minutos.
+                <span class="font-semibold text-color">No prestamos dinero</span>: te damos los datos para que tú decidas con criterio.
             </p>
             <div class="flex flex-col sm:flex-row gap-4 mb-12">
-                <a [routerLink]="['/auth/iniciar-sesion']">
-                    <button pButton pRipple label="Comenzar gratis" icon="pi pi-arrow-right" iconPos="right" rounded class="text-lg px-8 py-3 w-full sm:w-auto"></button>
-                </a>
+                <button pButton pRipple label="Hablar con el área comercial" icon="pi pi-arrow-right" iconPos="right" rounded class="text-lg px-8 py-3 w-full sm:w-auto" (click)="scrollTo('como-empezar')"></button>
                 <button pButton pRipple label="Ver cómo funciona" icon="pi pi-arrow-down" rounded outlined class="text-lg px-8 py-3" (click)="scrollTo('how-it-works')"></button>
             </div>
             <!-- Trust badges -->
@@ -81,7 +80,7 @@
                     </div>
                     <div class="flex-1 min-w-0">
                         <div class="text-xs font-semibold text-purple-700 dark:text-purple-400 mb-0.5">Análisis con IA</div>
-                        <div class="text-[11px] text-muted-color truncate">Cliente apto. Cupo recomendado $24.5M a 60 días.</div>
+                        <div class="text-[11px] text-muted-color truncate">Cliente apto. Riesgo bajo, respaldado por su historial crediticio.</div>
                     </div>
                     <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-green-500/20 text-green-600 dark:text-green-400 shrink-0">Listo</span>
                 </div>
@@ -102,10 +101,10 @@
                         </div>
                     </div>
                     <div class="bg-surface-50 dark:bg-surface-800 rounded-lg p-3">
-                        <div class="text-xs text-muted-color mb-1">Z-Score Altman</div>
+                        <div class="text-xs text-muted-color mb-1">Datacrédito score</div>
                         <div class="text-lg font-bold text-color flex items-center gap-1">
                             <i class="pi pi-check text-green-500 text-xs"></i>
-                            3.4
+                            750
                         </div>
                     </div>
                     <div class="bg-surface-50 dark:bg-surface-800 rounded-lg p-3">

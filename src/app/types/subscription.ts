@@ -119,10 +119,6 @@ export interface SubscriptionDetails {
     paymentHistory: PaymentHistoryItem[];
 }
 
-export interface CreateTransactionRequest {
-    subscriptionId: string;
-}
-
 export interface SubscriptionStatus {
     id: number;
     type: string;
@@ -134,37 +130,6 @@ export interface SubscriptionStatus {
     parentId: string | null;
     createdAt: string;
     updatedAt: string;
-}
-
-export interface CompanySubscription {
-    id: string;
-    companyId: string;
-    subscriptionId: string;
-    statusId: number;
-    startDate: string;
-    endDate: string;
-    isCurrent: boolean;
-    paymentFrequency: string;
-    pricePaid: number;
-    cancelledAt: string | null;
-    paymentId: string;
-    sessionId: string;
-    integrityHash: string;
-    amountInCents: number;
-    createdAt: string;
-    updatedAt: string;
-    subscription: Subscription;
-    status: SubscriptionStatus;
-    company: {
-        id: string;
-        name: string;
-        nit: string;
-        sectorId: number;
-        subscriptionId: string;
-        isActive: boolean;
-        createdAt: string;
-        updatedAt: string;
-    };
 }
 
 export interface CardTokenRequest {
@@ -188,35 +153,8 @@ export interface BillingInfo {
     phone: string;
 }
 
-export interface SubscribeRequest {
-    subscriptionId: string;
-    card: CardTokenRequest;
-    billing: BillingInfo;
-}
-
 export interface ChangePlanRequest {
     subscriptionId: string;
     card?: CardTokenRequest;
     billing?: BillingInfo;
-}
-
-export interface OnboardingSetupRequest {
-    profile: {
-        name: string;
-        lastName: string;
-        email: string;
-        phone: string;
-        position: string | null;
-        identificationTypeId: number;
-        identificationNumber: string;
-        roleId: number;
-    };
-    company: {
-        name: string;
-        nit: string;
-        sectorId: number;
-        state: string;
-        city: string;
-        address: string;
-    };
 }
