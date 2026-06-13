@@ -1,5 +1,5 @@
 import { Component, computed, DestroyRef, effect, inject, resource, signal } from '@angular/core';
-import { DecimalPipe, NgClass } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { finalize, firstValueFrom } from 'rxjs';
@@ -31,7 +31,6 @@ import { TableSettings } from '@/app/types/table';
     selector: 'app-plan-billing',
     standalone: true,
     imports: [
-        DecimalPipe,
         NgClass,
         FormsModule,
         ButtonModule,
@@ -199,7 +198,6 @@ export class PlanBilling {
 
     currentPlan = computed(() => this.subscriptionUsage()?.subscription ?? null);
 
-    isFreePlanSelected = computed(() => (this.selectedNewPlan()?.price ?? 0) === 0);
 
     constructor() {
         // Toggle billing form disabled state based on replaceBilling
@@ -269,7 +267,6 @@ export class PlanBilling {
 
     canConfirmChange = computed(() => {
         if (this.changingPlan()) return false;
-        if (this.isFreePlanSelected()) return true;
         if (this.replaceCard() && this.cardForm.invalid) return false;
         if (this.replaceBilling() && this.billingForm.invalid) return false;
         return true;
@@ -282,7 +279,7 @@ export class PlanBilling {
 
         const payload: ChangePlanRequest = { subscriptionId: plan.id };
 
-        if (!this.isFreePlanSelected()) {
+        {
             if (this.replaceCard()) {
                 if (this.cardForm.invalid) {
                     this.cardForm.markAllAsTouched();

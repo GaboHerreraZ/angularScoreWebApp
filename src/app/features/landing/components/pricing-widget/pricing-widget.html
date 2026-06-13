@@ -10,14 +10,13 @@
                 y puesta en marcha.
             </p>
             <span class="inline-flex items-center gap-2 bg-surface-100 dark:bg-surface-800 text-muted-color text-sm font-semibold px-5 py-2.5 rounded-full">
-                <i class="pi pi-calendar text-primary"></i>
-                Todos los planes son de facturación anual
+                <i class="pi pi-search text-primary"></i>
+                Pagas por consulta, sin mensualidades obligatorias
             </span>
         </div>
 
         <app-subscription-plans-list
             [plans]="plans()"
-            [campaign]="campaign()"
             [loading]="loading()"
             [ctaLabelFn]="ctaLabelFn"
             (planAction)="onPlanSelected($event)"

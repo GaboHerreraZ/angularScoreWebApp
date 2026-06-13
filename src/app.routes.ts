@@ -17,6 +17,7 @@ export const appRoutes: Routes = [
         ]
     },
     { path: 'invitacion', loadComponent: () => import('@/app/features/invitation/invitation').then(c => c.InvitationComponent) },
+    { path: 'pago-suscripcion', loadComponent: () => import('@/app/features/onboarding-payment/onboarding-payment').then(c => c.OnboardingPayment) },
     { path: 'auth', loadChildren: () => import('@/app/features/auth/auth.routes') },
     { path: 'inicio', redirectTo: '/', pathMatch: 'full' },
     { path: 'legal/privacidad', loadComponent: () => import('@/app/features/legal/privacy-policy').then((c) => c.PrivacyPolicy) },

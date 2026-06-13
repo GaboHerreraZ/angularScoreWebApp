@@ -2,7 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { take } from 'rxjs';
 import { SubscriptionService } from '@/app/features/subscription/subscription.service';
-import { Campaign, PlanItem } from '@/app/types/subscription';
+import { PlanItem } from '@/app/types/subscription';
 import { ScrollAnimateDirective } from '@/app/shared/directives/scroll-animate.directive';
 import { SubscriptionPlansList } from '@/app/shared/components/subscription-plans-list/subscription-plans-list';
 
@@ -20,12 +20,10 @@ export class PricingWidget {
 
     loading = signal(true);
     plans = signal<PlanItem[]>([]);
-    campaign = signal<Campaign | null>(null);
 
     constructor() {
         this.subscriptionService.getPublicPlans().pipe(take(1)).subscribe({
             next: (response) => {
-                this.campaign.set(response.campaign);
                 this.plans.set(response.data);
                 this.loading.set(false);
             },

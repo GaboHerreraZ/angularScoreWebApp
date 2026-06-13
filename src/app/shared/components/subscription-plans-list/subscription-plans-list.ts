@@ -3,16 +3,13 @@ import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { Ripple } from 'primeng/ripple';
 import { SkeletonModule } from 'primeng/skeleton';
-import { Campaign, PlanItem } from '@/app/types/subscription';
+import { PlanItem } from '@/app/types/subscription';
 
 export interface PlanCardView extends PlanItem {
     ctaLabel: string;
     ctaDisabled: boolean;
     ctaOutlined: boolean;
     popular: boolean;
-    hasDiscount: boolean;
-    displayPrice: number;
-    originalPrice: number;
     limits: string[];
     features: { label: string; included: boolean }[];
     cardDescription: string;
@@ -29,8 +26,11 @@ export type PlanPredicate = (plan: PlanItem) => boolean;
 })
 export class SubscriptionPlansList {
     plans = input<PlanItem[]>([]);
-    campaign = input<Campaign | null>(null);
     loading = input<boolean>(false);
+
+    /** Precio fijo por consulta mientras el modelo de cobro es consultivo. */
+    readonly hardcodedPrice = '$25.000';
+    readonly priceUnit = 'consulta';
     // Parent decides the CTA label for each plan
     ctaLabelFn = input<CtaLabelFn>(() => 'Seleccionar');
     // Parent may disable specific plans (e.g. current plan)
@@ -43,18 +43,13 @@ export class SubscriptionPlansList {
     planAction = output<PlanItem>();
 
     viewPlans = computed<PlanCardView[]>(() => {
-        const items = this.plans() ?? [];
-        const sorted = [...items].sort((a, b) => a.price - b.price);
-        const discount = this.campaign()?.discount ?? 0;
+        const sorted = this.plans() ?? [];
         const popular = this.popularFn();
         const ctaLabel = this.ctaLabelFn();
         const ctaDisabled = this.ctaDisabledFn();
         const hasCurrentPlan = this.showCurrentBadge() && sorted.some(p => p.isCurrent);
 
         return sorted.map((item, index) => {
-            const isFree = item.price === 0;
-            const hasDiscount = discount > 0 && !isFree;
-            const displayPrice = hasDiscount ? Math.round(item.price * (1 - discount / 100)) : item.price;
             const isPopular = hasCurrentPlan
                 ? false
                 : popular ? popular(item) : sorted.length > 1 && index === Math.floor(sorted.length / 2);
@@ -63,9 +58,6 @@ export class SubscriptionPlansList {
             return {
                 ...item,
                 cardDescription: item.description || this.defaultDescription(index, sorted.length),
-                originalPrice: item.price,
-                displayPrice,
-                hasDiscount,
                 popular: isPopular,
                 limits: this.buildLimits(item),
                 features: this.buildFeatures(item),
@@ -79,15 +71,6 @@ export class SubscriptionPlansList {
     onPlanClick(plan: PlanCardView): void {
         if (plan.ctaDisabled) return;
         this.planAction.emit(plan);
-    }
-
-    formatPrice(value: number): string {
-        if (value === 0) return 'Gratis';
-        return new Intl.NumberFormat('es-CO', { maximumFractionDigits: 0 }).format(value);
-    }
-
-    formatDate(dateStr: string): string {
-        return new Date(dateStr).toLocaleDateString('es-CO', { day: 'numeric', month: 'long', year: 'numeric' });
     }
 
     private defaultDescription(index: number, total: number): string {
@@ -129,11 +112,8 @@ export class SubscriptionPlansList {
 
     private buildFeatures(item: PlanItem): { label: string; included: boolean }[] {
         return [
-            { label: `Dashboard ${item.dashboardLevel?.label?.toLowerCase() ?? 'básico'}`, included: true },
-            { label: `Soporte por ${item.supportLevel?.label?.toLowerCase() ?? 'correo'}`, included: true },
-            { label: 'Reportes Excel', included: item.excelReports },
-            { label: 'Notificaciones por correo', included: item.emailNotifications },
-            { label: 'Personalización de tema', included: item.themeCustomization },
+            { label: 'Reportes Excel', included: true },
+            { label: 'Personalización de tema', included: true },
             { label: 'Análisis con Inteligencia Artificial', included: item.maxAiAnalysisPerMonth != null && item.maxAiAnalysisPerMonth !== 0 },
             { label: 'Extracción de datos PDF', included: item.maxPdfExtractionsPerMonth != null && item.maxPdfExtractionsPerMonth !== 0 }
         ];
