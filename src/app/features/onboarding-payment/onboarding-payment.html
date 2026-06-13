@@ -1,0 +1,208 @@
+<app-notification />
+
+<div class="min-h-screen flex flex-col bg-surface-100 dark:bg-surface-950">
+    <!-- Top bar -->
+    <header class="bg-surface-0 dark:bg-surface-900 border-b border-surface">
+        <div class="max-w-screen-xl mx-auto px-6 py-4 flex items-center justify-between">
+            <img [src]="logo()" alt="Creditia" class="h-9 w-auto" />
+            <div class="hidden sm:flex items-center gap-2 text-sm text-muted-color">
+                <i class="pi pi-lock text-primary"></i>
+                <span>Pago seguro</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Contenido -->
+    <main class="flex-1 max-w-screen-xl w-full mx-auto px-6 py-8 lg:py-12">
+
+        @switch (pageState()) {
+
+        <!-- ─────────────── Cargando ─────────────── -->
+        @case ('loading') {
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="lg:col-span-2 flex flex-col gap-6">
+                <div class="bg-surface-0 dark:bg-surface-900 rounded-2xl border border-surface p-6">
+                    <p-skeleton width="14rem" height="1.5rem" styleClass="mb-6" />
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        @for (i of [1,2,3,4,5,6]; track i) {
+                        <p-skeleton width="100%" height="3rem" borderRadius="8px" />
+                        }
+                    </div>
+                </div>
+                <div class="bg-surface-0 dark:bg-surface-900 rounded-2xl border border-surface p-6">
+                    <p-skeleton width="12rem" height="1.5rem" styleClass="mb-6" />
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        @for (i of [1,2,3,4]; track i) {
+                        <p-skeleton width="100%" height="3rem" borderRadius="8px" />
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="bg-surface-0 dark:bg-surface-900 rounded-2xl border border-surface p-6">
+                <p-skeleton width="10rem" height="1.5rem" styleClass="mb-6" />
+                @for (i of [1,2,3,4,5]; track i) {
+                <p-skeleton width="100%" height="1.25rem" styleClass="mb-3" />
+                }
+                <p-skeleton width="100%" height="3rem" borderRadius="2rem" styleClass="mt-6" />
+            </div>
+        </div>
+        }
+
+        <!-- ─────────────── Enlace inválido ─────────────── -->
+        @case ('invalid') {
+        <div class="max-w-md mx-auto bg-surface-0 dark:bg-surface-900 rounded-2xl border border-surface p-8 text-center mt-8">
+            <i class="pi pi-exclamation-circle text-red-500 text-5xl"></i>
+            <h2 class="text-xl font-bold mt-4 mb-2">Enlace de pago inválido o expirado</h2>
+            <p class="text-muted-color m-0 mb-6">
+                Este enlace no es válido, ya fue utilizado o el token es incorrecto.
+                Solicita un nuevo enlace de pago al equipo de Creditia.
+            </p>
+            <a routerLink="/" class="no-underline">
+                <p-button label="Ir a Creditia" icon="pi pi-home" styleClass="w-full" />
+            </a>
+        </div>
+        }
+
+        <!-- ─────────────── Ya pagada ─────────────── -->
+        @case ('alreadyPaid') {
+        <div class="max-w-md mx-auto bg-surface-0 dark:bg-surface-900 rounded-2xl border border-surface p-8 text-center mt-8">
+            <i class="pi pi-check-circle text-green-500 text-5xl"></i>
+            <h2 class="text-xl font-bold mt-4 mb-2">Esta suscripción ya fue pagada</h2>
+            <p class="text-muted-color m-0 mb-6">
+                El pago ya fue procesado correctamente. Activa tu cuenta para empezar a operar con Creditia.
+            </p>
+            <a routerLink="/auth/iniciar-sesion" class="no-underline">
+                <p-button label="Activar mi cuenta" icon="pi pi-arrow-right" iconPos="right" styleClass="w-full" />
+            </a>
+        </div>
+        }
+
+        <!-- ─────────────── Pago exitoso ─────────────── -->
+        @case ('success') {
+        <div class="max-w-md mx-auto bg-surface-0 dark:bg-surface-900 rounded-2xl border border-surface p-8 text-center mt-8">
+            <i class="pi pi-check-circle text-green-500 text-6xl"></i>
+            <h2 class="text-2xl font-bold mt-4 mb-2">¡Pago realizado con éxito!</h2>
+            <p class="text-muted-color m-0 mb-6">
+                Tu suscripción <strong>{{ summary()?.planName }}</strong> quedó activa.
+                Ya puedes activar tu cuenta y empezar a usar Creditia.
+            </p>
+            <a routerLink="/auth/iniciar-sesion" class="no-underline">
+                <p-button label="Activar mi cuenta" icon="pi pi-arrow-right" iconPos="right" styleClass="w-full" />
+            </a>
+        </div>
+        }
+
+        <!-- ─────────────── Checkout ─────────────── -->
+        @case ('ready') {
+        <div class="mb-8">
+            <h1 class="text-2xl sm:text-3xl font-extrabold m-0 text-color">Completa el pago de tu suscripción</h1>
+            <p class="text-muted-color mt-2 mb-0">Ingresa tus datos de facturación y de pago para activar el plan de tu empresa.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+            <!-- Columna izquierda: formularios -->
+            <div class="lg:col-span-2 flex flex-col gap-6">
+                <!-- Datos de facturación -->
+                <section class="bg-surface-0 dark:bg-surface-900 rounded-2xl border border-surface p-6">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                            <i class="pi pi-id-card text-primary"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-lg font-bold m-0">Datos de facturación</h2>
+                            <p class="text-muted-color text-sm m-0">Estos datos aparecerán en tu factura.</p>
+                        </div>
+                    </div>
+                    <app-billing-form [formGroup]="billingForm" />
+                </section>
+
+                <!-- Datos de la tarjeta -->
+                <section class="bg-surface-0 dark:bg-surface-900 rounded-2xl border border-surface p-6">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                            <i class="pi pi-credit-card text-primary"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-lg font-bold m-0">Datos de la tarjeta</h2>
+                            <p class="text-muted-color text-sm m-0">Procesado de forma segura por ePayco. No almacenamos tu tarjeta.</p>
+                        </div>
+                    </div>
+                    <app-card-form [formGroup]="cardForm" />
+                </section>
+            </div>
+
+            <!-- Columna derecha: resumen -->
+            <aside class="bg-surface-0 dark:bg-surface-900 rounded-2xl border border-surface p-6 lg:sticky lg:top-8">
+                <h2 class="text-lg font-bold m-0 mb-1">Resumen de tu compra</h2>
+                @if (summary(); as s) {
+                <p class="text-muted-color text-sm m-0 mb-5">{{ s.companyName }}</p>
+
+                <div class="rounded-xl bg-primary/5 border border-primary/20 p-4 mb-5">
+                    <div class="flex items-center justify-between">
+                        <span class="font-bold text-color">{{ s.planName }}</span>
+                        <span class="text-xs font-semibold px-2 py-1 rounded-full bg-primary/10 text-primary">{{ frequencyLabel() }}</span>
+                    </div>
+                </div>
+
+                <ul class="list-none p-0 m-0 flex flex-col gap-3 text-sm">
+                    <li class="flex items-center justify-between">
+                        <span class="text-muted-color"><i class="pi pi-search mr-2 text-primary"></i>Consultas / mes</span>
+                        <span class="font-semibold text-color">{{ s.studiesPerMonth }}</span>
+                    </li>
+                    <li class="flex items-center justify-between">
+                        <span class="text-muted-color"><i class="pi pi-users mr-2 text-primary"></i>Usuarios</span>
+                        <span class="font-semibold text-color">{{ s.maxUsers }}</span>
+                    </li>
+                    <li class="flex items-center justify-between">
+                        <span class="text-muted-color"><i class="pi pi-calendar mr-2 text-primary"></i>Inicio</span>
+                        <span class="font-semibold text-color">{{ formatDate(s.startDate) }}</span>
+                    </li>
+                    <li class="flex items-center justify-between">
+                        <span class="text-muted-color"><i class="pi pi-calendar-times mr-2 text-primary"></i>Fin</span>
+                        <span class="font-semibold text-color">{{ formatDate(s.endDate) }}</span>
+                    </li>
+                </ul>
+
+                <p-divider />
+
+                <div class="flex items-end justify-between mb-6">
+                    <span class="text-muted-color font-semibold">Total a pagar</span>
+                    <div class="text-right">
+                        <div class="text-3xl font-extrabold text-color leading-none">{{ formatCurrency(s.amount, s.currency) }}</div>
+                        <div class="text-xs text-muted-color mt-1">{{ frequencyLabel() }}</div>
+                    </div>
+                </div>
+
+                <p-button
+                    [label]="paying() ? 'Procesando pago…' : 'Pagar ' + formatCurrency(s.amount, s.currency)"
+                    icon="pi pi-lock"
+                    styleClass="w-full"
+                    [loading]="paying()"
+                    [disabled]="paying()"
+                    (onClick)="onPay()"
+                />
+
+                <div class="flex items-center justify-center gap-2 mt-4 text-xs text-muted-color">
+                    <i class="pi pi-shield text-green-500"></i>
+                    <span>Pago cifrado y procesado por ePayco</span>
+                </div>
+                }
+            </aside>
+        </div>
+        }
+
+        }
+    </main>
+
+    <!-- Footer -->
+    <footer class="px-6 py-5 border-t border-surface bg-surface-0 dark:bg-surface-900">
+        <div class="max-w-screen-xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-muted-color">
+            <span>© {{ year }} CREDITIA. Todos los derechos reservados.</span>
+            <nav class="flex items-center gap-4">
+                <a routerLink="/legal/terminos" class="hover:text-primary no-underline transition-colors">Términos</a>
+                <a routerLink="/legal/privacidad" class="hover:text-primary no-underline transition-colors">Privacidad</a>
+                <a routerLink="/legal/habeas-data" class="hover:text-primary no-underline transition-colors">Habeas Data</a>
+            </nav>
+        </div>
+    </footer>
+</div>

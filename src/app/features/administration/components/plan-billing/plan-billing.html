@@ -48,7 +48,7 @@
                         </div>
                         <div class="sm:text-right">
                             <span class="text-muted-color text-sm">Precio</span>
-                            <p class="text-xl font-semibold m-0">{{ data.subscription.price | number:'1.0-0' }} COP / {{ data.subscription.isMonthly ? 'mes' : 'año' }}</p>
+                            <p class="text-xl font-semibold m-0">$25.000 COP / consulta</p>
                         </div>
                     </div>
 
@@ -281,9 +281,8 @@
                 ¿Estás seguro de que deseas cancelar tu suscripción actual?
             </p>
             <p class="text-muted-color text-sm m-0">
-                Tu plan actual será cancelado y tu cuenta pasará automáticamente al plan <strong>Gratis por 1 mes</strong>.
-                Perderás acceso a las funcionalidades premium y los límites de recursos se ajustarán al plan gratuito.
-                Esta acción no se puede deshacer, pero podrás volver a suscribirte a un plan pago en cualquier momento.
+                Tu plan actual será cancelado y perderás acceso a las funcionalidades de tu suscripción.
+                Esta acción no se puede deshacer, pero podrás volver a contratar un plan cuando lo desees.
             </p>
         </div>
 
@@ -300,8 +299,7 @@
                 ¡Suscripción cancelada exitosamente!
             </p>
             <p class="text-muted-color text-sm m-0">
-                Hemos activado el plan <strong>Gratis por 1 mes</strong> en tu cuenta. Durante este período podrás seguir usando Creditia con las funcionalidades básicas.
-                Puedes volver a suscribirte a un plan pago cuando lo desees desde esta misma sección.
+                Tu suscripción ha sido cancelada. Puedes volver a contratar un plan cuando lo desees desde esta misma sección.
             </p>
         </div>
 
@@ -361,31 +359,11 @@
                     </div>
                 </div>
                 <div class="border-t border-surface mt-4 pt-3 flex items-center justify-between text-sm">
-                    <span class="text-muted-color">Precio</span>
-                    <span class="font-semibold">
-                        @if (plan.price === 0) {
-                            Gratis
-                        } @else {
-                            {{ plan.price | number:'1.0-0' }} COP / {{ plan.isMonthly ? 'mes' : 'año' }}
-                        }
-                    </span>
+                    <span class="text-muted-color">Facturación</span>
+                    <span class="font-semibold">{{ plan.isMonthly ? 'Mensual' : 'Anual' }}</span>
                 </div>
             </div>
 
-            @if (isFreePlanSelected()) {
-                <!-- Downgrade a gratis -->
-                <div class="flex items-start gap-3 rounded-lg bg-orange-50 dark:bg-orange-500/10 p-4 border border-orange-200 dark:border-orange-500/30">
-                    <i class="pi pi-info-circle text-orange-500 text-lg mt-0.5"></i>
-                    <div class="text-sm text-color">
-                        <p class="font-semibold m-0 mb-1">Estás cambiando al plan gratis</p>
-                        <p class="text-muted-color m-0">
-                            Tu suscripción actual será cancelada y tu cuenta pasará al plan gratuito.
-                            Perderás acceso a las funcionalidades premium y los límites se ajustarán.
-                            Podrás volver a suscribirte a un plan pago cuando lo desees.
-                        </p>
-                    </div>
-                </div>
-            } @else {
                 <!-- Tarjeta -->
                 <div class="rounded-lg border border-surface p-4">
                     <div class="flex items-center justify-between gap-3 mb-3">
@@ -432,7 +410,6 @@
                         [pendingCityName]="pendingBillingCityName()"
                     />
                 </div>
-            }
         </div>
 
         <ng-template #footer>

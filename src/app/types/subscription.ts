@@ -53,7 +53,6 @@ export interface PlanItem {
     id: string;
     name: string;
     description: string | null;
-    price: number;
     isMonthly: boolean;
     maxUsers: number;
     maxCompanies: number;
@@ -61,35 +60,18 @@ export interface PlanItem {
     maxStudiesPerMonth: number | null;
     maxAiAnalysisPerMonth: number | null;
     maxPdfExtractionsPerMonth: number | null;
-    dashboardLevel?: Parameter;
-    dashboardLevelId?: number;
     excelReports: boolean;
     emailNotifications: boolean;
     themeCustomization: boolean;
-    supportLevel?: Parameter;
-    supportLevelId?: number;
-    epaycoPlanId: string | null;
     isActive: boolean;
     isCurrent?: boolean;
-    createdAt: string;
-    updatedAt: string;
-}
-
-export interface Campaign {
-    id: string;
-    name: string;
-    description: string;
-    discount: number;
-    startDate: string;
-    endDate: string;
-    isActive: boolean;
+    createdBy: string;
     createdAt: string;
     updatedAt: string;
 }
 
 export interface PublicPlansResponse {
     data: PlanItem[];
-    campaign: Campaign | null;
 }
 
 export interface AvailablePlans {

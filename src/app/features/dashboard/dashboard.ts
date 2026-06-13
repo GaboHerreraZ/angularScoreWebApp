@@ -334,18 +334,14 @@ export class Dashboard implements OnInit {
 
     ngOnInit(): void {
         this.loadBasic();
-        if (this.dashboardLevel() === 'advanced') {
-            this.loadAdvanced();
-        }
+        this.loadAdvanced();
         const interval = setInterval(() => this.currentTime.set(new Date()), 60_000);
         this.destroyRef.onDestroy(() => clearInterval(interval));
     }
 
     refresh(): void {
         this.loadBasic();
-        if (this.dashboardLevel() === 'advanced') {
-            this.loadAdvanced();
-        }
+        this.loadAdvanced();
     }
 
     getStatusSeverity(status: string): 'success' | 'info' | 'warn' | 'danger' | 'secondary' {
