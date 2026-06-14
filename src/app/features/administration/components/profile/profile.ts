@@ -52,26 +52,33 @@ export class Profile {
     isEditing = signal(false);
     loadingProfile = computed(() => !this.profile());
 
+    /** El form solo se rellena una vez con los datos del perfil; así un cambio
+     * posterior en identificationTypes (que llega async) no resetea lo editado. */
+    private formInitialized = false;
+
     constructor() {
         effect(() => {
             const profile = this.profile();
-            if (profile) {
-                this.isEditing.set(true);
-                const idTypes = this.identificationTypes() ?? [];
-                const idType = idTypes.find(t => t.id === profile.identificationTypeId) ?? null;
+            const idTypes = this.identificationTypes();
 
-                this.form.patchValue({
-                    email: profile.email,
-                    name: profile.name,
-                    lastName: profile.lastName,
-                    phone: profile.phone,
-                    identificationType: idType,
-                    identificationNumber: profile.identificationNumber ?? '',
-                    roleName: profile.roleName|| '',
-                    position: profile.position
-                });
-                this.form.markAsPristine();
-            }
+            // Espera a tener perfil y catálogo de tipos cargados; rellena una sola vez.
+            if (!profile || !idTypes || this.formInitialized) return;
+
+            this.isEditing.set(true);
+            const idType = idTypes.find(t => t.id === profile.identificationTypeId) ?? null;
+
+            this.form.patchValue({
+                email: profile.email,
+                name: profile.name,
+                lastName: profile.lastName,
+                phone: profile.phone,
+                identificationType: idType,
+                identificationNumber: profile.identificationNumber ?? '',
+                roleName: profile.roleName || '',
+                position: profile.position
+            });
+            this.form.markAsPristine();
+            this.formInitialized = true;
         });
     }
 
