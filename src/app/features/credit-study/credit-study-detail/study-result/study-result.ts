@@ -266,6 +266,10 @@ export class StudyResult {
         ).subscribe(data => {
             this.aiAnalysis.set(data);
             this.notificationService.success('Análisis de IA generado exitosamente', 'IA');
+            // El análisis con IA consume cuota: refresca permisos para que la UI
+            // oculte el botón si ya no quedan análisis disponibles.
+            // TODO(datacrédito): si el backend devuelve permisos en la respuesta, usar esa rama.
+            this.authService.refreshProfile();
         });
     }
 }
