@@ -1,4 +1,4 @@
-import { inject, Injectable, signal } from '@angular/core';
+import { computed, inject, Injectable, signal } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { BehaviorSubject, Observable, switchMap, tap, catchError, of } from 'rxjs';
 import { ApiService } from '@/app/core/services/api.service';
@@ -15,7 +15,7 @@ interface LoadCustomersParams {
 
 @Injectable({ providedIn: 'root' })
 export class CustomersService {
-    companyId = signal<string>('');
+    companyId = computed<string>(() => this.authSerive.currentProfile()?.companyId ?? '');
 
     private loadTrigger$ = new BehaviorSubject<LoadCustomersParams>({ page: 1, rows: 10, search: '' });
 
@@ -28,6 +28,11 @@ export class CustomersService {
     customers$ = this.loadTrigger$.pipe(
         tap(() => this.loading.set(true)),
         switchMap((params) => {
+            // Evita pegarle al API sin companyId (URL `companies//customers` → 404).
+            if (!this.companyId()) {
+                return of({ data: [] as Customer[], total: 0 });
+            }
+
             const queryParams: Record<string, string | number | boolean> = {
                 page: params.page,
                 limit: params.rows
@@ -49,10 +54,7 @@ export class CustomersService {
 
     private http = inject(HttpClient);
 
-    constructor(private apiService: ApiService) {
-        const currentUser = this.authSerive.currentProfile();
-        this.companyId.set(currentUser ? currentUser.companyId : '');
-    }
+    constructor(private apiService: ApiService) {}
 
     private get basePath(): string {
         return `companies/${this.companyId()}/customers`;

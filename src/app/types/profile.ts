@@ -20,7 +20,6 @@ export interface Profile {
   companyName: string;
   companyCity: string;
   companyNit: string;
-  isFreeSubscription: boolean;
 }
 
 export interface Permissions {
