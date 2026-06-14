@@ -397,14 +397,29 @@ export class CreditStudyDetail  {
             ? this.creditStudyService.updateCreditStudy(this.creditStudyId()!, creditStudyData)
             : this.creditStudyService.createCreditStudy(creditStudyData);
 
+        const isCreate = !this.creditStudyId();
+
         operation$.pipe(
             finalize(() => this.loading.set(false)),
             takeUntilDestroyed(this.destroyRef)
         ).subscribe((result: any) => {
-            const message = this.creditStudyId()
-                ? 'Estudio de crédito actualizado correctamente'
-                : 'Estudio de crédito creado correctamente';
+            const message = isCreate
+                ? 'Estudio de crédito creado correctamente'
+                : 'Estudio de crédito actualizado correctamente';
             this.notificationService.success(message);
+
+            // Crear un estudio consume cuota: refresca permisos para que la UI
+            // oculte el botón si ya no quedan estudios disponibles.
+            // TODO(datacrédito): cuando el backend devuelva los permisos en la
+            // respuesta del POST, usar esa rama en vez de re-pedir el perfil:
+            // if (result?.permissions) {
+            //     this.authService.updateCurrentProfile({ permissions: result.permissions });
+            // } else {
+            //     this.authService.refreshProfile();
+            // }
+            if (isCreate) {
+                this.authService.refreshProfile();
+            }
 
             if (!this.creditStudyId() && result?.id) {
                 const fromCustomerId = this.queryCustomerId();
@@ -491,6 +506,9 @@ export class CreditStudyDetail  {
                 takeUntilDestroyed(this.destroyRef)
             ).subscribe((study) => {
                 this.notificationService.success('Estudio de crédito creado a partir de los estados financieros');
+                // Extraer PDF + crear estudio consume cuota: refresca permisos.
+                // TODO(datacrédito): si el backend devuelve permisos en la respuesta, usar esa rama.
+                this.authService.refreshProfile();
                 this.navigateToCreatedStudy(study);
             });
         };
