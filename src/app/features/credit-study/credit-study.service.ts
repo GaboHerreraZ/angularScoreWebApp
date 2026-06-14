@@ -1,4 +1,4 @@
-import { inject, Injectable, signal } from '@angular/core';
+import { computed, inject, Injectable, signal } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable, BehaviorSubject, of, catchError, tap, switchMap } from 'rxjs';
 import { ApiService } from '@/app/core/services/api.service';
@@ -18,7 +18,10 @@ export class CreditStudyService {
     private authService = inject(AuthService);
     private http = inject(HttpClient);
 
-    companyId = signal<string>('');
+    // Derivado del perfil de forma reactiva: el servicio es singleton y el perfil
+    // puede no estar cargado cuando se construye (p. ej. justo tras login/invitación),
+    // lo que dejaba companyId vacío y generaba URLs como `companies//credit-studies`.
+    companyId = computed<string>(() => this.authService.currentProfile()?.companyId ?? '');
 
     private loadTrigger$ = new BehaviorSubject<LoadCreditStudiesParams>({ page: 1, rows: 10, search: '' });
 
@@ -29,6 +32,11 @@ export class CreditStudyService {
     creditStudies$ = this.loadTrigger$.pipe(
         tap(() => this.loading.set(true)),
         switchMap((params) => {
+            // Evita pegarle al API sin companyId (URL `companies//credit-studies` → 404).
+            if (!this.companyId()) {
+                return of({ data: [] as CreateCreditStudy[], total: 0 });
+            }
+
             const queryParams: Record<string, string | number | boolean> = {
                 page: params.page,
                 limit: params.rows
@@ -47,11 +55,6 @@ export class CreditStudyService {
             this.loading.set(false);
         })
     );
-
-    constructor() {
-        const currentUser = this.authService.currentProfile();
-        this.companyId.set(currentUser ? currentUser!.companyId : '');
-    }
 
     private get basePath(): string {
         return `companies/${this.companyId()}/credit-studies`;
