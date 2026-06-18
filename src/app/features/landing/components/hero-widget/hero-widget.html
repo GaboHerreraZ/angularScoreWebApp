@@ -52,7 +52,7 @@
 
         <!-- Dashboard illustration -->
         <div class="flex-1 w-full max-w-xl" appScrollAnimate="fade-right" [animateDelay]="200">
-            <div class="bg-surface-0 dark:bg-surface-900 rounded-2xl shadow-2xl p-6 border border-surface">
+            <div #mockup class="bg-surface-0 dark:bg-surface-900 rounded-2xl shadow-2xl p-6 border border-surface">
                 <!-- Mock header -->
                 <div class="flex items-center justify-between mb-6">
                     <div class="flex items-center gap-2">
@@ -68,13 +68,14 @@
                         <span class="text-sm font-semibold text-muted-color">Score del cliente</span>
                         <span class="bg-green-500/20 text-green-600 dark:text-green-400 text-xs font-bold px-2 py-1 rounded-full">Riesgo bajo</span>
                     </div>
-                    <div class="text-5xl font-extrabold text-green-600 dark:text-green-400 mb-2">87<span class="text-lg text-muted-color">/100</span></div>
-                    <div class="w-full bg-surface-200 dark:bg-surface-700 rounded-full h-2">
-                        <div class="bg-linear-to-r from-green-500 to-emerald-400 h-2 rounded-full" style="width: 87%"></div>
+                    <div class="text-5xl font-extrabold text-green-600 dark:text-green-400 mb-2 tabular-nums">{{ score() }}<span class="text-lg text-muted-color">/100</span></div>
+                    <div class="w-full bg-surface-200 dark:bg-surface-700 rounded-full h-2 overflow-hidden">
+                        <div class="bg-linear-to-r from-green-500 to-emerald-400 h-2 rounded-full transition-[width] duration-1000 ease-out" [style.width]="animate() ? '87%' : '0%'"></div>
                     </div>
                 </div>
                 <!-- AI Analysis mock -->
-                <div class="bg-linear-to-r from-purple-500/10 to-indigo-500/10 dark:from-purple-500/20 dark:to-indigo-500/20 rounded-xl p-4 mb-4 flex items-center gap-3">
+                <div class="bg-linear-to-r from-purple-500/10 to-indigo-500/10 dark:from-purple-500/20 dark:to-indigo-500/20 rounded-xl p-4 mb-4 flex items-center gap-3 transition-all duration-500 ease-out"
+                    [class.opacity-0]="!animate()" [class.translate-y-2]="!animate()" style="transition-delay: 350ms">
                     <div class="w-9 h-9 rounded-lg bg-linear-to-br from-purple-500 to-indigo-500 flex items-center justify-center shrink-0">
                         <i class="pi pi-sparkles text-white text-sm"></i>
                     </div>
@@ -86,28 +87,32 @@
                 </div>
                 <!-- Mini indicators -->
                 <div class="grid grid-cols-2 gap-3">
-                    <div class="bg-surface-50 dark:bg-surface-800 rounded-lg p-3">
+                    <div class="bg-surface-50 dark:bg-surface-800 rounded-lg p-3 transition-all duration-500 ease-out"
+                        [class.opacity-0]="!animate()" [class.translate-y-2]="!animate()" style="transition-delay: 500ms">
                         <div class="text-xs text-muted-color mb-1">Capacidad de pago</div>
                         <div class="text-lg font-bold text-color flex items-center gap-1">
                             <i class="pi pi-arrow-up text-green-500 text-xs"></i>
                             $24.5M
                         </div>
                     </div>
-                    <div class="bg-surface-50 dark:bg-surface-800 rounded-lg p-3">
+                    <div class="bg-surface-50 dark:bg-surface-800 rounded-lg p-3 transition-all duration-500 ease-out"
+                        [class.opacity-0]="!animate()" [class.translate-y-2]="!animate()" style="transition-delay: 600ms">
                         <div class="text-xs text-muted-color mb-1">EBITDA</div>
                         <div class="text-lg font-bold text-color flex items-center gap-1">
                             <i class="pi pi-arrow-up text-green-500 text-xs"></i>
                             $18.2M
                         </div>
                     </div>
-                    <div class="bg-surface-50 dark:bg-surface-800 rounded-lg p-3">
+                    <div class="bg-surface-50 dark:bg-surface-800 rounded-lg p-3 transition-all duration-500 ease-out"
+                        [class.opacity-0]="!animate()" [class.translate-y-2]="!animate()" style="transition-delay: 700ms">
                         <div class="text-xs text-muted-color mb-1">Datacrédito score</div>
                         <div class="text-lg font-bold text-color flex items-center gap-1">
                             <i class="pi pi-check text-green-500 text-xs"></i>
                             750
                         </div>
                     </div>
-                    <div class="bg-surface-50 dark:bg-surface-800 rounded-lg p-3">
+                    <div class="bg-surface-50 dark:bg-surface-800 rounded-lg p-3 transition-all duration-500 ease-out"
+                        [class.opacity-0]="!animate()" [class.translate-y-2]="!animate()" style="transition-delay: 800ms">
                         <div class="text-xs text-muted-color mb-1">Rotación cartera</div>
                         <div class="text-lg font-bold text-color flex items-center gap-1">
                             <i class="pi pi-clock text-blue-500 text-xs"></i>
