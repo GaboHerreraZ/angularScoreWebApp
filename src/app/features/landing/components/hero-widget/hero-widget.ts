@@ -13,7 +13,7 @@ export class HeroWidget implements OnDestroy {
     /** Valor final del score que se muestra en el mockup. */
     private static readonly TARGET_SCORE = 87;
 
-    mockupRef = viewChild.required<ElementRef<HTMLElement>>('mockup');
+    mockupRef = viewChild<ElementRef<HTMLElement>>('mockup');
 
     /** Dispara las animaciones del mockup cuando entra al viewport. */
     animate = signal(false);
@@ -32,10 +32,10 @@ export class HeroWidget implements OnDestroy {
     }
 
     private observeMockup(): void {
-        const element = this.mockupRef().nativeElement;
+        const element = this.mockupRef()?.nativeElement;
 
-        if (this.reduceMotion) {
-            // Sin movimiento: mostramos el estado final de inmediato.
+        // Sin movimiento o sin elemento (p. ej. SSR): mostramos el estado final.
+        if (this.reduceMotion || !element) {
             this.score.set(HeroWidget.TARGET_SCORE);
             this.animate.set(true);
             return;
