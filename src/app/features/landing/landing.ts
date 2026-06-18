@@ -9,7 +9,7 @@ import { SupabaseService } from '@/app/core/services/supabase.service';
 import { HeaderWidget } from './components/header-widget/header-widget';
 import { HeroWidget } from './components/hero-widget/hero-widget';
 import { OverviewWidget } from './components/overview-widget/overview-widget';
-import { StatsWidget } from './components/stats-widget/stats-widget';
+import { HowItWorksWidget } from './components/how-it-works-widget/how-it-works-widget';
 import { FeaturesWidget } from './components/features-widget/features-widget';
 import { MethodologyWidget } from './components/methodology-widget/methodology-widget';
 import { JoinWidget } from './components/join-widget/join-widget';
@@ -20,7 +20,7 @@ import { FooterWidget } from './components/footer-widget/footer-widget';
 @Component({
     selector: 'app-landing',
     standalone: true,
-    imports: [RouterModule, RippleModule, StyleClassModule, ButtonModule, DividerModule, DialogModule, HeaderWidget, HeroWidget, OverviewWidget, StatsWidget, FeaturesWidget, MethodologyWidget, JoinWidget, HowToStartWidget, FaqWidget, FooterWidget],
+    imports: [RouterModule, RippleModule, StyleClassModule, ButtonModule, DividerModule, DialogModule, HeaderWidget, HeroWidget, OverviewWidget, HowItWorksWidget, FeaturesWidget, MethodologyWidget, JoinWidget, HowToStartWidget, FaqWidget, FooterWidget],
     templateUrl: './landing.html'
 })
 export class Landing {
