@@ -1,0 +1,105 @@
+<div class="max-w-lg mx-auto px-6 py-12 lg:py-16">
+    @if (state() === 'polling') {
+    <div class="flex flex-col items-center text-center gap-5">
+        <p-progressSpinner strokeWidth="4" [style]="{ width: '3rem', height: '3rem' }" />
+        <div>
+            <h1 class="text-xl font-bold m-0 text-color mb-1">Confirmando tu pago…</h1>
+            <p class="text-muted-color m-0">Estamos verificando tu transacción, esto puede tardar unos segundos.</p>
+        </div>
+    </div>
+    } @else if (state() === 'success' && pack(); as p) {
+    <!-- ── Éxito: resumen de compra + bienvenida ── -->
+    <div class="text-center mb-8">
+        <i class="pi pi-check-circle text-green-500 text-6xl"></i>
+        <h1 class="text-2xl font-extrabold mt-4 mb-2 text-color">¡Bienvenido a Creditia!</h1>
+        <p class="text-muted-color m-0">
+            Tu compra quedó activa. Ya puedes empezar a evaluar el crédito de tus clientes.
+        </p>
+    </div>
+
+    <div class="bg-surface-0 dark:bg-surface-900 rounded-2xl border border-surface p-6 sm:p-8">
+        <!-- Plan -->
+        <div class="flex items-center justify-between mb-5">
+            <div>
+                <p class="m-0 font-bold text-color text-lg">{{ p.plan.name }}</p>
+                @if (p.plan.description) {
+                <p class="m-0 text-sm text-muted-color">{{ p.plan.description }}</p>
+                }
+            </div>
+            <span class="text-xs font-semibold px-3 py-1 rounded-full bg-green-500/10 text-green-600 dark:text-green-400">
+                {{ p.statusLabel }}
+            </span>
+        </div>
+
+        <ul class="list-none p-0 m-0 flex flex-col gap-3 text-sm">
+            <li class="flex items-center justify-between">
+                <span class="text-muted-color"><i class="pi pi-search mr-2 text-primary"></i>Consultas</span>
+                <span class="font-semibold text-color">{{ p.plan.consultations }}</span>
+            </li>
+            <li class="flex items-center justify-between">
+                <span class="text-muted-color"><i class="pi pi-calendar mr-2 text-primary"></i>Vigencia</span>
+                <span class="font-semibold text-color">Hasta {{ formatDate(p.validity.endDate) }}</span>
+            </li>
+            <li class="flex items-center justify-between">
+                <span class="text-muted-color"><i class="pi pi-building mr-2 text-primary"></i>Empresa</span>
+                <span class="font-semibold text-color">{{ p.company.name }}</span>
+            </li>
+            <li class="flex items-center justify-between">
+                <span class="text-muted-color"><i class="pi pi-file mr-2 text-primary"></i>Factura</span>
+                <span class="font-semibold text-color">{{ p.invoice }}</span>
+            </li>
+        </ul>
+
+        <p-divider />
+
+        @if (p.payment.discountAmount > 0) {
+        <div class="flex items-center justify-between text-sm mb-1">
+            <span class="text-muted-color">Subtotal</span>
+            <span class="text-muted-color line-through">{{ formatCurrency(p.payment.subtotal, p.payment.currency) }}</span>
+        </div>
+        <div class="flex items-center justify-between text-sm mb-2">
+            <span class="text-emerald-600 dark:text-emerald-400">Descuento</span>
+            <span class="text-emerald-600 dark:text-emerald-400">- {{ formatCurrency(p.payment.discountAmount, p.payment.currency) }}</span>
+        </div>
+        }
+        <div class="flex items-end justify-between">
+            <span class="text-muted-color font-semibold">Total pagado</span>
+            <span class="text-2xl font-extrabold text-color">{{ formatCurrency(p.payment.total, p.payment.currency) }}</span>
+        </div>
+
+        <a routerLink="/app/panel" class="no-underline block mt-7">
+            <p-button label="Ir al dashboard" icon="pi pi-arrow-right" iconPos="right" styleClass="w-full" />
+        </a>
+    </div>
+    } @else {
+    <!-- ── Pending / declined / error ── -->
+    <div class="bg-surface-0 dark:bg-surface-900 rounded-2xl border border-surface p-8 text-center">
+        <i [class]="icon()" class="text-6xl"></i>
+        <h1 class="text-2xl font-bold mt-4 mb-2 text-color">{{ title() }}</h1>
+
+        @switch (state()) {
+            @case ('pending') {
+            <p class="text-muted-color m-0 mb-6">
+                Tu pago quedó en proceso de verificación. Te activaremos el paquete en cuanto se confirme;
+                puedes entrar al panel mientras tanto.
+            </p>
+            }
+            @case ('declined') {
+            <p class="text-muted-color m-0 mb-6">
+                El pago fue rechazado. Verifica los datos de tu tarjeta e intenta comprar el paquete de nuevo desde el panel.
+            </p>
+            }
+            @default {
+            <p class="text-muted-color m-0 mb-6">
+                No pudimos verificar el estado de tu pago. Si el cobro se realizó, se reflejará en tu cuenta;
+                de lo contrario, intenta de nuevo desde el panel.
+            </p>
+            }
+        }
+
+        <a routerLink="/app/panel" class="no-underline">
+            <p-button label="Ir al dashboard" icon="pi pi-arrow-right" iconPos="right" styleClass="w-full" />
+        </a>
+    </div>
+    }
+</div>

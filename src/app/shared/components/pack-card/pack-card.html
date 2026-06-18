@@ -1,0 +1,64 @@
+@let p = pack();
+
+<button
+    type="button"
+    (click)="onSelect()"
+    [attr.aria-pressed]="selected()"
+    class="relative w-full text-left rounded-2xl border bg-surface-0 dark:bg-surface-900 p-6 cursor-pointer
+           transition-all duration-200 ease-out outline-none
+           hover:border-primary/50 hover:shadow-lg
+           focus-visible:ring-2 focus-visible:ring-primary/40"
+    [class.border-surface]="!selected()"
+    [class.border-primary]="selected()"
+    [class.ring-2]="selected()"
+    [class.ring-primary]="selected()"
+    [class.shadow-xl]="selected()"
+    [class.scale-[1.02]]="selected()"
+>
+    <!-- Check de selección -->
+    <span
+        class="absolute top-4 right-4 w-6 h-6 rounded-full flex items-center justify-center transition-all duration-200"
+        [class.bg-primary]="selected()"
+        [class.text-primary-contrast]="selected()"
+        [class.bg-surface-100]="!selected()"
+        [class.dark:bg-surface-800]="!selected()"
+        [class.text-transparent]="!selected()"
+    >
+        <i class="pi pi-check text-xs"></i>
+    </span>
+
+    <!-- Badge de descuento -->
+    @if (hasDiscount()) {
+        <span class="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 mb-4">
+            <i class="pi pi-tag text-[10px]"></i>
+            Ahorra {{ discountPercent() }}%
+        </span>
+    }
+
+    <!-- Cantidad de consultas -->
+    <div class="flex items-baseline gap-2 mb-1">
+        <span class="text-4xl font-extrabold text-color leading-none">{{ p.quantity }}</span>
+        <span class="text-muted-color font-medium">consultas</span>
+    </div>
+
+    <p class="text-sm text-muted-color m-0 mb-5">
+        {{ p.description || p.name }}
+    </p>
+
+    <!-- Precio -->
+    <div class="flex items-end justify-between">
+        <div class="flex flex-col">
+            @if (hasDiscount()) {
+                <span class="text-sm text-muted-color line-through leading-none">{{ formatCurrency(p.subtotal, p.currency) }}</span>
+            }
+            <span class="text-2xl font-extrabold text-color leading-tight">{{ formatCurrency(p.total, p.currency) }}</span>
+        </div>
+        <span class="text-xs text-muted-color">{{ formatCurrency(p.unitPrice, p.currency) }} c/u</span>
+    </div>
+
+    <!-- Vigencia -->
+    <div class="flex items-center gap-2 mt-4 pt-4 border-t border-surface text-xs text-muted-color">
+        <i class="pi pi-clock text-primary"></i>
+        Vigencia de {{ p.validityDays }} días
+    </div>
+</button>

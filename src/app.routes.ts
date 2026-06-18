@@ -17,6 +17,14 @@ export const appRoutes: Routes = [
         ]
     },
     { path: 'invitacion', loadComponent: () => import('@/app/features/invitation/invitation').then(c => c.InvitationComponent) },
+    { path: 'onboarding', loadChildren: () => import('@/app/features/onboarding/onboarding.routes') },
+    {
+        path: 'pago',
+        loadComponent: () => import('@/app/features/onboarding/onboarding-shell').then((c) => c.OnboardingShell),
+        children: [
+            { path: 'resultado', loadComponent: () => import('@/app/features/onboarding/confirmation/onboarding-confirmation').then((c) => c.OnboardingConfirmation) }
+        ]
+    },
     { path: 'auth', loadChildren: () => import('@/app/features/auth/auth.routes') },
     { path: 'inicio', redirectTo: '/', pathMatch: 'full' },
     { path: 'legal/privacidad', loadComponent: () => import('@/app/features/legal/privacy-policy').then((c) => c.PrivacyPolicy) },
