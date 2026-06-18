@@ -1,9 +1,7 @@
-import { Subscription } from './subscription';
 import { Parameter } from './parameter';
 
 export interface Company {
     id: string;
-    subscriptionId: string;
     name: string;
     nit: string;
     sectorId: number;
@@ -27,7 +25,6 @@ export interface Company {
     isActive: boolean;
     createdAt: string;
     updatedAt: string;
-    subscription: Subscription;
     sector: Parameter;
     userCompanies: UserCompany[];
 }

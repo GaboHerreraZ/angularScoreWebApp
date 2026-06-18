@@ -28,12 +28,9 @@ export interface Permissions {
   canAddCustomer: boolean;
   canMakeAiAnalysis: boolean;
   canExportExcel: boolean;
-  subscriptionActive: boolean;
   canExtractPdf: boolean;
   canEditTheme: boolean;
   dashboardLevel: string;
   supportLevel: string;
   emailNotification: boolean;
-  subscriptionStatus: string;
-  hasSubscription: boolean;
 }
