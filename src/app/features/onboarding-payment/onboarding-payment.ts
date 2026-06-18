@@ -12,8 +12,6 @@ import { NotificationService } from '@/app/shared/components/notification/notifi
 import { LayoutService } from '@/app/layout/service/layout.service';
 import { CardForm } from '@/app/shared/components/card-form/card-form';
 import { buildCardForm } from '@/app/shared/components/card-form/card-form.builder';
-import { BillingForm } from '@/app/shared/components/billing-form/billing-form';
-import { buildBillingForm } from '@/app/shared/components/billing-form/billing-form.builder';
 import { detectCardType } from '@/app/shared/validators/card.validators';
 import { OnboardingPaymentService } from './onboarding-payment.service';
 import { OnboardingPaymentSummary, PayOnboardingRequest } from '@/app/types/onboarding-payment';
@@ -30,8 +28,7 @@ type PageState = 'loading' | 'ready' | 'invalid' | 'alreadyPaid' | 'success';
         SkeletonModule,
         DividerModule,
         Notification,
-        CardForm,
-        BillingForm
+        CardForm
     ],
     templateUrl: './onboarding-payment.html'
 })
@@ -55,9 +52,8 @@ export class OnboardingPayment {
     summary = signal<OnboardingPaymentSummary | null>(null);
     paying = signal(false);
 
-    // Formularios reutilizables
+    // Formulario de tarjeta. La facturación viene precargada del resumen (solo lectura).
     cardForm = buildCardForm(() => detectCardType(this.cardForm.get('cardNumber')?.value ?? ''));
-    billingForm = buildBillingForm();
 
     constructor() {
         this.loadSummary();
@@ -85,15 +81,13 @@ export class OnboardingPayment {
 
     onPay(): void {
         this.cardForm.markAllAsTouched();
-        this.billingForm.markAllAsTouched();
 
-        if (this.cardForm.invalid || this.billingForm.invalid) {
-            this.notificationService.warn('Revisa los datos: todos los campos son obligatorios.');
+        if (this.cardForm.invalid) {
+            this.notificationService.warn('Revisa los datos de tu tarjeta: todos los campos son obligatorios.');
             return;
         }
 
         const card = this.cardForm.getRawValue();
-        const b = this.billingForm.getRawValue();
 
         const payload: PayOnboardingRequest = {
             companySubscriptionId: this.companySubscriptionId,
@@ -104,18 +98,6 @@ export class OnboardingPayment {
                 cvc: card.cvc as string,
                 expMonth: card.expMonth as string,
                 expYear: card.expYear as string
-            },
-            billing: {
-                name: b.billingName,
-                lastName: b.billingLastName,
-                docType: b.billingDocType?.id,
-                docTypeCode: b.billingDocType?.code ?? '',
-                docNumber: b.billingDocNumber,
-                email: b.billingEmail,
-                address: b.billingAddress,
-                state: b.billingState?.name ?? '',
-                city: b.billingCity?.name ?? '',
-                phone: b.billingPhone
             }
         };
 
