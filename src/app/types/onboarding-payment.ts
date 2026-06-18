@@ -1,3 +1,16 @@
+/** Datos de facturación que devuelve el resumen, en modo solo lectura. */
+export interface OnboardingPaymentSummaryBilling {
+    name: string;
+    lastName: string;
+    docTypeId: number;
+    docNumber: string;
+    email: string;
+    address: string;
+    state: string;
+    city: string;
+    phone: string;
+}
+
 /** Resumen del pago de onboarding (GET /onboarding-payment/summary). */
 export interface OnboardingPaymentSummary {
     companyName: string;
@@ -11,6 +24,8 @@ export interface OnboardingPaymentSummary {
     startDate: string;
     endDate: string;
     alreadyPaid: boolean;
+    /** Datos de facturación precargados; se muestran de solo lectura. */
+    billing: OnboardingPaymentSummaryBilling;
 }
 
 /** Tarjeta a tokenizar en el backend (nunca se almacena en el front). */
@@ -22,26 +37,14 @@ export interface OnboardingPaymentCard {
     expYear: string;
 }
 
-/** Datos de facturación. docType = id numérico ePayco, docTypeCode = código (CC, CE, NIT…). */
-export interface OnboardingPaymentBilling {
-    name: string;
-    lastName: string;
-    docTypeCode: string;
-    docType: number;
-    docNumber: string;
-    email: string;
-    address: string;
-    state: string;
-    city: string;
-    phone: string;
-}
-
-/** Cuerpo de POST /onboarding-payment/pay (PayOnboardingDto). */
+/**
+ * Cuerpo de POST /onboarding-payment/pay (PayOnboardingDto).
+ * Los datos de facturación ya no se envían: el backend los toma del resumen.
+ */
 export interface PayOnboardingRequest {
     companySubscriptionId: string;
     token: string;
     card: OnboardingPaymentCard;
-    billing: OnboardingPaymentBilling;
 }
 
 /** Respuesta 201 del pago. */

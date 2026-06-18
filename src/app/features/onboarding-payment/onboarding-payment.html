@@ -102,7 +102,8 @@
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
             <!-- Columna izquierda: formularios -->
             <div class="lg:col-span-2 flex flex-col gap-6">
-                <!-- Datos de facturación -->
+                <!-- Datos de facturación (solo lectura, vienen del resumen) -->
+                @if (summary()?.billing; as b) {
                 <section class="bg-surface-0 dark:bg-surface-900 rounded-2xl border border-surface p-6">
                     <div class="flex items-center gap-3 mb-6">
                         <div class="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
@@ -113,8 +114,39 @@
                             <p class="text-muted-color text-sm m-0">Estos datos aparecerán en tu factura.</p>
                         </div>
                     </div>
-                    <app-billing-form [formGroup]="billingForm" />
+
+                    <dl class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 m-0">
+                        <div class="flex flex-col gap-0.5">
+                            <dt class="text-xs text-muted-color">Nombres y apellidos</dt>
+                            <dd class="m-0 font-medium text-color">{{ b.name }} {{ b.lastName }}</dd>
+                        </div>
+                        <div class="flex flex-col gap-0.5">
+                            <dt class="text-xs text-muted-color">Documento</dt>
+                            <dd class="m-0 font-medium text-color">{{ b.docNumber }}</dd>
+                        </div>
+                        <div class="flex flex-col gap-0.5">
+                            <dt class="text-xs text-muted-color">Correo electrónico</dt>
+                            <dd class="m-0 font-medium text-color break-all">{{ b.email }}</dd>
+                        </div>
+                        <div class="flex flex-col gap-0.5">
+                            <dt class="text-xs text-muted-color">Teléfono</dt>
+                            <dd class="m-0 font-medium text-color">{{ b.phone }}</dd>
+                        </div>
+                        <div class="flex flex-col gap-0.5 md:col-span-2">
+                            <dt class="text-xs text-muted-color">Dirección</dt>
+                            <dd class="m-0 font-medium text-color">{{ b.address }}</dd>
+                        </div>
+                        <div class="flex flex-col gap-0.5">
+                            <dt class="text-xs text-muted-color">Departamento</dt>
+                            <dd class="m-0 font-medium text-color">{{ b.state }}</dd>
+                        </div>
+                        <div class="flex flex-col gap-0.5">
+                            <dt class="text-xs text-muted-color">Ciudad</dt>
+                            <dd class="m-0 font-medium text-color">{{ b.city }}</dd>
+                        </div>
+                    </dl>
                 </section>
+                }
 
                 <!-- Datos de la tarjeta -->
                 <section class="bg-surface-0 dark:bg-surface-900 rounded-2xl border border-surface p-6">
