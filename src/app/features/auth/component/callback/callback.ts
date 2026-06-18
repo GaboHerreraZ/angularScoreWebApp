@@ -49,6 +49,12 @@ export class Callback implements OnInit {
                     await this.authService.loadProfile(user.id);
                 }
 
+                // Si el usuario venía del registro de onboarding, lo llevamos al asistente.
+                if (this.consumePendingOnboarding()) {
+                    this.router.navigate(['/onboarding/registrar-empresa']);
+                    return;
+                }
+
                 this.router.navigate(['/app']);
                 return;
             }
@@ -56,6 +62,13 @@ export class Callback implements OnInit {
         }
 
         this.router.navigate(['/auth/iniciar-sesion']);
+    }
+
+    /** Lee (y consume) la bandera que marca que el usuario venía del registro de onboarding. */
+    private consumePendingOnboarding(): boolean {
+        const pending = sessionStorage.getItem('pending_onboarding') === 'true';
+        if (pending) sessionStorage.removeItem('pending_onboarding');
+        return pending;
     }
 
     /** Lee (y consume) la invitación pendiente guardada antes del redirect de OAuth. */

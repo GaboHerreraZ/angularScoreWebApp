@@ -1,0 +1,290 @@
+<div class="max-w-4xl mx-auto px-6 py-8 lg:py-12">
+    @if (checkingExisting()) {
+    <!-- Verificando si el usuario ya tiene perfil/empresa -->
+    <div class="flex flex-col items-center justify-center text-center gap-4 py-20">
+        <i class="pi pi-spin pi-spinner text-primary text-3xl"></i>
+        <p class="text-muted-color m-0">Preparando tu registro…</p>
+    </div>
+    } @else {
+    <!-- Encabezado del asistente -->
+    <div class="text-center mb-8">
+        <span class="inline-flex items-center gap-2 bg-primary/10 text-primary rounded-full px-4 py-1.5 text-xs font-semibold uppercase tracking-wide mb-4">
+            <i class="pi pi-sparkles"></i>
+            Puesta en marcha
+        </span>
+        <h1 class="text-2xl sm:text-3xl font-extrabold m-0 text-color">Pongamos en marcha tu cuenta</h1>
+        <p class="text-muted-color mt-2 mb-0 transition-all duration-300">{{ stepTagline() }}</p>
+    </div>
+
+    <!-- Indicador de pasos -->
+    <p-steps [model]="steps" [activeIndex]="step()" [readonly]="true" styleClass="mb-10" />
+
+    <!-- ─────────────── Paso 1: Perfil ─────────────── -->
+    @if (step() === 0) {
+    <section class="bg-surface-0 dark:bg-surface-900 rounded-2xl border border-surface overflow-hidden">
+        <!-- Encabezado con acento -->
+        <div class="flex items-start gap-4 p-6 sm:p-8 border-b border-surface bg-linear-to-r from-primary/5 to-transparent">
+            <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                <i class="pi pi-user text-primary text-xl"></i>
+            </div>
+            <div>
+                <h2 class="text-xl font-bold m-0 text-color">Cuéntanos sobre ti</h2>
+                <p class="text-muted-color text-sm mt-1 mb-0">Serás el administrador de la cuenta de tu empresa.</p>
+            </div>
+        </div>
+
+        <form [formGroup]="profileForm" class="p-6 sm:p-8 flex flex-col gap-7">
+            <!-- Datos personales -->
+            <div>
+                <p class="text-xs font-bold text-muted-color uppercase tracking-wide m-0 mb-4 flex items-center gap-2">
+                    <i class="pi pi-id-card text-primary"></i> Datos personales
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+                    <div class="flex flex-col gap-1">
+                        <p-floatlabel variant="on">
+                            <input pInputText id="name" formControlName="name" class="w-full"
+                                [invalid]="profileForm.controls.name.invalid && profileForm.controls.name.touched" />
+                            <label for="name">Nombres *</label>
+                        </p-floatlabel>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <p-floatlabel variant="on">
+                            <input pInputText id="lastName" formControlName="lastName" class="w-full"
+                                [invalid]="profileForm.controls.lastName.invalid && profileForm.controls.lastName.touched" />
+                            <label for="lastName">Apellidos *</label>
+                        </p-floatlabel>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <p-floatlabel variant="on">
+                            <p-select inputId="identificationType" formControlName="identificationType"
+                                [options]="identificationTypesResource.value() ?? []" optionLabel="label" styleClass="w-full"
+                                [invalid]="profileForm.controls.identificationType.invalid && profileForm.controls.identificationType.touched" />
+                            <label for="identificationType">Tipo de documento *</label>
+                        </p-floatlabel>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <p-floatlabel variant="on">
+                            <input pInputText id="identificationNumber" formControlName="identificationNumber" class="w-full"
+                                [invalid]="profileForm.controls.identificationNumber.invalid && profileForm.controls.identificationNumber.touched" />
+                            <label for="identificationNumber">Número de documento *</label>
+                        </p-floatlabel>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contacto y rol -->
+            <div>
+                <p class="text-xs font-bold text-muted-color uppercase tracking-wide m-0 mb-4 flex items-center gap-2">
+                    <i class="pi pi-briefcase text-primary"></i> Contacto y rol
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+                    <div class="flex flex-col gap-1">
+                        <app-phone-input inputId="phone" label="Teléfono *" variant="on" formControlName="phone" />
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <p-floatlabel variant="on">
+                            <input pInputText id="position" formControlName="position" class="w-full"
+                                [invalid]="profileForm.controls.position.invalid && profileForm.controls.position.touched" />
+                            <label for="position">Cargo *</label>
+                        </p-floatlabel>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </section>
+    }
+
+    <!-- ─────────────── Paso 2: Empresa + Facturación ─────────────── -->
+    @if (step() === 1) {
+    <section class="bg-surface-0 dark:bg-surface-900 rounded-2xl border border-surface overflow-hidden">
+        <!-- Encabezado con acento -->
+        <div class="flex items-start gap-4 p-6 sm:p-8 border-b border-surface bg-linear-to-r from-primary/5 to-transparent">
+            <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                <i class="pi pi-building text-primary text-xl"></i>
+            </div>
+            <div>
+                <h2 class="text-xl font-bold m-0 text-color">Datos de tu empresa</h2>
+                <p class="text-muted-color text-sm mt-1 mb-0">Con esto creamos tu cuenta y emitimos tus facturas.</p>
+            </div>
+        </div>
+
+        <div class="p-6 sm:p-8 flex flex-col gap-7">
+            <!-- Información de la empresa -->
+            <div>
+                <p class="text-xs font-bold text-muted-color uppercase tracking-wide m-0 mb-4 flex items-center gap-2">
+                    <i class="pi pi-briefcase text-primary"></i> Información de la empresa
+                </p>
+                <form [formGroup]="companyForm" class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+                    <div class="flex flex-col gap-1">
+                        <p-floatlabel variant="on">
+                            <input pInputText id="companyName" formControlName="name" class="w-full"
+                                [invalid]="companyForm.controls.name.invalid && companyForm.controls.name.touched" />
+                            <label for="companyName">Razón social *</label>
+                        </p-floatlabel>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <p-floatlabel variant="on">
+                            <input pInputText id="nit" formControlName="nit" class="w-full"
+                                [invalid]="companyForm.controls.nit.invalid && companyForm.controls.nit.touched" />
+                            <label for="nit">NIT *</label>
+                        </p-floatlabel>
+                    </div>
+                    <div class="flex flex-col gap-1 md:col-span-2">
+                        <app-sector-select inputId="sector" label="Sector *" variant="on" formControlName="sector"
+                            [invalid]="companyForm.controls.sector.invalid && companyForm.controls.sector.touched" />
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <app-state-control inputId="state" label="Departamento *" variant="on" formControlName="state"
+                            [invalid]="companyForm.controls.state.invalid && companyForm.controls.state.touched" />
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <app-city-control inputId="city" label="Ciudad *" variant="on" [departmentId]="departmentId()" formControlName="city"
+                            [invalid]="companyForm.controls.city.invalid && companyForm.controls.city.touched" />
+                    </div>
+                    <div class="flex flex-col gap-1 md:col-span-2">
+                        <p-floatlabel variant="on">
+                            <input pInputText id="address" formControlName="address" class="w-full"
+                                [invalid]="companyForm.controls.address.invalid && companyForm.controls.address.touched" />
+                            <label for="address">Dirección *</label>
+                        </p-floatlabel>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Datos de facturación -->
+            <div>
+                <p class="text-xs font-bold text-muted-color uppercase tracking-wide m-0 mb-4 flex items-center gap-2">
+                    <i class="pi pi-receipt text-primary"></i> Datos de facturación
+                </p>
+                <app-billing-form [formGroup]="billingForm" />
+            </div>
+        </div>
+    </section>
+    }
+
+    <!-- ─────────────── Paso 3: Paquete ─────────────── -->
+    @if (step() === 2) {
+    <section>
+        <div class="mb-6 text-center">
+            <h2 class="text-xl font-bold m-0 text-color">Elige tu paquete de consultas</h2>
+            <p class="text-muted-color text-sm mt-1 mb-0">Pagas solo por las consultas que necesitas, sin mensualidades.</p>
+        </div>
+
+        @if (packsResource.isLoading()) {
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            @for (i of [1,2,3]; track i) {
+            <p-skeleton width="100%" height="16rem" borderRadius="1rem" />
+            }
+        </div>
+        } @else {
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            @for (pack of packsResource.value() ?? []; track pack.id) {
+            <app-pack-card [pack]="pack" [selected]="selectedPack()?.id === pack.id" (select)="onSelectPack($event)" />
+            }
+        </div>
+        }
+    </section>
+    }
+
+    <!-- ─────────────── Paso 4: Resumen ─────────────── -->
+    @if (step() === 3) {
+    <section class="bg-surface-0 dark:bg-surface-900 rounded-2xl border border-surface p-6 sm:p-8">
+        <div class="mb-6">
+            <h2 class="text-xl font-bold m-0 text-color">Revisa y confirma</h2>
+            <p class="text-muted-color text-sm mt-1 mb-0">Verifica que todo esté correcto antes de pagar.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Perfil -->
+            <div class="rounded-xl border border-surface p-5">
+                <h3 class="text-sm font-bold text-muted-color uppercase tracking-wide m-0 mb-3">Perfil</h3>
+                <p class="m-0 font-medium text-color">{{ profileSummary.name }}</p>
+                <p class="m-0 text-sm text-muted-color">{{ profileSummary.position }}</p>
+                <p class="m-0 text-sm text-muted-color">Doc: {{ profileSummary.docNumber }}</p>
+                <p class="m-0 text-sm text-muted-color">{{ profileSummary.phone }}</p>
+                <p class="m-0 text-sm text-muted-color break-all">{{ userEmail }}</p>
+            </div>
+
+            <!-- Empresa -->
+            <div class="rounded-xl border border-surface p-5">
+                <h3 class="text-sm font-bold text-muted-color uppercase tracking-wide m-0 mb-3">Empresa</h3>
+                <p class="m-0 font-medium text-color">{{ companySummary.name }}</p>
+                <p class="m-0 text-sm text-muted-color">NIT: {{ companySummary.nit }}</p>
+                <p class="m-0 text-sm text-muted-color">{{ companySummary.address }}</p>
+                <p class="m-0 text-sm text-muted-color">{{ companySummary.location }}</p>
+            </div>
+
+            <!-- Facturación -->
+            <div class="rounded-xl border border-surface p-5 lg:col-span-2">
+                <h3 class="text-sm font-bold text-muted-color uppercase tracking-wide m-0 mb-3">Facturación</h3>
+                <p class="m-0 font-medium text-color">{{ billingSummary.name }}</p>
+                <p class="m-0 text-sm text-muted-color">Doc: {{ billingSummary.docNumber }}</p>
+                <p class="m-0 text-sm text-muted-color break-all">{{ billingSummary.email }}</p>
+                <p class="m-0 text-sm text-muted-color">{{ billingSummary.phone }}</p>
+                <p class="m-0 text-sm text-muted-color">{{ billingSummary.address }}</p>
+                <p class="m-0 text-sm text-muted-color">{{ billingSummary.location }}</p>
+            </div>
+        </div>
+
+        <!-- Pack seleccionado -->
+        @if (selectedPack(); as pack) {
+        <div class="rounded-xl bg-primary/5 border border-primary/20 p-5 mt-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="m-0 font-bold text-color">{{ pack.quantity }} consultas</p>
+                    <p class="m-0 text-sm text-muted-color">{{ pack.description || pack.name }} · Vigencia {{ pack.validityDays }} días</p>
+                </div>
+                <div class="text-right">
+                    @if (pack.discountAmount > 0) {
+                    <p class="m-0 text-xs text-muted-color line-through">{{ formatCurrency(pack.subtotal, pack.currency) }}</p>
+                    }
+                    <p class="m-0 text-2xl font-extrabold text-color leading-tight">{{ formatCurrency(pack.total, pack.currency) }}</p>
+                </div>
+            </div>
+        </div>
+
+        <p-divider />
+
+        <div class="flex items-end justify-between">
+            <span class="text-muted-color font-semibold">Total a pagar</span>
+            <span class="text-3xl font-extrabold text-color">{{ formatCurrency(pack.total, pack.currency) }}</span>
+        </div>
+        }
+    </section>
+    }
+
+    <!-- ─────────────── Navegación ─────────────── -->
+    <div class="flex items-center justify-between mt-8">
+        @if (step() > (prefilled() ? 2 : 0)) {
+        <p-button label="Atrás" icon="pi pi-arrow-left" severity="secondary" [text]="true" (onClick)="back()" />
+        } @else {
+        <span></span>
+        }
+
+        @if (step() < 3) {
+        <p-button
+            [label]="step() === 1 ? 'Registrar y continuar' : 'Continuar'"
+            icon="pi pi-arrow-right"
+            iconPos="right"
+            [loading]="submittingOnboarding()"
+            (onClick)="next()"
+        />
+        } @else {
+        <p-button
+            [label]="purchasing() ? 'Procesando…' : 'Ir a pagar'"
+            icon="pi pi-lock"
+            [loading]="purchasing()"
+            (onClick)="goToPayment()"
+        />
+        }
+    </div>
+    }
+</div>
+
+<!-- Checkout de ePayco: se abre en ventana nueva tras la compra -->
+<app-epayco-checkout
+    #checkout
+    [sessionId]="sessionId()"
+    display="newWindow"
+    (errored)="onCheckoutError()"
+/>

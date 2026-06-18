@@ -2,7 +2,7 @@ import { Component, computed, inject } from '@angular/core';
 import { StyleClass } from 'primeng/styleclass';
 import { Ripple } from 'primeng/ripple';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { LayoutService } from '@/app/layout/service/layout.service';
 
@@ -14,6 +14,11 @@ import { LayoutService } from '@/app/layout/service/layout.service';
 })
 export class HeaderWidget {
     private layoutService = inject(LayoutService);
+    private router = inject(Router);
+
+    goToRegister() {
+        this.router.navigateByUrl('/onboarding/registro');
+    }
 
     isDark = computed(() => this.layoutService.isDarkTheme());
 

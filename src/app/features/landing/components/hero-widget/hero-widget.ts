@@ -1,4 +1,5 @@
-import { afterNextRender, Component, ElementRef, OnDestroy, signal, viewChild } from '@angular/core';
+import { afterNextRender, Component, ElementRef, inject, OnDestroy, signal, viewChild } from '@angular/core';
+import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { Ripple } from 'primeng/ripple';
 import { ScrollAnimateDirective } from '@/app/shared/directives/scroll-animate.directive';
@@ -10,6 +11,12 @@ import { ScrollAnimateDirective } from '@/app/shared/directives/scroll-animate.d
     templateUrl: './hero-widget.html'
 })
 export class HeroWidget implements OnDestroy {
+    private router = inject(Router);
+
+    goToRegister(): void {
+        this.router.navigateByUrl('/onboarding/registro');
+    }
+
     /** Valor final del score que se muestra en el mockup. */
     private static readonly TARGET_SCORE = 87;
 

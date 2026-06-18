@@ -1,4 +1,5 @@
-import { afterNextRender, Component, OnDestroy, signal } from '@angular/core';
+import { afterNextRender, Component, inject, OnDestroy, signal } from '@angular/core';
+import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { Ripple } from 'primeng/ripple';
 
@@ -14,6 +15,8 @@ import { Ripple } from 'primeng/ripple';
     templateUrl: './floating-cta-widget.html'
 })
 export class FloatingCtaWidget implements OnDestroy {
+    private router = inject(Router);
+
     /** Controla la visibilidad del botón flotante. */
     visible = signal(false);
 
@@ -39,8 +42,8 @@ export class FloatingCtaWidget implements OnDestroy {
         this.visible.set(pastHero && !reachedFooter);
     }
 
-    scrollToStart(): void {
-        document.getElementById('como-empezar')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    goToRegister(): void {
+        this.router.navigateByUrl('/onboarding/registro');
     }
 
     ngOnDestroy(): void {

@@ -1,0 +1,125 @@
+<app-notification />
+
+<div class="h-screen w-screen flex flex-col lg:flex-row overflow-hidden">
+    <!-- Panel izquierdo: marca -->
+    <div class="hidden lg:flex lg:w-1/2 items-center justify-center relative overflow-hidden" style="background: linear-gradient(135deg, var(--p-primary-600), var(--p-primary-400))">
+        <!-- Elementos decorativos de fondo -->
+        <div class="absolute inset-0 opacity-10">
+            <div class="absolute top-20 left-10 w-32 h-32 rounded-full border border-white"></div>
+            <div class="absolute bottom-32 right-16 w-48 h-48 rounded-full border border-white"></div>
+            <div class="absolute top-1/3 right-1/4 w-20 h-20 rounded-full border border-white"></div>
+        </div>
+
+        <div class="flex flex-col items-center z-10 px-12 text-center">
+            <img src="/logo/creditia-logo-dark.svg" alt="Creditia" class="w-64 h-auto mb-10 drop-shadow-lg" />
+            <h2 class="text-white font-bold text-2xl mb-3">Decide a quién darle crédito, sin adivinar</h2>
+            <p class="text-white/70 text-lg max-w-sm leading-relaxed">Crea tu cuenta, registra tu empresa y empieza a evaluar el crédito de tus clientes en minutos.</p>
+        </div>
+    </div>
+
+    <!-- Panel derecho: formulario + footer -->
+    <div class="w-full lg:w-1/2 flex flex-col bg-surface-100 dark:bg-surface-950 overflow-y-auto">
+        <div class="flex-1 flex items-center justify-center p-6 sm:p-12">
+            <p-card styleClass="w-full max-w-md shadow-md">
+                <div class="flex items-center gap-3 mb-2">
+                    <i class="pi pi-user-plus text-primary-500 text-3xl"></i>
+                    <h1 class="font-bold text-2xl m-0">Crea tu cuenta</h1>
+                </div>
+
+                <p class="text-muted-color mb-6">Empieza con Google o con tu correo electrónico.</p>
+
+                @if (errorMessage()) {
+                    <p-message severity="error" [text]="errorMessage()!" styleClass="mb-4 w-full" />
+                }
+                @if (infoMessage()) {
+                    <p-message severity="info" [text]="infoMessage()!" styleClass="mb-4 w-full" />
+                }
+
+                <!-- Botón Google -->
+                <button
+                    type="button"
+                    class="w-full flex items-center justify-center gap-3 px-4 py-3 mb-4 rounded-lg border border-surface-300 dark:border-surface-600 bg-surface-0 dark:bg-surface-800 hover:bg-surface-100 dark:hover:bg-surface-700 transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                    (click)="registerWithGoogle()"
+                    [disabled]="googleLoading() || loading()"
+                >
+                    @if (googleLoading()) {
+                        <i class="pi pi-spin pi-spinner text-lg"></i>
+                    } @else {
+                        <svg width="20" height="20" viewBox="0 0 48 48">
+                            <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+                            <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+                            <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+                            <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+                        </svg>
+                    }
+                    <span class="font-medium text-surface-700 dark:text-surface-200">Continuar con Google</span>
+                </button>
+
+                <!-- Separador -->
+                <div class="flex items-center gap-3 my-5">
+                    <div class="flex-1 border-t border-surface-300 dark:border-surface-600"></div>
+                    <span class="text-muted-color text-sm">o</span>
+                    <div class="flex-1 border-t border-surface-300 dark:border-surface-600"></div>
+                </div>
+
+                <!-- Formulario email + password -->
+                <form [formGroup]="form" (ngSubmit)="registerWithEmail()">
+                    <p-floatlabel variant="on" class="w-full mb-5">
+                        <input pInputText id="email" type="email" formControlName="email" class="w-full"
+                            [invalid]="form.controls.email.invalid && form.controls.email.touched" />
+                        <label for="email">Correo electrónico</label>
+                    </p-floatlabel>
+                    @if (form.controls.email.invalid && form.controls.email.touched) {
+                        <small class="text-red-500 mb-3 block">Ingresa un correo válido.</small>
+                    }
+
+                    <p-floatlabel variant="on" class="w-full mb-5">
+                        <p-password inputId="password" formControlName="password" [toggleMask]="true" [feedback]="false" styleClass="w-full" inputStyleClass="w-full"
+                            [invalid]="form.controls.password.invalid && form.controls.password.touched" />
+                        <label for="password">Contraseña</label>
+                    </p-floatlabel>
+                    @if (form.controls.password.invalid && form.controls.password.touched) {
+                        <small class="text-red-500 mb-3 block">Mínimo 6 caracteres.</small>
+                    }
+
+                    <p-floatlabel variant="on" class="w-full mb-2">
+                        <p-password inputId="confirmPassword" formControlName="confirmPassword" [toggleMask]="true" [feedback]="false" styleClass="w-full" inputStyleClass="w-full"
+                            [invalid]="form.errors?.['passwordMismatch'] && form.controls.confirmPassword.touched" />
+                        <label for="confirmPassword">Confirma tu contraseña</label>
+                    </p-floatlabel>
+                    @if (form.errors?.['passwordMismatch'] && form.controls.confirmPassword.touched) {
+                        <small class="text-red-500 mb-3 block">Las contraseñas no coinciden.</small>
+                    }
+
+                    <p-button
+                        type="submit"
+                        label="Crear cuenta y continuar"
+                        icon="pi pi-arrow-right"
+                        iconPos="right"
+                        styleClass="w-full mt-2"
+                        [loading]="loading()"
+                        [disabled]="googleLoading()"
+                    />
+                </form>
+
+                <!-- Link a login -->
+                <div class="text-center mt-6">
+                    <span class="text-muted-color">¿Ya tienes cuenta? </span>
+                    <a routerLink="/auth/iniciar-sesion" class="text-primary-500 font-semibold cursor-pointer no-underline hover:underline">Inicia sesión</a>
+                </div>
+            </p-card>
+        </div>
+
+        <!-- Footer (solo debajo del form) -->
+        <footer class="px-6 py-5 border-t border-surface">
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-muted-color">
+                <span>© {{ year }} CREDITIA</span>
+                <nav class="flex items-center gap-4">
+                    <a routerLink="/legal/terminos" class="hover:text-primary no-underline transition-colors">Términos</a>
+                    <a routerLink="/legal/privacidad" class="hover:text-primary no-underline transition-colors">Privacidad</a>
+                    <a routerLink="/legal/habeas-data" class="hover:text-primary no-underline transition-colors">Habeas Data</a>
+                </nav>
+            </div>
+        </footer>
+    </div>
+</div>
