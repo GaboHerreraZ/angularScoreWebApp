@@ -16,11 +16,12 @@ import { JoinWidget } from './components/join-widget/join-widget';
 import { HowToStartWidget } from './components/how-to-start-widget/how-to-start-widget';
 import { FaqWidget } from './components/faq-widget/faq-widget';
 import { FooterWidget } from './components/footer-widget/footer-widget';
+import { FloatingCtaWidget } from './components/floating-cta-widget/floating-cta-widget';
 
 @Component({
     selector: 'app-landing',
     standalone: true,
-    imports: [RouterModule, RippleModule, StyleClassModule, ButtonModule, DividerModule, DialogModule, HeaderWidget, HeroWidget, OverviewWidget, HowItWorksWidget, FeaturesWidget, MethodologyWidget, JoinWidget, HowToStartWidget, FaqWidget, FooterWidget],
+    imports: [RouterModule, RippleModule, StyleClassModule, ButtonModule, DividerModule, DialogModule, HeaderWidget, HeroWidget, OverviewWidget, HowItWorksWidget, FeaturesWidget, MethodologyWidget, JoinWidget, HowToStartWidget, FaqWidget, FooterWidget, FloatingCtaWidget],
     templateUrl: './landing.html'
 })
 export class Landing {
