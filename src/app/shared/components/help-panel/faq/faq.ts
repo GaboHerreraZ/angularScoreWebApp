@@ -55,22 +55,6 @@ const FAQ_DATA: FaqItem[] = [
         category: 'Estudio de Crédito',
         question: '¿Puedo ver el historial de estudios de un cliente?',
         answer: 'Sí. Ingresa al detalle del cliente y selecciona la pestaña "Estudios de Crédito". Allí verás el historial completo de estudios realizados con sus fechas y resultados.'
-    },
-    // Facturación
-    {
-        category: 'Facturación',
-        question: '¿Cómo veo mi plan actual?',
-        answer: 'Ve a Administración → Plan y Facturación para ver los detalles de tu plan actual, fecha de renovación y opciones de actualización.'
-    },
-    {
-        category: 'Facturación',
-        question: '¿Cómo cancelo mi suscripción?',
-        answer: 'Para cancelar tu suscripción comunícate con nuestro equipo de soporte a través del formulario de esta sección o escríbenos directamente. Te guiaremos en el proceso.'
-    },
-    {
-        category: 'Facturación',
-        question: '¿Puedo cambiar de plan en cualquier momento?',
-        answer: 'Sí. Los cambios de plan se aplican al inicio del siguiente ciclo de facturación. Contacta a nuestro equipo de soporte para gestionar el cambio.'
     }
 ];
 
