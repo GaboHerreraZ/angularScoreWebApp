@@ -3,11 +3,11 @@ import { ScrollAnimateDirective } from '@/app/shared/directives/scroll-animate.d
 
 @Component({
     standalone: true,
-    selector: 'stats-widget',
+    selector: 'how-it-works-widget',
     imports: [ScrollAnimateDirective],
-    templateUrl: './stats-widget.html'
+    templateUrl: './how-it-works-widget.html'
 })
-export class StatsWidget implements OnDestroy {
+export class HowItWorksWidget implements OnDestroy {
     stepsRef = viewChild<ElementRef<HTMLElement>>('steps');
 
     /** Enciende la línea conectora y los pasos en cascada al entrar al viewport. */
