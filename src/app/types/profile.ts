@@ -25,12 +25,8 @@ export interface Profile {
 export interface Permissions {
   canAddCreditStudy: boolean;
   canAddUser: boolean;
-  canAddCustomer: boolean;
   canMakeAiAnalysis: boolean;
-  canExportExcel: boolean;
   canExtractPdf: boolean;
-  canEditTheme: boolean;
   dashboardLevel: string;
   supportLevel: string;
-  emailNotification: boolean;
 }

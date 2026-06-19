@@ -7,7 +7,6 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { CustomTable } from '@/app/shared/components/table/table';
 import { TableSettings, TablePageChangeEvent, TableSearchEvent, TableActionEvent } from '@/app/types/table';
 import { CustomersService } from './customers.service';
-import { AuthService } from '@/app/core/services/auth.service';
 import { ConfirmService, provideConfirm } from '@/app/shared/services/confirm.service';
 
 @Component({
@@ -19,14 +18,9 @@ import { ConfirmService, provideConfirm } from '@/app/shared/services/confirm.se
 })
 export class Customers implements OnInit {
     private destroyRef = inject(DestroyRef);
-    private authService = inject(AuthService);
     private confirmService = inject(ConfirmService);
 
     exporting = signal(false);
-
-    private canExportExcel = computed(() => this.authService.currentProfile()?.permissions?.canExportExcel ?? false);
-    private canAddCustomer = computed(() => this.authService.currentProfile()?.permissions?.canAddCustomer ?? false);
-
 
     tableSettings = computed<TableSettings>(() => ({
         title: 'Gestión de Clientes',
@@ -39,23 +33,20 @@ export class Customers implements OnInit {
             icon: 'pi pi-address-book',
             title: 'Aún no tienes clientes',
             description: 'Crea tu primer cliente para empezar a registrar estudios de crédito.',
-            ...(this.canAddCustomer() ? { actionLabel: 'Crear primer cliente', actionIcon: 'pi pi-plus' } : {})
+            actionLabel: 'Crear primer cliente',
+            actionIcon: 'pi pi-plus'
         },
-        ...(this.canAddCustomer() ? {
-            addButton: {
-                label: 'Nuevo Cliente',
-                icon: 'pi pi-plus',
-                severity: 'success' as const
-            }
-        } : {}),
-        ...(this.canExportExcel() ? {
-            exportButton: {
-                label: 'Exportar',
-                icon: 'pi pi-file-excel',
-                severity: 'secondary' as const,
-                loading: this.exporting()
-            }
-        } : {}),
+        addButton: {
+            label: 'Nuevo Cliente',
+            icon: 'pi pi-plus',
+            severity: 'success' as const
+        },
+        exportButton: {
+            label: 'Exportar',
+            icon: 'pi pi-file-excel',
+            severity: 'secondary' as const,
+            loading: this.exporting()
+        },
         actions: [
             { id: 'edit', icon: 'pi pi-pencil', severity: 'info', tooltip: 'Editar' },
             { id: 'delete', icon: 'pi pi-trash', severity: 'danger', tooltip: 'Eliminar' }

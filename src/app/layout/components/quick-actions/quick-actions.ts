@@ -23,13 +23,11 @@ export class QuickActions {
         const perms = this.permissions();
         const list: MenuItem[] = [];
 
-        if (perms?.canAddCustomer) {
-            list.push({
-                label: 'Nuevo cliente',
-                icon: 'pi pi-user-plus',
-                command: () => this.router.navigate(['/app/clientes/detalle-cliente'])
-            });
-        }
+        list.push({
+            label: 'Nuevo cliente',
+            icon: 'pi pi-user-plus',
+            command: () => this.router.navigate(['/app/clientes/detalle-cliente'])
+        });
 
         if (perms?.canAddCreditStudy) {
             list.push({
