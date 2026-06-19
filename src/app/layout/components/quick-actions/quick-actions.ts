@@ -29,7 +29,7 @@ export class QuickActions {
             command: () => this.router.navigate(['/app/clientes/detalle-cliente'])
         });
 
-        if (perms?.canAddCreditStudy) {
+        if (perms?.canAddCreditStudy && perms?.hasCredits) {
             list.push({
                 label: 'Nuevo estudio',
                 icon: 'pi pi-credit-card',

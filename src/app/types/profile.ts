@@ -27,6 +27,6 @@ export interface Permissions {
   canAddUser: boolean;
   canMakeAiAnalysis: boolean;
   canExtractPdf: boolean;
-  dashboardLevel: string;
-  supportLevel: string;
+  hasCredits: boolean;
+  availableCredits: number;
 }
