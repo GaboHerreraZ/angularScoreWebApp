@@ -1,92 +1,136 @@
 <section id="features" class="px-6 sm:px-12 lg:px-20 py-16 lg:py-24 bg-surface-0 dark:bg-surface-950">
     <div class="max-w-screen-2xl mx-auto">
-        <div class="text-center mb-16" appScrollAnimate="fade-up">
+        <div class="text-center mb-14 lg:mb-16" appScrollAnimate="fade-up">
             <span class="text-primary font-bold text-sm uppercase tracking-widest">Capacidades</span>
-            <h2 class="font-extrabold text-3xl sm:text-4xl lg:text-5xl mt-3 mb-4 text-color">Diseñado para el flujo real de crédito</h2>
-            <p class="text-lg text-muted-color max-w-2xl mx-auto">Cada herramienta resuelve un paso concreto del proceso, desde la recepción del estado financiero hasta la firma del pagaré.</p>
+            <h2 class="font-extrabold text-3xl sm:text-4xl lg:text-5xl mt-3 mb-4 text-color">Un score que puedes explicar</h2>
+            <p class="text-lg text-muted-color max-w-2xl mx-auto">Cuatro dimensiones financieras se combinan en un puntaje de 0 a 100, con una narrativa de IA que sustenta cada decisión.</p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <!-- 1. Datacrédito -->
-            <article appScrollAnimate="fade-up" class="bg-surface-50 dark:bg-surface-900 rounded-2xl p-8 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border border-transparent hover:border-primary/20">
-                <div class="flex items-center gap-3 mb-6">
-                    <div class="w-14 h-14 rounded-xl bg-red-500/10 flex items-center justify-center">
-                        <i class="pi pi-shield text-red-500 text-2xl"></i>
-                    </div>
-                    <span class="text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full bg-red-500 text-white">Datacrédito</span>
-                </div>
-                <h3 class="font-bold text-xl mb-3 mt-0 text-color">Consulta en centrales de riesgo</h3>
-                <p class="text-muted-color leading-relaxed m-0">Integración con <strong>Datacrédito</strong> para consultar el historial crediticio del cliente en las centrales de riesgo y enriquecer la evaluación con información oficial.</p>
-            </article>
+        <div #showcase class="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+            <!-- ── Protagonista: medidor de score + dimensiones ─────────── -->
+            <div class="relative rounded-3xl bg-linear-to-br from-surface-50 to-surface-100 dark:from-surface-900 dark:to-surface-950 border border-surface p-8 lg:p-10 shadow-xl overflow-hidden" appScrollAnimate="fade-right">
+                <!-- Glow -->
+                <div class="pointer-events-none absolute -top-20 -right-20 w-64 h-64 rounded-full bg-emerald-500/10 blur-3xl"></div>
 
-            <!-- 2. PDF extraction -->
-            <article appScrollAnimate="fade-up" [animateDelay]="100" class="bg-surface-50 dark:bg-surface-900 rounded-2xl p-8 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border border-transparent hover:border-primary/20">
-                <div class="w-14 h-14 rounded-xl bg-blue-500/10 flex items-center justify-center mb-6">
-                    <i class="pi pi-file-pdf text-blue-500 text-2xl"></i>
-                </div>
-                <h3 class="font-bold text-xl mb-3 mt-0 text-color">Extracción desde PDF</h3>
-                <p class="text-muted-color leading-relaxed m-0">Carga los estados financieros del cliente (Balance General y Estado de Resultados). Las cifras se leen y se cargan en el formulario por ti.</p>
-            </article>
-
-            <!-- 3. Indicators -->
-            <article appScrollAnimate="fade-up" [animateDelay]="200" class="bg-surface-50 dark:bg-surface-900 rounded-2xl p-8 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border border-transparent hover:border-primary/20">
-                <div class="w-14 h-14 rounded-xl bg-green-500/10 flex items-center justify-center mb-6">
-                    <i class="pi pi-calculator text-green-500 text-2xl"></i>
-                </div>
-                <h3 class="font-bold text-xl mb-3 mt-0 text-color">10+ indicadores financieros</h3>
-                <p class="text-muted-color leading-relaxed m-0">EBITDA, Z-Score de Altman, capacidad de pago, rotación de cartera, cobertura de deuda y más, calculados sin Excel.</p>
-            </article>
-
-            <!-- 4. Scoring -->
-            <article appScrollAnimate="fade-up" [animateDelay]="300" class="bg-surface-50 dark:bg-surface-900 rounded-2xl p-8 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border border-transparent hover:border-primary/20">
-                <div class="w-14 h-14 rounded-xl bg-orange-500/10 flex items-center justify-center mb-6">
-                    <i class="pi pi-bullseye text-orange-500 text-2xl"></i>
-                </div>
-                <h3 class="font-bold text-xl mb-3 mt-0 text-color">Score de 0 a 100</h3>
-                <p class="text-muted-color leading-relaxed m-0">Cinco dimensiones de evaluación con peso explícito y categorización automática de riesgo bajo, moderado o alto.</p>
-            </article>
-
-            <!-- 5. AI Analysis -->
-            <article appScrollAnimate="fade-up" [animateDelay]="400" class="relative bg-surface-50 dark:bg-surface-900 rounded-2xl p-8 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border border-transparent hover:border-purple-400/40 overflow-hidden group">
-                <div class="absolute inset-0 bg-linear-to-br from-purple-500/5 via-transparent to-indigo-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                <div class="relative">
-                    <div class="flex items-center gap-3 mb-6">
-                        <div class="w-14 h-14 rounded-xl bg-linear-to-br from-purple-500/20 to-indigo-500/20 flex items-center justify-center ai-icon-pulse">
-                            <i class="pi pi-sparkles text-purple-500 text-2xl"></i>
+                <div class="relative flex flex-col sm:flex-row items-center gap-8">
+                    <!-- Gauge radial -->
+                    <div class="relative shrink-0">
+                        <svg width="140" height="140" viewBox="0 0 140 140" class="-rotate-90">
+                            <circle cx="70" cy="70" [attr.r]="radius" fill="none" stroke="currentColor" stroke-width="12" class="text-surface-200 dark:text-surface-700" />
+                            <circle cx="70" cy="70" [attr.r]="radius" fill="none" stroke="url(#scoreGradient)" stroke-width="12" stroke-linecap="round"
+                                [attr.stroke-dasharray]="circumference" [attr.stroke-dashoffset]="dashOffset()"
+                                style="transition: stroke-dashoffset 1100ms ease-out" />
+                            <defs>
+                                <linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#22c55e" />
+                                    <stop offset="100%" stop-color="#10b981" />
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                        <div class="absolute inset-0 flex flex-col items-center justify-center">
+                            <span class="text-4xl font-extrabold text-color tabular-nums leading-none">{{ score() }}</span>
+                            <span class="text-xs text-muted-color font-medium">/ 100</span>
                         </div>
-                        <span class="text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full bg-linear-to-r from-purple-500 to-indigo-500 text-white">Nuevo</span>
                     </div>
-                    <h3 class="font-bold text-xl mb-3 mt-0 text-color">Análisis con IA</h3>
-                    <p class="text-muted-color leading-relaxed m-0">Una narrativa en español explica el porqué del score: fortalezas, alertas y argumentos para sustentar la decisión.</p>
-                </div>
-            </article>
 
-            <!-- 6. Promissory notes -->
-            <article appScrollAnimate="fade-up" [animateDelay]="500" class="bg-surface-50 dark:bg-surface-900 rounded-2xl p-8 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border border-transparent hover:border-primary/20">
-                <div class="w-14 h-14 rounded-xl bg-emerald-500/10 flex items-center justify-center mb-6">
-                    <i class="pi pi-pen-to-square text-emerald-500 text-2xl"></i>
+                    <!-- Dimensiones -->
+                    <div class="flex-1 w-full space-y-4">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm font-semibold text-color">Desglose del score</span>
+                            <span class="text-xs font-bold px-2 py-0.5 rounded-full bg-green-500/15 text-green-600 dark:text-green-400">Riesgo bajo</span>
+                        </div>
+                        @for (dim of dimensions; track dim.label; let i = $index) {
+                            <div>
+                                <div class="flex items-center justify-between text-xs mb-1">
+                                    <span class="text-muted-color">{{ dim.label }}</span>
+                                    <span class="font-semibold text-color tabular-nums">{{ dim.value }}/25</span>
+                                </div>
+                                <div class="w-full h-1.5 rounded-full bg-surface-200 dark:bg-surface-700 overflow-hidden">
+                                    <div class="h-1.5 rounded-full {{ dim.color }} transition-[width] duration-700 ease-out"
+                                        [style.width]="animate() ? (dim.value / 25 * 100) + '%' : '0%'"
+                                        [style.transition-delay]="(300 + i * 120) + 'ms'"></div>
+                                </div>
+                            </div>
+                        }
+                    </div>
                 </div>
-                <h3 class="font-bold text-xl mb-3 mt-0 text-color">Pagaré digital con firma</h3>
-                <p class="text-muted-color leading-relaxed m-0">Genera el pagaré con los términos aprobados, envíalo a firma electrónica y archiva el documento ya firmado.</p>
-            </article>
 
-            <!-- 7. Excel reports -->
-            <article appScrollAnimate="fade-up" [animateDelay]="600" class="bg-surface-50 dark:bg-surface-900 rounded-2xl p-8 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border border-transparent hover:border-primary/20">
-                <div class="w-14 h-14 rounded-xl bg-pink-500/10 flex items-center justify-center mb-6">
-                    <i class="pi pi-file-excel text-pink-500 text-2xl"></i>
+                <!-- Narrativa IA -->
+                <div class="relative mt-8 flex items-start gap-3 rounded-2xl bg-linear-to-r from-purple-500/10 to-indigo-500/10 dark:from-purple-500/15 dark:to-indigo-500/15 p-4 transition-all duration-500 ease-out"
+                    [class.opacity-0]="!animate()" [class.translate-y-2]="!animate()" style="transition-delay: 900ms">
+                    <div class="w-9 h-9 rounded-lg bg-linear-to-br from-purple-500 to-indigo-500 flex items-center justify-center shrink-0 shadow-lg">
+                        <i class="pi pi-sparkles text-white text-sm"></i>
+                    </div>
+                    <p class="text-sm text-muted-color leading-snug m-0">
+                        <strong class="text-color">Análisis con IA:</strong> cliente apto. Capacidad de pago sólida y buen historial en centrales de riesgo; se sugiere aprobar el cupo solicitado.
+                    </p>
                 </div>
-                <h3 class="font-bold text-xl mb-3 mt-0 text-color">Exportes en Excel</h3>
-                <p class="text-muted-color leading-relaxed m-0">Descarga clientes, estudios e indicadores en hojas de cálculo listas para auditoría y archivo histórico.</p>
-            </article>
+            </div>
 
-            <!-- 8. Dashboard -->
-            <article appScrollAnimate="fade-up" [animateDelay]="700" class="bg-surface-50 dark:bg-surface-900 rounded-2xl p-8 hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border border-transparent hover:border-primary/20">
-                <div class="w-14 h-14 rounded-xl bg-amber-500/10 flex items-center justify-center mb-6">
-                    <i class="pi pi-chart-bar text-amber-500 text-2xl"></i>
-                </div>
-                <h3 class="font-bold text-xl mb-3 mt-0 text-color">Dashboard de cartera</h3>
-                <p class="text-muted-color leading-relaxed m-0">Distribución de riesgo, estudios recientes y métricas operativas de tu cartera en un solo lugar.</p>
-            </article>
+            <!-- ── Lista de capacidades (sin cajas) ─────────────────────── -->
+            <div appScrollAnimate="fade-left">
+                <ul class="list-none p-0 m-0 grid sm:grid-cols-2 gap-x-8 gap-y-7">
+                    <li class="flex items-start gap-4">
+                        <div class="shrink-0 w-11 h-11 rounded-xl bg-red-500/10 flex items-center justify-center">
+                            <i class="pi pi-shield text-red-500 text-lg"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-base mb-1 mt-0 text-color">Validación con Datacrédito</h3>
+                            <p class="text-sm text-muted-color leading-snug m-0">Contraste con el historial real en las centrales de riesgo.</p>
+                        </div>
+                    </li>
+                    <li class="flex items-start gap-4">
+                        <div class="shrink-0 w-11 h-11 rounded-xl bg-blue-500/10 flex items-center justify-center">
+                            <i class="pi pi-file-pdf text-blue-500 text-lg"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-base mb-1 mt-0 text-color">Lectura de estados financieros</h3>
+                            <p class="text-sm text-muted-color leading-snug m-0">Sube el PDF y las cifras se extraen automáticamente.</p>
+                        </div>
+                    </li>
+                    <li class="flex items-start gap-4">
+                        <div class="shrink-0 w-11 h-11 rounded-xl bg-emerald-500/10 flex items-center justify-center">
+                            <i class="pi pi-pen-to-square text-emerald-500 text-lg"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-base mb-1 mt-0 text-color">Pagaré digital con firma</h3>
+                            <p class="text-sm text-muted-color leading-snug m-0">Genera el pagaré aprobado y envíalo a firma electrónica.</p>
+                        </div>
+                    </li>
+                    <li class="flex items-start gap-4">
+                        <div class="shrink-0 w-11 h-11 rounded-xl bg-amber-500/10 flex items-center justify-center">
+                            <i class="pi pi-chart-bar text-amber-500 text-lg"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-base mb-1 mt-0 text-color">Dashboard de cartera</h3>
+                            <p class="text-sm text-muted-color leading-snug m-0">Distribución de riesgo y métricas de tu cartera en un solo lugar.</p>
+                        </div>
+                    </li>
+                    <li class="flex items-start gap-4">
+                        <div class="shrink-0 w-11 h-11 rounded-xl bg-pink-500/10 flex items-center justify-center">
+                            <i class="pi pi-file-excel text-pink-500 text-lg"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-base mb-1 mt-0 text-color">Exportes en Excel</h3>
+                            <p class="text-sm text-muted-color leading-snug m-0">Clientes, estudios e indicadores listos para auditoría.</p>
+                        </div>
+                    </li>
+                    <li class="flex items-start gap-4">
+                        <div class="shrink-0 w-11 h-11 rounded-xl bg-violet-500/10 flex items-center justify-center">
+                            <i class="pi pi-sparkles text-violet-500 text-lg"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-base mb-1 mt-0 text-color">Narrativa con IA</h3>
+                            <p class="text-sm text-muted-color leading-snug m-0">Explica fortalezas, alertas y el porqué de cada decisión.</p>
+                        </div>
+                    </li>
+                </ul>
+
+                <p class="text-sm text-muted-color mt-8 pt-6 border-t border-surface">
+                    <i class="pi pi-info-circle text-primary mr-1"></i>
+                    CREDITIA nunca recomienda un cupo mayor al solicitado. Si la capacidad alcanza, aprueba lo pedido; si no, sugiere monto y plazo alternativos.
+                </p>
+            </div>
         </div>
     </div>
 </section>

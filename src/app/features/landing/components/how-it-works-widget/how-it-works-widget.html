@@ -1,68 +1,110 @@
 <section id="how-it-works" class="px-6 sm:px-12 lg:px-20 py-16 lg:py-24 bg-surface-50 dark:bg-surface-900 max-w-screen-2xl mx-auto">
     <div class="text-center mb-16" appScrollAnimate="fade-up">
         <span class="text-primary font-bold text-sm uppercase tracking-widest">Cómo funciona</span>
-        <h2 class="font-extrabold text-3xl sm:text-4xl lg:text-5xl mt-3 mb-4 text-color">Del PDF al pagaré, en cinco pasos</h2>
-        <p class="text-lg text-muted-color max-w-2xl mx-auto">Un flujo diseñado para analistas de crédito, contadores y gerentes financieros: combinamos los datos que entrega el cliente con información oficial de las centrales de riesgo.</p>
+        <h2 class="font-extrabold text-3xl sm:text-4xl lg:text-5xl mt-3 mb-4 text-color">Tú entregas el NIT, nosotros el resto</h2>
+        <p class="text-lg text-muted-color max-w-2xl mx-auto">Con la identificación del cliente ya podemos trabajar. Si tienes sus estados financieros, mejor aún: el análisis se enriquece. CREDITIA hace el cruce con las centrales de riesgo y te entrega el resultado.</p>
     </div>
 
-    <div #steps class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 relative">
-        <!-- Connector line (desktop only) — se dibuja de izquierda a derecha -->
-        <div class="hidden lg:block absolute top-16 left-[10%] right-[10%] h-0.5 bg-linear-to-r from-primary/20 via-primary/40 to-primary/20 origin-left transition-transform duration-1200 ease-out"
-            [class.scale-x-0]="!animate()"></div>
+    <!-- Input → Motor → Output -->
+    <div #steps class="flex flex-col lg:flex-row gap-6 lg:gap-4 items-stretch">
 
-        <!-- Step 1 -->
-        <div class="flex flex-col items-center text-center group transition-all duration-500 ease-out"
-            [class.opacity-0]="!animate()" [class.translate-y-4]="!animate()" style="transition-delay: 150ms">
-            <div class="relative z-10 w-16 h-16 rounded-2xl bg-linear-to-br from-blue-500 to-blue-600 flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300">
-                <i class="pi pi-file-pdf text-white text-2xl"></i>
-                <span class="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-surface-0 dark:bg-surface-900 border-2 border-blue-500 text-blue-500 text-xs font-bold flex items-center justify-center">1</span>
+        <!-- ── TÚ ENTREGAS ───────────────────────────────────────── -->
+        <div class="flex flex-col lg:flex-1 rounded-3xl border border-surface bg-surface-0 dark:bg-surface-950 p-7 transition-all duration-500 ease-out"
+            [class.opacity-0]="!animate()" [class.translate-y-4]="!animate()" style="transition-delay: 100ms">
+            <span class="text-xs font-bold uppercase tracking-widest text-muted-color mb-5">Tú entregas</span>
+
+            <!-- NIT (requerido) -->
+            <div class="flex items-start gap-3 mb-4">
+                <div class="shrink-0 w-11 h-11 rounded-xl bg-linear-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg">
+                    <i class="pi pi-id-card text-white text-lg"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-base mb-0.5 mt-0 text-color">NIT o identificación</h3>
+                    <p class="text-sm text-muted-color leading-snug m-0">Lo único indispensable para iniciar el estudio.</p>
+                </div>
             </div>
-            <h3 class="font-bold text-xl mb-3 text-color mt-0">Sube el estado financiero</h3>
-            <p class="text-muted-color leading-relaxed">Carga el balance y P&amp;L en PDF. Se extraen las cifras automáticamente.</p>
+
+            <!-- Estados financieros (opcional) -->
+            <div class="flex items-start gap-3 rounded-2xl border border-dashed border-surface p-3 mt-auto">
+                <div class="shrink-0 w-11 h-11 rounded-xl bg-surface-100 dark:bg-surface-800 flex items-center justify-center">
+                    <i class="pi pi-file-pdf text-purple-500 text-lg"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2 mb-0.5">
+                        <h3 class="font-bold text-base m-0 text-color">Estados financieros</h3>
+                        <span class="text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-600 dark:text-amber-400">Opcional</span>
+                    </div>
+                    <p class="text-sm text-muted-color leading-snug m-0">Si los adjuntas en PDF, enriquecen el análisis. Si no, igual lo hacemos.</p>
+                </div>
+            </div>
         </div>
 
-        <!-- Step 2 -->
-        <div class="flex flex-col items-center text-center group transition-all duration-500 ease-out"
-            [class.opacity-0]="!animate()" [class.translate-y-4]="!animate()" style="transition-delay: 350ms">
-            <div class="relative z-10 w-16 h-16 rounded-2xl bg-linear-to-br from-purple-500 to-purple-600 flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300">
-                <i class="pi pi-calculator text-white text-2xl"></i>
-                <span class="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-surface-0 dark:bg-surface-900 border-2 border-purple-500 text-purple-500 text-xs font-bold flex items-center justify-center">2</span>
-            </div>
-            <h3 class="font-bold text-xl mb-3 text-color mt-0">Indicadores calculados</h3>
-            <p class="text-muted-color leading-relaxed">EBITDA, Z-Score de Altman, capacidad de pago y rotación de cartera.</p>
+        <!-- Conector 1 -->
+        <div class="flex items-center justify-center text-primary/50"
+            [class.opacity-0]="!animate()" style="transition: opacity 500ms ease-out 350ms">
+            <i class="pi pi-arrow-down lg:-rotate-90 text-2xl"></i>
         </div>
 
-        <!-- Step 3 - Datacrédito -->
-        <div class="flex flex-col items-center text-center group transition-all duration-500 ease-out"
-            [class.opacity-0]="!animate()" [class.translate-y-4]="!animate()" style="transition-delay: 550ms">
-            <div class="relative z-10 w-16 h-16 rounded-2xl bg-linear-to-br from-red-500 to-red-600 flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300">
-                <i class="pi pi-shield text-white text-2xl"></i>
-                <span class="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-surface-0 dark:bg-surface-900 border-2 border-red-500 text-red-500 text-xs font-bold flex items-center justify-center">3</span>
+        <!-- ── EL MOTOR (CREDITIA) ───────────────────────────────── -->
+        <div class="relative flex flex-col lg:flex-[1.3] rounded-3xl border-2 border-primary/40 bg-linear-to-br from-primary/10 via-surface-0 to-surface-0 dark:from-primary/15 dark:via-surface-950 dark:to-surface-950 p-7 shadow-xl transition-all duration-500 ease-out"
+            [class.opacity-0]="!animate()" [class.translate-y-4]="!animate()" style="transition-delay: 500ms">
+            <span class="absolute -top-3 left-1/2 -translate-x-1/2 inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-primary text-primary-contrast shadow-sm whitespace-nowrap">
+                <i class="pi pi-bolt text-[10px]"></i>
+                CREDITIA lo procesa
+            </span>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-3">
+                <!-- Datacrédito -->
+                <div class="flex flex-col items-center text-center rounded-2xl bg-surface-0 dark:bg-surface-950 border border-surface p-4">
+                    <div class="w-12 h-12 rounded-xl bg-linear-to-br from-red-500 to-red-600 flex items-center justify-center mb-3 shadow-lg">
+                        <i class="pi pi-shield text-white text-xl"></i>
+                    </div>
+                    <h3 class="font-bold text-sm mb-1 mt-0 text-color">Contraste con Datacrédito</h3>
+                    <p class="text-xs text-muted-color leading-snug m-0">Validamos el historial real en las centrales de riesgo.</p>
+                </div>
+                <!-- IA -->
+                <div class="flex flex-col items-center text-center rounded-2xl bg-surface-0 dark:bg-surface-950 border border-surface p-4">
+                    <div class="w-12 h-12 rounded-xl bg-linear-to-br from-violet-500 to-violet-600 flex items-center justify-center mb-3 shadow-lg">
+                        <i class="pi pi-sparkles text-white text-xl"></i>
+                    </div>
+                    <h3 class="font-bold text-sm mb-1 mt-0 text-color">Análisis con IA</h3>
+                    <p class="text-xs text-muted-color leading-snug m-0">Cruzamos indicadores financieros y comportamiento crediticio.</p>
+                </div>
             </div>
-            <h3 class="font-bold text-xl mb-3 text-color mt-0">Contraste con Datacrédito</h3>
-            <p class="text-muted-color leading-relaxed">Validamos la información del cliente contra su historial real en las centrales de riesgo vía <strong>Datacrédito</strong>.</p>
         </div>
 
-        <!-- Step 4 -->
-        <div class="flex flex-col items-center text-center group transition-all duration-500 ease-out"
-            [class.opacity-0]="!animate()" [class.translate-y-4]="!animate()" style="transition-delay: 750ms">
-            <div class="relative z-10 w-16 h-16 rounded-2xl bg-linear-to-br from-orange-500 to-orange-600 flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300">
-                <i class="pi pi-bullseye text-white text-2xl"></i>
-                <span class="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-surface-0 dark:bg-surface-900 border-2 border-orange-500 text-orange-500 text-xs font-bold flex items-center justify-center">4</span>
-            </div>
-            <h3 class="font-bold text-xl mb-3 text-color mt-0">Score de riesgo</h3>
-            <p class="text-muted-color leading-relaxed">Puntaje de 0 a 100 que combina los indicadores financieros con el comportamiento crediticio real.</p>
+        <!-- Conector 2 -->
+        <div class="flex items-center justify-center text-primary/50"
+            [class.opacity-0]="!animate()" style="transition: opacity 500ms ease-out 750ms">
+            <i class="pi pi-arrow-down lg:-rotate-90 text-2xl"></i>
         </div>
 
-        <!-- Step 5 -->
-        <div class="flex flex-col items-center text-center group transition-all duration-500 ease-out"
-            [class.opacity-0]="!animate()" [class.translate-y-4]="!animate()" style="transition-delay: 950ms">
-            <div class="relative z-10 w-16 h-16 rounded-2xl bg-linear-to-br from-green-500 to-green-600 flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300">
-                <i class="pi pi-pen-to-square text-white text-2xl"></i>
-                <span class="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-surface-0 dark:bg-surface-900 border-2 border-green-500 text-green-500 text-xs font-bold flex items-center justify-center">5</span>
+        <!-- ── RECIBES ───────────────────────────────────────────── -->
+        <div class="flex flex-col lg:flex-1 rounded-3xl border border-surface bg-surface-0 dark:bg-surface-950 p-7 transition-all duration-500 ease-out"
+            [class.opacity-0]="!animate()" [class.translate-y-4]="!animate()" style="transition-delay: 900ms">
+            <span class="text-xs font-bold uppercase tracking-widest text-muted-color mb-5">Recibes</span>
+
+            <!-- Score -->
+            <div class="flex items-start gap-3 mb-4">
+                <div class="shrink-0 w-11 h-11 rounded-xl bg-linear-to-br from-orange-500 to-orange-600 flex items-center justify-center shadow-lg">
+                    <i class="pi pi-bullseye text-white text-lg"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-base mb-0.5 mt-0 text-color">Score de riesgo</h3>
+                    <p class="text-sm text-muted-color leading-snug m-0">Puntaje de 0 a 100 con la recomendación de crédito.</p>
+                </div>
             </div>
-            <h3 class="font-bold text-xl mb-3 text-color mt-0">Pagaré digital</h3>
-            <p class="text-muted-color leading-relaxed">Genera el pagaré con los términos aprobados y envíalo a firma electrónica.</p>
+
+            <!-- Pagaré -->
+            <div class="flex items-start gap-3 mt-auto">
+                <div class="shrink-0 w-11 h-11 rounded-xl bg-linear-to-br from-green-500 to-green-600 flex items-center justify-center shadow-lg">
+                    <i class="pi pi-pen-to-square text-white text-lg"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-base mb-0.5 mt-0 text-color">Pagaré digital</h3>
+                    <p class="text-sm text-muted-color leading-snug m-0">Generado con los términos aprobados y listo para firma electrónica.</p>
+                </div>
+            </div>
         </div>
     </div>
 </section>

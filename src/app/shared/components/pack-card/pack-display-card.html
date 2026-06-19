@@ -1,0 +1,70 @@
+@let p = pack();
+
+<div
+    class="relative flex flex-col h-full rounded-2xl border bg-surface-0 dark:bg-surface-900 p-7
+           transition-all duration-200 ease-out hover:shadow-xl hover:-translate-y-1"
+    [class.border-surface]="!featured()"
+    [class.border-primary]="featured()"
+    [class.ring-2]="featured()"
+    [class.ring-primary]="featured()"
+    [class.shadow-xl]="featured()"
+>
+    <!-- Badge destacado -->
+    @if (featured()) {
+        <span class="absolute -top-3 left-1/2 -translate-x-1/2 inline-flex items-center gap-1 text-xs font-bold px-3 py-1 rounded-full bg-primary text-primary-contrast shadow-sm">
+            <i class="pi pi-star-fill text-[10px]"></i>
+            Más elegido
+        </span>
+    }
+
+    <!-- Badge de descuento -->
+    @if (hasDiscount()) {
+        <span class="self-start inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 mb-4">
+            <i class="pi pi-tag text-[10px]"></i>
+            Ahorra {{ discountPercent() }}%
+        </span>
+    }
+
+    <!-- Nombre del pack -->
+    <span class="text-sm font-semibold uppercase tracking-wider text-primary mb-2">{{ p.name }}</span>
+
+    <!-- Cantidad de análisis -->
+    <div class="flex items-baseline gap-2 mb-1">
+        <span class="text-5xl font-extrabold text-color leading-none">{{ p.quantity }}</span>
+        <span class="text-muted-color font-medium">Análisis de Crédito</span>
+    </div>
+
+    @if (p.description) {
+        <p class="text-sm text-muted-color m-0 mb-5">{{ p.description }}</p>
+    } @else {
+        <div class="mb-5"></div>
+    }
+
+    <!-- Precio -->
+    <div class="flex items-end justify-between mb-1">
+        <div class="flex flex-col">
+            <!-- Reservamos la altura del subtotal aunque no haya descuento, para alinear precios entre tarjetas. -->
+            <span class="text-sm leading-none" [class.text-muted-color]="hasDiscount()" [class.line-through]="hasDiscount()" [class.invisible]="!hasDiscount()">
+                {{ formatCurrency(p.subtotal, p.currency) }}
+            </span>
+            <span class="text-3xl font-extrabold text-color leading-tight">{{ formatCurrency(p.total, p.currency) }}</span>
+        </div>
+        <span class="text-xs text-muted-color">{{ formatCurrency(effectiveUnitPrice(), p.currency) }} c/u</span>
+    </div>
+
+    <!-- Vigencia (mt-auto empuja todo lo de abajo para alinear el CTA entre tarjetas) -->
+    <div class="flex items-center gap-2 mt-auto pt-4 border-t border-surface text-sm text-muted-color">
+        <i class="pi pi-clock text-primary"></i>
+        Vigencia de {{ p.validityDays }} días
+    </div>
+
+    <!-- CTA -->
+    <p-button
+        label="Lo quiero"
+        icon="pi pi-arrow-right"
+        iconPos="right"
+        styleClass="w-full mt-6"
+        [outlined]="!featured()"
+        (onClick)="onRegister()"
+    />
+</div>
