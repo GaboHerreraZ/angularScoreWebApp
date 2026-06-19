@@ -5,7 +5,7 @@ import { ButtonModule } from 'primeng/button';
 import { SkeletonModule } from 'primeng/skeleton';
 import { ScrollAnimateDirective } from '@/app/shared/directives/scroll-animate.directive';
 import { PackDisplayCard } from '@/app/shared/components/pack-card/pack-display-card';
-import { OnboardingService } from '@/app/features/onboarding/onboarding.service';
+import { PackOfferingsService } from '@/app/shared/services/pack-offerings.service';
 import { PackOffering } from '@/app/types/onboarding';
 
 @Component({
@@ -16,7 +16,7 @@ import { PackOffering } from '@/app/types/onboarding';
 })
 export class HowToStartWidget {
     private router = inject(Router);
-    private onboardingService = inject(OnboardingService);
+    private packOfferingsService = inject(PackOfferingsService);
 
     /** Correo del área comercial para el CTA de contacto. */
     readonly salesEmail = 'comercial@creditia.co';
@@ -54,7 +54,7 @@ export class HowToStartWidget {
     /** Catálogo de packs de análisis de crédito que se ofrecen en el landing. */
     packsResource = resource<PackOffering[], {}>({
         params: () => ({}),
-        loader: () => firstValueFrom(this.onboardingService.getPackCatalog())
+        loader: () => firstValueFrom(this.packOfferingsService.getPackCatalog())
     });
 
     /** Packs ordenados por sortOrder para una presentación consistente. */

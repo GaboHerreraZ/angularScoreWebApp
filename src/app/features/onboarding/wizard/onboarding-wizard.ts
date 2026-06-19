@@ -25,6 +25,8 @@ import { SupabaseService } from '@/app/core/services/supabase.service';
 import { NotificationService } from '@/app/shared/components/notification/notification.service';
 import { Parameter } from '@/app/types/parameter';
 import { OnboardingService } from '../onboarding.service';
+import { PackOfferingsService } from '@/app/shared/services/pack-offerings.service';
+import { AnalysisPacksService } from '@/app/shared/services/analysis-packs.service';
 import { OnboardingByProfile, OnboardingRequest, PackOffering } from '@/app/types/onboarding';
 
 type StateCity = { id: number; name: string };
@@ -54,6 +56,8 @@ type StateCity = { id: number; name: string };
 export class OnboardingWizard {
     private destroyRef = inject(DestroyRef);
     private onboardingService = inject(OnboardingService);
+    private packOfferingsService = inject(PackOfferingsService);
+    private analysisPacksService = inject(AnalysisPacksService);
     private parameterService = inject(ParameterService);
     private supabaseService = inject(SupabaseService);
     private notification = inject(NotificationService);
@@ -146,7 +150,7 @@ export class OnboardingWizard {
 
     packsResource = resource<PackOffering[], {}>({
         params: () => ({}),
-        loader: () => firstValueFrom(this.onboardingService.getPackCatalog())
+        loader: () => firstValueFrom(this.packOfferingsService.getPackCatalog())
     });
 
     selectedPack = signal<PackOffering | null>(null);
@@ -285,7 +289,7 @@ export class OnboardingWizard {
         if (!companyId || !pack) return;
 
         this.purchasing.set(true);
-        this.onboardingService.purchasePack(companyId, { packOfferingId: pack.id }).pipe(
+        this.analysisPacksService.purchasePack({ packOfferingId: pack.id }).pipe(
             finalize(() => this.purchasing.set(false)),
             takeUntilDestroyed(this.destroyRef)
         ).subscribe({

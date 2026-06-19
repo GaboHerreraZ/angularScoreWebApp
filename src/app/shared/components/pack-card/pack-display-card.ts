@@ -23,8 +23,10 @@ export class PackDisplayCard {
     pack = input.required<PackOffering>();
     /** Resalta la tarjeta como la opción destacada. */
     featured = input<boolean>(false);
+    /** Texto del botón de acción. Por defecto, el CTA del landing. */
+    ctaLabel = input<string>('Lo quiero');
 
-    /** Se emite cuando el usuario quiere registrarse con este pack. */
+    /** Se emite cuando el usuario acciona el CTA de este pack. */
     register = output<PackOffering>();
 
     /** True si el pack tiene un descuento aplicado. */

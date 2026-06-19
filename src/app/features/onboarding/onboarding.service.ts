@@ -5,10 +5,7 @@ import {
     AnalysisPackByReference,
     OnboardingByProfile,
     OnboardingRequest,
-    OnboardingResponse,
-    PackOffering,
-    PurchasePackRequest,
-    PurchasePackResponse
+    OnboardingResponse
 } from '@/app/types/onboarding';
 
 @Injectable({ providedIn: 'root' })
@@ -32,24 +29,6 @@ export class OnboardingService {
         return this.api.get<OnboardingByProfile>(`onboarding/${profileId}`, {
             headers: { 'X-Silent-Error': 'true' }
         });
-    }
-
-    /** Catálogo de packs de consultas disponibles para compra. */
-    getPackCatalog(): Observable<PackOffering[]> {
-        return this.api.get<PackOffering[]>('pack-offerings/catalog');
-    }
-
-    /**
-     * Compra un pack y devuelve el sessionId del checkout de ePayco.
-     * Requiere usuario logueado que pertenezca al companyId; el backend lee
-     * los billing* de la empresa para armar la sesión de pago.
-     */
-    purchasePack(companyId: string, payload: PurchasePackRequest): Observable<PurchasePackResponse> {
-        return this.api.post<PurchasePackResponse>(
-            `companies/${companyId}/analysis-packs/purchase`,
-            payload,
-            { headers: { 'X-Silent-Error': 'true' } }
-        );
     }
 
     /**
