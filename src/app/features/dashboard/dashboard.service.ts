@@ -12,9 +12,6 @@ export class DashboardService {
     // Derivado del perfil de forma reactiva: el servicio es singleton y el perfil
     // puede no estar cargado cuando se construye (p. ej. justo tras el login/invitación).
     companyId = computed(() => this.authService.currentProfile()?.companyId ?? '');
-    dashboardLevel = computed<DashboardLevel>(
-        () => (this.authService.currentProfile()?.permissions.dashboardLevel as DashboardLevel) ?? 'basic'
-    );
     loading = signal<boolean>(false);
 
     private get basePath(): string {

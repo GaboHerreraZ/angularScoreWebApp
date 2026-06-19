@@ -41,7 +41,6 @@ export class Dashboard implements OnInit {
 
     floor = (value: number | null | undefined) => Math.floor(value ?? 0);
     loading = signal(false);
-    dashboardLevel = this.dashboardService.dashboardLevel;
     lastUpdated = signal<Date | null>(null);
     currentTime = signal<Date>(new Date());
 

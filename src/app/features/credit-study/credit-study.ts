@@ -20,7 +20,10 @@ export class CreditStudy implements OnInit {
 
     exporting = signal(false);
 
-    private canAddCreditStudy = computed(() => this.authService.currentProfile()?.permissions?.canAddCreditStudy ?? false);
+    private canAddCreditStudy = computed(() => {
+        const perms = this.authService.currentProfile()?.permissions;
+        return (perms?.canAddCreditStudy ?? false) && (perms?.hasCredits ?? false);
+    });
 
     tableSettings = computed<TableSettings>(() => ({
         title: 'Gestión de Estudios de Crédito',
