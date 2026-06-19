@@ -1,114 +1,115 @@
 <section id="como-empezar" class="px-6 sm:px-12 lg:px-20 py-16 lg:py-24 bg-surface-0 dark:bg-surface-950">
     <div class="max-w-screen-xl mx-auto">
         <!-- Header -->
-        <div class="text-center mb-16 lg:mb-20" appScrollAnimate="fade-up">
-            <span class="bg-primary/10 text-primary font-bold text-sm uppercase tracking-widest px-4 py-1.5 rounded-full">Cómo empezar</span>
+        <div class="text-center mb-14 lg:mb-16" appScrollAnimate="fade-up">
+            <span class="bg-primary/10 text-primary font-bold text-sm uppercase tracking-widest px-4 py-1.5 rounded-full">Precios</span>
             <h2 class="font-extrabold text-3xl sm:text-4xl lg:text-5xl mt-5 mb-4 text-color">
-                Tu plan a la medida en <span class="text-primary">4 simples pasos</span>
+                Pagas por lo que <span class="text-primary">consumes</span>
             </h2>
             <p class="text-lg text-muted-color max-w-2xl mx-auto">
-                Si quieres un plan personalizado según el volumen real de estudios de crédito que tu empresa necesita,
-                así de simple es el proceso: acompañado y sin compromisos.
+                Sin suscripciones ni mensualidades. Compras un paquete de Análisis de Crédito, los usas cuando lo necesites
+                y cada análisis incluye todo el poder de CREDITIA.
             </p>
         </div>
 
-        <!-- Timeline -->
-        <div class="relative">
-            <!-- Spine (central en desktop, a la izquierda en móvil) -->
-            <div class="absolute top-2 bottom-2 left-6 lg:left-1/2 lg:-translate-x-1/2 w-px bg-linear-to-b from-primary/40 via-primary/20 to-transparent"></div>
-
-            <ol class="list-none p-0 m-0 flex flex-col gap-12 lg:gap-4">
-                <!-- Step 1 -->
-                <li class="relative pl-20 lg:pl-0 lg:grid lg:grid-cols-2 lg:gap-16 lg:items-center">
-                    <div class="absolute left-6 lg:left-1/2 lg:-translate-x-1/2 top-0 lg:top-1/2 lg:-translate-y-1/2 z-10 w-12 h-12 rounded-full bg-surface-0 dark:bg-surface-950 border-2 border-primary text-primary font-extrabold flex items-center justify-center shadow-sm">
-                        01
+        <!-- Qué incluye cada análisis -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16 lg:mb-20" appScrollAnimate="fade-up">
+            @for (feature of features; track feature.title) {
+                <div class="flex flex-col items-start rounded-2xl border border-surface bg-surface-50 dark:bg-surface-900 p-7">
+                    <div class="w-12 h-12 rounded-xl {{ feature.gradient }} flex items-center justify-center mb-5 shadow-lg">
+                        <i class="pi {{ feature.icon }} text-white text-xl"></i>
                     </div>
-                    <div class="lg:text-right lg:pr-4" appScrollAnimate="fade-right">
-                        <div class="inline-flex items-center gap-2 text-primary font-semibold text-sm mb-2 lg:flex-row-reverse">
-                            <i class="pi pi-comments"></i>
-                            <span class="uppercase tracking-wider">Paso 1</span>
-                        </div>
-                        <h3 class="font-bold text-xl lg:text-2xl mb-2 mt-0 text-color">Contacto comercial</h3>
-                        <p class="text-muted-color leading-relaxed m-0">
-                            Hablas con nuestro equipo comercial para contarnos sobre tu empresa, tu sector y cómo evalúas crédito hoy.
-                        </p>
-                    </div>
-                    <div class="hidden lg:block"></div>
-                </li>
-
-                <!-- Step 2 -->
-                <li class="relative pl-20 lg:pl-0 lg:grid lg:grid-cols-2 lg:gap-16 lg:items-center">
-                    <div class="absolute left-6 lg:left-1/2 lg:-translate-x-1/2 top-0 lg:top-1/2 lg:-translate-y-1/2 z-10 w-12 h-12 rounded-full bg-surface-0 dark:bg-surface-950 border-2 border-blue-500 text-blue-500 font-extrabold flex items-center justify-center shadow-sm">
-                        02
-                    </div>
-                    <div class="hidden lg:block"></div>
-                    <div class="lg:pl-4" appScrollAnimate="fade-left">
-                        <div class="inline-flex items-center gap-2 text-blue-500 font-semibold text-sm mb-2">
-                            <i class="pi pi-desktop"></i>
-                            <span class="uppercase tracking-wider">Paso 2</span>
-                        </div>
-                        <h3 class="font-bold text-xl lg:text-2xl mb-2 mt-0 text-color">Demo personalizada</h3>
-                        <p class="text-muted-color leading-relaxed m-0">
-                            Si lo deseas, te mostramos la plataforma en acción con un caso real de tu industria. Sin presión, para que
-                            veas el valor antes de decidir.
-                        </p>
-                    </div>
-                </li>
-
-                <!-- Step 3 -->
-                <li class="relative pl-20 lg:pl-0 lg:grid lg:grid-cols-2 lg:gap-16 lg:items-center">
-                    <div class="absolute left-6 lg:left-1/2 lg:-translate-x-1/2 top-0 lg:top-1/2 lg:-translate-y-1/2 z-10 w-12 h-12 rounded-full bg-surface-0 dark:bg-surface-950 border-2 border-purple-500 text-purple-500 font-extrabold flex items-center justify-center shadow-sm">
-                        03
-                    </div>
-                    <div class="lg:text-right lg:pr-4" appScrollAnimate="fade-right">
-                        <div class="inline-flex items-center gap-2 text-purple-500 font-semibold text-sm mb-2 lg:flex-row-reverse">
-                            <i class="pi pi-chart-bar"></i>
-                            <span class="uppercase tracking-wider">Paso 3</span>
-                        </div>
-                        <h3 class="font-bold text-xl lg:text-2xl mb-2 mt-0 text-color">Estudio de necesidades</h3>
-                        <p class="text-muted-color leading-relaxed m-0">
-                            Estimamos cuántos estudios crediticios necesita tu empresa al mes para dimensionar exactamente lo que vas a
-                            usar, sin pagar de más.
-                        </p>
-                    </div>
-                    <div class="hidden lg:block"></div>
-                </li>
-
-                <!-- Step 4 -->
-                <li class="relative pl-20 lg:pl-0 lg:grid lg:grid-cols-2 lg:gap-16 lg:items-center">
-                    <div class="absolute left-6 lg:left-1/2 lg:-translate-x-1/2 top-0 lg:top-1/2 lg:-translate-y-1/2 z-10 w-12 h-12 rounded-full bg-emerald-500 border-2 border-emerald-500 text-white font-extrabold flex items-center justify-center shadow-md shadow-emerald-500/30">
-                        <i class="pi pi-check text-lg"></i>
-                    </div>
-                    <div class="hidden lg:block"></div>
-                    <div class="lg:pl-4" appScrollAnimate="fade-left">
-                        <div class="inline-flex items-center gap-2 text-emerald-500 font-semibold text-sm mb-2">
-                            <i class="pi pi-flag"></i>
-                            <span class="uppercase tracking-wider">Listo para operar</span>
-                        </div>
-                        <h3 class="font-bold text-xl lg:text-2xl mb-2 mt-0 text-color">Plan a medida y acceso</h3>
-                        <p class="text-muted-color leading-relaxed m-0">
-                            Definimos tu plan personalizado, configuramos tu empresa y recibes tu invitación de acceso. En minutos tu
-                            equipo queda listo para operar.
-                        </p>
-                    </div>
-                </li>
-            </ol>
+                    <h3 class="font-bold text-lg mb-2 mt-0 text-color">{{ feature.title }}</h3>
+                    <p class="text-muted-color leading-relaxed m-0">{{ feature.description }}</p>
+                </div>
+            }
         </div>
 
-        <!-- CTA -->
-        <div class="mt-16 lg:mt-20 rounded-3xl bg-surface-50 dark:bg-surface-900 border border-surface p-10 lg:p-14 text-center" appScrollAnimate="fade-up">
-            <h3 class="font-extrabold text-2xl sm:text-3xl mb-3 mt-0 text-color">Da el primer paso hoy</h3>
-            <p class="text-lg text-muted-color max-w-2xl mx-auto mb-8">
-                Escríbenos y nuestro equipo comercial inicia contigo este proceso para dejar tu plan a la medida listo.
+        <!-- Packs -->
+        <div class="text-center mb-12" appScrollAnimate="fade-up">
+            <span class="inline-flex items-center gap-2 bg-primary/10 text-primary font-bold text-sm uppercase tracking-widest px-4 py-1.5 rounded-full mb-5">
+                <i class="pi pi-bolt"></i>
+                Compra una vez, usa cuando quieras
+            </span>
+            <h3 class="font-extrabold text-3xl sm:text-4xl lg:text-5xl mb-4 mt-0 text-color">
+                Elige el paquete que <span class="text-primary">crece contigo</span>
+            </h3>
+            <p class="text-lg text-muted-color max-w-2xl mx-auto">
+                A mayor volumen, menor el precio por estudio. Tú defines cuántos Análisis de Crédito necesitas
+                y solo pagas por ellos: <strong class="text-color">sin suscripciones, sin mensualidades.</strong>
             </p>
-            <div class="flex flex-col sm:flex-row gap-3 justify-center items-center">
-                <a [href]="'mailto:' + salesEmail">
-                    <p-button label="Hablar con el área comercial" icon="pi pi-send" size="large" />
-                </a>
-                <span class="inline-flex items-center gap-2 text-muted-color text-sm font-semibold">
-                    <i class="pi pi-envelope text-primary"></i>
-                    {{ salesEmail }}
-                </span>
+
+            <!-- Trust pills -->
+            <div class="flex flex-wrap justify-center gap-x-6 gap-y-2 mt-6 text-sm font-medium text-muted-color">
+                <span class="inline-flex items-center gap-2"><i class="pi pi-check-circle text-emerald-500"></i> Pago único por paquete</span>
+                <span class="inline-flex items-center gap-2"><i class="pi pi-check-circle text-emerald-500"></i> Mejor precio a mayor volumen</span>
+                <span class="inline-flex items-center gap-2"><i class="pi pi-check-circle text-emerald-500"></i> Sin permanencia</span>
+            </div>
+        </div>
+
+        @if (packsResource.isLoading()) {
+            <!-- Skeleton mientras carga el catálogo -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                @for (i of [1, 2, 3]; track i) {
+                    <div class="rounded-2xl border border-surface p-7">
+                        <p-skeleton width="40%" height="1rem" styleClass="mb-4" />
+                        <p-skeleton width="60%" height="3rem" styleClass="mb-3" />
+                        <p-skeleton width="100%" height="1rem" styleClass="mb-6" />
+                        <p-skeleton width="50%" height="2rem" styleClass="mb-6" />
+                        <p-skeleton width="100%" height="2.75rem" />
+                    </div>
+                }
+            </div>
+        } @else if (packsResource.error()) {
+            <!-- Fallback si el catálogo no carga: igual invitamos a registrarse -->
+            <div class="rounded-2xl border border-surface bg-surface-50 dark:bg-surface-900 p-10 text-center">
+                <i class="pi pi-box text-4xl text-muted-color mb-4"></i>
+                <p class="text-muted-color mb-6">No pudimos cargar los paquetes en este momento, pero puedes registrarte y verlos al momento de comprar.</p>
+                <p-button label="Registrarme" icon="pi pi-arrow-right" iconPos="right" (onClick)="goToRegister()" />
+            </div>
+        } @else {
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 items-stretch">
+                @for (pack of packs(); track pack.id) {
+                    <div appScrollAnimate="fade-up">
+                        <app-pack-display-card
+                            [pack]="pack"
+                            [featured]="pack.id === featuredId()"
+                            (register)="goToRegister()"
+                        />
+                    </div>
+                }
+            </div>
+        }
+
+        <!-- CTA: para quien aún no está seguro -->
+        <div class="relative mt-16 lg:mt-20 overflow-hidden rounded-3xl border border-primary/20 bg-linear-to-br from-primary/10 via-surface-50 to-surface-50 dark:from-primary/15 dark:via-surface-900 dark:to-surface-900 p-10 lg:p-16" appScrollAnimate="fade-up">
+            <!-- Glow decorativo -->
+            <div class="pointer-events-none absolute -top-24 -right-24 w-72 h-72 rounded-full bg-primary/20 blur-3xl"></div>
+
+            <div class="relative grid lg:grid-cols-[1fr_auto] gap-10 lg:gap-12 items-center">
+                <div class="text-center lg:text-left">
+                    <span class="inline-flex items-center gap-2 bg-primary/10 text-primary font-semibold text-xs uppercase tracking-widest px-3 py-1.5 rounded-full mb-5">
+                        <i class="pi pi-comments"></i>
+                        ¿Aún no estás seguro?
+                    </span>
+                    <h3 class="font-extrabold text-2xl sm:text-3xl lg:text-4xl mb-4 mt-0 text-color">
+                        Conoce CREDITIA en acción
+                    </h3>
+                    <p class="text-lg text-muted-color max-w-xl lg:max-w-2xl mx-auto lg:mx-0 m-0">
+                        Agenda una reunión con nuestro equipo comercial y te enseñamos CREDITIA en acción con un caso real
+                        de la industria. Sin compromisos, para que veas el valor antes de decidir.
+                    </p>
+                </div>
+
+                <div class="flex flex-col items-center lg:items-stretch gap-4 shrink-0">
+                    <a [href]="demoMailto" class="no-underline">
+                        <p-button label="Agendar una demostración" icon="pi pi-calendar" size="large" styleClass="w-full whitespace-nowrap" />
+                    </a>
+                    <a [href]="'mailto:' + salesEmail" class="inline-flex items-center justify-center gap-2 text-muted-color hover:text-primary text-sm font-semibold transition-colors no-underline">
+                        <i class="pi pi-envelope text-primary"></i>
+                        {{ salesEmail }}
+                    </a>
+                </div>
             </div>
         </div>
     </div>
