@@ -20,7 +20,6 @@ export class CreditStudy implements OnInit {
 
     exporting = signal(false);
 
-    private canExportExcel = computed(() => this.authService.currentProfile()?.permissions?.canExportExcel ?? false);
     private canAddCreditStudy = computed(() => this.authService.currentProfile()?.permissions?.canAddCreditStudy ?? false);
 
     tableSettings = computed<TableSettings>(() => ({
@@ -43,14 +42,12 @@ export class CreditStudy implements OnInit {
                 severity: 'success' as const
             }
         } : {}),
-        ...(this.canExportExcel() ? {
-            exportButton: {
-                label: 'Exportar',
-                icon: 'pi pi-file-excel',
-                severity: 'secondary' as const,
-                loading: this.exporting()
-            }
-        } : {}),
+        exportButton: {
+            label: 'Exportar',
+            icon: 'pi pi-file-excel',
+            severity: 'secondary' as const,
+            loading: this.exporting()
+        },
         actions: [
             { id: 'edit', icon: 'pi pi-pencil', severity: 'info', tooltip: 'Editar' },
             { id: 'delete', icon: 'pi pi-trash', severity: 'danger', tooltip: 'Eliminar' }
