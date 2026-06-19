@@ -74,6 +74,7 @@ export interface PackOffering {
 /** Cuerpo de POST /api/companies/:companyId/analysis-packs/purchase. */
 export interface PurchasePackRequest {
     packOfferingId: string;
+    redirectPath?: string;
 }
 
 /** Respuesta de la compra: trae el sessionId para abrir el checkout de ePayco. */

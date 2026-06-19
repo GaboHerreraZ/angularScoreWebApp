@@ -1,0 +1,331 @@
+<div class="flex flex-col gap-10">
+    <!-- ─────────────── Catálogo de packs ─────────────── -->
+    <section>
+        <div class="mb-5">
+            <h2 class="text-xl font-bold m-0 text-color">Comprar análisis de crédito</h2>
+            <p class="text-muted-color text-sm mt-1 mb-0">Adquiere paquetes de consultas. Pagas solo por lo que necesitas, sin mensualidades.</p>
+        </div>
+
+        @if (packsCatalogResource.isLoading()) {
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            @for (i of [1, 2, 3]; track i) {
+            <p-skeleton width="100%" height="16rem" borderRadius="1rem" />
+            }
+        </div>
+        } @else if (catalog().length) {
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            @for (pack of catalog(); track pack.id) {
+            <app-pack-display-card [pack]="pack" ctaLabel="Comprar" (register)="onBuyPack($event)" />
+            }
+        </div>
+        } @else {
+        <p class="text-sm text-muted-color italic">No hay paquetes disponibles por el momento.</p>
+        }
+    </section>
+
+    <!-- ─────────────── Historial de paquetes comprados ─────────────── -->
+    <section>
+        <div class="mb-5">
+            <h2 class="text-xl font-bold m-0 text-color">Mis paquetes y consumo</h2>
+            <p class="text-muted-color text-sm mt-1 mb-0">Revisa los paquetes que has comprado y las consultas realizadas con cada uno.</p>
+        </div>
+
+<p-table
+    [value]="packs()"
+    [lazy]="true"
+    (onLazyLoad)="onLazyLoad($event)"
+    [paginator]="true"
+    [rows]="rows"
+    [totalRecords]="totalRecords()"
+    [loading]="loading()"
+    dataKey="id"
+    [expandedRowKeys]="expandedRows"
+    [showGridlines]="true"
+    [rowHover]="true"
+    currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} paquetes"
+    [showCurrentPageReport]="true"
+    styleClass="p-datatable-sm"
+>
+    <ng-template #header>
+        <tr>
+            <th style="width: 3rem"></th>
+            <th>Paquete</th>
+            <th class="text-center">Consumidas / Total</th>
+            <th class="text-center">Restantes</th>
+            <th class="text-right">Total pagado</th>
+            <th class="text-center">Estado del pago</th>
+            <th>Fecha del pago</th>
+            <th>Referencia de pago</th>
+            <th>Vigencia</th>
+            <th class="text-center">Estado</th>
+            <th class="text-center" style="width: 6rem">Acciones</th>
+        </tr>
+    </ng-template>
+
+    <ng-template #body let-pack let-expanded="expanded">
+        <tr>
+            <td>
+                <p-button
+                    type="button"
+                    [pRowToggler]="pack"
+                    [text]="true"
+                    [rounded]="true"
+                    severity="secondary"
+                    [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+                />
+            </td>
+            <td>
+                <div class="flex flex-col">
+                    <span class="font-medium">{{ pack.packOffering.name }}</span>
+                    <span class="text-xs text-surface-500">{{ pack.packOffering.quantity }} consultas</span>
+                </div>
+            </td>
+            <td class="text-center tabular-nums">{{ pack.quantityConsumed }} / {{ pack.quantityPurchased }}</td>
+            <td class="text-center tabular-nums font-semibold">{{ remaining(pack) }}</td>
+            <td class="text-right tabular-nums">{{ pack.totalPaid | currency: pack.currencyCode : 'symbol-narrow' : '1.0-0' }}</td>
+            <td class="text-center">
+                @if (pack.epaycoResponseReason) {
+                <p-tag [value]="pack.epaycoResponseReason" [severity]="paymentSeverity(pack.epaycoResponseReason)" />
+                } @else {
+                <span class="text-surface-400">—</span>
+                }
+            </td>
+            <td class="text-xs">
+                @if (pack.paidAt) {
+                {{ pack.paidAt | date: 'dd/MM/yyyy HH:mm' }}
+                } @else {
+                <span class="text-surface-400">—</span>
+                }
+            </td>
+            <td class="text-xs font-mono">{{ pack.epaycoRef ?? '—' }}</td>
+            <td>
+                <div class="flex flex-col text-xs">
+                    <span>{{ pack.startDate | date: 'dd/MM/yyyy' }}</span>
+                    <span class="text-surface-500">hasta {{ pack.endDate | date: 'dd/MM/yyyy' }}</span>
+                </div>
+            </td>
+            <td class="text-center">
+                <p-tag [value]="pack.status.label" [severity]="packStatusSeverity(pack.status.label)" />
+            </td>
+            <td class="text-center">
+                @if (isPendingPayment(pack)) {
+                <p-button
+                    icon="pi pi-credit-card"
+                    [rounded]="true"
+                    [text]="true"
+                    severity="warn"
+                    size="small"
+                    pTooltip="Reintentar el pago"
+                    tooltipPosition="top"
+                    (onClick)="retryPayment(pack)"
+                />
+                } @else {
+                <span class="text-surface-400">—</span>
+                }
+            </td>
+        </tr>
+    </ng-template>
+
+    <ng-template #expandedrow let-pack>
+        <tr>
+            <td colspan="11" class="p-0!">
+                <div class="p-4 bg-surface-50 dark:bg-surface-800/40 flex flex-col gap-6">
+                    <!-- Eventos de pago -->
+                    <div>
+                        <h4 class="text-sm font-semibold mb-3 flex items-center gap-2">
+                            <i class="pi pi-receipt text-surface-500"></i>
+                            Intentos de pago
+                        </h4>
+
+                        @if (pack.paymentEvents.length) {
+                        <p-table [value]="pack.paymentEvents" styleClass="p-datatable-sm" [showGridlines]="true">
+                            <ng-template #header>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Referencia de pago</th>
+                                    <th class="text-center">Estado</th>
+                                    <th>Detalle</th>
+                                    <th class="text-right">Monto</th>
+                                </tr>
+                            </ng-template>
+                            <ng-template #body let-event>
+                                <tr>
+                                    <td class="text-xs">{{ event.date | date: 'dd/MM/yyyy HH:mm' }}</td>
+                                    <td class="text-xs font-mono">{{ event.epaycoRef ?? '—' }}</td>
+                                    <td class="text-center">
+                                        <p-tag [value]="event.statusLabel" [severity]="paymentEventSeverity(event.statusLabel)" />
+                                    </td>
+                                    <td class="text-sm">{{ event.responseText }}</td>
+                                    <td class="text-right tabular-nums">{{ event.amount | currency: event.currency : 'symbol-narrow' : '1.0-0' }}</td>
+                                </tr>
+                            </ng-template>
+                        </p-table>
+                        } @else {
+                        <p class="text-sm text-surface-500 italic">Este paquete no tiene intentos de pago registrados.</p>
+                        }
+                    </div>
+
+                    <!-- Consultas realizadas -->
+                    <div>
+                    <h4 class="text-sm font-semibold mb-3 flex items-center gap-2">
+                        <i class="pi pi-list text-surface-500"></i>
+                        Consultas realizadas con este paquete
+                    </h4>
+
+                    @if (pack.consumptions.length) {
+                    <p-table [value]="pack.consumptions" dataKey="creditStudyId" styleClass="p-datatable-sm" [showGridlines]="true">
+                        <ng-template #header>
+                            <tr>
+                                <th>Cliente</th>
+                                <th class="text-center">Estado del estudio</th>
+                                <th>Fecha del estudio</th>
+                                <th class="text-center" style="width: 8rem">Acciones</th>
+                            </tr>
+                        </ng-template>
+                        <ng-template #body let-consumption>
+                            <tr>
+                                <td>{{ consumption.customerName }}</td>
+                                <td class="text-center">
+                                    <p-tag [value]="consumption.statusLabel" [severity]="consumptionStatusSeverity(consumption.statusLabel)" />
+                                </td>
+                                <td>{{ consumption.studyDate | date: 'dd/MM/yyyy' }}</td>
+                                <td class="text-center">
+                                    <div class="flex justify-center gap-1">
+                                        <p-button
+                                            icon="pi pi-credit-card"
+                                            [text]="true"
+                                            [rounded]="true"
+                                            severity="info"
+                                            size="small"
+                                            pTooltip="Ver estudio de crédito"
+                                            tooltipPosition="top"
+                                            (onClick)="viewCreditStudy(consumption)"
+                                        />
+                                        <p-button
+                                            icon="pi pi-user"
+                                            [text]="true"
+                                            [rounded]="true"
+                                            severity="secondary"
+                                            size="small"
+                                            pTooltip="Ver cliente"
+                                            tooltipPosition="top"
+                                            (onClick)="viewCustomer(consumption)"
+                                        />
+                                    </div>
+                                </td>
+                            </tr>
+                        </ng-template>
+                    </p-table>
+                    } @else {
+                    <p class="text-sm text-surface-500 italic">Este paquete aún no tiene consultas registradas.</p>
+                    }
+                    </div>
+                </div>
+            </td>
+        </tr>
+    </ng-template>
+
+    <ng-template #emptymessage>
+        <tr>
+            <td colspan="11" class="text-center py-8">
+                <div class="flex flex-col items-center gap-2 text-surface-500">
+                    <i class="pi pi-box text-3xl"></i>
+                    <span>Aún no hay paquetes de consultas comprados.</span>
+                </div>
+            </td>
+        </tr>
+    </ng-template>
+</p-table>
+    </section>
+</div>
+
+<!-- ─────────────── Modal: resumen de compra ─────────────── -->
+<p-dialog
+    header="Resumen de tu compra"
+    [visible]="summaryVisible()"
+    (visibleChange)="summaryVisible.set($event)"
+    [modal]="true"
+    [draggable]="false"
+    [resizable]="false"
+    [closable]="!purchasing()"
+    [dismissableMask]="!purchasing()"
+    [style]="{ width: '32rem' }"
+>
+    @if (purchasing()) {
+    <!-- Cargando: preparando la sesión de pago -->
+    <div class="flex flex-col gap-5">
+        <p-skeleton width="100%" height="6.5rem" borderRadius="0.75rem" />
+        <p-skeleton width="100%" height="5.5rem" borderRadius="0.75rem" />
+        <p-skeleton width="100%" height="4.5rem" borderRadius="0.75rem" />
+        <div class="flex items-center justify-center gap-2 text-sm text-muted-color">
+            <i class="pi pi-spin pi-spinner"></i>
+            Preparando tu pago seguro…
+        </div>
+    </div>
+    } @else if (selectedPack(); as pack) {
+    <div class="flex flex-col gap-5">
+        <!-- Detalle del pack -->
+        <div class="rounded-xl border border-surface p-4 bg-surface-50 dark:bg-surface-800/40">
+            <div class="flex items-center justify-between">
+                <div class="flex flex-col">
+                    <span class="text-sm font-semibold uppercase tracking-wider text-primary">{{ pack.name }}</span>
+                    <span class="text-2xl font-extrabold text-color leading-tight">{{ pack.quantity }} análisis de crédito</span>
+                </div>
+                <div class="text-right">
+                    <span class="block text-2xl font-extrabold text-color">{{ pack.total | currency: pack.currency : 'symbol-narrow' : '1.0-0' }}</span>
+                    @if (pack.discountAmount > 0) {
+                    <span class="block text-xs text-muted-color line-through">{{ pack.subtotal | currency: pack.currency : 'symbol-narrow' : '1.0-0' }}</span>
+                    }
+                </div>
+            </div>
+            <div class="flex items-center gap-2 mt-3 pt-3 border-t border-surface text-sm text-muted-color">
+                <i class="pi pi-clock text-primary"></i>
+                Vigencia de {{ pack.validityDays }} días
+            </div>
+        </div>
+
+        <!-- Explicación: paquete adicional, no reemplaza los activos -->
+        <div class="flex gap-3 rounded-xl bg-primary/5 border border-primary/20 p-4">
+            <i class="pi pi-info-circle text-primary mt-0.5"></i>
+            <div class="text-sm text-color leading-relaxed">
+                <p class="m-0">
+                    Este paquete se <span class="font-semibold">suma</span> a tu cuenta: no reemplaza ni afecta los
+                    paquetes que tienes activos actualmente.
+                </p>
+                <p class="m-0 mt-2">
+                    Tras la compra, tu total de análisis disponibles será la suma de las consultas no consumidas de
+                    todos tus paquetes activos.
+                </p>
+            </div>
+        </div>
+
+        <!-- Total de análisis tras la compra -->
+        <div class="flex items-center justify-between rounded-xl border border-surface p-4">
+            <div class="flex flex-col text-sm">
+                <span class="text-muted-color">Disponibles hoy</span>
+                <span class="text-color font-medium">{{ currentAvailable() }} análisis</span>
+            </div>
+            <i class="pi pi-arrow-right text-muted-color"></i>
+            <div class="flex flex-col text-sm text-right">
+                <span class="text-muted-color">Después de comprar</span>
+                <span class="text-primary font-bold text-lg leading-none">{{ totalAfterPurchase() }} Análisis de Credito</span>
+            </div>
+        </div>
+    </div>
+    }
+
+    @if (!purchasing()) {
+    <ng-template #footer>
+        <p-button label="Cancelar" severity="secondary" [text]="true" (onClick)="summaryVisible.set(false)" />
+        <p-button label="Continuar" icon="pi pi-arrow-right" iconPos="right" (onClick)="confirmPurchase()" />
+    </ng-template>
+    }
+</p-dialog>
+
+<!-- Checkout de ePayco: se abre en ventana nueva tras la compra -->
+<app-epayco-checkout
+    #checkout
+    [sessionId]="sessionId()"
+    display="newWindow"
+    (errored)="onCheckoutError()"
+/>
