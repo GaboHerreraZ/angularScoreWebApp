@@ -71,10 +71,28 @@ export interface PackOffering {
     total: number;
 }
 
+/**
+ * Resultado de validar un código promocional antes de pagar.
+ * GET /api/companies/:companyId/promo-codes/validate?code=...
+ * Siempre responde 200: `valid` indica el resultado de negocio.
+ */
+export interface PromoCodeValidation {
+    valid: boolean;
+    /** Solo presentes cuando `valid` es true. */
+    promoCodeId?: string;
+    code?: string;
+    /** Porcentaje de descuento (número, p. ej. 15) cuando `valid` es true. */
+    discountPercent?: number;
+    /** Motivo del rechazo cuando `valid` es false. */
+    reason?: string;
+}
+
 /** Cuerpo de POST /api/companies/:companyId/analysis-packs/purchase. */
 export interface PurchasePackRequest {
     packOfferingId: string;
     redirectPath?: string;
+    /** Código promocional a re-validar y canjear al confirmar el pago. */
+    promoCode?: string;
 }
 
 /** Respuesta de la compra: trae el sessionId para abrir el checkout de ePayco. */

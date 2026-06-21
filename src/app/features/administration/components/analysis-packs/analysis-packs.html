@@ -284,6 +284,62 @@
             </div>
         </div>
 
+        <!-- Código promocional -->
+        <div class="flex flex-col gap-2">
+            <div class="flex items-start gap-2">
+                <div class="flex-1">
+                    <input
+                        pInputText
+                        type="text"
+                        class="w-full"
+                        placeholder="Código promocional"
+                        [ngModel]="promoCode()"
+                        (ngModelChange)="promoCode.set($event); promoError.set(null)"
+                        (keydown.enter)="validatePromoCode()"
+                        [disabled]="!!appliedPromo()"
+                    />
+                </div>
+                @if (appliedPromo()) {
+                <p-button
+                    label="Quitar"
+                    severity="secondary"
+                    [outlined]="true"
+                    (onClick)="promoCode.set(''); appliedPromo.set(null); promoError.set(null)"
+                />
+                } @else {
+                <p-button
+                    label="Validar"
+                    [loading]="validatingPromo()"
+                    [disabled]="!promoCode().trim()"
+                    (onClick)="validatePromoCode()"
+                />
+                }
+            </div>
+
+            @if (promoError()) {
+            <span class="text-sm text-red-500 flex items-center gap-1">
+                <i class="pi pi-times-circle"></i>
+                {{ promoError() }}
+            </span>
+            } @else if (appliedPromo(); as promo) {
+            <span class="text-sm text-green-600 dark:text-green-400 flex items-center gap-1">
+                <i class="pi pi-check-circle"></i>
+                Código {{ promo.code }} aplicado: {{ promo.discountPercent }}% de descuento.
+            </span>
+            }
+        </div>
+
+        @if (appliedPromo()) {
+        <!-- Total con descuento del código promocional -->
+        <div class="flex items-center justify-between rounded-xl border border-primary/30 bg-primary/5 p-4">
+            <span class="text-sm font-medium text-color">Total con descuento</span>
+            <div class="text-right">
+                <span class="block text-xl font-extrabold text-primary leading-none">{{ totalWithPromo() | currency: pack.currency : 'symbol-narrow' : '1.0-0' }}</span>
+                <span class="block text-xs text-muted-color line-through">{{ pack.total | currency: pack.currency : 'symbol-narrow' : '1.0-0' }}</span>
+            </div>
+        </div>
+        }
+
         <!-- Explicación: paquete adicional, no reemplaza los activos -->
         <div class="flex gap-3 rounded-xl bg-primary/5 border border-primary/20 p-4">
             <i class="pi pi-info-circle text-primary mt-0.5"></i>
