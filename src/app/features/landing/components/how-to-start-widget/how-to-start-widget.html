@@ -80,37 +80,5 @@
                 }
             </div>
         }
-
-        <!-- CTA: para quien aún no está seguro -->
-        <div class="relative mt-16 lg:mt-20 overflow-hidden rounded-3xl border border-primary/20 bg-linear-to-br from-primary/10 via-surface-50 to-surface-50 dark:from-primary/15 dark:via-surface-900 dark:to-surface-900 p-10 lg:p-16" appScrollAnimate="fade-up">
-            <!-- Glow decorativo -->
-            <div class="pointer-events-none absolute -top-24 -right-24 w-72 h-72 rounded-full bg-primary/20 blur-3xl"></div>
-
-            <div class="relative grid lg:grid-cols-[1fr_auto] gap-10 lg:gap-12 items-center">
-                <div class="text-center lg:text-left">
-                    <span class="inline-flex items-center gap-2 bg-primary/10 text-primary font-semibold text-xs uppercase tracking-widest px-3 py-1.5 rounded-full mb-5">
-                        <i class="pi pi-comments"></i>
-                        ¿Aún no estás seguro?
-                    </span>
-                    <h3 class="font-extrabold text-2xl sm:text-3xl lg:text-4xl mb-4 mt-0 text-color">
-                        Conoce CREDITIA en acción
-                    </h3>
-                    <p class="text-lg text-muted-color max-w-xl lg:max-w-2xl mx-auto lg:mx-0 m-0">
-                        Agenda una reunión con nuestro equipo comercial y te enseñamos CREDITIA en acción con un caso real
-                        de la industria. Sin compromisos, para que veas el valor antes de decidir.
-                    </p>
-                </div>
-
-                <div class="flex flex-col items-center lg:items-stretch gap-4 shrink-0">
-                    <a [href]="demoMailto" class="no-underline">
-                        <p-button label="Agendar una demostración" icon="pi pi-calendar" size="large" styleClass="w-full whitespace-nowrap" />
-                    </a>
-                    <a [href]="'mailto:' + salesEmail" class="inline-flex items-center justify-center gap-2 text-muted-color hover:text-primary text-sm font-semibold transition-colors no-underline">
-                        <i class="pi pi-envelope text-primary"></i>
-                        {{ salesEmail }}
-                    </a>
-                </div>
-            </div>
-        </div>
     </div>
 </section>

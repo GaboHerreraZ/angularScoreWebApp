@@ -18,17 +18,6 @@ export class HowToStartWidget {
     private router = inject(Router);
     private packOfferingsService = inject(PackOfferingsService);
 
-    /** Correo del área comercial para el CTA de contacto. */
-    readonly salesEmail = 'comercial@creditia.co';
-
-    /** mailto prearmado para agendar una demostración con el área comercial. */
-    readonly demoMailto = `mailto:${this.salesEmail}`
-        + '?subject=' + encodeURIComponent('Quiero agendar una demostración de CREDITIA')
-        + '&body=' + encodeURIComponent(
-            'Hola, me gustaría agendar una reunión para ver una demostración de CREDITIA.\n\n'
-            + 'Empresa:\nNombre:\nTeléfono:\nHorario de preferencia:\n'
-        );
-
     /** Lo que incluye cada análisis de crédito, sin importar el pack elegido. */
     readonly features = [
         {

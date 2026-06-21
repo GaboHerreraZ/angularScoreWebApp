@@ -13,6 +13,7 @@ import { HowItWorksWidget } from './components/how-it-works-widget/how-it-works-
 import { FeaturesWidget } from './components/features-widget/features-widget';
 import { JoinWidget } from './components/join-widget/join-widget';
 import { HowToStartWidget } from './components/how-to-start-widget/how-to-start-widget';
+import { ContactSalesWidget } from './components/contact-sales-widget/contact-sales-widget';
 import { FaqWidget } from './components/faq-widget/faq-widget';
 import { FooterWidget } from './components/footer-widget/footer-widget';
 import { FloatingCtaWidget } from './components/floating-cta-widget/floating-cta-widget';
@@ -20,7 +21,7 @@ import { FloatingCtaWidget } from './components/floating-cta-widget/floating-cta
 @Component({
     selector: 'app-landing',
     standalone: true,
-    imports: [RouterModule, RippleModule, StyleClassModule, ButtonModule, DividerModule, DialogModule, HeaderWidget, HeroWidget, OverviewWidget, HowItWorksWidget, FeaturesWidget, JoinWidget, HowToStartWidget, FaqWidget, FooterWidget, FloatingCtaWidget],
+    imports: [RouterModule, RippleModule, StyleClassModule, ButtonModule, DividerModule, DialogModule, HeaderWidget, HeroWidget, OverviewWidget, HowItWorksWidget, FeaturesWidget, JoinWidget, HowToStartWidget, ContactSalesWidget, FaqWidget, FooterWidget, FloatingCtaWidget],
     templateUrl: './landing.html'
 })
 export class Landing {
