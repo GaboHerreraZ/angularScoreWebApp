@@ -10,6 +10,8 @@ import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
 import { SkeletonModule } from 'primeng/skeleton';
 import { DialogModule } from 'primeng/dialog';
+import { InputTextModule } from 'primeng/inputtext';
+import { FormsModule } from '@angular/forms';
 import { AnalysisPacksService } from '@/app/shared/services/analysis-packs.service';
 import { PackOfferingsService } from '@/app/shared/services/pack-offerings.service';
 import { PackDisplayCard } from '@/app/shared/components/pack-card/pack-display-card';
@@ -17,7 +19,7 @@ import { EpaycoCheckout } from '@/app/shared/components/epayco-checkout/epayco-c
 import { AuthService } from '@/app/core/services/auth.service';
 import { NotificationService } from '@/app/shared/components/notification/notification.service';
 import { AnalysisPack, AnalysisPackConsumption } from '@/app/types/analysis-pack';
-import { PackOffering } from '@/app/types/onboarding';
+import { PackOffering, PromoCodeValidation } from '@/app/types/onboarding';
 import { TagSeverity } from '@/app/types/table';
 
 /** Ruta a la que ePayco debe volver tras el pago iniciado desde esta pantalla. */
@@ -26,7 +28,7 @@ const REDIRECT_PATH = '/app/administracion/analisis-credito';
 @Component({
     selector: 'app-analysis-packs',
     standalone: true,
-    imports: [CommonModule, TableModule, TagModule, ButtonModule, TooltipModule, SkeletonModule, DialogModule, PackDisplayCard, EpaycoCheckout],
+    imports: [CommonModule, FormsModule, TableModule, TagModule, ButtonModule, TooltipModule, SkeletonModule, DialogModule, InputTextModule, PackDisplayCard, EpaycoCheckout],
     templateUrl: './analysis-packs.html'
 })
 export class AnalysisPacks {
@@ -52,11 +54,31 @@ export class AnalysisPacks {
     purchasing = signal<boolean>(false);
     sessionId = signal<string>('');
 
+    // ── Código promocional ────────────────────────────────────────────
+    promoCode = signal<string>('');
+    validatingPromo = signal<boolean>(false);
+    /** Código aplicado tras una validación exitosa; null si no hay descuento. */
+    appliedPromo = signal<PromoCodeValidation | null>(null);
+    /** Motivo de rechazo de la última validación; null si no aplica. */
+    promoError = signal<string | null>(null);
+
     /** Análisis disponibles hoy (suma de los activos no consumidos), según el perfil. */
     currentAvailable = computed<number>(() => this.authService.currentProfile()?.permissions?.availableCredits ?? 0);
 
     /** Total de análisis tras la compra: los disponibles actuales más los del nuevo pack. */
     totalAfterPurchase = computed<number>(() => this.currentAvailable() + (this.selectedPack()?.quantity ?? 0));
+
+    /** Porcentaje de descuento del código aplicado (0 si no hay). */
+    promoDiscountPercent = computed<number>(() => this.appliedPromo()?.discountPercent ?? 0);
+
+    /**
+     * Total con el descuento del código aplicado sobre el total del pack (que ya
+     * incluye el descuento por volumen), igual que recalcula el backend.
+     */
+    totalWithPromo = computed<number>(() => {
+        const total = this.selectedPack()?.total ?? 0;
+        return Math.round(total * (1 - this.promoDiscountPercent() / 100));
+    });
 
     // ── Catálogo de packs disponibles para compra ─────────────────────
     packsCatalogResource = resource<PackOffering[], {}>({
@@ -156,7 +178,43 @@ export class AnalysisPacks {
 
     onBuyPack(pack: PackOffering): void {
         this.selectedPack.set(pack);
+        this.resetPromo();
         this.summaryVisible.set(true);
+    }
+
+    /** Limpia el estado del código promocional (al abrir el modal o cambiar el código). */
+    private resetPromo(): void {
+        this.promoCode.set('');
+        this.appliedPromo.set(null);
+        this.promoError.set(null);
+    }
+
+    /**
+     * Valida el código promocional contra el backend para previsualizar el descuento.
+     * No canjea el código: eso ocurre al confirmar el pago.
+     */
+    validatePromoCode(): void {
+        const code = this.promoCode().trim();
+        if (!code || this.validatingPromo()) return;
+
+        this.validatingPromo.set(true);
+        this.appliedPromo.set(null);
+        this.promoError.set(null);
+        this.service.validatePromoCode(code).pipe(
+            finalize(() => this.validatingPromo.set(false)),
+            takeUntilDestroyed(this.destroyRef)
+        ).subscribe({
+            next: (result) => {
+                if (result.valid) {
+                    this.appliedPromo.set(result);
+                } else {
+                    this.promoError.set(result.reason ?? 'El código no es válido.');
+                }
+            },
+            error: () => {
+                this.promoError.set('No se pudo validar el código. Inténtalo de nuevo.');
+            }
+        });
     }
 
     confirmPurchase(): void {
@@ -164,7 +222,8 @@ export class AnalysisPacks {
         if (!pack || this.purchasing()) return;
 
         this.purchasing.set(true);
-        this.service.purchasePack({ packOfferingId: pack.id, redirectPath: REDIRECT_PATH }).pipe(
+        const promoCode = this.appliedPromo()?.code;
+        this.service.purchasePack({ packOfferingId: pack.id, redirectPath: REDIRECT_PATH, ...(promoCode && { promoCode }) }).pipe(
             finalize(() => this.purchasing.set(false)),
             takeUntilDestroyed(this.destroyRef)
         ).subscribe({

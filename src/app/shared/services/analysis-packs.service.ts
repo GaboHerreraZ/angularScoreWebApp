@@ -3,7 +3,7 @@ import { Observable } from 'rxjs';
 import { ApiService } from '@/app/core/services/api.service';
 import { AuthService } from '@/app/core/services/auth.service';
 import { AnalysisPacksResponse } from '@/app/types/analysis-pack';
-import { PurchasePackRequest, PurchasePackResponse } from '@/app/types/onboarding';
+import { PromoCodeValidation, PurchasePackRequest, PurchasePackResponse } from '@/app/types/onboarding';
 
 /**
  * Paquetes de análisis de crédito de la empresa: histórico con consumos y
@@ -36,6 +36,18 @@ export class AnalysisPacksService {
             `${this.basePath}/purchase`,
             payload,
             { headers: { 'X-Silent-Error': 'true' } }
+        );
+    }
+
+    /**
+     * Valida un código promocional para previsualizar el descuento antes de pagar.
+     * No canjea el código (eso ocurre al confirmarse el pago). Responde siempre 200:
+     * el resultado de negocio viene en `valid`/`reason`.
+     */
+    validatePromoCode(code: string): Observable<PromoCodeValidation> {
+        return this.apiService.get<PromoCodeValidation>(
+            `companies/${this.companyId()}/promo-codes/validate`,
+            { params: { code }, headers: { 'X-Silent-Error': 'true' } }
         );
     }
 }
