@@ -1,30 +1,124 @@
+@if (submitting()) {
+    <!-- Skeleton de envío -->
+    <div class="flex flex-col gap-5 pt-2">
+        <p class="text-sm text-muted-color m-0">Enviando tu solicitud…</p>
+
+        <!-- Solicitante -->
+        <div class="rounded-lg bg-surface-100 dark:bg-surface-800 p-4 flex flex-col gap-2">
+            <p-skeleton width="5rem" height="0.75rem" />
+            <p-skeleton width="10rem" height="0.875rem" />
+            <p-skeleton width="13rem" height="0.75rem" />
+        </div>
+
+        <!-- Selects: área, tipo, prioridad -->
+        @for (i of [1, 2, 3]; track i) {
+            <div class="flex flex-col gap-2">
+                <p-skeleton width="8rem" height="0.875rem" />
+                <p-skeleton width="100%" height="2.75rem" borderRadius="0.5rem" />
+            </div>
+        }
+
+        <!-- Asunto -->
+        <div class="flex flex-col gap-2">
+            <p-skeleton width="6rem" height="0.875rem" />
+            <p-skeleton width="100%" height="2.75rem" borderRadius="0.5rem" />
+        </div>
+
+        <!-- Descripción -->
+        <div class="flex flex-col gap-2">
+            <p-skeleton width="7rem" height="0.875rem" />
+            <p-skeleton width="100%" height="8rem" borderRadius="0.5rem" />
+        </div>
+
+        <!-- Botón -->
+        <p-skeleton width="100%" height="2.75rem" borderRadius="0.5rem" />
+    </div>
+} @else {
 <form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col gap-5 pt-2">
 
-    <!-- Datos del solicitante (solo lectura) -->
+    <!-- Solicitante -->
     <div class="rounded-lg bg-surface-100 dark:bg-surface-800 p-4 flex flex-col gap-1">
         <p class="text-xs font-semibold uppercase tracking-wider text-surface-400 mb-2">Solicitante</p>
         <p class="text-sm font-medium">{{ profile?.name }} {{ profile?.lastName }}</p>
         <p class="text-xs text-surface-500">{{ profile?.email }}</p>
+        @if (profile?.companyName) {
+            <p class="text-xs text-surface-500">{{ profile?.companyName }}</p>
+        }
     </div>
 
-    <!-- Categoría -->
+    <!-- Área -->
     <div class="flex flex-col gap-2">
-        <label class="text-sm font-medium" for="category">
-            Categoría <span class="text-red-500">*</span>
+        <label class="text-sm font-medium" for="area">
+            ¿Con qué área se relaciona? <span class="text-red-500">*</span>
         </label>
         <p-select
-            inputId="category"
-            formControlName="category"
-            [options]="categoryOptions"
+            inputId="area"
+            formControlName="area"
+            [options]="areaOptions()"
             optionLabel="label"
-            optionValue="value"
-            placeholder="Selecciona una categoría"
+            optionValue="code"
+            placeholder="Selecciona un área"
             [fluid]="true"
-            [ngClass]="{ 'ng-invalid ng-dirty': isInvalid('category') }"
+            (onChange)="onAreaChange($event.value)"
+            [ngClass]="{ 'ng-invalid ng-dirty': isInvalid('area') }"
         />
-        @if (isInvalid('category')) {
-            <small class="text-red-500 text-xs">La categoría es requerida.</small>
+        @if (isInvalid('area')) {
+            <small class="text-red-500 text-xs">El área es requerida.</small>
         }
+    </div>
+
+    <!-- Registro relacionado -->
+    @if (showRelatedSelect()) {
+        <div class="flex flex-col gap-2">
+            <label class="text-sm font-medium" for="relatedEntity">{{ relatedLabel() }}</label>
+            <p-select
+                inputId="relatedEntity"
+                formControlName="relatedEntityId"
+                [options]="relatedOptions()"
+                optionLabel="label"
+                optionValue="id"
+                [filter]="true"
+                filterPlaceholder="Buscar..."
+                [placeholder]="loadingRelated() ? 'Cargando...' : 'Selecciona un registro (opcional)'"
+                [loading]="loadingRelated()"
+                [showClear]="true"
+                [fluid]="true"
+                emptyMessage="Sin registros para mostrar"
+            />
+            <small class="text-surface-400 text-xs">
+                Vincular el registro nos ayuda a resolver tu caso más rápido.
+            </small>
+        </div>
+    }
+
+    <!-- Tipo -->
+    <div class="flex flex-col gap-2">
+        <label class="text-sm font-medium" for="type">
+            Tipo <span class="text-red-500">*</span>
+        </label>
+        <p-select
+            inputId="type"
+            formControlName="type"
+            [options]="typeOptions()"
+            optionLabel="label"
+            optionValue="code"
+            [fluid]="true"
+        />
+    </div>
+
+    <!-- Prioridad -->
+    <div class="flex flex-col gap-2">
+        <label class="text-sm font-medium" for="priority">
+            Prioridad <span class="text-red-500">*</span>
+        </label>
+        <p-select
+            inputId="priority"
+            formControlName="priority"
+            [options]="priorityOptions()"
+            optionLabel="label"
+            optionValue="code"
+            [fluid]="true"
+        />
     </div>
 
     <!-- Asunto -->
@@ -41,7 +135,7 @@
             [ngClass]="{ 'ng-invalid ng-dirty': isInvalid('subject') }"
         />
         @if (isInvalid('subject')) {
-            <small class="text-red-500 text-xs">El asunto debe tener entre 5 y 100 caracteres.</small>
+            <small class="text-red-500 text-xs">El asunto debe tener entre 5 y 120 caracteres.</small>
         }
     </div>
 
@@ -54,7 +148,7 @@
             id="description"
             pTextarea
             formControlName="description"
-            placeholder="Describe con detalle tu problema o consulta..."
+            placeholder="Describe con detalle: qué intentabas hacer, qué pasó y qué esperabas que pasara..."
             rows="5"
             [autoResize]="false"
             [ngClass]="{ 'ng-invalid ng-dirty': isInvalid('description') }"
@@ -65,7 +159,7 @@
             } @else {
                 <span></span>
             }
-            <small class="text-surface-400 text-xs">{{ descriptionLength }}/1000</small>
+            <small class="text-surface-400 text-xs">{{ descriptionLength }}/2000</small>
         </div>
     </div>
 
@@ -74,8 +168,13 @@
         type="submit"
         label="Enviar Solicitud"
         icon="pi pi-send"
-        [loading]="submitting()"
         [fluid]="true"
         severity="primary"
     />
+
+    <!-- Alternativa por correo -->
+    <p class="text-center text-xs text-surface-400">
+        ¿Prefieres escribirnos? <a href="mailto:soporte@creditia.co" class="text-primary hover:underline">soporte&#64;creditia.co</a>
+    </p>
 </form>
+}
