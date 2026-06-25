@@ -41,7 +41,7 @@ export class ContactSalesWidget {
     private notification = inject(NotificationService);
 
     /** Correo del área comercial, también visible como alternativa al form. */
-    readonly salesEmail = 'comercial@creditia.co';
+    readonly salesEmail = 'ventas@creditia.co';
 
     sending = signal(false);
     sent = signal(false);

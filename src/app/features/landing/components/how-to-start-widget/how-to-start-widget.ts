@@ -35,7 +35,7 @@ export class HowToStartWidget {
         {
             icon: 'pi-shield',
             gradient: 'bg-linear-to-br from-emerald-500 to-emerald-600',
-            title: 'Validación con Datacrédito',
+            title: 'Validación con Datacrédito Experian',
             description: 'Contrastamos la información del cliente contra su historial real en las centrales de riesgo.'
         }
     ];
