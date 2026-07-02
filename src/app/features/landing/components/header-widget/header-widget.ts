@@ -2,7 +2,8 @@ import { Component, computed, inject } from '@angular/core';
 import { StyleClass } from 'primeng/styleclass';
 import { Ripple } from 'primeng/ripple';
 import { CommonModule } from '@angular/common';
-import { Router, RouterModule } from '@angular/router';
+import { NavigationEnd, Router, RouterModule } from '@angular/router';
+import { filter, take } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 import { LayoutService } from '@/app/layout/service/layout.service';
 
@@ -34,11 +35,25 @@ export class HeaderWidget {
     }
 
     scrollTo(id: string) {
+        // Si ya estamos en el home, la sección existe en el DOM: scrolleamos directo.
+        if (this.router.url.split('#')[0].split('?')[0] === '/') {
+            this.scrollToElement(id);
+            return;
+        }
+
+        // Desde otra página, navegamos al home y esperamos a que termine la
+        // navegación (el landing debe renderizar) antes de scrollear a la sección.
+        this.router.events.pipe(
+            filter((e) => e instanceof NavigationEnd),
+            take(1)
+        ).subscribe(() => this.scrollToElement(id));
+        this.router.navigateByUrl('/');
+    }
+
+    private scrollToElement(id: string) {
+        // Pequeño defer para asegurar que la sección esté en el DOM tras renderizar.
         setTimeout(() => {
-            const element = document.getElementById(id);
-            if (element) {
-                element.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' });
-            }
+            document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start', inline: 'nearest' });
         }, 200);
     }
 }
