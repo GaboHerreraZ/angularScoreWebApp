@@ -1,7 +1,8 @@
-import { afterNextRender, Component, inject, OnDestroy, signal } from '@angular/core';
+import { afterNextRender, Component, computed, inject, OnDestroy, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { Ripple } from 'primeng/ripple';
+import { SupabaseService } from '@/app/core/services/supabase.service';
 
 /**
  * CTA flotante que aparece al hacer scroll más allá del hero y permanece
@@ -16,6 +17,10 @@ import { Ripple } from 'primeng/ripple';
 })
 export class FloatingCtaWidget implements OnDestroy {
     private router = inject(Router);
+    private supabaseService = inject(SupabaseService);
+
+    /** True si el usuario ya tiene sesión: el CTA flotante pasa a "Ir al Dashboard". */
+    isAuthenticated = computed(() => this.supabaseService.isAuthenticated());
 
     /** Controla la visibilidad del botón flotante. */
     visible = signal(false);
@@ -44,6 +49,10 @@ export class FloatingCtaWidget implements OnDestroy {
 
     goToRegister(): void {
         this.router.navigateByUrl('/onboarding/registro');
+    }
+
+    goToDashboard(): void {
+        this.router.navigateByUrl('/app');
     }
 
     ngOnDestroy(): void {

@@ -4,15 +4,29 @@
     [class.translate-y-4]="!visible()"
     [class.pointer-events-none]="!visible()"
 >
-    <button
-        pButton
-        pRipple
-        rounded
-        label="Registrarme"
-        icon="pi pi-arrow-right"
-        iconPos="right"
-        class="shadow-xl shadow-primary/30 px-6 py-3 text-base"
-        (click)="goToRegister()"
-        aria-label="Registrarme en Creditia"
-    ></button>
+    @if (isAuthenticated()) {
+        <button
+            pButton
+            pRipple
+            rounded
+            label="Ir al Dashboard"
+            icon="pi pi-arrow-right"
+            iconPos="right"
+            class="shadow-xl shadow-primary/30 px-6 py-3 text-base"
+            (click)="goToDashboard()"
+            aria-label="Ir al Dashboard"
+        ></button>
+    } @else {
+        <button
+            pButton
+            pRipple
+            rounded
+            label="Registrarme"
+            icon="pi pi-arrow-right"
+            iconPos="right"
+            class="shadow-xl shadow-primary/30 px-6 py-3 text-base"
+            (click)="goToRegister()"
+            aria-label="Registrarme en Creditia"
+        ></button>
+    }
 </div>

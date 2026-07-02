@@ -76,22 +76,35 @@
                     </li>
                 </ul>
                 <div class="flex flex-col lg:flex-row gap-2 lg:ml-4 w-full lg:w-auto">
-                    <a
-                        [routerLink]="['/auth/iniciar-sesion']"
-                        class="w-full lg:w-auto"
-                    >
-                        <button pButton pRipple label="Iniciar Sesión" icon="pi pi-sign-in" rounded outlined class="w-full lg:w-auto"></button>
-                    </a>
-                    <button
-                        pButton
-                        pRipple
-                        label="Registrarme"
-                        icon="pi pi-arrow-right"
-                        iconPos="right"
-                        rounded
-                        class="w-full lg:w-auto"
-                        (click)="goToRegister()"
-                    ></button>
+                    @if (isAuthenticated()) {
+                        <button
+                            pButton
+                            pRipple
+                            label="Ir al Dashboard"
+                            icon="pi pi-arrow-right"
+                            iconPos="right"
+                            rounded
+                            class="w-full lg:w-auto"
+                            (click)="goToDashboard()"
+                        ></button>
+                    } @else {
+                        <a
+                            [routerLink]="['/auth/iniciar-sesion']"
+                            class="w-full lg:w-auto"
+                        >
+                            <button pButton pRipple label="Iniciar Sesión" icon="pi pi-sign-in" rounded outlined class="w-full lg:w-auto"></button>
+                        </a>
+                        <button
+                            pButton
+                            pRipple
+                            label="Registrarme"
+                            icon="pi pi-arrow-right"
+                            iconPos="right"
+                            rounded
+                            class="w-full lg:w-auto"
+                            (click)="goToRegister()"
+                        ></button>
+                    }
                 </div>
             </div>
         </div>
