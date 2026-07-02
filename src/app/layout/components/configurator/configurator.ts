@@ -309,9 +309,9 @@ export class Configurator implements OnInit {
                 })
             );
             this.authService.updateCurrentProfile({ metadata: updated.metadata });
-            this.notification.success('Configuración guardada correctamente');
+            this.notification.success('Apariencia guardada correctamente');
         } catch {
-            this.notification.error('No se pudo guardar la configuración');
+            this.notification.error('No se pudo guardar la apariencia');
         } finally {
             this.saving.set(false);
         }
