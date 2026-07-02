@@ -16,6 +16,7 @@ export const appRoutes: Routes = [
             { path: 'administracion', title: 'Administración', data: { breadcrumb: 'Administración' }, loadChildren: () => import('@/app/features/administration/administration.routes') }
         ]
     },
+    { path: 'blog', loadChildren: () => import('@/app/features/blog/blog.routes') },
     { path: 'invitacion', title: 'Invitación', loadComponent: () => import('@/app/features/invitation/invitation').then(c => c.InvitationComponent) },
     { path: 'onboarding', loadChildren: () => import('@/app/features/onboarding/onboarding.routes') },
     {
