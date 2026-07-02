@@ -17,13 +17,14 @@
         </span>
     }
 
-    <!-- Badge de descuento -->
-    @if (hasDiscount()) {
-        <span class="self-start inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 mb-4">
-            <i class="pi pi-tag text-[10px]"></i>
-            Ahorra {{ discountPercent() }}%
-        </span>
-    }
+    <!-- Badge de descuento (siempre reserva el alto para igualar las tarjetas sin descuento) -->
+    <span
+        class="self-start inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 mb-4"
+        [class.invisible]="!hasDiscount()"
+    >
+        <i class="pi pi-tag text-[10px]"></i>
+        {{ hasDiscount() ? 'Ahorra ' + discountPercent() + '%' : ' ' }}
+    </span>
 
     <!-- Nombre del pack -->
     <span class="text-sm font-semibold uppercase tracking-wider text-primary mb-2">{{ p.name }}</span>

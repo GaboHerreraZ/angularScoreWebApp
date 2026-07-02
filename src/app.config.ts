@@ -21,6 +21,10 @@ export const appConfig: ApplicationConfig = {
         provideZonelessChangeDetection(),
         providePrimeNG({
             theme: { preset: Aura, options: { darkModeSelector: '.app-dark' } },
+            // Monta los overlays (select, autocomplete, datepicker, etc.) en el body.
+            // Por defecto PrimeNG v21 usa 'self', lo que hace que el desplegable quede
+            // atrapado dentro de contenedores con overflow-hidden y se recorte por debajo del card.
+            overlayAppendTo: 'body',
             translation: {
                 startsWith: 'Comienza con',
                 contains: 'Contiene',

@@ -1,8 +1,18 @@
 <app-notification />
 
-<div class="min-h-screen flex flex-col bg-surface-100 dark:bg-surface-950">
+<div class="relative min-h-screen flex flex-col bg-surface-100 dark:bg-surface-950 overflow-hidden">
+    <!-- Fondo decorativo muy sutil (no interactivo) -->
+    <div class="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+        <!-- Halos de color de marca -->
+        <div class="absolute -top-32 -right-24 w-96 h-96 rounded-full bg-primary/10 blur-3xl"></div>
+        <div class="absolute -bottom-40 -left-24 w-md h-112 rounded-full bg-primary/5 blur-3xl"></div>
+        <!-- Iconos marca de agua -->
+        <i class="pi pi-shield absolute top-32 left-12 text-primary/5" style="font-size: 3.5rem"></i>
+        <i class="pi pi-chart-line absolute bottom-32 right-12 text-primary/5" style="font-size: 4rem"></i>
+    </div>
+
     <!-- Barra superior ligera: logo + cerrar sesión (sin borde de header) -->
-    <div class="max-w-screen-xl w-full mx-auto px-6 pt-5 flex items-center justify-between">
+    <div class="relative z-10 max-w-screen-xl w-full mx-auto px-6 pt-5 flex items-center justify-between">
         <a routerLink="/" class="no-underline">
             <img [src]="logo()" alt="Creditia" class="h-12 w-auto" />
         </a>
@@ -17,7 +27,7 @@
     </div>
 
     <!-- Contenido del flujo -->
-    <main class="flex-1 w-full">
+    <main class="relative z-10 flex-1 w-full">
         <router-outlet />
     </main>
 

@@ -42,6 +42,13 @@ export class OnboardingRegister {
 
     readonly year = new Date().getFullYear();
 
+    /** Beneficios clave que se muestran en el panel de marca (sin cifras, para no afirmar datos falsos). */
+    readonly trustPoints = [
+        { icon: 'pi-bolt', text: 'Reportes de Datacrédito en tiempo real' },
+        { icon: 'pi-clock', text: 'Estudios de crédito en minutos' },
+        { icon: 'pi-desktop', text: '100% en línea, sin instalar nada' }
+    ];
+
     loading = signal(false);
     googleLoading = signal(false);
     errorMessage = signal<string | null>(null);

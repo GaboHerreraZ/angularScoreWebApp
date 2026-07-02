@@ -9,11 +9,26 @@
             <div class="absolute bottom-32 right-16 w-48 h-48 rounded-full border border-white"></div>
             <div class="absolute top-1/3 right-1/4 w-20 h-20 rounded-full border border-white"></div>
         </div>
+        <!-- Iconos marca de agua muy sutiles -->
+        <i class="pi pi-shield absolute top-16 right-24 text-white/[0.06]" style="font-size: 7rem"></i>
+        <i class="pi pi-chart-line absolute bottom-24 left-16 text-white/[0.06]" style="font-size: 8rem"></i>
 
         <div class="flex flex-col items-center z-10 px-12 text-center">
             <img src="/logo/creditia-logo-dark.svg" alt="Creditia" class="w-64 h-auto mb-10 drop-shadow-lg" />
             <h2 class="text-white font-bold text-2xl mb-3">Decide a quién darle crédito, sin adivinar</h2>
             <p class="text-white/70 text-lg max-w-sm leading-relaxed">Crea tu cuenta, registra tu empresa y empieza a evaluar el crédito de tus clientes en minutos.</p>
+
+            <!-- Trust points -->
+            <ul class="mt-12 flex flex-col gap-4 text-left">
+                @for (point of trustPoints; track point.text) {
+                    <li class="flex items-center gap-3">
+                        <span class="flex items-center justify-center w-10 h-10 rounded-full bg-white/10 shrink-0">
+                            <i class="pi {{ point.icon }} text-white text-lg"></i>
+                        </span>
+                        <span class="text-white/90 font-medium">{{ point.text }}</span>
+                    </li>
+                }
+            </ul>
         </div>
     </div>
 

@@ -6,6 +6,7 @@ import { ButtonModule } from 'primeng/button';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { DividerModule } from 'primeng/divider';
 import { OnboardingService } from '../onboarding.service';
+import { AuthService } from '@/app/core/services/auth.service';
 import { AnalysisPackByReference } from '@/app/types/onboarding';
 
 type ResultState = 'polling' | 'success' | 'declined' | 'pending' | 'error';
@@ -29,6 +30,7 @@ export class OnboardingConfirmation {
     private route = inject(ActivatedRoute);
     private destroyRef = inject(DestroyRef);
     private onboardingService = inject(OnboardingService);
+    private authService = inject(AuthService);
 
     state = signal<ResultState>('polling');
     pack = signal<AnalysisPackByReference | null>(null);
@@ -81,6 +83,9 @@ export class OnboardingConfirmation {
             if (result.status === 'active') {
                 this.pack.set(result);
                 this.state.set('success');
+                // El pago activó el onboarding: refrescamos el perfil para que
+                // onboardingStatus quede en 'ready' y el authGuard permita el dashboard.
+                await this.authService.refreshProfile();
                 return;
             }
             if (result.status === 'cancelled') {
@@ -100,7 +105,10 @@ export class OnboardingConfirmation {
 
         if (this.attempts >= MAX_ATTEMPTS) {
             // Se agotó la espera: el pago pudo completarse aunque el webhook tarde.
+            // Refrescamos el perfil para que el authGuard vea el estado real
+            // (payment_pending) y enrute a la pantalla de pago pendiente si navega.
             this.state.set('pending');
+            await this.authService.refreshProfile();
             return;
         }
 

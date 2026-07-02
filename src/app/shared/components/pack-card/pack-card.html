@@ -4,7 +4,7 @@
     type="button"
     (click)="onSelect()"
     [attr.aria-pressed]="selected()"
-    class="relative w-full text-left rounded-2xl border bg-surface-0 dark:bg-surface-900 p-6 cursor-pointer
+    class="relative flex flex-col h-full w-full text-left rounded-2xl border bg-surface-0 dark:bg-surface-900 p-6 cursor-pointer
            transition-all duration-200 ease-out outline-none
            hover:border-primary/50 hover:shadow-lg
            focus-visible:ring-2 focus-visible:ring-primary/40"
@@ -27,13 +27,14 @@
         <i class="pi pi-check text-xs"></i>
     </span>
 
-    <!-- Badge de descuento -->
-    @if (hasDiscount()) {
-        <span class="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 mb-4">
-            <i class="pi pi-tag text-[10px]"></i>
-            Ahorra {{ discountPercent() }}%
-        </span>
-    }
+    <!-- Badge de descuento (siempre reserva el alto para igualar las tarjetas sin descuento) -->
+    <span
+        class="inline-flex self-start items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 mb-4"
+        [class.invisible]="!hasDiscount()"
+    >
+        <i class="pi pi-tag text-[10px]"></i>
+        {{ hasDiscount() ? 'Ahorra ' + discountPercent() + '%' : ' ' }}
+    </span>
 
     <!-- Cantidad de consultas -->
     <div class="flex items-baseline gap-2 mb-1">
@@ -48,16 +49,17 @@
     <!-- Precio -->
     <div class="flex items-end justify-between">
         <div class="flex flex-col">
-            @if (hasDiscount()) {
-                <span class="text-sm text-muted-color line-through leading-none">{{ formatCurrency(p.subtotal, p.currency) }}</span>
-            }
+            <!-- Subtotal tachado: siempre presente (invisible sin descuento) para alinear el precio entre tarjetas -->
+            <span class="text-sm text-muted-color line-through leading-none" [class.invisible]="!hasDiscount()">
+                {{ formatCurrency(p.subtotal, p.currency) }}
+            </span>
             <span class="text-2xl font-extrabold text-color leading-tight">{{ formatCurrency(p.total, p.currency) }}</span>
         </div>
         <span class="text-xs text-muted-color">{{ formatCurrency(p.unitPrice, p.currency) }} c/u</span>
     </div>
 
-    <!-- Vigencia -->
-    <div class="flex items-center gap-2 mt-4 pt-4 border-t border-surface text-xs text-muted-color">
+    <!-- Vigencia (mt-auto la fija al fondo para que la línea inferior quede alineada) -->
+    <div class="flex items-center gap-2 mt-auto pt-4 border-t border-surface text-xs text-muted-color">
         <i class="pi pi-clock text-primary"></i>
         Vigencia de {{ p.validityDays }} días
     </div>
