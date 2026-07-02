@@ -1,7 +1,7 @@
 <button *ngIf="simple()" class="layout-config-button config-link" type="button" (click)="toggleConfigSidebar()">
     <i class="pi pi-cog"></i>
 </button>
-<p-drawer [(visible)]="configSidebarVisible" position="right" [transitionOptions]="'.3s cubic-bezier(0, 0, 0.2, 1)'" styleClass="layout-config-sidebar w-80" header="Configuración">
+<p-drawer [(visible)]="configSidebarVisible" position="right" [transitionOptions]="'.3s cubic-bezier(0, 0, 0.2, 1)'" styleClass="layout-config-sidebar w-80" header="Apariencia">
     <div class="flex flex-col gap-4">
 
         <!-- Primary colors — comentado temporalmente hasta que el backend esté listo -->
