@@ -6,15 +6,17 @@ import { errorInterceptor } from '@/app/core/interceptors/error.interceptor';
 import { ApplicationConfig, LOCALE_ID, provideZonelessChangeDetection } from '@angular/core';
 
 registerLocaleData(localeEsCo);
-import { provideRouter, withEnabledBlockingInitialNavigation, withInMemoryScrolling } from '@angular/router';
+import { provideRouter, TitleStrategy, withEnabledBlockingInitialNavigation, withInMemoryScrolling } from '@angular/router';
 import Aura from '@primeuix/themes/aura';
 import { MessageService } from 'primeng/api';
 import { providePrimeNG } from 'primeng/config';
 import { appRoutes } from './app.routes';
+import { AppTitleStrategy } from '@/app/core/services/title.strategy';
 
 export const appConfig: ApplicationConfig = {
     providers: [
         MessageService,
+        { provide: TitleStrategy, useClass: AppTitleStrategy },
         { provide: LOCALE_ID, useValue: 'es-CO' },
         provideRouter(appRoutes, withInMemoryScrolling({ anchorScrolling: 'enabled', scrollPositionRestoration: 'enabled' }), withEnabledBlockingInitialNavigation()),
         provideHttpClient(withFetch(), withInterceptors([authInterceptor, errorInterceptor])),
