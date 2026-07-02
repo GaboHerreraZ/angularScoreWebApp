@@ -81,7 +81,7 @@
                 }
 
                 <!-- Contenido HTML del artículo -->
-                <div class="blog-content" [innerHTML]="post.content"></div>
+                <div class="blog-content" [innerHTML]="articleHtml()"></div>
 
                 <!-- Tags -->
                 @if (post.tags.length) {
