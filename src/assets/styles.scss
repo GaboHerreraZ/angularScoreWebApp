@@ -142,7 +142,12 @@
     color: var(--p-text-color);
     font-size: 1.075rem;
     line-height: 1.8;
+    // Romper líneas solo entre palabras; nunca partir palabras normales por la
+    // mitad. `break-word` se reserva para cadenas larguísimas sin espacios (URLs).
+    word-break: normal;
     overflow-wrap: break-word;
+    hyphens: none;
+    text-align: left;
 
     h2 {
         font-size: 1.6rem;
@@ -160,6 +165,13 @@
         color: var(--p-text-color);
     }
 
+    p,
+    li,
+    blockquote {
+        word-break: normal;
+        overflow-wrap: break-word;
+    }
+
     p {
         margin: 0 0 1.25rem;
     }
@@ -168,6 +180,8 @@
         color: var(--p-primary-color);
         text-decoration: underline;
         text-underline-offset: 2px;
+        // Los enlaces (URLs largas) sí pueden partirse para no desbordar.
+        overflow-wrap: anywhere;
     }
 
     a:hover {

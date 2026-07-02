@@ -1,4 +1,4 @@
-import { Component, effect, inject, resource, signal } from '@angular/core';
+import { Component, computed, effect, inject, resource, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -32,6 +32,9 @@ export class BlogDetail {
     private title = inject(Title);
     private meta = inject(Meta);
 
+    /** Espacio irrompible (&nbsp;) que algunos editores insertan en lugar de un espacio normal. */
+    private static readonly NBSP = String.fromCharCode(160);
+
     /** Slug del artículo, tomado de la ruta (se actualiza al navegar entre artículos). */
     slug = signal(this.route.snapshot.paramMap.get('slug') ?? '');
 
@@ -48,6 +51,17 @@ export class BlogDetail {
                 throw error;
             }
         }
+    });
+
+    /**
+     * HTML del artículo listo para renderizar. Algunos editores guardan todos los
+     * espacios como `&nbsp;` (espacio irrompible), lo que impide el salto de línea
+     * y hace que el navegador parta las palabras por la mitad. Los convertimos a
+     * espacios normales para que el texto fluya bien.
+     */
+    articleHtml = computed(() => {
+        const content = this.postResource.value()?.content ?? '';
+        return content.split(BlogDetail.NBSP).join(' ');
     });
 
     constructor() {
