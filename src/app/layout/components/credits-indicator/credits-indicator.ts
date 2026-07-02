@@ -1,16 +1,18 @@
 import { Component, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { TooltipModule } from 'primeng/tooltip';
 import { AuthService } from '@/app/core/services/auth.service';
 
 @Component({
     selector: 'app-credits-indicator',
     standalone: true,
-    imports: [CommonModule, TooltipModule],
+    imports: [CommonModule, RouterModule, TooltipModule],
     template: `
         @if (hasPermissions()) {
-            <div
-                class="credits-indicator inline-flex items-center gap-2.5 pl-3 pr-1.5 py-1 rounded-full border transition-colors select-none"
+            <a
+                routerLink="/app/administracion/analisis-credito"
+                class="credits-indicator inline-flex items-center gap-2.5 pl-3 pr-1.5 py-1 rounded-full border transition-colors select-none cursor-pointer no-underline"
                 [ngClass]="hasCredits()
                     ? 'bg-surface-50 dark:bg-surface-800/60 border-surface-200 dark:border-surface-700'
                     : 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800/60'"
@@ -30,7 +32,7 @@ import { AuthService } from '@/app/core/services/auth.service';
                         ? 'bg-primary text-primary-contrast'
                         : 'bg-red-500 text-white'"
                 >{{ availableCredits() }}</span>
-            </div>
+            </a>
         }
     `
 })

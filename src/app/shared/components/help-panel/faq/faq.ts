@@ -5,6 +5,7 @@ import { AccordionModule } from 'primeng/accordion';
 import { InputTextModule } from 'primeng/inputtext';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
+import { normalizeText } from '@/app/shared/utils/text.util';
 
 interface FaqItem {
     question: string;
@@ -141,9 +142,11 @@ export class HelpFaq {
     categories = computed(() => [...new Set(FAQ_DATA.map((f) => f.category))]);
 
     filteredFaqs = computed(() => {
-        const query = this.searchQuery().toLowerCase().trim();
+        const query = normalizeText(this.searchQuery());
         if (!query) return FAQ_DATA;
-        return FAQ_DATA.filter((f) => f.question.toLowerCase().includes(query) || f.answer.toLowerCase().includes(query));
+        return FAQ_DATA.filter(
+            (f) => normalizeText(f.question).includes(query) || normalizeText(f.answer).includes(query)
+        );
     });
 
     faqsByCategory(category: string): FaqItem[] {
