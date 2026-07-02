@@ -1,0 +1,127 @@
+<div class="bg-surface-0 dark:bg-surface-950 min-h-screen w-full flex flex-col">
+    <header-widget />
+
+    <main class="flex-1">
+        @if (postResource.isLoading()) {
+            <!-- Skeleton del artículo -->
+            <article class="max-w-3xl mx-auto px-6 py-12">
+                <p-skeleton width="30%" height="1rem" styleClass="mb-4" />
+                <p-skeleton width="90%" height="2.5rem" styleClass="mb-3" />
+                <p-skeleton width="60%" height="2.5rem" styleClass="mb-6" />
+                <p-skeleton width="100%" height="320px" borderRadius="0.75rem" styleClass="mb-8" />
+                <p-skeleton width="100%" height="1rem" styleClass="mb-2" />
+                <p-skeleton width="95%" height="1rem" styleClass="mb-2" />
+                <p-skeleton width="98%" height="1rem" styleClass="mb-2" />
+                <p-skeleton width="80%" height="1rem" />
+            </article>
+        } @else if (notFound) {
+            <!-- 404 -->
+            <div class="max-w-2xl mx-auto px-6 py-24 text-center flex flex-col items-center gap-4">
+                <i class="pi pi-file-excel text-6xl text-muted-color"></i>
+                <h1 class="text-2xl font-bold text-color m-0">Artículo no encontrado</h1>
+                <p class="text-muted-color m-0">El artículo que buscas no existe o ya no está disponible.</p>
+                <a routerLink="/blog" class="no-underline mt-2">
+                    <p-button label="Ver todos los artículos" icon="pi pi-arrow-left" />
+                </a>
+            </div>
+        } @else if (postResource.error()) {
+            <!-- Error genérico -->
+            <div class="max-w-2xl mx-auto px-6 py-24 text-center flex flex-col items-center gap-4">
+                <i class="pi pi-exclamation-triangle text-6xl text-muted-color"></i>
+                <h1 class="text-2xl font-bold text-color m-0">No pudimos cargar el artículo</h1>
+                <p class="text-muted-color m-0">Revisa tu conexión e inténtalo de nuevo.</p>
+                <p-button label="Reintentar" icon="pi pi-refresh" (onClick)="postResource.reload()" />
+            </div>
+        } @else if (postResource.value(); as post) {
+            <article class="max-w-3xl mx-auto px-6 py-10 lg:py-14">
+                <!-- Volver -->
+                <a routerLink="/blog" class="inline-flex items-center gap-2 text-sm font-medium text-muted-color hover:text-primary no-underline transition-colors mb-8">
+                    <i class="pi pi-arrow-left text-xs"></i>
+                    Volver al blog
+                </a>
+
+                <!-- Categoría -->
+                <span class="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full bg-primary/10 text-primary mb-4">
+                    <i class="pi pi-tag text-[10px]"></i>
+                    {{ post.category.name }}
+                </span>
+
+                <!-- Título -->
+                <h1 class="font-extrabold text-3xl sm:text-4xl leading-tight text-color m-0 mb-4">
+                    {{ post.title }}
+                </h1>
+
+                <!-- Resumen -->
+                <p class="text-lg text-muted-color leading-relaxed m-0 mb-6">{{ post.excerpt }}</p>
+
+                <!-- Meta: autor + fecha + lectura -->
+                <div class="flex items-center gap-3 pb-6 mb-8 border-b border-surface">
+                    @if (post.author.avatarUrl) {
+                        <img [src]="post.author.avatarUrl" [alt]="post.author.name" class="w-11 h-11 rounded-full object-cover shrink-0" />
+                    } @else {
+                        <span class="w-11 h-11 rounded-full bg-primary/10 text-primary text-sm font-bold flex items-center justify-center shrink-0">
+                            <i class="pi pi-user"></i>
+                        </span>
+                    }
+                    <div>
+                        <p class="text-sm font-semibold text-color m-0">{{ post.author.name }}</p>
+                        <p class="text-xs text-muted-color m-0">
+                            {{ post.author.role }} · {{ post.publishedAt | date:'d MMMM y' }} · {{ post.readingMinutes }} min de lectura
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Portada -->
+                @if (post.coverImageUrl) {
+                    <img
+                        [src]="post.coverImageUrl"
+                        [alt]="post.title"
+                        class="w-full aspect-[16/9] object-cover rounded-2xl mb-10"
+                    />
+                }
+
+                <!-- Contenido HTML del artículo -->
+                <div class="blog-content" [innerHTML]="post.content"></div>
+
+                <!-- Tags -->
+                @if (post.tags.length) {
+                    <div class="flex flex-wrap gap-2 mt-10 pt-6 border-t border-surface">
+                        @for (tag of post.tags; track tag) {
+                            <span class="text-xs font-medium px-3 py-1 rounded-full bg-surface-100 dark:bg-surface-800 text-muted-color">
+                                #{{ tag }}
+                            </span>
+                        }
+                    </div>
+                }
+
+                <!-- Fuente -->
+                @if (post.sourceUrl) {
+                    <p class="text-xs text-muted-color mt-6 m-0">
+                        Fuente:
+                        <a [href]="post.sourceUrl" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline break-all">
+                            {{ post.sourceUrl }}
+                        </a>
+                    </p>
+                }
+
+                <!-- CTA de conversión -->
+                <div class="mt-12 rounded-2xl bg-linear-to-r from-primary to-primary-emphasis text-white p-8 sm:p-10 text-center">
+                    <h2 class="font-extrabold text-2xl m-0 mb-2">Pon esto en práctica con Creditia</h2>
+                    <p class="text-white/80 m-0 mb-6 max-w-lg mx-auto">
+                        Analiza el crédito de tus clientes con datos reales de Datacrédito y decide con criterio en minutos.
+                    </p>
+                    <p-button
+                        label="Empezar ahora"
+                        icon="pi pi-arrow-right"
+                        iconPos="right"
+                        rounded
+                        styleClass="bg-white! text-primary! hover:bg-white/90! font-bold px-8 py-3"
+                        (onClick)="goToRegister()"
+                    />
+                </div>
+            </article>
+        }
+    </main>
+
+    <footer-widget />
+</div>

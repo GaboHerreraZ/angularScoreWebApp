@@ -133,3 +133,129 @@
 .promissory-preview th {
     background-color: #f3f4f6 !important;
 }
+
+/* ─────────────────────────────────────────────────────────────
+   Contenido de artículos del blog (HTML servido por el backend).
+   Tipografía legible con tokens de tema (claro/oscuro).
+   ───────────────────────────────────────────────────────────── */
+.blog-content {
+    color: var(--p-text-color);
+    font-size: 1.075rem;
+    line-height: 1.8;
+    overflow-wrap: break-word;
+
+    h2 {
+        font-size: 1.6rem;
+        font-weight: 700;
+        line-height: 1.3;
+        margin: 2.5rem 0 1rem;
+        color: var(--p-text-color);
+    }
+
+    h3 {
+        font-size: 1.3rem;
+        font-weight: 700;
+        line-height: 1.35;
+        margin: 2rem 0 0.75rem;
+        color: var(--p-text-color);
+    }
+
+    p {
+        margin: 0 0 1.25rem;
+    }
+
+    a {
+        color: var(--p-primary-color);
+        text-decoration: underline;
+        text-underline-offset: 2px;
+    }
+
+    a:hover {
+        opacity: 0.85;
+    }
+
+    ul,
+    ol {
+        margin: 0 0 1.25rem;
+        padding-left: 1.5rem;
+    }
+
+    li {
+        margin-bottom: 0.5rem;
+    }
+
+    ul li {
+        list-style: disc;
+    }
+
+    ol li {
+        list-style: decimal;
+    }
+
+    blockquote {
+        margin: 1.75rem 0;
+        padding: 0.5rem 0 0.5rem 1.25rem;
+        border-left: 4px solid var(--p-primary-color);
+        color: var(--p-text-muted-color);
+        font-style: italic;
+    }
+
+    img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 0.75rem;
+        margin: 1.75rem 0;
+    }
+
+    code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: 0.9em;
+        background: var(--p-content-hover-background);
+        padding: 0.15em 0.4em;
+        border-radius: 0.35rem;
+    }
+
+    pre {
+        background: var(--p-content-hover-background);
+        padding: 1rem 1.25rem;
+        border-radius: 0.75rem;
+        overflow-x: auto;
+        margin: 1.75rem 0;
+    }
+
+    pre code {
+        background: transparent;
+        padding: 0;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1.75rem 0;
+        display: block;
+        overflow-x: auto;
+    }
+
+    th,
+    td {
+        border: 1px solid var(--p-content-border-color);
+        padding: 0.6rem 0.9rem;
+        text-align: left;
+    }
+
+    th {
+        background: var(--p-content-hover-background);
+        font-weight: 600;
+    }
+
+    hr {
+        border: none;
+        border-top: 1px solid var(--p-content-border-color);
+        margin: 2.5rem 0;
+    }
+
+    /* El primer bloque no debe empujar espacio extra arriba. */
+    > :first-child {
+        margin-top: 0;
+    }
+}
