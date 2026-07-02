@@ -1,8 +1,9 @@
-import { afterNextRender, Component, ElementRef, inject, OnDestroy, signal, viewChild } from '@angular/core';
+import { afterNextRender, Component, computed, ElementRef, inject, OnDestroy, signal, viewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { Ripple } from 'primeng/ripple';
 import { ScrollAnimateDirective } from '@/app/shared/directives/scroll-animate.directive';
+import { SupabaseService } from '@/app/core/services/supabase.service';
 
 @Component({
     standalone: true,
@@ -12,9 +13,17 @@ import { ScrollAnimateDirective } from '@/app/shared/directives/scroll-animate.d
 })
 export class HeroWidget implements OnDestroy {
     private router = inject(Router);
+    private supabaseService = inject(SupabaseService);
+
+    /** True si el usuario ya tiene sesión: el CTA principal pasa a "Ir al Dashboard". */
+    isAuthenticated = computed(() => this.supabaseService.isAuthenticated());
 
     goToRegister(): void {
         this.router.navigateByUrl('/onboarding/registro');
+    }
+
+    goToDashboard(): void {
+        this.router.navigateByUrl('/app');
     }
 
     /** Valor final del score que se muestra en el mockup. */

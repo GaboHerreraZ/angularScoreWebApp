@@ -29,9 +29,15 @@
         <div class="text-center" appScrollAnimate="scale-in" [animateDelay]="200">
             <h2 class="font-extrabold text-3xl sm:text-4xl mt-0 mb-6">Toma mejores decisiones de crédito y haz crecer tu negocio</h2>
             <p class="text-lg text-white/80 mb-8 max-w-xl mx-auto">Crea tu cuenta, registra tu empresa y empieza a evaluar el crédito de tus clientes hoy.</p>
-            <a routerLink="/onboarding/registro" class="no-underline">
-                <button pButton pRipple label="Registrarme" icon="pi pi-arrow-right" iconPos="right" rounded class="bg-white! text-primary! hover:bg-white/90! text-lg px-8 py-3 font-bold"></button>
-            </a>
+            @if (isAuthenticated()) {
+                <a routerLink="/app" class="no-underline">
+                    <button pButton pRipple label="Ir al Dashboard" icon="pi pi-arrow-right" iconPos="right" rounded class="bg-white! text-primary! hover:bg-white/90! text-lg px-8 py-3 font-bold"></button>
+                </a>
+            } @else {
+                <a routerLink="/onboarding/registro" class="no-underline">
+                    <button pButton pRipple label="Registrarme" icon="pi pi-arrow-right" iconPos="right" rounded class="bg-white! text-primary! hover:bg-white/90! text-lg px-8 py-3 font-bold"></button>
+                </a>
+            }
             <p class="text-sm text-white/60 mt-4 mb-0">Acompañamiento personalizado &middot; Listo para operar en minutos</p>
         </div>
     </div>

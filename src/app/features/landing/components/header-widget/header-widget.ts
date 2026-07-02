@@ -6,6 +6,7 @@ import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { filter, take } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 import { LayoutService } from '@/app/layout/service/layout.service';
+import { SupabaseService } from '@/app/core/services/supabase.service';
 
 @Component({
     selector: 'header-widget',
@@ -16,9 +17,18 @@ import { LayoutService } from '@/app/layout/service/layout.service';
 export class HeaderWidget {
     private layoutService = inject(LayoutService);
     private router = inject(Router);
+    private supabaseService = inject(SupabaseService);
+
+    /** True si el usuario ya tiene sesión: el header muestra "Ir al Dashboard". */
+    isAuthenticated = computed(() => this.supabaseService.isAuthenticated());
 
     goToRegister() {
         this.router.navigateByUrl('/onboarding/registro');
+    }
+
+    goToDashboard() {
+        // El authGuard de /app reencamina según onboardingStatus si hace falta.
+        this.router.navigateByUrl('/app');
     }
 
     isDark = computed(() => this.layoutService.isDarkTheme());
