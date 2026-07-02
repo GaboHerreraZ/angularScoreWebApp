@@ -1,9 +1,12 @@
 import { computed, inject, Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { ApiService } from '@/app/core/services/api.service';
 import { AuthService } from '@/app/core/services/auth.service';
-import { AnalysisPacksResponse } from '@/app/types/analysis-pack';
+import { AnalysisPack, AnalysisPacksResponse } from '@/app/types/analysis-pack';
 import { PromoCodeValidation, PurchasePackRequest, PurchasePackResponse } from '@/app/types/onboarding';
+
+/** Código de estado del pack que aún espera confirmación de pago. */
+const PENDING_PAYMENT_STATUS = 'pending_payment';
 
 /**
  * Paquetes de análisis de crédito de la empresa: histórico con consumos y
@@ -24,6 +27,17 @@ export class AnalysisPacksService {
         return this.apiService.get<AnalysisPacksResponse>(`${this.basePath}/with-consumptions`, {
             params: { page, limit }
         });
+    }
+
+    /**
+     * Devuelve el pack que quedó esperando confirmación de pago (o null si no hay).
+     * Se usa en la pantalla de pago pendiente para mostrar el resumen y permitir
+     * reintentar el checkout con el mismo packOfferingId.
+     */
+    getPendingPack(): Observable<AnalysisPack | null> {
+        return this.getPacksWithConsumptions(1, 10).pipe(
+            map(res => res.data.find(pack => pack.status?.code === PENDING_PAYMENT_STATUS) ?? null)
+        );
     }
 
     /**

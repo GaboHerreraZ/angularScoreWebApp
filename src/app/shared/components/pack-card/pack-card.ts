@@ -18,7 +18,10 @@ import { PackOffering } from '@/app/types/onboarding';
 @Component({
     selector: 'app-pack-card',
     standalone: true,
-    templateUrl: './pack-card.html'
+    templateUrl: './pack-card.html',
+    // El host ocupa toda la altura de la celda del grid para que todas las
+    // tarjetas queden del mismo alto (el botón interno se estira con h-full).
+    host: { class: 'block h-full' }
 })
 export class PackCard {
     pack = input.required<PackOffering>();

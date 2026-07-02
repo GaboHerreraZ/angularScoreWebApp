@@ -1,0 +1,77 @@
+<div class="max-w-lg mx-auto px-6 py-12 lg:py-16">
+    <div class="text-center mb-8">
+        <span class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-amber-500/10 mb-5">
+            <i class="pi pi-clock text-amber-500 text-4xl"></i>
+        </span>
+        <h1 class="text-2xl font-extrabold m-0 text-color">Tu pago está pendiente</h1>
+        <p class="text-muted-color mt-3 mb-0 leading-relaxed">
+            Tienes una compra sin confirmar. Si cerraste o no completaste el pago, puedes retomarlo aquí mismo.
+            Si ya pagaste, lo verificaremos automáticamente en unos minutos.
+        </p>
+    </div>
+
+    <div class="bg-surface-0 dark:bg-surface-900 rounded-2xl border border-surface p-6 sm:p-8">
+        <!-- Resumen del pack que se está intentando comprar -->
+        @if (loadingPack()) {
+            <div class="flex flex-col gap-3 mb-2">
+                <p-skeleton width="60%" height="1.5rem" />
+                <p-skeleton width="40%" height="1rem" />
+            </div>
+        } @else if (pendingPack(); as pack) {
+            <p class="text-xs font-bold text-muted-color uppercase tracking-wide m-0 mb-4">Estás comprando</p>
+            <div class="flex items-center justify-between mb-5">
+                <div>
+                    <p class="m-0 font-bold text-color text-lg">{{ pack.packOffering.name }}</p>
+                    <p class="m-0 text-sm text-muted-color">{{ pack.packOffering.quantity }} consultas</p>
+                </div>
+                <span class="text-2xl font-extrabold text-color">
+                    {{ formatCurrency(pack.totalPaid, pack.currencyCode) }}
+                </span>
+            </div>
+            <p-divider />
+        }
+
+        <div class="flex flex-col gap-3">
+            @if (pendingPack()) {
+                <p-button
+                    label="Reintentar pago"
+                    icon="pi pi-credit-card"
+                    styleClass="w-full"
+                    [loading]="retrying()"
+                    (onClick)="retryPayment()"
+                />
+            }
+            <p-button
+                label="Ya pagué, verificar estado"
+                icon="pi pi-refresh"
+                [severity]="pendingPack() ? 'secondary' : undefined"
+                [outlined]="!!pendingPack()"
+                styleClass="w-full"
+                [loading]="checking()"
+                (onClick)="checkStatus()"
+            />
+            <a [href]="supportMailto()" class="no-underline block">
+                <p-button
+                    label="Contactar a soporte"
+                    icon="pi pi-envelope"
+                    severity="secondary"
+                    [text]="true"
+                    styleClass="w-full"
+                />
+            </a>
+        </div>
+
+        <p class="text-center text-xs text-muted-color mt-5 mb-0">
+            ¿Necesitas ayuda? Escríbenos a
+            <a [href]="supportMailto()" class="text-primary hover:underline">{{ supportEmail }}</a>
+        </p>
+    </div>
+</div>
+
+<!-- Checkout de ePayco: se reabre en ventana nueva al reintentar -->
+<app-epayco-checkout
+    #checkout
+    [sessionId]="sessionId()"
+    display="newWindow"
+    (errored)="onCheckoutError()"
+/>
