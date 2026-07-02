@@ -6,6 +6,7 @@ export default [
     // El registro tiene su propio layout de dos columnas (sin header de la shell).
     {
         path: 'registro',
+        title: 'Crear cuenta',
         canActivate: [noAuthGuard],
         loadComponent: () => import('./register/onboarding-register').then((c) => c.OnboardingRegister)
     },
@@ -16,11 +17,13 @@ export default [
             { path: '', redirectTo: 'registro', pathMatch: 'full' },
             {
                 path: 'registrar-empresa',
+                title: 'Registra tu empresa',
                 canActivate: [onboardingGuard],
                 loadComponent: () => import('./wizard/onboarding-wizard').then((c) => c.OnboardingWizard)
             },
             {
                 path: 'pago-pendiente',
+                title: 'Pago pendiente',
                 canActivate: [paymentPendingGuard],
                 loadComponent: () => import('./payment-pending/onboarding-payment-pending').then((c) => c.OnboardingPaymentPending)
             },

@@ -3,9 +3,10 @@ import { Customers } from './customers';
 
 export default [
     { path: '', component: Customers },
-    { path: 'detalle-cliente', data: { breadcrumb: 'Nuevo Cliente' }, loadComponent: () => import('./customer-detail/customer-detail').then((c) => c.CustomerDetail) },
+    { path: 'detalle-cliente', title: 'Nuevo cliente', data: { breadcrumb: 'Nuevo Cliente' }, loadComponent: () => import('./customer-detail/customer-detail').then((c) => c.CustomerDetail) },
     {
         path: 'detalle-cliente/:id',
+        title: 'Detalle del cliente',
         loadComponent: () => import('./customer-view/customer-view').then((c) => c.CustomerView),
         children: [
             { path: '', redirectTo: 'informacion', pathMatch: 'full' as const },

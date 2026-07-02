@@ -8,10 +8,10 @@ export default [
         component: Administration,
         children: [
             { path: '', redirectTo: 'perfil', pathMatch: 'full' },
-            { path: 'perfil', data: { breadcrumb: 'Perfil' }, loadComponent: () => import('./components/profile/profile').then((c) => c.Profile) },
-            { path: 'empresa', data: { breadcrumb: 'Empresa' }, loadComponent: () => import('./components/company/company').then((c) => c.Company) },
-            { path: 'analisis-credito', data: { breadcrumb: 'Análisis de Crédito' }, loadComponent: () => import('./components/analysis-packs/analysis-packs').then((c) => c.AnalysisPacks) },
-            { path: 'seguridad', canActivate: [emailProviderGuard], data: { breadcrumb: 'Seguridad' }, loadComponent: () => import('./components/change-password/change-password').then((c) => c.ChangePassword) },
+            { path: 'perfil', title: 'Perfil', data: { breadcrumb: 'Perfil' }, loadComponent: () => import('./components/profile/profile').then((c) => c.Profile) },
+            { path: 'empresa', title: 'Empresa', data: { breadcrumb: 'Empresa' }, loadComponent: () => import('./components/company/company').then((c) => c.Company) },
+            { path: 'analisis-credito', title: 'Análisis de Crédito', data: { breadcrumb: 'Análisis de Crédito' }, loadComponent: () => import('./components/analysis-packs/analysis-packs').then((c) => c.AnalysisPacks) },
+            { path: 'seguridad', title: 'Seguridad', canActivate: [emailProviderGuard], data: { breadcrumb: 'Seguridad' }, loadComponent: () => import('./components/change-password/change-password').then((c) => c.ChangePassword) },
         ]
     }
 ] as Routes;
