@@ -59,7 +59,7 @@ export interface EpaycoGlobal {
 
 /**
  * Datos que devuelve el endpoint público de validación
- * `GET https://secure.epayco.co/validation/v1/reference/{ref_payco}`.
+ * `GET https://secure.epayco.co/validation/v1/reference/{ref}`.
  * Sólo tipamos los campos que usamos; el resto llega igual.
  */
 export interface EpaycoValidationData {

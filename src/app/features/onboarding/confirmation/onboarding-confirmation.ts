@@ -15,11 +15,6 @@ type ResultState = 'polling' | 'success' | 'declined' | 'pending' | 'error';
 const MAX_ATTEMPTS = 15;
 const POLL_INTERVAL_MS = 2000;
 
-/**
- * Pantalla de resultado del pago (ePayco redirige aquí con ?ref_payco=...).
- * Hace polling a nuestro backend hasta que el pack quede `active`, y muestra
- * el resumen de la compra con la bienvenida y el acceso al dashboard.
- */
 @Component({
     selector: 'app-onboarding-confirmation',
     standalone: true,
@@ -65,7 +60,7 @@ export class OnboardingConfirmation {
             if (this.timer) clearTimeout(this.timer);
         });
 
-        const refPayco = this.route.snapshot.queryParamMap.get('ref_payco');
+        const refPayco = this.route.snapshot.queryParamMap.get('ref');
         if (!refPayco) {
             this.state.set('error');
             return;
