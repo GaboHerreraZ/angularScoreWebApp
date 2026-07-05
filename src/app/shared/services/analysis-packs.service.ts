@@ -19,8 +19,17 @@ export class AnalysisPacksService {
 
     companyId = computed<string>(() => this.authService.currentProfile()?.companyId ?? '');
 
+    /**
+     * Ruta base de packs para una empresa. Usa el companyId del perfil por
+     * defecto, pero acepta uno explícito para el onboarding: ahí la empresa se
+     * acaba de crear y el perfil en memoria aún no tiene el companyId.
+     */
+    private basePathFor(companyId: string): string {
+        return `companies/${companyId}/analysis-packs`;
+    }
+
     private get basePath(): string {
-        return `companies/${this.companyId()}/analysis-packs`;
+        return this.basePathFor(this.companyId());
     }
 
     getPacksWithConsumptions(page: number = 1, limit: number = 5): Observable<AnalysisPacksResponse> {
@@ -45,9 +54,10 @@ export class AnalysisPacksService {
      * Requiere usuario logueado que pertenezca al companyId; el backend lee
      * los billing* de la empresa para armar la sesión de pago.
      */
-    purchasePack(payload: PurchasePackRequest): Observable<PurchasePackResponse> {
+    purchasePack(payload: PurchasePackRequest, companyId?: string): Observable<PurchasePackResponse> {
+        const basePath = companyId ? this.basePathFor(companyId) : this.basePath;
         return this.apiService.post<PurchasePackResponse>(
-            `${this.basePath}/purchase`,
+            `${basePath}/purchase`,
             payload,
             { headers: { 'X-Silent-Error': 'true' } }
         );
