@@ -289,7 +289,9 @@ export class OnboardingWizard {
         if (!companyId || !pack) return;
 
         this.purchasing.set(true);
-        this.analysisPacksService.purchasePack({ packOfferingId: pack.id }).pipe(
+        // Pasamos el companyId explícito: en el onboarding la empresa se acaba de
+        // crear y el perfil en memoria aún no lo tiene.
+        this.analysisPacksService.purchasePack({ packOfferingId: pack.id }, companyId).pipe(
             finalize(() => this.purchasing.set(false)),
             takeUntilDestroyed(this.destroyRef)
         ).subscribe({
