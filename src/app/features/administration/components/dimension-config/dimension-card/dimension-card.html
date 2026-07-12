@@ -1,0 +1,49 @@
+<div class="rounded-2xl border border-surface p-5 flex flex-col gap-4 bg-surface-0 dark:bg-surface-900/40 h-full">
+    <!-- Encabezado: ícono + nombre -->
+    <div class="flex items-center gap-2 min-w-0">
+        <span class="flex items-center justify-center w-9 h-9 rounded-lg bg-primary/10 shrink-0">
+            <i [class]="dimension().icon + ' text-primary'"></i>
+        </span>
+        <span class="font-semibold text-color leading-tight">{{ dimension().label }}</span>
+    </div>
+
+    <!-- Porcentaje destacado -->
+    <div class="flex items-end justify-center py-1">
+        @if (editing()) {
+        <p-inputNumber
+            [(ngModel)]="weight"
+            [min]="0"
+            [max]="100"
+            suffix=" %"
+            [showButtons]="false"
+            inputStyleClass="w-28 text-center text-2xl font-extrabold"
+            [invalid]="belowMin()"
+        />
+        } @else {
+        <span class="text-4xl font-extrabold tabular-nums text-color leading-none">{{ weight() }}<span class="text-xl text-muted-color font-bold ml-0.5">%</span></span>
+        }
+    </div>
+
+    <!-- Slider (interactivo al editar; solo lectura como barra al ver) -->
+    <p-slider
+        [(ngModel)]="weight"
+        [min]="0"
+        [max]="100"
+        [disabled]="!editing()"
+        styleClass="w-full"
+    />
+
+    @if (editing() && belowMin()) {
+    <small class="text-red-500">Mínimo {{ minWeight() }} % por dimensión.</small>
+    }
+
+    <!-- Descripción siempre visible de qué mide la dimensión -->
+    <p class="text-sm text-muted-color leading-relaxed m-0">{{ dimension().tooltip }}</p>
+
+    @if (dimension().note) {
+    <div class="flex items-start gap-2 rounded-lg bg-primary/5 border border-primary/20 p-2.5 mt-auto">
+        <i class="pi pi-info-circle text-primary text-sm mt-0.5"></i>
+        <span class="text-xs text-color leading-relaxed">{{ dimension().note }}</span>
+    </div>
+    }
+</div>

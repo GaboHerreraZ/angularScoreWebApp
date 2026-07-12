@@ -1,0 +1,137 @@
+<div class="flex flex-col gap-6">
+
+    <!-- ─────────────── Selector de tipo de persona ─────────────── -->
+    <p-tabs [value]="personType()" (valueChange)="onPersonTypeChange($event)">
+        <p-tablist>
+            @for (tab of personTypeTabs; track tab.code) {
+            <p-tab [value]="tab.code">
+                <i [class]="tab.icon + ' mr-2'"></i>
+                <span>{{ tab.label }}</span>
+            </p-tab>
+            }
+        </p-tablist>
+    </p-tabs>
+
+    <!-- ─────────────── Config activa / Editor ─────────────── -->
+    @if (activeResource.isLoading() || saving()) {
+    <!-- Skeleton: tarjeta de configuración -->
+    <p-card>
+        <div class="flex flex-col gap-4">
+            <div class="flex items-center justify-between">
+                <p-skeleton width="16rem" height="1.5rem" />
+                <p-skeleton width="9rem" height="2.5rem" borderRadius="0.5rem" />
+            </div>
+            <p-skeleton width="24rem" height="1rem" />
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-2">
+                @for (_ of [1,2,3,4,5,6]; track $index) {
+                <p-skeleton height="12rem" borderRadius="1rem" />
+                }
+            </div>
+            <p-skeleton height="1.75rem" borderRadius="0.75rem" />
+        </div>
+    </p-card>
+    } @else if (activeResource.value(); as active) {
+    <p-card>
+        <ng-template #title>
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div class="flex items-center gap-2">
+                    <i class="pi pi-sliders-v text-primary"></i>
+                    <span>Configuración de Dimensiones</span>
+                </div>
+
+                @if (!editing()) {
+                <p-button label="Editar porcentajes" icon="pi pi-pencil" severity="secondary" [outlined]="true" (onClick)="startEditing()" styleClass="w-full sm:w-auto" />
+                } @else {
+                <div class="flex gap-2 w-full sm:w-auto">
+                    <p-button label="Cancelar" icon="pi pi-times" severity="secondary" [text]="true" [disabled]="saving()" (onClick)="cancelEditing()" styleClass="flex-1 sm:flex-none" />
+                    <p-button label="Guardar" icon="pi pi-check" severity="success" [loading]="saving()" [disabled]="!isValid()" (onClick)="save()" styleClass="flex-1 sm:flex-none" />
+                </div>
+                }
+            </div>
+        </ng-template>
+        <ng-template #subtitle>
+            <span class="text-muted-color text-sm">
+                Define cuánto pesa cada dimensión al calcular el estudio de crédito para <span class="font-medium text-color">{{ active.personType?.label ?? 'este tipo de cliente' }}</span>. Los pesos deben sumar 100 % y cada uno ser al menos {{ minWeight }} %.
+            </span>
+        </ng-template>
+
+        <!-- Aviso: defaults del sistema (empresa sin config propia) -->
+        @if (active.isDefault) {
+        <div class="flex gap-3 rounded-xl bg-primary/5 border border-primary/20 p-4 mb-6">
+            <i class="pi pi-info-circle text-primary mt-0.5"></i>
+            <p class="text-sm text-color leading-relaxed m-0">
+                Tu empresa aún no tiene una configuración propia, por lo que se muestran los valores por defecto del sistema.
+                Al guardar por primera vez se creará tu configuración personalizada.
+            </p>
+        </div>
+        }
+
+        <!-- Grilla de dimensiones: tarjetas, 3 por fila -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            @for (dim of dimensions(); track dim.key) {
+            <app-dimension-card
+                [dimension]="dim"
+                [weight]="weights()[dim.key]"
+                (weightChange)="setWeight(dim.key, $event)"
+                [editing]="editing()"
+                [minWeight]="minWeight"
+            />
+            }
+        </div>
+
+        <!-- Total en vivo -->
+        <div class="mt-8 pt-6 border-t border-surface flex flex-col gap-3">
+            <div class="flex items-center justify-between">
+                <span class="font-semibold text-color">Total</span>
+                <div class="flex items-center gap-3">
+                    <span class="font-bold tabular-nums text-lg"
+                        [ngClass]="{
+                            'text-green-600 dark:text-green-400': total() === totalWeight,
+                            'text-amber-600 dark:text-amber-400': total() < totalWeight,
+                            'text-red-500': total() > totalWeight
+                        }">
+                        {{ total() }} / {{ totalWeight }} %
+                    </span>
+                    <p-tag
+                        [value]="total() === totalWeight ? 'Válido' : (total() > totalWeight ? 'Se pasa por ' + (total() - totalWeight) + ' %' : 'Faltan ' + remaining() + ' %')"
+                        [severity]="totalSeverity()"
+                    />
+                </div>
+            </div>
+
+            <!-- Barra que representa la suma sobre 100 -->
+            <div class="h-3 w-full rounded-full bg-surface-200 dark:bg-surface-700 overflow-hidden">
+                <div
+                    class="h-full rounded-full transition-all duration-200"
+                    [ngClass]="{
+                        'bg-green-500': total() === totalWeight,
+                        'bg-amber-500': total() < totalWeight,
+                        'bg-red-500': total() > totalWeight
+                    }"
+                    [style.width.%]="total() > totalWeight ? 100 : total()"
+                ></div>
+            </div>
+        </div>
+    </p-card>
+    }
+
+    <!-- ─────────────── Historial de configuraciones ─────────────── -->
+    @if (historyResource.isLoading()) {
+    <p-card>
+        <div class="flex flex-col gap-4">
+            <p-skeleton width="16rem" height="1.5rem" />
+            <div class="flex flex-col gap-3">
+                @for (_ of [1,2,3]; track $index) {
+                <p-skeleton height="2.5rem" />
+                }
+            </div>
+        </div>
+    </p-card>
+    } @else {
+    <app-custom-table
+        [tableSettings]="historyTableSettings()"
+        [data]="historyData()"
+        [totalRecords]="historyData().length"
+    />
+    }
+</div>
