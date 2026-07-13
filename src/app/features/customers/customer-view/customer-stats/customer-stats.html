@@ -1,0 +1,237 @@
+<div class="flex flex-col gap-6">
+
+    @if (loading()) {
+    <!-- Skeleton -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        @for (i of [1,2,3,4]; track i) {
+        <p-card styleClass="section-card">
+            <p-skeleton height="1rem" width="60%" styleClass="mb-2" />
+            <p-skeleton height="2rem" width="40%" />
+        </p-card>
+        }
+    </div>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        @for (i of [1,2,3]; track i) {
+        <p-card styleClass="section-card"><p-skeleton height="16rem" /></p-card>
+        }
+    </div>
+
+    } @else if (stats(); as st) {
+
+    @if (hasStudies()) {
+
+    <!-- ── KPIs destacados ──────────────────────────────────────────────── -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        <!-- Total estudios -->
+        <p-card styleClass="section-card">
+            <div class="flex items-center gap-3">
+                <div class="flex items-center justify-center w-12 h-12 rounded-xl shrink-0 bg-blue-100 dark:bg-blue-900/30">
+                    <i class="pi pi-file-edit text-xl text-blue-600 dark:text-blue-400"></i>
+                </div>
+                <div class="min-w-0">
+                    <p class="text-surface-500 text-sm truncate">Estudios realizados</p>
+                    <p class="text-2xl font-bold text-surface-800 dark:text-surface-100 leading-tight">{{ st.studies.total }}</p>
+                    @if (st.timing.studiesLast12Months != null) {
+                    <p class="text-xs text-surface-400">{{ st.timing.studiesLast12Months }} en los últimos 12 meses</p>
+                    }
+                </div>
+            </div>
+        </p-card>
+
+        <!-- Tasa de aprobación -->
+        <p-card styleClass="section-card">
+            <div class="flex items-center gap-3">
+                <div class="flex items-center justify-center w-12 h-12 rounded-xl shrink-0 bg-green-100 dark:bg-green-900/30">
+                    <i class="pi pi-check-circle text-xl text-green-600 dark:text-green-400"></i>
+                </div>
+                <div class="min-w-0">
+                    <p class="text-surface-500 text-sm truncate">Tasa de aprobación</p>
+                    <p class="text-2xl font-bold text-surface-800 dark:text-surface-100 leading-tight">
+                        {{ st.viability.approvalRate != null ? (st.viability.approvalRate | number:'1.0-1') + '%' : '—' }}
+                    </p>
+                    <p class="text-xs text-surface-400">{{ st.viability.approved }} de {{ st.viability.analyzed }} analizados</p>
+                </div>
+            </div>
+        </p-card>
+
+        <!-- Score promedio + tendencia -->
+        <p-card styleClass="section-card">
+            <div class="flex items-center gap-3">
+                <div class="flex items-center justify-center w-12 h-12 rounded-xl shrink-0 bg-amber-100 dark:bg-amber-900/30">
+                    <i class="pi pi-gauge text-xl text-amber-600 dark:text-amber-400"></i>
+                </div>
+                <div class="min-w-0 flex-1">
+                    <p class="text-surface-500 text-sm truncate">Score promedio</p>
+                    <div class="flex items-center gap-2">
+                        <p class="text-2xl font-bold text-surface-800 dark:text-surface-100 leading-tight">
+                            {{ st.viability.avgScore != null ? (st.viability.avgScore | number:'1.0-1') : '—' }}<span class="text-sm font-normal text-surface-500">/100</span>
+                        </p>
+                        @if (scoreTrend(); as tr) {
+                        <span [class]="'inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold ' + tr.classes">
+                            <i [class]="tr.icon + ' text-[10px]'"></i>{{ tr.label }}
+                        </span>
+                        }
+                    </div>
+                    @if (st.viability.lastScore != null) {
+                    <p class="text-xs text-surface-400">Último: {{ st.viability.lastScore }}/100</p>
+                    }
+                </div>
+            </div>
+        </p-card>
+
+        <!-- Último cupo recomendado -->
+        <p-card styleClass="section-card">
+            <div class="flex items-center gap-3">
+                <div class="flex items-center justify-center w-12 h-12 rounded-xl shrink-0 bg-emerald-100 dark:bg-emerald-900/30">
+                    <i class="pi pi-wallet text-xl text-emerald-600 dark:text-emerald-400"></i>
+                </div>
+                <div class="min-w-0">
+                    <p class="text-surface-500 text-sm truncate">Último cupo recomendado</p>
+                    <p class="text-2xl font-bold text-surface-800 dark:text-surface-100 leading-tight">{{ formatCompactCurrency(st.amounts.lastRecommendedCreditLine) }}</p>
+                    @if (lastVerdict().label !== '—') {
+                    <p-tag [value]="lastVerdict().label" [severity]="lastVerdict().severity" [rounded]="true" styleClass="mt-1" />
+                    }
+                </div>
+            </div>
+        </p-card>
+    </div>
+
+    <!-- ── Distribución por estado + Veredictos ─────────────────────────── -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        @if (statusChart(); as chart) {
+        <p-card styleClass="section-card">
+            <ng-template pTemplate="header">
+                <div class="px-4 pt-4 flex items-center gap-2">
+                    <h3 class="text-base font-semibold text-surface-700 dark:text-surface-200">Estudios por Estado</h3>
+                    <app-help-tooltip text="Distribución de todos los estudios de este cliente según su estado actual." />
+                </div>
+            </ng-template>
+            <div class="h-72">
+                <p-chart type="doughnut" [data]="chart.data" [options]="chart.options" styleClass="h-full w-full" />
+            </div>
+        </p-card>
+        }
+
+        @if (verdictsChart(); as chart) {
+        <p-card styleClass="section-card">
+            <ng-template pTemplate="header">
+                <div class="px-4 pt-4">
+                    <div class="flex items-center gap-2">
+                        <h3 class="text-base font-semibold text-surface-700 dark:text-surface-200">Veredictos de Viabilidad</h3>
+                        <app-help-tooltip text="Resultado de viabilidad de los estudios que ya fueron analizados." />
+                    </div>
+                    <p class="text-xs text-surface-400 mt-0.5">{{ st.viability.analyzed }} estudios analizados</p>
+                </div>
+            </ng-template>
+            <div class="h-72">
+                <p-chart type="doughnut" [data]="chart.data" [options]="chart.options" styleClass="h-full w-full" />
+            </div>
+        </p-card>
+        }
+
+        <!-- Timing / actividad -->
+        <p-card styleClass="section-card">
+            <ng-template pTemplate="header">
+                <div class="px-4 pt-4 flex items-center gap-2">
+                    <h3 class="text-base font-semibold text-surface-700 dark:text-surface-200">Actividad y Tiempos</h3>
+                    <app-help-tooltip text="Ritmo de estudios y tiempo promedio de resolución del cliente." />
+                </div>
+            </ng-template>
+            <div class="flex flex-col gap-4">
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-surface-600 dark:text-surface-300 flex items-center gap-2"><i class="pi pi-clock text-muted-color"></i>Resolución promedio</span>
+                    <span class="text-sm font-semibold text-surface-800 dark:text-surface-100">
+                        {{ st.timing.avgResolutionDays != null ? (st.timing.avgResolutionDays | number:'1.0-1') + ' días' : '—' }}
+                    </span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-surface-600 dark:text-surface-300 flex items-center gap-2"><i class="pi pi-calendar text-muted-color"></i>Estudios últimos 12 meses</span>
+                    <span class="text-sm font-semibold text-surface-800 dark:text-surface-100">{{ st.timing.studiesLast12Months }}</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-surface-600 dark:text-surface-300 flex items-center gap-2"><i class="pi pi-flag text-muted-color"></i>Primer estudio</span>
+                    <span class="text-sm font-semibold text-surface-800 dark:text-surface-100">{{ (st.studies.firstStudyDate | date:'dd/MM/yyyy') ?? '—' }}</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-surface-600 dark:text-surface-300 flex items-center gap-2"><i class="pi pi-history text-muted-color"></i>Último estudio</span>
+                    <span class="text-sm font-semibold text-surface-800 dark:text-surface-100">
+                        {{ (st.studies.lastStudyDate | date:'dd/MM/yyyy') ?? '—' }}
+                        @if (st.studies.daysSinceLastStudy != null) {
+                        <span class="text-xs text-surface-400 font-normal">(hace {{ st.studies.daysSinceLastStudy }} días)</span>
+                        }
+                    </span>
+                </div>
+            </div>
+        </p-card>
+    </div>
+
+    <!-- ── Montos ───────────────────────────────────────────────────────── -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        @if (amountsChart(); as chart) {
+        <p-card styleClass="section-card lg:col-span-2">
+            <ng-template pTemplate="header">
+                <div class="px-4 pt-4">
+                    <div class="flex items-center gap-2">
+                        <h3 class="text-base font-semibold text-surface-700 dark:text-surface-200">Cupos: Solicitado vs Recomendado</h3>
+                        <app-help-tooltip text="Comparación entre lo que el cliente ha solicitado y lo que el análisis ha recomendado, en total y promedio." />
+                    </div>
+                </div>
+            </ng-template>
+            <div class="h-64">
+                <p-chart type="bar" [data]="chart.data" [options]="chart.options" styleClass="h-full w-full" />
+            </div>
+        </p-card>
+        }
+
+        <!-- Resumen de montos -->
+        <p-card styleClass="section-card">
+            <ng-template pTemplate="header">
+                <div class="px-4 pt-4 flex items-center gap-2">
+                    <h3 class="text-base font-semibold text-surface-700 dark:text-surface-200">Resumen de Cupos</h3>
+                </div>
+            </ng-template>
+            <div class="flex flex-col gap-4">
+                <div class="flex flex-col gap-0.5">
+                    <span class="text-xs text-muted-color uppercase tracking-wide">Total solicitado</span>
+                    <span class="text-lg font-bold text-surface-800 dark:text-surface-100">{{ formatCurrency(st.amounts.totalRequested) }}</span>
+                </div>
+                <div class="flex flex-col gap-0.5">
+                    <span class="text-xs text-muted-color uppercase tracking-wide">Total recomendado</span>
+                    <span class="text-lg font-bold text-surface-800 dark:text-surface-100">{{ formatCurrency(st.amounts.totalRecommended) }}</span>
+                </div>
+                @if (st.amounts.recommendationRatio != null) {
+                <div class="flex flex-col gap-1 pt-2 border-t border-surface-200 dark:border-surface-700">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs text-muted-color uppercase tracking-wide">Ratio de recomendación</span>
+                        <span class="text-sm font-bold text-surface-800 dark:text-surface-100">{{ st.amounts.recommendationRatio | number:'1.0-0' }}%</span>
+                    </div>
+                    <div class="w-full h-2 rounded-full bg-surface-200 dark:bg-surface-700 overflow-hidden">
+                        <div class="h-full rounded-full bg-primary" [style.width.%]="st.amounts.recommendationRatio"></div>
+                    </div>
+                    <span class="text-xs text-surface-400">Del total solicitado, esto fue recomendado.</span>
+                </div>
+                }
+            </div>
+        </p-card>
+    </div>
+
+    } @else {
+    <!-- Sin estudios -->
+    <p-card styleClass="section-card">
+        <div class="flex flex-col items-center justify-center py-14 gap-3 text-muted-color">
+            <i class="pi pi-chart-bar text-4xl"></i>
+            <p class="text-base font-medium">Aún no hay estadísticas</p>
+            <p class="text-sm">Este cliente todavía no tiene estudios de crédito realizados.</p>
+        </div>
+    </p-card>
+    }
+
+    } @else {
+    <p-card styleClass="section-card">
+        <div class="flex flex-col items-center justify-center py-14 gap-2 text-muted-color">
+            <i class="pi pi-exclamation-triangle text-3xl"></i>
+            <p class="text-sm">No se pudieron cargar las estadísticas del cliente.</p>
+        </div>
+    </p-card>
+    }
+</div>

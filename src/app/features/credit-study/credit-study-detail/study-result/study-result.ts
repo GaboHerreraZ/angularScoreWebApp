@@ -8,16 +8,26 @@ import { ButtonModule } from 'primeng/button';
 import { AccordionModule } from 'primeng/accordion';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
-import { AiAnalysisResponse, CreateCreditStudy, ReliabilityFlag, ViabilityConditions, ViabilityDimension } from '@/app/types/credit-study';
+import {
+    PerformStudyResponse,
+    ReliabilityFlag,
+    ScoringDimension,
+    StudyAiAnalysis
+} from '@/app/types/credit-study';
 import { CreditStudyService } from '../../credit-study.service';
 import { NotificationService } from '@/app/shared/components/notification/notification.service';
-import { HelpTooltip } from '@/app/shared/components/help-tooltip/help-tooltip';
 import { AuthService } from '@/app/core/services/auth.service';
+
+interface DimensionView extends ScoringDimension {
+    key: string;
+    /** Puntaje relativo 0-1 usado para barra y badge: contribution / weight. */
+    fillRatio: number;
+}
 
 @Component({
     selector: 'app-study-result',
     standalone: true,
-    imports: [CommonModule, CurrencyPipe, DatePipe, CardModule, MessageModule, ButtonModule, AccordionModule, ConfirmDialogModule, HelpTooltip],
+    imports: [CommonModule, CurrencyPipe, DatePipe, CardModule, MessageModule, ButtonModule, AccordionModule, ConfirmDialogModule],
     providers: [ConfirmationService],
     templateUrl: './study-result.html'
 })
@@ -28,50 +38,104 @@ export class StudyResult {
     private confirmationService = inject(ConfirmationService);
     private authService = inject(AuthService);
 
-
-    study = input.required<CreateCreditStudy>();
+    study = input.required<PerformStudyResponse>();
+    creditStudyId = input<string>();
+    /** Plazo solicitado por el cliente (viene del step de la solicitud). */
+    requestedTerm = input<number | null>(null);
     customer = input<{ businessName?: string; identificationNumber?: string; city?: string }>();
     companyInfo = input<{ name: string; city: string; nit: string }>();
     readOnly = input<boolean>(false);
 
+    /** Plazo solicitado resuelto: el input o el que traiga el estudio. */
+    requestedTermValue = computed(() => this.requestedTerm() ?? this.study().requestedTerm ?? null);
 
+    // ─── IA (solo un análisis por estudio) ───────────────────────────────────
 
     aiLoading = signal(false);
-    aiAnalysis = signal<AiAnalysisResponse | null>(null);
-    aiRequested = signal(false);
+    /** Análisis generado en esta sesión (antes del refresh). */
+    private generatedAnalysis = signal<StudyAiAnalysis | null>(null);
+    /** Marca un error al generar para mostrar el estado de reintento. */
+    aiError = signal(false);
 
-    existingAiAnalyses = computed(() => {
-        const analyses = this.study().aiAnalyses ?? [];
-        return analyses
-            .filter(a => a.result != null && a.result.trim() !== '')
-            .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    canUseAi = computed(() => this.authService.currentProfile()?.permissions.canMakeAiAnalysis);
+
+    /** Análisis actual: el recién generado o el que ya viene con el estudio. */
+    currentAiAnalysis = computed<StudyAiAnalysis | null>(() => {
+        const generated = this.generatedAnalysis();
+        if (generated) return generated;
+        const embedded = this.study().aiAnalysis;
+        return embedded && embedded.result?.trim() ? embedded : null;
     });
 
-    canUseAi = computed(() => {
-        const user = this.authService.currentProfile();
-        return user?.permissions.canMakeAiAnalysis;
-    });
+    hasAiAnalysis = computed(() => !!this.currentAiAnalysis());
 
-    hasExistingAnalyses = computed(() => this.existingAiAnalyses().length > 0);
+    // ─── Scoring result ──────────────────────────────────────────────────────
 
-    viability = computed(() => {
-        const raw = this.study().viabilityConditions;
-        if (!raw) return null;
-        if (typeof raw === 'string') {
-            try { return JSON.parse(raw) as ViabilityConditions; } catch { return null; }
+    scoring = computed(() => this.study().result ?? null);
+    summary = computed(() => this.scoring()?.summary ?? null);
+    approvedCreditLine = computed(() => this.scoring()?.approvedCreditLine ?? null);
+    reference = computed(() => this.scoring()?.reference ?? null);
+
+    /** Badge de la fuente del cálculo, resaltado en la sección de cifras clave. */
+    calculationSourceConfig = computed(() => {
+        switch (this.summary()?.calculationSource) {
+            case 'datacredito':
+                return { label: 'Central de riesgo', icon: 'pi pi-verified', bg: 'bg-green-100 dark:bg-green-900/30', color: 'text-green-700 dark:text-green-400' };
+            case 'pdf':
+                return { label: 'Estados financieros cargados (sin verificar)', icon: 'pi pi-file', bg: 'bg-amber-100 dark:bg-amber-900/30', color: 'text-amber-700 dark:text-amber-400' };
+            case 'none':
+                return { label: 'Sin datos financieros', icon: 'pi pi-ban', bg: 'bg-surface-100 dark:bg-surface-800', color: 'text-muted-color' };
+            default:
+                return null;
         }
-        return raw as ViabilityConditions;
     });
 
-    scorePercentage = computed(() => this.viability()?.summary?.totalScore ?? Math.round((this.study().stabilityFactor ?? 0) * 100));
+    /** Cifras financieras clave formateadas para mostrar bajo el banner. */
+    private readonly keyFigureRows: { key: string; label: string; format: 'currency' | 'days' | 'ratio' }[] = [
+        { key: 'monthlyPaymentCapacity', label: 'Capacidad de pago mensual', format: 'currency' },
+        { key: 'estimatedMonthlyQuota', label: 'Cuota mensual estimada', format: 'currency' },
+        { key: 'annualPaymentCapacity', label: 'Capacidad de pago anual', format: 'currency' },
+        { key: 'ebitda', label: 'EBITDA', format: 'currency' },
+        { key: 'currentDebtService', label: 'Servicio de deuda actual', format: 'currency' },
+        { key: 'paymentCoverageRatio', label: 'Cobertura de pago', format: 'ratio' },
+        { key: 'stabilityFactor', label: 'Factor de estabilidad', format: 'ratio' },
+        { key: 'accountsReceivableTurnover', label: 'Rotación de cartera', format: 'days' },
+        { key: 'inventoryTurnover', label: 'Rotación de inventario', format: 'days' },
+        { key: 'paymentTimeSuppliers', label: 'Pago a proveedores', format: 'days' },
+        { key: 'cashConversionCycle', label: 'Ciclo de conversión de caja', format: 'days' }
+    ];
 
-    maxScore = computed(() => this.viability()?.summary?.maxScore ?? 100);
+    keyFigures = computed(() => {
+        const figures = this.scoring()?.keyFigures;
+        if (!figures) return [];
+        return this.keyFigureRows
+            .filter(row => figures[row.key] != null)
+            .map(row => ({ label: row.label, value: this.formatKeyFigure(figures[row.key]!, row.format) }));
+    });
 
-    viabilityStatus = computed(() => this.study().viabilityStatus ?? this.viability()?.summary?.status ?? 'pending');
+    private formatKeyFigure(value: number, format: 'currency' | 'days' | 'ratio'): string {
+        switch (format) {
+            case 'currency':
+                return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(value);
+            case 'days':
+                return `${Math.round(value).toLocaleString('es-CO')} días`;
+            case 'ratio':
+                return value.toLocaleString('es-CO', { maximumFractionDigits: 2 });
+        }
+    }
+
+    /** Montos del banner/resumen resueltos con fallback al estudio. */
+    requestedAmount = computed(() => this.approvedCreditLine()?.requested ?? this.study().requestedCreditLine ?? null);
+    approvedAmount = computed(() => this.approvedCreditLine()?.amount ?? this.study().recommendedCreditLine ?? null);
+    bureauSuggestedAmount = computed(() => this.reference()?.experianSuggestedAmount ?? null);
+    cappedByBureau = computed(() => this.approvedCreditLine()?.cappedByBureau ?? false);
+
+    scorePercentage = computed(() => this.summary()?.totalScore ?? this.study().viabilityScore ?? 0);
+    maxScore = computed(() => this.summary()?.maxScore ?? 100);
+    viabilityStatus = computed(() => this.summary()?.status ?? this.study().viabilityStatus ?? 'pending');
 
     statusConfig = computed(() => {
-        const status = this.viabilityStatus();
-        switch (status) {
+        switch (this.viabilityStatus()) {
             case 'approved':
                 return {
                     bg: 'bg-green-50 dark:bg-green-900/20',
@@ -80,7 +144,7 @@ export class StudyResult {
                     icon: 'pi pi-check-circle',
                     titleColor: 'text-green-700 dark:text-green-400',
                     title: 'Cupo Aprobado',
-                    description: 'El analisis crediticio indica que el cliente es apto para el cupo solicitado.'
+                    description: 'El análisis crediticio indica que el cliente es apto para el cupo solicitado.'
                 };
             case 'conditional':
                 return {
@@ -90,7 +154,7 @@ export class StudyResult {
                     icon: 'pi pi-exclamation-triangle',
                     titleColor: 'text-amber-700 dark:text-amber-400',
                     title: 'Cupo Aprobado con Condiciones',
-                    description: 'El analisis crediticio indica que el cliente es apto para el cupo, sujeto a condiciones adicionales.'
+                    description: 'El análisis crediticio indica que el cliente es apto para el cupo, sujeto a condiciones adicionales.'
                 };
             case 'rejected':
                 return {
@@ -100,7 +164,7 @@ export class StudyResult {
                     icon: 'pi pi-times-circle',
                     titleColor: 'text-red-700 dark:text-red-400',
                     title: 'Cupo No Aprobado',
-                    description: 'El analisis crediticio indica que el cliente no cumple con los requisitos minimos para el cupo solicitado.'
+                    description: 'El análisis crediticio indica que el cliente no cumple con los requisitos mínimos para el cupo solicitado.'
                 };
             default:
                 return {
@@ -110,62 +174,94 @@ export class StudyResult {
                     icon: 'pi pi-info-circle',
                     titleColor: 'text-gray-700 dark:text-gray-400',
                     title: 'Pendiente',
-                    description: 'El estudio aun no ha sido procesado.'
+                    description: 'El estudio aún no ha sido procesado.'
                 };
         }
     });
 
-    alerts = computed(() => this.viability()?.alerts ?? []);
-
-    reliabilityFlags = computed<ReliabilityFlag[]>(() => {
-        const flags = this.study().reliabilityFlags;
-        if (!flags?.length) return [];
-        const order = { danger: 0, warning: 1, info: 2 } as Record<string, number>;
-        return [...flags].sort((a, b) => (order[a.severity] ?? 3) - (order[b.severity] ?? 3));
+    /** Etiqueta legible de la fuente del cálculo para el resumen. */
+    calculationSourceLabel = computed(() => {
+        switch (this.summary()?.calculationSource) {
+            case 'datacredito': return 'Central de riesgo';
+            case 'pdf': return 'Documento cargado';
+            case 'none': return 'Sin datos';
+            default: return null;
+        }
     });
 
-    reliabilityFlagGroups = computed(() => {
-        const severities: ReliabilityFlag['severity'][] = ['danger', 'warning', 'info'];
-        return severities
-            .map(severity => ({
-                severity,
-                flags: this.reliabilityFlags().filter(f => f.severity === severity)
-            }))
-            .filter(group => group.flags.length > 0);
-    });
+    // ─── Dimensiones (solo evaluables) ───────────────────────────────────────
 
-    dimensions = computed(() => {
-        const dims = this.viability()?.dimensions;
+    dimensions = computed<DimensionView[]>(() => {
+        const dims = this.scoring()?.dimensions;
         if (!dims) return [];
         return Object.entries(dims)
-            .filter(([key]) => key !== 'paymentSuggestions')
-            .map(([key, dim]) => ({ key, ...dim }));
+            .filter(([, dim]) => dim.evaluable)
+            .map(([key, dim]) => ({
+                ...dim,
+                key,
+                fillRatio: dim.weight > 0 ? Math.max(0, Math.min(1, dim.contribution / dim.weight)) : 0
+            }));
     });
 
-    paymentSuggestions = computed(() => {
-        const dims = this.viability()?.dimensions;
-        if (!dims) return null;
-        const ps = dims['paymentSuggestions'];
-        return ps?.suggestions?.length ? ps : null;
+    // ─── Dos capas de red flags ──────────────────────────────────────────────
+
+    private groupBySeverity(flags: ReliabilityFlag[]) {
+        const severities: ReliabilityFlag['severity'][] = ['danger', 'warning', 'info'];
+        return severities
+            .map(severity => ({ severity, flags: flags.filter(f => f.severity === severity) }))
+            .filter(group => group.flags.length > 0);
+    }
+
+    /** Capa 1: fiabilidad del documento (PDF contra sí mismo). */
+    pdfReliabilityGroups = computed(() => this.groupBySeverity(this.scoring()?.pdfReliabilityFlags ?? []));
+    pdfReliabilityCount = computed(() => this.scoring()?.pdfReliabilityFlags?.length ?? 0);
+
+    /** Capa 2: señales de la central de riesgo. */
+    centralRiskGroups = computed(() => this.groupBySeverity(this.scoring()?.centralRiskFlags ?? []));
+    centralRiskCount = computed(() => this.scoring()?.centralRiskFlags?.length ?? 0);
+
+    /** Todas las alertas del motor de scoring (recomendaciones por dimensión). */
+    generalAlerts = computed(() => this.scoring()?.alerts ?? []);
+
+    private readonly alertGroupMeta: Record<string, { label: string; icon: string; iconColor: string; bg: string; border: string; badgeBg: string; badgeColor: string }> = {
+        danger: {
+            label: 'Críticas', icon: 'pi pi-times-circle', iconColor: 'text-red-600 dark:text-red-400',
+            bg: 'bg-red-50 dark:bg-red-900/20', border: 'border-red-200 dark:border-red-800',
+            badgeBg: 'bg-red-100 dark:bg-red-900/30', badgeColor: 'text-red-700 dark:text-red-400'
+        },
+        warning: {
+            label: 'Advertencias', icon: 'pi pi-exclamation-triangle', iconColor: 'text-amber-600 dark:text-amber-400',
+            bg: 'bg-amber-50 dark:bg-amber-900/20', border: 'border-amber-200 dark:border-amber-800',
+            badgeBg: 'bg-amber-100 dark:bg-amber-900/30', badgeColor: 'text-amber-700 dark:text-amber-400'
+        },
+        info: {
+            label: 'Informativas', icon: 'pi pi-info-circle', iconColor: 'text-blue-600 dark:text-blue-400',
+            bg: 'bg-blue-50 dark:bg-blue-900/20', border: 'border-blue-200 dark:border-blue-800',
+            badgeBg: 'bg-blue-100 dark:bg-blue-900/30', badgeColor: 'text-blue-700 dark:text-blue-400'
+        },
+        success: {
+            label: 'Favorables', icon: 'pi pi-check-circle', iconColor: 'text-green-600 dark:text-green-400',
+            bg: 'bg-green-50 dark:bg-green-900/20', border: 'border-green-200 dark:border-green-800',
+            badgeBg: 'bg-green-100 dark:bg-green-900/30', badgeColor: 'text-green-700 dark:text-green-400'
+        }
+    };
+
+    /** Alertas agrupadas por tipo, ordenadas de más grave a menos grave. */
+    alertGroups = computed(() => {
+        const order: string[] = ['danger', 'warning', 'info', 'success'];
+        const alerts = this.generalAlerts();
+        return order
+            .map(type => ({
+                type,
+                ...this.alertGroupMeta[type],
+                messages: alerts.filter(a => a.type === type).map(a => a.message)
+            }))
+            .filter(group => group.messages.length > 0);
     });
 
-    summary = computed(() => this.viability()?.summary);
+    // ─── Mapas de presentación ───────────────────────────────────────────────
 
-    alertSeverityMap: Record<string, string> = {
-        success: 'success',
-        warning: 'warn',
-        danger: 'error',
-        info: 'info'
-    };
-
-    alertIconMap: Record<string, string> = {
-        success: 'pi pi-check-circle',
-        warning: 'pi pi-exclamation-triangle',
-        danger: 'pi pi-times-circle',
-        info: 'pi pi-info-circle'
-    };
-
-    reliabilityFlagConfig: Record<string, { icon: string; iconColor: string; bg: string; border: string; badgeBg: string; badgeColor: string; headerBg: string; label: string; groupLabel: string }> = {
+    reliabilityFlagConfig: Record<string, { icon: string; iconColor: string; bg: string; border: string; badgeBg: string; badgeColor: string; groupLabel: string }> = {
         danger: {
             icon: 'pi pi-times-circle',
             iconColor: 'text-red-600 dark:text-red-400',
@@ -173,8 +269,6 @@ export class StudyResult {
             border: 'border-red-200 dark:border-red-800',
             badgeBg: 'bg-red-100 dark:bg-red-900/30',
             badgeColor: 'text-red-700 dark:text-red-400',
-            headerBg: 'bg-red-50/70 dark:bg-red-900/20',
-            label: 'Crítico',
             groupLabel: 'Críticas'
         },
         warning: {
@@ -184,8 +278,6 @@ export class StudyResult {
             border: 'border-amber-200 dark:border-amber-800',
             badgeBg: 'bg-amber-100 dark:bg-amber-900/30',
             badgeColor: 'text-amber-700 dark:text-amber-400',
-            headerBg: 'bg-amber-50/70 dark:bg-amber-900/20',
-            label: 'Advertencia',
             groupLabel: 'Advertencias'
         },
         info: {
@@ -195,8 +287,6 @@ export class StudyResult {
             border: 'border-blue-200 dark:border-blue-800',
             badgeBg: 'bg-blue-100 dark:bg-blue-900/30',
             badgeColor: 'text-blue-700 dark:text-blue-400',
-            headerBg: 'bg-blue-50/70 dark:bg-blue-900/20',
-            label: 'Informativo',
             groupLabel: 'Informativas'
         }
     };
@@ -206,46 +296,41 @@ export class StudyResult {
     }
 
     dimensionTooltips: Record<string, string> = {
-        financialHealth: 'Evalua la solidez financiera general de la empresa mediante indicadores clave como el nivel de endeudamiento, la relacion entre activos y pasivos, y la capacidad de generar utilidades. Un puntaje alto indica estabilidad y bajo riesgo de insolvencia.',
-        paymentCapacity: 'Mide si la empresa genera suficiente flujo de caja para cubrir el cupo solicitado. Compara la capacidad de pago mensual (basada en EBITDA ajustado menos deuda actual) contra el monto del cupo. Un margen amplio indica holgura financiera.',
-        termCoherence: 'Compara el plazo de pago solicitado contra los tiempos reales de operacion del negocio (rotacion de cartera, inventarios y proveedores). Un plazo solicitado muy inferior al ciclo operativo real indica alto riesgo de incumplimiento.',
-        creditLineAdequacy: 'Verifica que el cupo solicitado sea proporcional a la capacidad financiera real de la empresa. Compara el monto solicitado contra el cupo maximo recomendado calculado a partir de la capacidad de pago y el plazo.',
-        paymentSuggestions: 'Alternativas de cupo y plazo calculadas a partir de la capacidad de pago real de la empresa, para facilitar la negociacion con el cliente.'
+        financialHealth: 'Evalúa la solidez financiera general de la empresa mediante indicadores clave como el nivel de endeudamiento, la relación entre activos y pasivos, y la capacidad de generar utilidades.',
+        paymentCapacity: 'Mide si la empresa genera suficiente flujo de caja para cubrir el cupo solicitado, comparando la capacidad de pago mensual contra el monto del cupo.',
+        termCoherence: 'Compara el plazo de pago solicitado contra los tiempos reales de operación del negocio (rotación de cartera, inventarios y proveedores).',
+        creditLineAdequacy: 'Verifica que el cupo solicitado sea proporcional a la capacidad financiera real de la empresa e incluye el techo avalado por la central.',
+        capitalExposure: 'Evalúa qué tan eficientemente la empresa usa su capital frente a la exposición del cupo solicitado.',
+        veracity: 'Contrasta las cifras del documento cargado contra las reportadas en la central de riesgo para el mismo periodo.',
+        centralRisk: 'Refleja el nivel de riesgo del cliente según la información de la central de riesgo.'
     };
 
-    getSuggestionLabel(type: string): string {
-        const labels: Record<string, string> = {
-            adjusted_term: 'Ajustando plazo',
-            adjusted_credit: 'Ajustando cupo',
-            recommended_term: 'Plazo recomendado'
-        };
-        return labels[type] ?? type;
-    }
-
-    getDimensionStatusConfig(dim: ViabilityDimension & { key: string }): { label: string; bg: string; color: string } {
-        const ratio = dim.score / dim.maxScore;
+    getDimensionStatusConfig(dim: DimensionView): { label: string; bg: string; color: string } {
+        const ratio = dim.fillRatio;
         if (ratio >= 0.8) return { label: 'Excelente', bg: 'bg-green-100 dark:bg-green-900/30', color: 'text-green-700 dark:text-green-400' };
         if (ratio >= 0.5) return { label: 'Aceptable', bg: 'bg-amber-100 dark:bg-amber-900/30', color: 'text-amber-700 dark:text-amber-400' };
-        return { label: 'Critico', bg: 'bg-red-100 dark:bg-red-900/30', color: 'text-red-700 dark:text-red-400' };
+        return { label: 'Crítico', bg: 'bg-red-100 dark:bg-red-900/30', color: 'text-red-700 dark:text-red-400' };
     }
 
-    getDimensionBarWidth(dim: ViabilityDimension): number {
-        return Math.round((dim.score / dim.maxScore) * 100);
+    getDimensionBarWidth(dim: DimensionView): number {
+        return Math.round(dim.fillRatio * 100);
     }
 
-    getDimensionBarColor(dim: ViabilityDimension): string {
-        const ratio = dim.score / dim.maxScore;
+    getDimensionBarColor(dim: DimensionView): string {
+        const ratio = dim.fillRatio;
         if (ratio >= 0.8) return 'bg-green-500';
         if (ratio >= 0.5) return 'bg-amber-500';
         return 'bg-red-500';
     }
 
+    // ─── IA ──────────────────────────────────────────────────────────────────
+
     onRequestAiAnalysis(): void {
         this.confirmationService.confirm({
-            message: 'Se realizara un analisis con inteligencia artificial basado en los resultados del estudio de credito. Esta accion consume una solicitud de su plan Pro.',
-            header: 'Analisis con IA',
+            message: 'Se realizará un análisis con inteligencia artificial basado en los resultados del estudio de crédito.',
+            header: 'Análisis con IA',
             icon: 'pi pi-sparkles',
-            acceptLabel: 'Si, analizar',
+            acceptLabel: 'Sí, analizar',
             rejectLabel: 'Cancelar',
             acceptButtonStyleClass: 'p-button-primary',
             rejectButtonStyleClass: 'p-button-secondary p-button-outlined',
@@ -254,22 +339,33 @@ export class StudyResult {
     }
 
     private executeAiAnalysis(): void {
-        const studyId = this.study().id;
+        const studyId = this.creditStudyId() ?? this.study().id;
         if (!studyId) return;
 
         this.aiLoading.set(true);
-        this.aiRequested.set(true);
+        this.aiError.set(false);
 
         this.creditStudyService.performAiAnalysis(studyId).pipe(
             finalize(() => this.aiLoading.set(false)),
             takeUntilDestroyed(this.destroyRef)
-        ).subscribe(data => {
-            this.aiAnalysis.set(data);
-            this.notificationService.success('Análisis de IA generado exitosamente', 'IA');
-            // El análisis con IA consume cuota: refresca permisos para que la UI
-            // oculte el botón si ya no quedan análisis disponibles.
-            // TODO(datacrédito): si el backend devuelve permisos en la respuesta, usar esa rama.
-            this.authService.refreshProfile();
+        ).subscribe({
+            next: (data) => {
+                // Guarda el análisis para mostrarlo sin recargar la página.
+                this.generatedAnalysis.set({
+                    id: data.id,
+                    result: data.result,
+                    status: data.status,
+                    durationMs: data.durationMs,
+                    createdAt: data.createdAt,
+                    performedBy: data.performedBy,
+                    performedByUser: data.performedByUser
+                });
+                this.notificationService.success('Análisis de IA generado exitosamente', 'IA');
+                this.authService.refreshProfile();
+            },
+            error: () => {
+                this.aiError.set(true);
+            }
         });
     }
 }

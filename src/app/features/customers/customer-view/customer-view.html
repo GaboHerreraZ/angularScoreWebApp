@@ -71,8 +71,11 @@
                     @if (c.economicActivity) {
                     <p-tag [value]="c.economicActivity.label" severity="secondary" [rounded]="true" />
                     }
-                    @if (c.seniority) {
-                    <p-tag [value]="c.seniority + (c.seniority === 1 ? ' año' : ' años') + ' de antigüedad'" severity="success" [rounded]="true" icon="pi pi-clock" />
+                    @if (c.bureauCreated) {
+                    <p-tag value="Perfil en buró" severity="success" [rounded]="true" icon="pi pi-verified" />
+                    }
+                    @if (c.lastConsultedAt) {
+                    <p-tag [value]="'Consultado ' + (c.lastConsultedAt | date:'dd/MM/yyyy')" severity="secondary" [rounded]="true" icon="pi pi-history" />
                     }
                 </div>
             </div>
@@ -91,6 +94,10 @@
                 <p-tab value="estudios-credito">
                     <i class="pi pi-chart-line mr-2"></i>
                     <span>Estudios de Crédito</span>
+                </p-tab>
+                <p-tab value="estadisticas">
+                    <i class="pi pi-chart-bar mr-2"></i>
+                    <span>Estadísticas</span>
                 </p-tab>
             </p-tablist>
         </p-tabs>

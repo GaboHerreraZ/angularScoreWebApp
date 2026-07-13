@@ -2,7 +2,8 @@ import { computed, inject, Injectable, signal } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { BehaviorSubject, Observable, switchMap, tap, catchError, of } from 'rxjs';
 import { ApiService } from '@/app/core/services/api.service';
-import { Customer } from '@/app/types/customer';
+import { Customer, CustomerDetail } from '@/app/types/customer';
+import { CustomerStats } from '@/app/types/customer-stats';
 import { CustomerCreditStudyResponse } from '@/app/types/credit-study';
 import { AuthService } from '@/app/core/services/auth.service';
 import { environment } from '@/environments/environment';
@@ -64,20 +65,8 @@ export class CustomersService {
         this.loadTrigger$.next({ page, rows, search });
     }
 
-    createCustomer(customer: Omit<Customer, 'id'>): Observable<Customer> {
-        return this.apiService.post<Customer>(this.basePath, customer);
-    }
-
-    updateCustomer(id: number, customer: Partial<Customer>): Observable<Customer> {
-        return this.apiService.patch<Customer>(`${this.basePath}/${id}`, customer);
-    }
-
-    deleteCustomer(id: number): Observable<void> {
-        return this.apiService.delete<void>(`${this.basePath}/${id}`);
-    }
-
-    getCustomerById(id: number): Observable<Customer> {
-        return this.apiService.get<Customer>(`${this.basePath}/${id}`);
+    getCustomerById(id: string): Observable<CustomerDetail> {
+        return this.apiService.get<CustomerDetail>(`${this.basePath}/${id}`);
     }
 
     exportToExcel(): Observable<HttpResponse<Blob>> {
@@ -87,7 +76,11 @@ export class CustomersService {
         });
     }
 
-    getCustomerCreditStudies(customerId: number): Observable<CustomerCreditStudyResponse[]> {
+    getCustomerCreditStudies(customerId: string): Observable<CustomerCreditStudyResponse[]> {
         return this.apiService.get<CustomerCreditStudyResponse[]>(`${this.basePath}/${customerId}/credit-studies`);
+    }
+
+    getCustomerStats(customerId: string): Observable<CustomerStats> {
+        return this.apiService.get<CustomerStats>(`${this.basePath}/${customerId}/stats`);
     }
 }

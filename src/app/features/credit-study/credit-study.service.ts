@@ -3,7 +3,15 @@ import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable, BehaviorSubject, of, catchError, tap, switchMap } from 'rxjs';
 import { ApiService } from '@/app/core/services/api.service';
 import { AuthService } from '@/app/core/services/auth.service';
-import { AiAnalysisResponse, CreateCreditStudy } from '@/app/types/credit-study';
+import {
+    AiAnalysisResponse,
+    CreateCreditStudy,
+    CreateFromBureauPayload,
+    CreateFromBureauResponse,
+    CreditStudyStepsResponse,
+    ExtractFinancialStatementsResponse,
+    PerformStudyResponse
+} from '@/app/types/credit-study';
 import { environment } from '@/environments/environment';
 
 interface LoadCreditStudiesParams {
@@ -83,8 +91,40 @@ export class CreditStudyService {
         return this.apiService.get<CreateCreditStudy>(`${this.basePath}/${id}`);
     }
 
+    /**
+     * Crea el estudio de crédito a partir de la consulta al bureau: el backend
+     * consulta al cliente en centrales de riesgo (o lo toma de la base de datos),
+     * crea el customer si no existe y devuelve el id del estudio creado.
+     */
+    createFromBureau(payload: CreateFromBureauPayload): Observable<CreateFromBureauResponse> {
+        return this.apiService.post<CreateFromBureauResponse>(`${this.basePath}/from-bureau`, payload);
+    }
+
+    /** Devuelve los datos de cada step del estudio (step1 = perfil del cliente en centrales). */
+    getCreditStudySteps(creditStudyId: string): Observable<CreditStudyStepsResponse> {
+        return this.apiService.get<CreditStudyStepsResponse>(`${this.basePath}/${creditStudyId}/steps`);
+    }
+
+    /**
+     * Sube el PDF de estados financieros del cliente para extraer los periodos.
+     * El backend combina lo extraído del PDF con lo consultado en Datacrédito.
+     */
+    extractFinancialStatements(creditStudyId: string, file: File): Observable<ExtractFinancialStatementsResponse> {
+        const formData = new FormData();
+        formData.append('file', file);
+        return this.apiService.post<ExtractFinancialStatementsResponse>(
+            `${this.basePath}/${creditStudyId}/financial-statements/extract-pdf`,
+            formData
+        );
+    }
+
     performCreditStudy(id: string): Observable<any> {
         return this.apiService.get<any>(`${this.basePath}/${id}/perform`, {});
+    }
+
+    /** Ejecuta el análisis de scoring del estudio y devuelve el resultado de viabilidad. */
+    performStudy(id: string): Observable<PerformStudyResponse> {
+        return this.apiService.post<PerformStudyResponse>(`${this.basePath}/${id}/perform`, {});
     }
 
     extractFinancialData(file: File, params: {

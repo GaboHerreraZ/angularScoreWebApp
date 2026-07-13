@@ -3,22 +3,18 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { CustomTable } from '@/app/shared/components/table/table';
 import { TableSettings, TablePageChangeEvent, TableSearchEvent, TableActionEvent } from '@/app/types/table';
 import { CustomersService } from './customers.service';
-import { ConfirmService, provideConfirm } from '@/app/shared/services/confirm.service';
 
 @Component({
     selector: 'app-customers',
     standalone: true,
-    imports: [CommonModule, CustomTable, ConfirmDialogModule],
-    providers: [provideConfirm()],
+    imports: [CommonModule, CustomTable],
     templateUrl: './customers.html'
 })
 export class Customers implements OnInit {
     private destroyRef = inject(DestroyRef);
-    private confirmService = inject(ConfirmService);
 
     exporting = signal(false);
 
@@ -32,14 +28,7 @@ export class Customers implements OnInit {
         emptyState: {
             icon: 'pi pi-address-book',
             title: 'Aún no tienes clientes',
-            description: 'Crea tu primer cliente para empezar a registrar estudios de crédito.',
-            actionLabel: 'Crear primer cliente',
-            actionIcon: 'pi pi-plus'
-        },
-        addButton: {
-            label: 'Nuevo Cliente',
-            icon: 'pi pi-plus',
-            severity: 'success' as const
+            description: 'Los clientes se registran automáticamente al crear estudios de crédito.'
         },
         exportButton: {
             label: 'Exportar',
@@ -48,8 +37,7 @@ export class Customers implements OnInit {
             loading: this.exporting()
         },
         actions: [
-            { id: 'edit', icon: 'pi pi-pencil', severity: 'info', tooltip: 'Editar' },
-            { id: 'delete', icon: 'pi pi-trash', severity: 'danger', tooltip: 'Eliminar' }
+            { id: 'view', icon: 'pi pi-eye', severity: 'info', tooltip: 'Ver detalle' }
         ],
         actionsHeader: 'Acciones',
         columns: [
@@ -106,27 +94,9 @@ export class Customers implements OnInit {
     }
 
     onActionClick(event: TableActionEvent): void {
-        switch (event.action) {
-            case 'edit':
-                this.router.navigate(['/app/clientes/detalle-cliente', event.row.id]);
-                break;
-            case 'delete':
-                this.confirmService.delete(
-                    `el cliente "${event.row.businessName ?? event.row.name ?? ''}"`,
-                    () => {
-                        this.customersService.deleteCustomer(event.row.id).pipe(
-                            takeUntilDestroyed(this.destroyRef)
-                        ).subscribe(() => {
-                            this.customersService.loadCustomers();
-                        });
-                    }
-                );
-                break;
+        if (event.action === 'view') {
+            this.router.navigate(['/app/clientes/detalle-cliente', event.row.id]);
         }
-    }
-
-    onAdd(): void {
-        this.router.navigate(['/app/clientes/detalle-cliente']);
     }
 
     onExport(): void {

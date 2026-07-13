@@ -8,36 +8,69 @@
         <p class="text-sm text-muted-color m-0 text-center max-w-lg">{{ statusConfig().description }}</p>
 
         <!-- Metricas principales -->
-        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 w-full mt-4 pt-4 border-t" [ngClass]="statusConfig().border">
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 w-full mt-4 pt-4 border-t" [ngClass]="statusConfig().border">
             <div class="flex flex-col items-center gap-1">
                 <span class="text-xs font-bold text-muted-color">Cupo Solicitado</span>
-                <span class="font-semibold text-base">{{ study().requestedCreditLine | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</span>
+                <span class="font-semibold text-base">{{ requestedAmount() | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</span>
             </div>
             <div class="flex flex-col items-center gap-1">
-                <span class="text-xs font-bold text-muted-color">Cupo Recomendado</span>
-                <span class="font-semibold text-base">{{ (summary()?.recommendedCreditLine ?? study().recommendedCreditLine) | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</span>
+                <span class="text-xs font-bold text-muted-color">Cupo Aprobado</span>
+                <span class="font-semibold text-base" [ngClass]="statusConfig().titleColor">{{ approvedAmount() | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</span>
             </div>
             <div class="flex flex-col items-center gap-1">
-                <span class="text-xs font-bold text-muted-color">Capacidad Pago Mensual</span>
-                <span class="font-semibold text-base">{{ (summary()?.monthlyPaymentCapacity ?? study().monthlyPaymentCapacity) | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</span>
+                <span class="text-xs font-bold text-muted-color">Plazo Solicitado</span>
+                <span class="font-semibold text-base">{{ requestedTermValue() ?? study().recommendedTerm }} días</span>
             </div>
+            @if (bureauSuggestedAmount() != null) {
             <div class="flex flex-col items-center gap-1">
-                <span class="text-xs font-bold text-muted-color">Rotacion de Cartera</span>
-                <span class="font-semibold text-base">{{ study().accountsReceivableTurnover ?? 0 }} dias</span>
+                <span class="text-xs font-bold text-muted-color">Sugerido por la Central</span>
+                <span class="font-semibold text-base">{{ bureauSuggestedAmount() | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</span>
             </div>
-            <div class="flex flex-col items-center gap-1">
-                <span class="text-xs font-bold text-muted-color">Pago a Proveedores</span>
-                <span class="font-semibold text-base">{{ study().paymentTimeSuppliers ?? 0 }} dias</span>
-            </div>
+            }
             <div class="flex flex-col items-center gap-1">
                 <span class="text-xs font-bold text-muted-color">Score</span>
                 <span class="font-bold text-base" [ngClass]="statusConfig().titleColor">{{ scorePercentage() }} / {{ maxScore() }}</span>
             </div>
         </div>
+
+        @if (cappedByBureau()) {
+        <div class="flex items-center gap-2 mt-2 px-3 py-2 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800">
+            <i class="pi pi-info-circle text-amber-600 dark:text-amber-400 text-sm shrink-0"></i>
+            <span class="text-xs text-amber-700 dark:text-amber-400">El cupo aprobado se ajustó al monto máximo avalado por la central de riesgo.</span>
+        </div>
+        }
     </div>
 
-    <!-- Alertas de Confiabilidad (Red Flags de los Estados Financieros) -->
-    @if (reliabilityFlags().length) {
+    <!-- ══════════ Cifras Financieras Clave ══════════ -->
+    @if (keyFigures().length) {
+    <div class="rounded-xl border border-surface p-5">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+            <div class="flex items-center gap-2">
+                <i class="pi pi-chart-bar text-primary-500"></i>
+                <h6 class="font-bold text-base m-0">Cifras Financieras Clave</h6>
+            </div>
+            @if (calculationSourceConfig(); as source) {
+            <div class="flex items-center gap-2">
+                <span class="text-xs text-muted-color">Fuente del cálculo:</span>
+                <span class="text-xs font-semibold px-2.5 py-1 rounded-full inline-flex items-center gap-1.5" [ngClass]="[source.bg, source.color]">
+                    <i [ngClass]="source.icon"></i>{{ source.label }}
+                </span>
+            </div>
+            }
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-4">
+            @for (fig of keyFigures(); track fig.label) {
+            <div class="flex flex-col gap-0.5">
+                <span class="text-xs text-muted-color">{{ fig.label }}</span>
+                <span class="text-sm font-semibold">{{ fig.value }}</span>
+            </div>
+            }
+        </div>
+    </div>
+    }
+
+    <!-- ══════════ Capa 1: Fiabilidad del documento (pdfReliabilityFlags) ══════════ -->
+    @if (pdfReliabilityCount()) {
     <div class="rounded-xl border border-red-200 dark:border-red-800 overflow-hidden">
         <p-accordion [value]="[]" expandIcon="pi pi-chevron-down" collapseIcon="pi pi-chevron-up">
             <p-accordion-panel value="reliability">
@@ -47,17 +80,76 @@
                             <i class="pi pi-flag-fill text-white text-sm"></i>
                         </div>
                         <div class="flex-1 text-left">
-                            <h6 class="font-bold text-sm m-0 text-red-800 dark:text-red-300">Alertas de Confiabilidad</h6>
-                            <span class="text-xs text-muted-color">Señales detectadas en los estados financieros que conviene revisar antes de decidir.</span>
+                            <h6 class="font-bold text-sm m-0 text-red-800 dark:text-red-300">Fiabilidad del Documento</h6>
+                            <span class="text-xs text-muted-color">Señales detectadas en los estados financieros cargados (el documento contra sí mismo).</span>
                         </div>
                         <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 mr-2">
-                            {{ reliabilityFlags().length }}
+                            {{ pdfReliabilityCount() }}
                         </span>
                     </div>
                 </p-accordion-header>
                 <p-accordion-content>
                     <p-accordion [value]="['danger']" [multiple]="true" expandIcon="pi pi-chevron-down" collapseIcon="pi pi-chevron-up">
-                        @for (group of reliabilityFlagGroups(); track group.severity) {
+                        @for (group of pdfReliabilityGroups(); track group.severity) {
+                        <p-accordion-panel [value]="group.severity">
+                            <p-accordion-header>
+                                <div class="flex items-center gap-2.5 w-full">
+                                    <i [ngClass]="[getReliabilityFlagConfig(group.severity).icon, getReliabilityFlagConfig(group.severity).iconColor]" class="text-base shrink-0"></i>
+                                    <span class="text-sm font-semibold">{{ getReliabilityFlagConfig(group.severity).groupLabel }}</span>
+                                    <span class="text-[0.7rem] font-semibold px-2 py-0.5 rounded-full" [ngClass]="[getReliabilityFlagConfig(group.severity).badgeBg, getReliabilityFlagConfig(group.severity).badgeColor]">
+                                        {{ group.flags.length }}
+                                    </span>
+                                </div>
+                            </p-accordion-header>
+                            <p-accordion-content>
+                                <div class="flex flex-col gap-3 pt-1">
+                                    @for (flag of group.flags; track $index) {
+                                    <div class="flex items-start gap-3 p-4 rounded-lg border" [ngClass]="[getReliabilityFlagConfig(flag.severity).bg, getReliabilityFlagConfig(flag.severity).border]">
+                                        <i [ngClass]="[getReliabilityFlagConfig(flag.severity).icon, getReliabilityFlagConfig(flag.severity).iconColor]" class="text-base mt-0.5 shrink-0"></i>
+                                        <div class="flex-1 min-w-0">
+                                            <div class="flex flex-wrap items-center gap-2 mb-1">
+                                                <span class="text-sm font-semibold">{{ flag.title }}</span>
+                                                @if (flag.category) {
+                                                <span class="text-[0.65rem] font-medium px-2 py-0.5 rounded-full bg-surface-100 dark:bg-surface-800 text-muted-color">{{ flag.category }}</span>
+                                                }
+                                            </div>
+                                            <p class="text-sm text-muted-color m-0 leading-relaxed">{{ flag.detail }}</p>
+                                        </div>
+                                    </div>
+                                    }
+                                </div>
+                            </p-accordion-content>
+                        </p-accordion-panel>
+                        }
+                    </p-accordion>
+                </p-accordion-content>
+            </p-accordion-panel>
+        </p-accordion>
+    </div>
+    }
+
+    <!-- ══════════ Capa 2: Señales de la central de riesgo (centralRiskFlags) ══════════ -->
+    @if (centralRiskCount()) {
+    <div class="rounded-xl border border-orange-200 dark:border-orange-800 overflow-hidden">
+        <p-accordion [value]="[]" expandIcon="pi pi-chevron-down" collapseIcon="pi pi-chevron-up">
+            <p-accordion-panel value="centralRisk">
+                <p-accordion-header>
+                    <div class="flex items-center gap-3 w-full">
+                        <div class="w-8 h-8 rounded-lg bg-linear-to-br from-orange-500 to-amber-600 flex items-center justify-center shrink-0">
+                            <i class="pi pi-building-columns text-white text-sm"></i>
+                        </div>
+                        <div class="flex-1 text-left">
+                            <h6 class="font-bold text-sm m-0 text-orange-800 dark:text-orange-300">Señales de la Central de Riesgo</h6>
+                            <span class="text-xs text-muted-color">Alertas reportadas por la central sobre el comportamiento y riesgo del cliente.</span>
+                        </div>
+                        <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 mr-2">
+                            {{ centralRiskCount() }}
+                        </span>
+                    </div>
+                </p-accordion-header>
+                <p-accordion-content>
+                    <p-accordion [value]="['danger']" [multiple]="true" expandIcon="pi pi-chevron-down" collapseIcon="pi pi-chevron-up">
+                        @for (group of centralRiskGroups(); track group.severity) {
                         <p-accordion-panel [value]="group.severity">
                             <p-accordion-header>
                                 <div class="flex items-center gap-2.5 w-full">
@@ -96,31 +188,40 @@
     }
 
     <!-- Analisis IA -->
-    @if (canUseAi() && !readOnly()) {
+    @if (hasAiAnalysis()) {
+    <!-- Resultado del análisis (recién generado o ya existente en el estudio) -->
     <div class="rounded-xl border border-purple-200 dark:border-purple-800 overflow-hidden">
-        @if (!aiRequested()) {
-        <!-- Boton para solicitar analisis -->
-        <div class="relative bg-linear-to-r from-purple-50 via-indigo-50 to-purple-50 dark:from-purple-900/20 dark:via-indigo-900/20 dark:to-purple-900/20 p-6">
-            <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(139,92,246,0.08),transparent_50%),radial-gradient(circle_at_70%_50%,rgba(99,102,241,0.08),transparent_50%)]"></div>
-            <div class="relative flex flex-col sm:flex-row items-center gap-4">
-                <div class="w-14 h-14 rounded-2xl bg-linear-to-br from-purple-500 to-indigo-600 flex items-center justify-center shrink-0 shadow-lg shadow-purple-500/25 ai-icon-pulse">
-                    <i class="pi pi-sparkles text-white text-2xl"></i>
+        <div class="bg-linear-to-r from-purple-50/50 via-indigo-50/50 to-purple-50/50 dark:from-purple-900/10 dark:via-indigo-900/10 dark:to-purple-900/10">
+            <div class="flex items-center gap-3 px-6 pt-5 pb-3">
+                <div class="w-10 h-10 rounded-xl bg-linear-to-br from-purple-500 to-indigo-600 flex items-center justify-center shrink-0 shadow-md shadow-purple-500/20">
+                    <i class="pi pi-sparkles text-white text-base"></i>
                 </div>
-                <div class="flex-1 text-center sm:text-left">
-                    <h6 class="font-bold text-base m-0 text-purple-800 dark:text-purple-300">Analisis con Inteligencia Artificial</h6>
-                    <p class="text-sm text-purple-600/80 dark:text-purple-400/80 m-0 mt-1">Obtiene una interpretacion ejecutiva del estudio de credito generada por IA, con diagnostico, capacidad de pago y recomendaciones concretas.</p>
+                <div class="flex-1">
+                    <h6 class="font-bold text-base m-0 text-purple-800 dark:text-purple-300">Análisis de Inteligencia Artificial</h6>
+                    <span class="text-xs text-muted-color">Generado por IA &middot; {{ currentAiAnalysis()!.createdAt | date:'d MMM yyyy, h:mm a':'':'es-CO' }}</span>
                 </div>
-                <p-button
-                    label="Generar Analisis"
-                    icon="pi pi-sparkles"
-                    severity="help"
-                    (onClick)="onRequestAiAnalysis()"
-                    styleClass="ai-btn-glow"
-                />
+                <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400">
+                    <i class="pi pi-check-circle mr-1"></i>Completado
+                </span>
+            </div>
+            <div class="px-6 pb-5">
+                <div class="bg-white/70 dark:bg-surface-900/50 rounded-xl p-5 border border-purple-100 dark:border-purple-900/40 ai-result-fade-in">
+                    <p class="text-sm leading-relaxed text-surface-700 dark:text-surface-300 m-0 whitespace-pre-line">{{ currentAiAnalysis()!.result }}</p>
+                </div>
+                <div class="flex items-center gap-4 mt-3 text-xs text-muted-color">
+                    @if (currentAiAnalysis()!.durationMs) {
+                    <span><i class="pi pi-clock mr-1"></i>{{ currentAiAnalysis()!.durationMs }}ms</span>
+                    }
+                    @if (currentAiAnalysis()!.performedByUser; as user) {
+                    <span><i class="pi pi-user mr-1"></i>{{ user.name }} {{ user.lastName }}</span>
+                    }
+                </div>
             </div>
         </div>
-        } @else if (aiLoading()) {
-        <!-- Estado de carga con animacion -->
+    </div>
+    } @else if (canUseAi() && !readOnly()) {
+    <div class="rounded-xl border border-purple-200 dark:border-purple-800 overflow-hidden">
+        @if (aiLoading()) {
         <div class="bg-linear-to-r from-purple-50 via-indigo-50 to-purple-50 dark:from-purple-900/20 dark:via-indigo-900/20 dark:to-purple-900/20 p-6">
             <div class="flex flex-col items-center gap-4 py-4">
                 <div class="relative w-16 h-16">
@@ -132,225 +233,117 @@
                 </div>
                 <div class="text-center">
                     <h6 class="font-bold text-base m-0 text-purple-800 dark:text-purple-300">Analizando con IA...</h6>
-                    <p class="text-sm text-purple-600/70 dark:text-purple-400/70 m-0 mt-1 ai-typing">Procesando indicadores financieros y generando diagnostico</p>
+                    <p class="text-sm text-purple-600/70 dark:text-purple-400/70 m-0 mt-1 ai-typing">Procesando indicadores financieros y generando diagnóstico</p>
                 </div>
             </div>
         </div>
-        } @else if (aiAnalysis()) {
-        <!-- Resultado del analisis -->
-        <div class="bg-linear-to-r from-purple-50/50 via-indigo-50/50 to-purple-50/50 dark:from-purple-900/10 dark:via-indigo-900/10 dark:to-purple-900/10">
-            <div class="flex items-center gap-3 px-6 pt-5 pb-3">
-                <div class="w-10 h-10 rounded-xl bg-linear-to-br from-purple-500 to-indigo-600 flex items-center justify-center shrink-0 shadow-md shadow-purple-500/20">
-                    <i class="pi pi-sparkles text-white text-base"></i>
-                </div>
-                <div class="flex-1">
-                    <h6 class="font-bold text-base m-0 text-purple-800 dark:text-purple-300">Analisis de Inteligencia Artificial</h6>
-                    <span class="text-xs text-muted-color">Generado por IA &middot; {{ aiAnalysis()!.createdAt | date:'d MMM yyyy, h:mm a':'':'es-CO' }}</span>
-                </div>
-                @if (aiAnalysis()!.status === 'success') {
-                <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400">
-                    <i class="pi pi-check-circle mr-1"></i>Completado
-                </span>
-                }
-            </div>
-            <div class="px-6 pb-5">
-                <div class="bg-white/70 dark:bg-surface-900/50 rounded-xl p-5 border border-purple-100 dark:border-purple-900/40 ai-result-fade-in">
-                    <p class="text-sm leading-relaxed text-surface-700 dark:text-surface-300 m-0 whitespace-pre-line">{{ aiAnalysis()!.result }}</p>
-                </div>
-                <div class="flex items-center gap-4 mt-3 text-xs text-muted-color">
-                    <span><i class="pi pi-clock mr-1"></i>{{ aiAnalysis()!.durationMs }}ms</span>
-                    <span><i class="pi pi-user mr-1"></i>{{ aiAnalysis()!.performedByUser.name }} {{ aiAnalysis()!.performedByUser.lastName }}</span>
-                </div>
-            </div>
-        </div>
-        } @else {
-        <!-- Error state -->
+        } @else if (aiError()) {
         <div class="bg-red-50 dark:bg-red-900/10 p-6">
             <div class="flex items-center gap-3">
                 <i class="pi pi-exclamation-circle text-red-500 text-xl"></i>
                 <div class="flex-1">
-                    <h6 class="font-bold text-sm m-0 text-red-700 dark:text-red-400">No se pudo generar el analisis</h6>
-                    <p class="text-sm text-red-600/70 dark:text-red-400/70 m-0 mt-1">Ocurrio un error al procesar el analisis. Puede intentarlo nuevamente.</p>
+                    <h6 class="font-bold text-sm m-0 text-red-700 dark:text-red-400">No se pudo generar el análisis</h6>
+                    <p class="text-sm text-red-600/70 dark:text-red-400/70 m-0 mt-1">Ocurrió un error al procesar el análisis. Puede intentarlo nuevamente.</p>
                 </div>
                 <p-button label="Reintentar" icon="pi pi-refresh" severity="danger" [outlined]="true" (onClick)="onRequestAiAnalysis()" />
             </div>
         </div>
-        }
-    </div>
-    }
-
-    <!-- Historial de analisis IA -->
-    @if (hasExistingAnalyses()) {
-    <div class="rounded-xl border border-purple-200 dark:border-purple-800 overflow-hidden">
-        <div class="flex items-center gap-3 px-6 py-4 bg-linear-to-r from-purple-50/50 via-indigo-50/50 to-purple-50/50 dark:from-purple-900/10 dark:via-indigo-900/10 dark:to-purple-900/10 border-b border-purple-100 dark:border-purple-900/40">
-            <div class="w-8 h-8 rounded-lg bg-linear-to-br from-purple-500 to-indigo-600 flex items-center justify-center shrink-0">
-                <i class="pi pi-sparkles text-white text-sm"></i>
+        } @else {
+        <div class="relative bg-linear-to-r from-purple-50 via-indigo-50 to-purple-50 dark:from-purple-900/20 dark:via-indigo-900/20 dark:to-purple-900/20 p-6">
+            <div class="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(139,92,246,0.08),transparent_50%),radial-gradient(circle_at_70%_50%,rgba(99,102,241,0.08),transparent_50%)]"></div>
+            <div class="relative flex flex-col sm:flex-row items-center gap-4">
+                <div class="w-14 h-14 rounded-2xl bg-linear-to-br from-purple-500 to-indigo-600 flex items-center justify-center shrink-0 shadow-lg shadow-purple-500/25 ai-icon-pulse">
+                    <i class="pi pi-sparkles text-white text-2xl"></i>
+                </div>
+                <div class="flex-1 text-center sm:text-left">
+                    <h6 class="font-bold text-base m-0 text-purple-800 dark:text-purple-300">Análisis con Inteligencia Artificial</h6>
+                    <p class="text-sm text-purple-600/80 dark:text-purple-400/80 m-0 mt-1">Obtiene una interpretación ejecutiva del estudio de crédito generada por IA, con diagnóstico, capacidad de pago y recomendaciones concretas.</p>
+                </div>
+                <p-button
+                    label="Generar Análisis"
+                    icon="pi pi-sparkles"
+                    severity="help"
+                    (onClick)="onRequestAiAnalysis()"
+                    styleClass="ai-btn-glow"
+                />
             </div>
-            <h6 class="font-bold text-sm m-0 text-purple-800 dark:text-purple-300">Historial de Analisis IA</h6>
-            <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400">
-                {{ existingAiAnalyses().length }}
-            </span>
         </div>
-        <p-accordion [multiple]="true" [value]="['0']" expandIcon="pi pi-chevron-down" collapseIcon="pi pi-chevron-up">
-            @for (analysis of existingAiAnalyses(); track analysis.id; let i = $index) {
-            <p-accordion-panel [value]="i.toString()">
-                <p-accordion-header>
-                    <div class="flex items-center gap-3 w-full">
-                        <div class="flex-1 flex items-center gap-2">
-                            <i class="pi pi-sparkles text-purple-500 text-xs"></i>
-                            <span class="text-sm font-semibold">Analisis #{{ existingAiAnalyses().length - i }}</span>
-                            <span class="text-xs text-muted-color">&middot; {{ analysis.createdAt | date:'d MMM yyyy, h:mm a':'':'es-CO' }}</span>
-                        </div>
-                        <span class="text-xs text-muted-color mr-2">
-                            <i class="pi pi-user mr-1"></i>{{ analysis.performedByUser.name }} {{ analysis.performedByUser.lastName }}
-                        </span>
-                    </div>
-                </p-accordion-header>
-                <p-accordion-content>
-                    <div class="p-4">
-                        <p class="text-sm leading-relaxed text-surface-700 dark:text-surface-300 m-0 whitespace-pre-line">{{ analysis.result }}</p>
-                    </div>
-                </p-accordion-content>
-            </p-accordion-panel>
-            }
-        </p-accordion>
+        }
     </div>
     }
     <p-confirmDialog />
 
     <!-- Dimensiones de viabilidad -->
     @if (dimensions().length) {
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        @for (dim of dimensions(); track dim.key) {
-        <p-card>
-            <div class="flex items-center justify-between mb-3">
-                <div class="flex items-center gap-2">
-                    <h6 class="font-bold text-sm m-0">{{ dim.label }}</h6>
-                    @if (dimensionTooltips[dim.key]) {
-                    <app-help-tooltip [text]="dimensionTooltips[dim.key]" />
-                    }
+    <div class="flex flex-col gap-3">
+        <h6 class="font-bold text-base m-0">Dimensiones de Viabilidad</h6>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            @for (dim of dimensions(); track dim.key) {
+            <div class="flex flex-col gap-3 rounded-xl border border-surface bg-surface-0 dark:bg-surface-900 p-5 transition-shadow hover:shadow-sm">
+                <div class="flex items-start justify-between gap-3">
+                    <h6 class="font-semibold text-sm m-0 leading-snug">{{ dim.label }}</h6>
+                    <span class="text-[0.7rem] font-semibold px-2.5 py-1 rounded-full shrink-0" [ngClass]="[getDimensionStatusConfig(dim).bg, getDimensionStatusConfig(dim).color]">
+                        {{ getDimensionStatusConfig(dim).label }}
+                    </span>
                 </div>
-                <span class="text-xs font-semibold px-2.5 py-1 rounded-full" [ngClass]="[getDimensionStatusConfig(dim).bg, getDimensionStatusConfig(dim).color]">
-                    {{ getDimensionStatusConfig(dim).label }}
-                </span>
-            </div>
-            <div class="flex items-center gap-3 mb-2">
-                <div class="flex-1 h-2.5 rounded-full bg-surface-200 overflow-hidden">
-                    <div class="h-full rounded-full transition-all duration-500" [ngClass]="getDimensionBarColor(dim)" [style.width.%]="getDimensionBarWidth(dim)"></div>
-                </div>
-                <span class="text-sm font-semibold text-muted-color whitespace-nowrap">{{ dim.score }} / {{ dim.maxScore }}</span>
-            </div>
-            @if (dim.reason) {
-            <p class="text-xs text-muted-color mt-2 m-0">{{ dim.reason }}</p>
-            }
-            @if (dim.key === 'termCoherence' && dim.realTerm != null) {
-            <div class="text-xs text-muted-color mt-1">
-                Plazo solicitado: <span class="font-semibold">{{ dim.requestedTerm }} dias</span> &middot; Plazo real: <span class="font-semibold">{{ dim.realTerm }} dias</span>
-            </div>
-            }
-            @if (dim.key === 'paymentCapacity' && dim.marginPercent != null) {
-            <div class="text-xs text-muted-color mt-1">
-                Margen de cobertura: <span class="font-semibold">{{ dim.marginPercent }}%</span>
-            </div>
-            }
-            @if (dim.key === 'creditLineAdequacy' && dim.ratio != null) {
-            <div class="text-xs text-muted-color mt-1">
-                Ratio solicitado/recomendado: <span class="font-semibold">{{ dim.ratio | number:'1.1-1' }}%</span>
-            </div>
-            }
-        </p-card>
-        }
-    </div>
-    }
-
-    <!-- Sugerencias de Pago -->
-    @if (paymentSuggestions(); as ps) {
-    <p-card>
-        <div class="flex items-center gap-2 mb-4">
-            <i class="pi pi-lightbulb text-primary"></i>
-            <h6 class="font-bold text-base m-0">{{ ps.label }}</h6>
-            @if (dimensionTooltips['paymentSuggestions']) {
-            <app-help-tooltip [text]="dimensionTooltips['paymentSuggestions']" />
-            }
-        </div>
-        <p class="text-sm text-muted-color mb-4 m-0">Opciones calculadas a partir de la capacidad de pago para facilitar la negociacion con el cliente.</p>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            @for (s of ps.suggestions!; track $index) {
-            <div class="rounded-lg border border-surface p-4 flex flex-col gap-3">
-                <div class="flex items-center gap-2">
-                    <i class="pi text-sm" [ngClass]="{
-                        'pi-calendar-clock text-blue-500': s.type === 'adjusted_term',
-                        'pi-wallet text-amber-500': s.type === 'adjusted_credit',
-                        'pi-star text-green-500': s.type === 'recommended_term'
-                    }"></i>
-                    <span class="text-sm font-semibold">{{ getSuggestionLabel(s.type) }}</span>
-                </div>
-                <p class="text-xs text-muted-color m-0">{{ s.description }}</p>
-                <div class="flex flex-col gap-2">
-                    <div class="flex justify-between text-sm">
-                        <span class="text-muted-color">Cupo</span>
-                        <span class="font-semibold">{{ s.suggestedCredit | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</span>
+                <div class="flex items-center gap-3">
+                    <div class="flex-1 h-2 rounded-full bg-surface-200 dark:bg-surface-700 overflow-hidden">
+                        <div class="h-full rounded-full transition-all duration-500" [ngClass]="getDimensionBarColor(dim)" [style.width.%]="getDimensionBarWidth(dim)"></div>
                     </div>
-                    <div class="flex justify-between text-sm">
-                        <span class="text-muted-color">Plazo</span>
-                        <span class="font-semibold">{{ s.suggestedTerm }} dias</span>
-                    </div>
-                    <div class="flex justify-between text-sm">
-                        <span class="text-muted-color">Cuota</span>
-                        <span class="font-semibold">{{ s.numberOfPayments }} x {{ s.paymentAmount | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</span>
-                    </div>
+                    <span class="text-sm font-semibold text-muted-color whitespace-nowrap">{{ dim.contribution | number:'1.0-1' }} / {{ dim.weight }} pts</span>
                 </div>
-            </div>
-            }
-        </div>
-    </p-card>
-    }
-
-    <!-- Score crediticio + Alertas -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <!-- Score Crediticio -->
-        <p-card>
-            <h6 class="font-bold text-base mb-4 m-0">Score Crediticio</h6>
-            <div class="text-center mb-2">
-                <span class="text-4xl font-bold" [ngClass]="statusConfig().titleColor">{{ scorePercentage() }}</span>
-                <span class="text-muted-color text-lg"> / {{ maxScore() }}</span>
-            </div>
-            <div class="h-3 rounded-md bg-surface-200 overflow-hidden my-3">
-                <div class="h-full rounded-md transition-all duration-500" [style.width.%]="(scorePercentage() / maxScore()) * 100" style="background: linear-gradient(90deg, #ef4444 0%, #f59e0b 40%, #22c55e 70%, #16a34a 100%)"></div>
-            </div>
-            <div class="flex justify-between text-xs text-muted-color mt-1">
-                <span>Alto Riesgo</span>
-                <span>Bajo Riesgo</span>
-            </div>
-        </p-card>
-
-        <!-- Alertas y Recomendaciones -->
-        <p-card>
-            <h6 class="font-bold text-base mb-4 m-0">Alertas y Recomendaciones</h6>
-            @if (alerts().length) {
-            <div class="flex flex-col gap-2">
-                @for (alert of alerts(); track $index) {
-                <div class="flex items-start gap-2.5 p-3 rounded-lg" [ngClass]="{
-                    'bg-green-50 dark:bg-green-900/20': alert.type === 'success',
-                    'bg-amber-50 dark:bg-amber-900/20': alert.type === 'warning',
-                    'bg-red-50 dark:bg-red-900/20': alert.type === 'danger',
-                    'bg-blue-50 dark:bg-blue-900/20': alert.type === 'info'
-                }">
-                    <i [ngClass]="alertIconMap[alert.type]" class="text-sm mt-0.5" [ngClass]="{
-                        'text-green-600 dark:text-green-400': alert.type === 'success',
-                        'text-amber-600 dark:text-amber-400': alert.type === 'warning',
-                        'text-red-600 dark:text-red-400': alert.type === 'danger',
-                        'text-blue-600 dark:text-blue-400': alert.type === 'info'
-                    }"></i>
-                    <span class="text-sm">{{ alert.message }}</span>
-                </div>
+                @if (dimensionTooltips[dim.key]) {
+                <p class="text-xs text-muted-color leading-relaxed m-0 pt-1 border-t border-surface">{{ dimensionTooltips[dim.key] }}</p>
                 }
             </div>
-            } @else {
-            <p class="text-sm text-muted-color">No hay alertas disponibles.</p>
             }
-        </p-card>
+        </div>
     </div>
+    }
+
+    <!-- Score Crediticio (ancho completo) -->
+    <p-card>
+        <h6 class="font-bold text-base mb-4 m-0">Score Crediticio</h6>
+        <div class="text-center mb-2">
+            <span class="text-4xl font-bold" [ngClass]="statusConfig().titleColor">{{ scorePercentage() }}</span>
+            <span class="text-muted-color text-lg"> / {{ maxScore() }}</span>
+        </div>
+        <div class="h-3 rounded-md bg-surface-200 overflow-hidden my-3">
+            <div class="h-full rounded-md transition-all duration-500" [style.width.%]="(scorePercentage() / maxScore()) * 100" style="background: linear-gradient(90deg, #ef4444 0%, #f59e0b 40%, #22c55e 70%, #16a34a 100%)"></div>
+        </div>
+        <div class="flex justify-between text-xs text-muted-color mt-1">
+            <span>Alto Riesgo</span>
+            <span>Bajo Riesgo</span>
+        </div>
+    </p-card>
+
+    <!-- Alertas y Recomendaciones (agrupadas por tipo, dos columnas, de más grave a menor) -->
+    @if (alertGroups().length) {
+    <div class="flex flex-col gap-3">
+        <h6 class="font-bold text-base m-0">Alertas y Recomendaciones</h6>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+            @for (group of alertGroups(); track group.type) {
+            <div class="rounded-xl border p-4" [ngClass]="[group.bg, group.border]">
+                <div class="flex items-center gap-2 mb-3">
+                    <i [ngClass]="[group.icon, group.iconColor]" class="text-base"></i>
+                    <h6 class="font-semibold text-sm m-0" [ngClass]="group.iconColor">{{ group.label }}</h6>
+                    <span class="text-[0.7rem] font-semibold px-2 py-0.5 rounded-full" [ngClass]="[group.badgeBg, group.badgeColor]">
+                        {{ group.messages.length }}
+                    </span>
+                </div>
+                <ul class="flex flex-col gap-2 m-0 p-0 list-none">
+                    @for (message of group.messages; track $index) {
+                    <li class="flex items-start gap-2 text-sm">
+                        <i [ngClass]="[group.icon, group.iconColor]" class="text-xs mt-1 shrink-0"></i>
+                        <span>{{ message }}</span>
+                    </li>
+                    }
+                </ul>
+            </div>
+            }
+        </div>
+    </div>
+    }
 
     <!-- Resumen del Cupo -->
     <p-card>
@@ -359,34 +352,36 @@
             <div class="flex flex-col gap-3">
                 <div class="flex justify-between items-center py-2 border-b border-surface-200">
                     <span class="text-sm text-muted-color">Cliente:</span>
-                    <span class="text-sm font-semibold">{{ customer()?.businessName ?? '-' }}</span>
+                    <span class="text-sm font-semibold">{{ customer()?.businessName ?? study().customer?.businessName ?? '-' }}</span>
                 </div>
                 <div class="flex justify-between items-center py-2 border-b border-surface-200">
-                    <span class="text-sm text-muted-color">NIT:</span>
-                    <span class="text-sm font-semibold">{{ customer()?.identificationNumber ?? companyInfo()?.nit ?? '-' }}</span>
+                    <span class="text-sm text-muted-color">Identificación:</span>
+                    <span class="text-sm font-semibold">{{ customer()?.identificationNumber ?? study().customer?.identificationNumber ?? companyInfo()?.nit ?? '-' }}</span>
                 </div>
                 <div class="flex justify-between items-center py-2 border-b border-surface-200">
-                    <span class="text-sm text-muted-color">Ciudad:</span>
-                    <span class="text-sm font-semibold">{{ customer()?.city ?? companyInfo()?.city ?? '-' }}</span>
+                    <span class="text-sm text-muted-color">Cupo Solicitado:</span>
+                    <span class="text-sm font-semibold">{{ requestedAmount() | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</span>
                 </div>
                 <div class="flex justify-between items-center py-2">
-                    <span class="text-sm text-muted-color">Cupo Solicitado:</span>
-                    <span class="text-sm font-semibold">{{ study().requestedCreditLine | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</span>
+                    <span class="text-sm text-muted-color">Cupo Aprobado:</span>
+                    <span class="text-sm font-semibold" [ngClass]="statusConfig().titleColor">{{ approvedAmount() | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</span>
                 </div>
             </div>
             <div class="flex flex-col gap-3">
                 <div class="flex justify-between items-center py-2 border-b border-surface-200">
-                    <span class="text-sm text-muted-color">Fecha del Estudio:</span>
-                    <span class="text-sm font-semibold">{{ study().studyDate | date:'d \'de\' MMMM \'de\' yyyy':'':'es-CO' }}</span>
-                </div>
-                <div class="flex justify-between items-center py-2 border-b border-surface-200">
-                    <span class="text-sm text-muted-color">Fecha de Resolucion:</span>
+                    <span class="text-sm text-muted-color">Fecha de Resolución:</span>
                     <span class="text-sm font-semibold">{{ study().resolutionDate | date:'d \'de\' MMMM \'de\' yyyy':'':'es-CO' }}</span>
                 </div>
                 <div class="flex justify-between items-center py-2 border-b border-surface-200">
                     <span class="text-sm text-muted-color">Plazo Solicitado:</span>
-                    <span class="text-sm font-semibold">{{ study().requestedTerm }} dias</span>
+                    <span class="text-sm font-semibold">{{ (requestedTermValue() ?? study().recommendedTerm) }} días</span>
                 </div>
+                @if (calculationSourceLabel(); as sourceLabel) {
+                <div class="flex justify-between items-center py-2 border-b border-surface-200">
+                    <span class="text-sm text-muted-color">Fuente del Cálculo:</span>
+                    <span class="text-sm font-semibold">{{ sourceLabel }}</span>
+                </div>
+                }
                 <div class="flex justify-between items-center py-2">
                     <span class="text-sm text-muted-color">Estado:</span>
                     <span class="text-xs font-semibold px-2.5 py-1 rounded-full" [ngClass]="[statusConfig().bg, statusConfig().titleColor]">{{ statusConfig().title }}</span>

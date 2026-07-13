@@ -8,6 +8,7 @@ import { DividerModule } from 'primeng/divider';
 import { OnboardingService } from '../onboarding.service';
 import { AuthService } from '@/app/core/services/auth.service';
 import { AnalysisPackByReference } from '@/app/types/onboarding';
+import { formatCurrency, formatLongDate } from '@/app/shared/utils/format.util';
 
 type ResultState = 'polling' | 'success' | 'declined' | 'pending' | 'error';
 
@@ -110,16 +111,6 @@ export class OnboardingConfirmation {
         this.timer = setTimeout(() => this.poll(refPayco), POLL_INTERVAL_MS);
     }
 
-    formatCurrency(value: number, currency = 'COP'): string {
-        return new Intl.NumberFormat('es-CO', {
-            style: 'currency',
-            currency,
-            currencyDisplay: 'narrowSymbol',
-            maximumFractionDigits: 0
-        }).format(value);
-    }
-
-    formatDate(dateStr: string): string {
-        return new Date(dateStr).toLocaleDateString('es-CO', { day: 'numeric', month: 'long', year: 'numeric' });
-    }
+    formatCurrency = formatCurrency;
+    formatDate = formatLongDate;
 }

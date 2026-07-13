@@ -3,7 +3,6 @@ import { Customers } from './customers';
 
 export default [
     { path: '', component: Customers },
-    { path: 'detalle-cliente', title: 'Nuevo cliente', data: { breadcrumb: 'Nuevo Cliente' }, loadComponent: () => import('./customer-detail/customer-detail').then((c) => c.CustomerDetail) },
     {
         path: 'detalle-cliente/:id',
         title: 'Detalle del cliente',
@@ -17,6 +16,10 @@ export default [
             {
                 path: 'estudios-credito',
                 loadComponent: () => import('./customer-view/customer-credit-studies/customer-credit-studies').then((c) => c.CustomerCreditStudies)
+            },
+            {
+                path: 'estadisticas',
+                loadComponent: () => import('./customer-view/customer-stats/customer-stats').then((c) => c.CustomerStats)
             }
         ]
     }

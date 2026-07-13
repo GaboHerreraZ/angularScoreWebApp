@@ -98,15 +98,9 @@ export class CustomerCreditStudies implements OnInit {
         const id = this.customerId();
         if (!id) return;
 
-        this.customersService.getCustomerById(id).pipe(
-            takeUntilDestroyed(this.destroyRef)
-        ).subscribe(customer => {
-            this.router.navigate(['/app/estudio-credito/detalle-estudio'], {
-                queryParams: {
-                    customerId: id,
-                    customerName: customer?.businessName ?? ''
-                }
-            });
+        // El detalle del estudio carga el cliente por su id y precarga los datos del step 1.
+        this.router.navigate(['/app/estudio-credito/detalle-estudio'], {
+            queryParams: { customerId: id }
         });
     }
 

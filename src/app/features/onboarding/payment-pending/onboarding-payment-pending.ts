@@ -11,6 +11,7 @@ import { AnalysisPacksService } from '@/app/shared/services/analysis-packs.servi
 import { EpaycoCheckout } from '@/app/shared/components/epayco-checkout/epayco-checkout';
 import { EpaycoCheckoutLoader } from '@/app/shared/components/epayco-checkout/epayco-checkout.service';
 import { AnalysisPack } from '@/app/types/analysis-pack';
+import { formatCurrency } from '@/app/shared/utils/format.util';
 
 /** Auto-verificación: cada 10s consultamos si el pago ya se confirmó. */
 const POLL_INTERVAL_MS = 10_000;
@@ -145,12 +146,5 @@ export class OnboardingPaymentPending {
         this.notification.error('No se pudo abrir la pasarela de pago. Inténtalo de nuevo.');
     }
 
-    formatCurrency(value: number, currency = 'COP'): string {
-        return new Intl.NumberFormat('es-CO', {
-            style: 'currency',
-            currency,
-            currencyDisplay: 'narrowSymbol',
-            maximumFractionDigits: 0
-        }).format(value);
-    }
+    formatCurrency = formatCurrency;
 }

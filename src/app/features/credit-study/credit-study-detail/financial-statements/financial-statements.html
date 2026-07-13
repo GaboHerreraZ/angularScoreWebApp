@@ -1,0 +1,113 @@
+<div class="flex flex-col gap-8">
+    @for (view of sources(); track view.source.source) {
+    <div class="flex flex-col gap-4">
+        <!-- Encabezado de la fuente -->
+        <div class="flex items-center gap-3 pb-3 border-b border-surface">
+            <div class="flex items-center justify-center rounded-lg bg-primary-50 text-primary-500 dark:bg-primary-500/10 dark:text-primary-400 shrink-0" style="width: 2.5rem; height: 2.5rem;">
+                <i class="{{ view.icon }} text-base"></i>
+            </div>
+            <div class="flex flex-col">
+                <h3 class="text-base font-semibold m-0">{{ view.label }}</h3>
+                @if (view.hasData) {
+                <span class="text-xs text-muted-color">{{ view.source.periods.length }} periodo(s) reportado(s)</span>
+                }
+            </div>
+        </div>
+
+        @if (!view.hasData) {
+        <!-- Sin datos para toda la sección -->
+        <div class="flex flex-col items-center justify-center gap-2 py-10 rounded-lg border border-dashed border-surface text-muted-color">
+            <i class="pi pi-inbox text-2xl"></i>
+            <span class="text-sm">No hay datos disponibles para esta fuente</span>
+        </div>
+        } @else {
+        <!-- Estados financieros por periodo (dos columnas) -->
+        <div class="rounded-lg border border-surface overflow-x-auto">
+            <div class="min-w-max text-sm">
+                <!-- Encabezado de periodos -->
+                <div class="grid items-stretch bg-surface-50 dark:bg-surface-800 font-semibold"
+                     [style.grid-template-columns]="'minmax(16rem, 1fr) repeat(' + view.source.periods.length + ', minmax(9rem, auto))'">
+                    <div class="px-4 py-2.5">Concepto</div>
+                    @for (period of view.source.periods; track period.id) {
+                    <div class="px-4 py-2.5 text-right">
+                        <span>{{ period.fiscalYear }}</span>
+                        @if (period.balanceSheetDate) {
+                        <span class="block text-xs font-normal text-muted-color">{{ period.balanceSheetDate | date:'dd/MM/yyyy' }}</span>
+                        }
+                    </div>
+                    }
+                </div>
+
+                <!-- Grupos de conceptos -->
+                @for (group of periodGroups; track group.title) {
+                <div class="px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-muted-color bg-surface-100/60 dark:bg-surface-800/60 border-t border-surface">
+                    {{ group.title }}
+                </div>
+                @for (row of group.rows; track row.key) {
+                <div class="grid items-center border-t border-surface"
+                     [style.grid-template-columns]="'minmax(16rem, 1fr) repeat(' + view.source.periods.length + ', minmax(9rem, auto))'">
+                    <div class="px-4 py-2 text-muted-color">{{ row.label }}</div>
+                    @for (period of view.source.periods; track period.id) {
+                    <div class="px-4 py-2 text-right font-medium whitespace-nowrap">{{ formatValue(getValue($any(period), row.key), row.format) }}</div>
+                    }
+                </div>
+                }
+                }
+            </div>
+        </div>
+
+        <!-- Indicadores y Ratios (dos columnas lado a lado) -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <!-- Indicadores -->
+            <div class="flex flex-col gap-2">
+                <div class="flex items-center gap-2">
+                    <i class="pi pi-gauge text-primary-500 text-sm"></i>
+                    <h4 class="text-sm font-semibold m-0">Indicadores</h4>
+                </div>
+                @if (view.source.indicators) {
+                <div class="rounded-lg border border-surface divide-y divide-surface">
+                    @for (row of indicatorRows; track row.key) {
+                    <div class="flex justify-between items-center gap-3 px-4 py-2">
+                        <span class="text-sm text-muted-color">{{ row.label }}</span>
+                        <span class="text-sm font-medium text-right whitespace-nowrap">{{ formatValue(getValue($any(view.source.indicators), row.key), row.format) }}</span>
+                    </div>
+                    }
+                </div>
+                } @else {
+                <div class="flex items-center justify-center py-6 rounded-lg border border-dashed border-surface text-muted-color text-sm">
+                    No hay indicadores disponibles
+                </div>
+                }
+            </div>
+
+            <!-- Ratios -->
+            <div class="flex flex-col gap-2">
+                <div class="flex items-center gap-2">
+                    <i class="pi pi-percentage text-primary-500 text-sm"></i>
+                    <h4 class="text-sm font-semibold m-0">Ratios</h4>
+                </div>
+                @if (view.source.ratios) {
+                <div class="rounded-lg border border-surface divide-y divide-surface">
+                    @for (row of ratioRows; track row.key) {
+                    <div class="flex justify-between items-center gap-3 px-4 py-2">
+                        <span class="text-sm text-muted-color">{{ row.label }}</span>
+                        <span class="text-sm font-medium text-right whitespace-nowrap">{{ formatValue(getValue($any(view.source.ratios), row.key), row.format) }}</span>
+                    </div>
+                    }
+                </div>
+                } @else {
+                <div class="flex items-center justify-center py-6 rounded-lg border border-dashed border-surface text-muted-color text-sm">
+                    No hay ratios disponibles
+                </div>
+                }
+            </div>
+        </div>
+        }
+    </div>
+    } @empty {
+    <div class="flex flex-col items-center justify-center gap-2 py-12 text-muted-color">
+        <i class="pi pi-inbox text-3xl"></i>
+        <span class="text-sm">Aún no se han cargado los estados financieros</span>
+    </div>
+    }
+</div>

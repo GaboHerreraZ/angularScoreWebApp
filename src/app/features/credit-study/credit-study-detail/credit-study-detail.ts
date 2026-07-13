@@ -1,6 +1,5 @@
-import { Component, DestroyRef, effect, inject, signal, computed, ViewChild, ElementRef } from '@angular/core';
-import { CommonModule, CurrencyPipe } from '@angular/common';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { Component, DestroyRef, effect, inject, signal, computed } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
@@ -9,11 +8,9 @@ import { map } from 'rxjs/operators';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
-import { TextareaModule } from 'primeng/textarea';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { FluidModule } from 'primeng/fluid';
 import { MessageModule } from 'primeng/message';
-import { DatePickerModule } from 'primeng/datepicker';
 import { StepperModule } from 'primeng/stepper';
 import { CardModule } from 'primeng/card';
 import { BadgeModule } from 'primeng/badge';
@@ -22,33 +19,31 @@ import { SkeletonModule } from 'primeng/skeleton';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DialogModule } from 'primeng/dialog';
 import { CreditStudyService } from '../credit-study.service';
-import { CreateCreditStudy } from '@/app/types/credit-study';
+import { CustomersService } from '@/app/features/customers/customers.service';
+import { CustomerDetail as CustomerDetailModel } from '@/app/types/customer';
+import { CreditStudyRequest, CreditStudyStep1, CreditStudyStep2, PerformStudyResponse } from '@/app/types/credit-study';
 import { NotificationService } from '@/app/shared/components/notification/notification.service';
-import { StudyResult } from './study-result/study-result';
-import { AutoCompleteComponent } from '@/app/shared/components/auto-complete/auto-complete';
-import { AutoCompleteOption } from '@/app/shared/components/auto-complete/auto-complete.service';
 import { ParameterService } from '@/app/core/services/parameter.service';
 import { Parameter } from '@/app/types/parameter';
 import { AuthService } from '@/app/core/services/auth.service';
-import { HelpTooltip } from '@/app/shared/components/help-tooltip/help-tooltip';
-import { ConfirmService, provideConfirm } from '@/app/shared/services/confirm.service';
 import { RecentItemsService } from '@/app/shared/services/recent-items.service';
+import { ConfirmService, provideConfirm } from '@/app/shared/services/confirm.service';
+import { BureauProfile } from './bureau-profile/bureau-profile';
+import { FinancialStatements } from './financial-statements/financial-statements';
+import { StudyResult } from './study-result/study-result';
 
 @Component({
     selector: 'app-credit-study-detail',
     standalone: true,
     imports: [
         CommonModule,
-        CurrencyPipe,
         ReactiveFormsModule,
         ButtonModule,
         InputTextModule,
         InputNumberModule,
-        TextareaModule,
         FloatLabelModule,
         FluidModule,
         MessageModule,
-        DatePickerModule,
         StepperModule,
         CardModule,
         BadgeModule,
@@ -56,27 +51,125 @@ import { RecentItemsService } from '@/app/shared/services/recent-items.service';
         SkeletonModule,
         ConfirmDialogModule,
         DialogModule,
-        AutoCompleteComponent,
-        StudyResult,
-        HelpTooltip
+        BureauProfile,
+        FinancialStatements,
+        StudyResult
     ],
     providers: [provideConfirm()],
     templateUrl: './credit-study-detail.html'
 })
-export class CreditStudyDetail  {
+export class CreditStudyDetail {
     private destroyRef = inject(DestroyRef);
     private route = inject(ActivatedRoute);
     private router = inject(Router);
     private creditStudyService = inject(CreditStudyService);
+    private customersService = inject(CustomersService);
     private notificationService = inject(NotificationService);
     private parameterService = inject(ParameterService);
-    private confirmService = inject(ConfirmService);
     private recentItemsService = inject(RecentItemsService);
-    private sanitizer = inject(DomSanitizer);
-
+    private confirmService = inject(ConfirmService);
     private authService = inject(AuthService);
 
+    creditStudyId = toSignal(
+        this.route.params.pipe(map(params => params['id']))
+    );
 
+    /** Id del cliente recibido por query param al crear un estudio desde su ficha. */
+    private prefillCustomerId = toSignal(
+        this.route.queryParams.pipe(map(qp => qp['customerId'] as string | undefined))
+    );
+
+    isEditMode = computed(() => !!this.creditStudyId());
+
+    private readonly MAX_PDF_SIZE_MB = 10;
+    private readonly MAX_PDF_SIZE_BYTES = this.MAX_PDF_SIZE_MB * 1024 * 1024;
+
+    loading = signal(false);
+    creatingStudy = signal(false);
+    extractingPdf = signal(false);
+    performingStudy = signal(false);
+    activeStep = 1;
+
+    /** Mensaje rotativo mostrado en los loaders animados. */
+    loaderMessage = signal('');
+    private loaderTimer: ReturnType<typeof setInterval> | null = null;
+
+    private readonly createStudyMessages = [
+        'Consultando al cliente en las centrales de riesgo',
+        'Recopilando información societaria y de contacto',
+        'Verificando estado del documento',
+        'Preparando el estudio de crédito'
+    ];
+
+    private readonly extractPdfMessages = [
+        'Leyendo el documento',
+        'Extrayendo periodos y cifras financieras',
+        'Detectando alertas en los estados financieros',
+        'Calculando indicadores y ratios'
+    ];
+
+    /** Resultado del GET /steps una vez el estudio existe. */
+    step1Data = signal<CreditStudyStep1 | null>(null);
+    step2Data = signal<CreditStudyStep2 | null>(null);
+    studyResult = signal<PerformStudyResponse | null>(null);
+    studyStatus = signal<{ code: string; label: string } | null>(null);
+    studyRequest = signal<CreditStudyRequest | null>(null);
+    studyDate = signal<string | null>(null);
+
+    hasFinancialData = computed(() => (this.step2Data()?.sources?.length ?? 0) > 0);
+    studyCompleted = computed(() => !!this.studyResult());
+
+    /** Configuración visual (ícono + colores) según el estado del estudio. */
+    studyStatusConfig = computed(() => {
+        const status = this.studyStatus();
+        if (!status) return null;
+
+        const map: Record<string, { icon: string; classes: string; dot: string }> = {
+            pendingFinancialStatements: {
+                icon: 'pi pi-file-import',
+                classes: 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-800',
+                dot: 'bg-amber-500'
+            },
+            pendingStudyAnalysis: {
+                icon: 'pi pi-hourglass',
+                classes: 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800',
+                dot: 'bg-blue-500'
+            },
+            studyClosed: {
+                icon: 'pi pi-check-circle',
+                classes: 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800',
+                dot: 'bg-green-500'
+            }
+        };
+
+        const config = map[status.code] ?? {
+            icon: 'pi pi-info-circle',
+            classes: 'bg-surface-100 text-surface-600 border-surface-200 dark:bg-surface-800 dark:text-surface-300 dark:border-surface-700',
+            dot: 'bg-surface-400'
+        };
+
+        return { ...config, label: status.label };
+    });
+
+    /**
+     * Habilitación de cada paso: un paso queda accesible si el estudio ya existe
+     * (hay datos del cliente) o si el paso ya tiene su propia información.
+     * Regla: si un paso tiene datos, nunca debe quedar bloqueado.
+     */
+    step2Enabled = computed(() => this.isEditMode() || !!this.step1Data() || this.hasFinancialData());
+    step3Enabled = computed(() => this.hasFinancialData() || this.studyCompleted());
+
+    /** Datos del cliente (del step1) para el resumen del resultado. */
+    resultCustomer = computed(() => {
+        const customer = this.step1Data()?.customer;
+        return {
+            businessName: customer?.businessName ?? undefined,
+            identificationNumber: customer?.identificationNumber ?? undefined,
+            city: customer?.city ?? customer?.bureauProfile?.contact?.city ?? undefined
+        };
+    });
+
+    /** Perfil de empresa para el resultado (nombre, nit, ciudad). */
     company = computed(() => {
         const user = this.authService.currentProfile();
         return {
@@ -84,381 +177,226 @@ export class CreditStudyDetail  {
             city: user?.companyCity ?? '-',
             nit: user?.companyNit ?? '-'
         };
-    })
-
-    canExtractPdf = computed(() => {
-        const user = this.authService.currentProfile();
-        return user?.permissions.canExtractPdf;
     });
 
-    creditStudyId = toSignal(
-        this.route.params.pipe(
-            map(params => params['id'])
-        )
-    );
-
-    private queryCustomerId = toSignal(
-        this.route.queryParams.pipe(map(qp => qp['customerId']))
-    );
-    private queryCustomerName = toSignal(
-        this.route.queryParams.pipe(map(qp => qp['customerName']))
-    );
-
-    private readonly MAX_PDF_SIZE_MB = 10;
-    private readonly MAX_PDF_SIZE_BYTES = this.MAX_PDF_SIZE_MB * 1024 * 1024;
-
-    loading = signal(false);
-    extractingPdf = signal(false);
-    activeStep = 1;
-    performingStudy = signal(false);
-    approvingCredit = signal(false);
-    studyCompleted = signal(false);
-    studyResult = signal<CreateCreditStudy | null>(null);
-
-    previewVisible = signal(false);
-    previewHtml = signal<SafeHtml>('');
-    loadingPreview = signal(false);
-
-    studyCustomer = computed(() => (this.studyResult() as any)?.customer as { businessName?: string; identificationNumber?: string; city?: string } | undefined);
-
-    latestPromissoryNote = computed(() => {
-        const notes = this.studyResult()?.promissoryNotes;
-        if (!notes?.length) return null;
-        return notes.reduce((latest, note) =>
-            new Date(note.createdAt) > new Date(latest.createdAt) ? note : latest
-        , notes[0]);
+    /** Resumen corto de lo que solicita el cliente (para el step 3). */
+    studyRequestSummary = computed(() => {
+        const customer = this.step1Data()?.customer;
+        const request = this.studyRequest();
+        return {
+            businessName: customer?.businessName ?? '—',
+            identification: customer?.identificationNumber ?? '—',
+            personType: customer?.personType?.label ?? null,
+            requestedTerm: request?.requestedTerm ?? null,
+            requestedCreditLine: request?.requestedCreditLine ?? null,
+            studyDate: this.studyDate()
+        };
     });
 
-    promissoryNoteStatus = computed(() => this.latestPromissoryNote()?.status?.code ?? null);
-    signedDocumentUrl = computed(() => this.latestPromissoryNote()?.signedDocumentUrl ?? null);
+    canExtractPdf = computed(() => this.authService.currentProfile()?.permissions?.canExtractPdf ?? false);
 
-    isReadOnly = computed(() => {
-        const statusCode = this.studyResult()?.status?.code;
-        const noteStatus = this.promissoryNoteStatus();
-        return statusCode === 'studyClosed'
-            || noteStatus === 'pendingSignature'
-            || noteStatus === 'signed';
-    });
+    /** Modal de advertencia / resumen previo a crear el estudio. */
+    summaryVisible = signal(false);
 
-    customerUrlParams = signal<Record<string, string | number>>({
-        companyId: this.creditStudyService.companyId()
-    });
-
-    periods = toSignal(this.parameterService.getByType('period'));
-
-    private customerIdSignal = signal<string>('');
-
-    private formValuesSignal = signal<any>({});
-
-    totalAssets = computed(() => {
-        const values = this.formValuesSignal();
-        return (values.totalCurrentAssets ?? 0) + (values.totalNonCurrentAssets ?? 0);
-    });
-
-    totalLiabilities = computed(() => {
-        const values = this.formValuesSignal();
-        return (values.totalCurrentLiabilities ?? 0) + (values.totalNonCurrentLiabilities ?? 0);
-    });
-    equity = computed(() => {
-        const totalLiabilities = this.totalLiabilities();
-        const totalAssets = this.totalAssets();
-        return (totalAssets ?? 0) - (totalLiabilities ?? 0);
-    });
-    grossProfit = computed(() => {
-        const values = this.formValuesSignal();
-        return (values.ordinaryActivityRevenue ?? 0) - (values.costOfSales ?? 0);
-    });
+    identificationTypes = toSignal(this.parameterService.getByType('identification_type'));
 
     step1Form = new FormGroup({
-        customerId: new FormControl<AutoCompleteOption | null>(null, { validators: [Validators.required] }),
-        customerName: new FormControl<string>({ value: '', disabled: true }), // Para edición
-        studyDate: new FormControl<Date | null>(null, { validators: [Validators.required] }),
+        identificationTypeId: new FormControl<Parameter | null>(null, { validators: [Validators.required] }),
+        identificationNumber: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+        businessName: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
         requestedTerm: new FormControl<number | null>(null, { validators: [Validators.required] }),
-        requestedCreditLine: new FormControl<number | null>(null, { validators: [Validators.required] }),
-        notes: new FormControl('', { nonNullable: true  })
+        requestedCreditLine: new FormControl<number | null>(null, { validators: [Validators.required] })
     });
 
-    isEditMode = computed(() => !!this.creditStudyId());
-
-    step2Form = new FormGroup({
-        cashAndEquivalents: new FormControl<number | null>(null, { validators: [Validators.required] }),
-        accountsReceivable1: new FormControl<number | null>(null, { validators: [Validators.required] }),
-        accountsReceivable2: new FormControl<number | null>(null, { validators: [Validators.required] }),
-        balanceSheetDate: new FormControl<Date | null>(null, { validators: [Validators.required] }),
-        inventories1: new FormControl<number | null>(null, { validators: [Validators.required] }),
-        inventories2: new FormControl<number | null>(null, { validators: [Validators.required] }),
-        totalCurrentAssets: new FormControl<number | null>(null, { validators: [Validators.required] }),
-        fixedAssetsProperty: new FormControl<number | null>(null, { validators: [Validators.required] }),
-        totalNonCurrentAssets: new FormControl<number | null>(null, { validators: [Validators.required] }),
-        shortTermFinancialLiabilities: new FormControl<number | null>(null, { validators: [Validators.required] }),
-        suppliers1: new FormControl<number | null>(null, { validators: [Validators.required] }),
-        suppliers2: new FormControl<number | null>(null, { validators: [Validators.required] }),
-        totalCurrentLiabilities: new FormControl<number | null>(null, { validators: [Validators.required] }),
-        longTermFinancialLiabilities: new FormControl<number | null>(null, { validators: [Validators.required] }),
-        totalNonCurrentLiabilities: new FormControl<number | null>(null, { validators: [Validators.required] }),
-        retainedEarnings: new FormControl<number | null>(null, { validators: [Validators.required] }),
-        incomeStatementId: new FormControl<Parameter | null>(null, { validators: [Validators.required] }),
-        ordinaryActivityRevenue: new FormControl<number | null>(null, { validators: [Validators.required] }),
-        costOfSales: new FormControl<number | null>(null, { validators: [Validators.required] }),
-        administrativeExpenses: new FormControl<number | null>(null, { validators: [Validators.required] }),
-        sellingExpenses: new FormControl<number | null>(null, { validators: [Validators.required] }),
-        depreciation: new FormControl<number | null>(null, { validators: [Validators.required] }),
-        amortization: new FormControl<number | null>(null, { validators: [Validators.required] }),
-        financialExpenses: new FormControl<number | null>(null, { validators: [Validators.required] }),
-        taxes: new FormControl<number | null>(null, { validators: [Validators.required] }),
-        netIncome: new FormControl<number | null>(null, { validators: [Validators.required] })
+    /**
+     * Snapshot de los datos de la solicitud para el modal de resumen.
+     * Se captura al abrir el modal: los FormControl no son señales, por lo que
+     * un `computed` que leyera el form no se recalcularía al escribir en él.
+     */
+    summary = signal<{
+        identificationType: string;
+        identificationNumber: string;
+        businessName: string;
+        requestedTerm: number | null;
+        requestedCreditLine: number | null;
+    }>({
+        identificationType: '—',
+        identificationNumber: '—',
+        businessName: '—',
+        requestedTerm: null,
+        requestedCreditLine: null
     });
+
+    /** Cliente cargado para precargar el step 1 (modo creación desde la ficha del cliente). */
+    private prefillCustomer = signal<CustomerDetailModel | null>(null);
+    private prefillApplied = false;
 
     constructor() {
         effect(() => {
             const id = this.creditStudyId();
             if (id) {
-                this.loadCreditStudy(id);
+                this.loadSteps(id);
             }
         });
 
+        // Al crear un estudio desde la ficha de un cliente, carga sus datos.
         effect(() => {
-            const isEdit = this.isEditMode();
-            const customerIdControl = this.step1Form.get('customerId');
-
-            if (isEdit) {
-                customerIdControl?.clearValidators();
-            } else {
-                customerIdControl?.setValidators([Validators.required]);
-            }
-            customerIdControl?.updateValueAndValidity();
+            const customerId = this.prefillCustomerId();
+            // Solo en modo creación (sin estudio existente) y una sola vez.
+            if (!customerId || this.isEditMode() || this.prefillCustomer()) return;
+            this.customersService.getCustomerById(customerId).pipe(
+                takeUntilDestroyed(this.destroyRef)
+            ).subscribe(customer => this.prefillCustomer.set(customer));
         });
 
-        // Pre-set customer from query params (when navigating from customer credit studies)
+        // Precarga el step 1 cuando ya tenemos el cliente y la lista de tipos de identificación.
         effect(() => {
-            const customerId = this.queryCustomerId();
-            const customerName = this.queryCustomerName();
-            if (customerId && customerName) {
-                this.step1Form.patchValue({
-                    customerId: { id: Number(customerId), name: customerName }
-                });
-            }
-        });
+            const customer = this.prefillCustomer();
+            const idTypes = this.identificationTypes();
+            if (!customer || !idTypes?.length || this.prefillApplied) return;
+            this.prefillApplied = true;
 
-        this.step2Form.valueChanges.pipe(
-            takeUntilDestroyed(this.destroyRef)
-        ).subscribe(values => {
-            this.formValuesSignal.set(values);
-        });
-    }
-
-    loadCreditStudy(id: string): void {
-        this.loading.set(true);
-        this.creditStudyService.getCreditStudyById(id).pipe(
-            finalize(() => this.loading.set(false)),
-            takeUntilDestroyed(this.destroyRef)
-        ).subscribe((creditStudy) => {
-            this.customerIdSignal.set(creditStudy.customerId);
-
-            const businessName = (creditStudy as any).customer?.businessName ?? '';
-            if (creditStudy.id && businessName) {
-                this.recentItemsService.setCreditStudy(String(creditStudy.id), `Estudio · ${businessName}`);
-            }
-
-            const period = this.periods()?.find(p => p.id === creditStudy.incomeStatementId);
+            const idType = idTypes.find(t => t.id === customer.identificationType?.id)
+                ?? idTypes.find(t => t.code === customer.identificationType?.code)
+                ?? null;
 
             this.step1Form.patchValue({
-                customerId: null,
-                customerName: (creditStudy as any).customer?.businessName ?? '',
-                studyDate: creditStudy.studyDate ? new Date(creditStudy.studyDate) : null,
-                requestedTerm: creditStudy.requestedTerm ?? null,
-                requestedCreditLine: creditStudy.requestedCreditLine ?? null,
-                notes: creditStudy.notes ?? ''
+                identificationTypeId: idType,
+                identificationNumber: customer.identificationNumber ?? '',
+                businessName: customer.businessName ?? ''
             });
+        });
 
-            this.step2Form.patchValue({
-                cashAndEquivalents: creditStudy.cashAndEquivalents ?? null,
-                accountsReceivable1: creditStudy.accountsReceivable1 ?? null,
-                accountsReceivable2: creditStudy.accountsReceivable2 ?? null,
-                balanceSheetDate: creditStudy.balanceSheetDate ? new Date(creditStudy.balanceSheetDate) : null,
-                inventories1: creditStudy.inventories1 ?? null,
-                inventories2: creditStudy.inventories2 ?? null,
-                totalCurrentAssets: creditStudy.totalCurrentAssets ?? null,
-                fixedAssetsProperty: creditStudy.fixedAssetsProperty ?? null,
-                totalNonCurrentAssets: creditStudy.totalNonCurrentAssets ?? null,
-                shortTermFinancialLiabilities: creditStudy.shortTermFinancialLiabilities ?? null,
-                suppliers1: creditStudy.suppliers1 ?? null,
-                suppliers2: creditStudy.suppliers2 ?? null,
-                totalCurrentLiabilities: creditStudy.totalCurrentLiabilities ?? null,
-                longTermFinancialLiabilities: creditStudy.longTermFinancialLiabilities ?? null,
-                totalNonCurrentLiabilities: creditStudy.totalNonCurrentLiabilities ?? null,
-                retainedEarnings: creditStudy.retainedEarnings ?? null,
-                incomeStatementId: period ?? null,
-                ordinaryActivityRevenue: creditStudy.ordinaryActivityRevenue ?? null,
-                costOfSales: creditStudy.costOfSales ?? null,
-                administrativeExpenses: creditStudy.administrativeExpenses ?? null,
-                sellingExpenses: creditStudy.sellingExpenses ?? null,
-                depreciation: creditStudy.depreciation ?? null,
-                amortization: creditStudy.amortization ?? null,
-                financialExpenses: creditStudy.financialExpenses ?? null,
-                taxes: creditStudy.taxes ?? null,
-                netIncome: creditStudy.netIncome ?? null
-            });
+        this.destroyRef.onDestroy(() => this.stopLoaderMessages());
+    }
 
-            this.formValuesSignal.set(this.step2Form.getRawValue());
+    /** Inicia la rotación de mensajes del loader animado. */
+    private startLoaderMessages(messages: string[]): void {
+        this.stopLoaderMessages();
+        let index = 0;
+        this.loaderMessage.set(messages[0]);
+        this.loaderTimer = setInterval(() => {
+            index = (index + 1) % messages.length;
+            this.loaderMessage.set(messages[index]);
+        }, 2200);
+    }
 
-            if (creditStudy.viabilityStatus != null || creditStudy.stabilityFactor != null) {
-                this.studyResult.set(creditStudy);
-                this.studyCompleted.set(true);
-            } else {
-                this.studyCompleted.set(false);
+    private stopLoaderMessages(): void {
+        if (this.loaderTimer) {
+            clearInterval(this.loaderTimer);
+            this.loaderTimer = null;
+        }
+    }
+
+    private loadSteps(id: string): void {
+        this.loading.set(true);
+        this.creditStudyService.getCreditStudySteps(id).pipe(
+            finalize(() => this.loading.set(false)),
+            takeUntilDestroyed(this.destroyRef)
+        ).subscribe((response) => {
+            this.step1Data.set(response.step1);
+            this.step2Data.set(response.step2);
+            this.studyResult.set(response.step3 ?? null);
+            this.studyRequest.set(response.request ?? null);
+            this.studyDate.set(response.studyDate ?? null);
+            this.studyStatus.set(response.status ? { code: response.status.code, label: response.status.label } : null);
+
+            const businessName = response.step1?.customer?.businessName;
+            if (businessName) {
+                this.recentItemsService.setCreditStudy(String(id), `Estudio · ${businessName}`);
             }
 
-            const noteStatus = creditStudy.promissoryNotes?.length
-                ? creditStudy.promissoryNotes.reduce((l, n) => new Date(n.createdAt) > new Date(l.createdAt) ? n : l, creditStudy.promissoryNotes[0]).status?.code
-                : null;
-            if (creditStudy.status?.code === 'studyClosed' || noteStatus === 'pendingSignature' || noteStatus === 'signed') {
-                this.step1Form.disable();
-                this.step2Form.disable();
-            } else {
-                this.step1Form.enable();
-                this.step2Form.enable();
-                this.step1Form.get('customerName')?.disable();
-            }
+            // Posiciona el stepper en el paso más avanzado disponible:
+            // solo va al paso 3 si el estudio ya tiene resultado (step3); si no,
+            // con estados financieros cargados queda en el paso 2.
+            const hasStep2 = (response.step2?.sources?.length ?? 0) > 0;
+            this.activeStep = response.step3 ? 3 : (hasStep2 ? 2 : (response.step1 ? 2 : 1));
         });
     }
 
+    isInvalid(controlName: string): boolean {
+        const control = this.step1Form.get(controlName);
+        return !!control && control.invalid && control.touched;
+    }
 
-    getInvalidCount(stepForm: FormGroup): number {
+    getErrorMessage(controlName: string): string {
+        const control = this.step1Form.get(controlName);
+        if (!control || !control.errors || !control.touched) return '';
+        if (control.errors['required']) return 'Este campo es obligatorio';
+        return '';
+    }
+
+    isStepInvalid(): boolean {
+        return this.step1Form.invalid && this.step1Form.touched;
+    }
+
+    getInvalidCount(): number {
         let count = 0;
-        Object.keys(stepForm.controls).forEach(key => {
-            const control = stepForm.get(key);
-            if (control && control.invalid) {
-                count++;
-            }
+        Object.keys(this.step1Form.controls).forEach(key => {
+            if (this.step1Form.get(key)?.invalid) count++;
         });
         return count;
     }
 
-    isStepInvalid(stepForm: FormGroup): boolean {
-        return stepForm.invalid && stepForm.touched;
-    }
-
-    onSave(): void {
+    /** Abre el modal de advertencia con el resumen antes de crear el estudio. */
+    onCreateStudy(): void {
         this.step1Form.markAllAsTouched();
-        this.step2Form.markAllAsTouched();
 
-        if (this.step1Form.invalid || this.step2Form.invalid) {
+        if (this.step1Form.invalid) {
             this.notificationService.warn('Por favor complete todos los campos requeridos', 'Validación');
             return;
         }
 
-        this.loading.set(true);
-        const step1Data = this.step1Form.getRawValue();
-        const step2Data = this.step2Form.getRawValue();
-        const customerId = this.isEditMode()
-            ? this.customerIdSignal()
-            : step1Data.customerId?.id.toString() ?? '';
+        const v = this.step1Form.getRawValue();
+        this.summary.set({
+            identificationType: v.identificationTypeId?.label ?? '—',
+            identificationNumber: v.identificationNumber || '—',
+            businessName: v.businessName || '—',
+            requestedTerm: v.requestedTerm,
+            requestedCreditLine: v.requestedCreditLine
+        });
 
-        const creditStudyData = {
-            customerId,
-            studyDate: step1Data.studyDate,
-            notes: step1Data.notes,
-            requestedTerm: step1Data.requestedTerm ?? 0,
-            requestedCreditLine: step1Data.requestedCreditLine ?? 0,
-            balanceSheetDate: step2Data.balanceSheetDate ?? undefined,
-            cashAndEquivalents: step2Data.cashAndEquivalents ?? 0,
-            accountsReceivable1: step2Data.accountsReceivable1 ?? 0,
-            accountsReceivable2: step2Data.accountsReceivable2 ?? 0,
-            inventories1: step2Data.inventories1 ?? 0,
-            inventories2: step2Data.inventories2 ?? 0,
-            totalCurrentAssets: step2Data.totalCurrentAssets ?? 0,
-            fixedAssetsProperty: step2Data.fixedAssetsProperty ?? 0,
-            totalNonCurrentAssets: step2Data.totalNonCurrentAssets ?? 0,
-            totalAssets: this.totalAssets(),
-            shortTermFinancialLiabilities: step2Data.shortTermFinancialLiabilities ?? 0,
-            suppliers1: step2Data.suppliers1 ?? 0,
-            suppliers2: step2Data.suppliers2 ?? 0,
-            totalCurrentLiabilities: step2Data.totalCurrentLiabilities ?? 0,
-            longTermFinancialLiabilities: step2Data.longTermFinancialLiabilities ?? 0,
-            totalNonCurrentLiabilities: step2Data.totalNonCurrentLiabilities ?? 0,
-            totalLiabilities: this.totalLiabilities(),
-            retainedEarnings: step2Data.retainedEarnings ?? 0,
-            equity: this.equity(),
-            incomeStatementId: (step2Data.incomeStatementId as any)?.id ?? 0,
-            ordinaryActivityRevenue: step2Data.ordinaryActivityRevenue ?? 0,
-            costOfSales: step2Data.costOfSales ?? 0,
-            grossProfit: this.grossProfit(),
-            administrativeExpenses: step2Data.administrativeExpenses ?? 0,
-            sellingExpenses: step2Data.sellingExpenses ?? 0,
-            depreciation: step2Data.depreciation ?? 0,
-            amortization: step2Data.amortization ?? 0,
-            financialExpenses: step2Data.financialExpenses ?? 0,
-            taxes: step2Data.taxes ?? 0,
-            netIncome: step2Data.netIncome ?? 0,
-        };
+        this.summaryVisible.set(true);
+    }
 
-        const operation$ = this.creditStudyId()
-            ? this.creditStudyService.updateCreditStudy(this.creditStudyId()!, creditStudyData)
-            : this.creditStudyService.createCreditStudy(creditStudyData);
+    /** Confirmación del modal: llama al backend para crear el estudio desde el bureau. */
+    onConfirmCreateStudy(): void {
+        const v = this.step1Form.getRawValue();
 
-        const isCreate = !this.creditStudyId();
-
-        operation$.pipe(
-            finalize(() => this.loading.set(false)),
+        this.creatingStudy.set(true);
+        this.startLoaderMessages(this.createStudyMessages);
+        this.creditStudyService.createFromBureau({
+            identificationTypeCode: v.identificationTypeId?.code ?? '',
+            numeroIdentificacion: v.identificationNumber,
+            apellidoRazonSocial: v.businessName,
+            requestedTerm: v.requestedTerm ?? 0,
+            requestedCreditLine: v.requestedCreditLine ?? 0
+        }).pipe(
+            finalize(() => {
+                this.creatingStudy.set(false);
+                this.stopLoaderMessages();
+            }),
             takeUntilDestroyed(this.destroyRef)
-        ).subscribe((result: any) => {
-            const message = isCreate
-                ? 'Estudio de crédito creado correctamente'
-                : 'Estudio de crédito actualizado correctamente';
-            this.notificationService.success(message);
+        ).subscribe((response) => {
+            this.summaryVisible.set(false);
+            this.notificationService.success('Estudio de crédito creado correctamente');
 
-            // Crear un estudio consume cuota: refresca permisos para que la UI
-            // oculte el botón si ya no quedan estudios disponibles.
-            // TODO(datacrédito): cuando el backend devuelva los permisos en la
-            // respuesta del POST, usar esa rama en vez de re-pedir el perfil:
-            // if (result?.permissions) {
-            //     this.authService.updateCurrentProfile({ permissions: result.permissions });
-            // } else {
-            //     this.authService.refreshProfile();
-            // }
-            if (isCreate) {
-                this.authService.refreshProfile();
-            }
+            // Crear un estudio consume cuota: refresca permisos.
+            this.authService.refreshProfile();
 
-            if (!this.creditStudyId() && result?.id) {
-                const fromCustomerId = this.queryCustomerId();
-                if (fromCustomerId) {
-                    this.router.navigate(['/app/clientes/detalle-cliente', fromCustomerId, 'estudios-credito']);
-                } else {
-                    this.router.navigate(['/app/estudio-credito/detalle-estudio', result.id]).then(() => {
-                        setTimeout(() => {
-                            this.activeStep = 3;
-                        }, 100);
-                    });
-                }
-            } else if (this.creditStudyId()) {
-                this.loadCreditStudy(this.creditStudyId()!);
-            }
+            this.router.navigate(['/app/estudio-credito/detalle-estudio', response.creditStudyId]);
         });
     }
 
+    // ─── Step 2: carga de estados financieros ────────────────────────────────
+
     onUploadFinancialStatements(): void {
-        this.step1Form.markAllAsTouched();
-
-        if (this.step1Form.invalid) {
-            this.notificationService.warn(
-                'Complete los datos del cupo (cliente, fecha, plazo, cupo y observaciones) antes de cargar los estados financieros',
-                'Validación'
-            );
-            return;
-        }
-
         this.confirmService.confirm({
             title: 'Cargar Estados Financieros',
-            message: `Al cargar los estados financieros se creará el estudio de crédito automáticamente a partir del documento.\n\n` +
-                `Para una extracción exitosa, el archivo debe cumplir con las siguientes condiciones:\n\n` +
-                `- Formato PDF\n` +
-                `- Peso máximo de ${this.MAX_PDF_SIZE_MB} MB\n` +
-                `- Debe ser un documento digital legible (no se aceptan copias escaneadas, fotografías ni capturas de pantalla)`,
+            message: `El documento debe ser un PDF digital legible de máximo ${this.MAX_PDF_SIZE_MB} MB. No se aceptan escaneos, fotografías ni capturas de pantalla.`,
             kind: 'info',
             icon: 'pi pi-file-pdf',
-            acceptLabel: 'Proceder',
+            acceptLabel: 'Seleccionar archivo',
             onAccept: () => this.openFileSelector()
         });
     }
@@ -485,240 +423,67 @@ export class CreditStudyDetail  {
                 return;
             }
 
-            const step1Data = this.step1Form.getRawValue();
-            const customerId = step1Data.customerId?.id?.toString() ?? '';
-            const studyDate = step1Data.studyDate ? this.toIsoDate(step1Data.studyDate) : '';
-
-            if (!customerId || !studyDate) {
-                this.notificationService.warn('Complete los datos del cupo antes de cargar los estados financieros', 'Validación');
-                return;
-            }
-
-            this.extractingPdf.set(true);
-            this.creditStudyService.extractFinancialData(file, {
-                customerId,
-                studyDate,
-                requestedTerm: step1Data.requestedTerm ?? 0,
-                requestedCreditLine: step1Data.requestedCreditLine ?? 0,
-                notes: step1Data.notes
-            }).pipe(
-                finalize(() => this.extractingPdf.set(false)),
-                takeUntilDestroyed(this.destroyRef)
-            ).subscribe((study) => {
-                this.notificationService.success('Estudio de crédito creado a partir de los estados financieros');
-                // Extraer PDF + crear estudio consume cuota: refresca permisos.
-                // TODO(datacrédito): si el backend devuelve permisos en la respuesta, usar esa rama.
-                this.authService.refreshProfile();
-                this.navigateToCreatedStudy(study);
-            });
+            this.extractFinancialStatements(file);
         };
 
         input.click();
     }
 
-    private toIsoDate(date: Date): string {
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        return `${year}-${month}-${day}`;
+    private extractFinancialStatements(file: File): void {
+        const id = this.creditStudyId();
+        if (!id) return;
+
+        this.extractingPdf.set(true);
+        this.startLoaderMessages(this.extractPdfMessages);
+        this.creditStudyService.extractFinancialStatements(id, file).pipe(
+            finalize(() => {
+                this.extractingPdf.set(false);
+                this.stopLoaderMessages();
+            }),
+            takeUntilDestroyed(this.destroyRef)
+        ).subscribe((response) => {
+            if (!response.success) {
+                this.notificationService.error('No fue posible extraer los estados financieros del documento', 'Extracción fallida');
+                return;
+            }
+
+            this.notificationService.success('Estados financieros procesados correctamente');
+            // Recargar el estudio para traer el step2 ya poblado.
+            this.loadSteps(id);
+        });
     }
 
-    private navigateToCreatedStudy(study: CreateCreditStudy): void {
-        const fromCustomerId = this.queryCustomerId();
-        if (fromCustomerId) {
-            this.router.navigate(['/app/clientes/detalle-cliente', fromCustomerId, 'estudios-credito']);
-        } else if (study?.id) {
-            this.router.navigate(['/app/estudio-credito/detalle-estudio', study.id]);
-        }
-    }
+    // ─── Step 3: realizar el estudio ─────────────────────────────────────────
 
-    onViewCustomer(): void {
-        const customerId = this.customerIdSignal();
-        if (!customerId) return;
-        this.router.navigate(['/app/clientes/detalle-cliente', customerId, 'informacion'], {
-            queryParams: { returnUrl: this.router.url }
+    onPerformStudy(activateCallback?: (step: number) => void): void {
+        const id = this.creditStudyId();
+        if (!id) return;
+
+        this.confirmService.confirm({
+            title: 'Realizar Estudio de Crédito',
+            message: 'Se ejecutará el análisis de viabilidad con la información del cliente y los estados financieros. ' +
+                'El sistema calculará el score, el cupo aprobado y las condiciones de crédito. Esta acción no se puede deshacer.',
+            kind: 'warn',
+            icon: 'pi pi-bolt',
+            acceptLabel: 'Sí, realizar estudio',
+            onAccept: () => {
+                this.performingStudy.set(true);
+                this.creditStudyService.performStudy(id).pipe(
+                    finalize(() => this.performingStudy.set(false)),
+                    takeUntilDestroyed(this.destroyRef)
+                ).subscribe((result) => {
+                    this.studyResult.set(result);
+                    if (result.status) {
+                        this.studyStatus.set({ code: result.status.code, label: result.status.label });
+                    }
+                    this.notificationService.success('Estudio de crédito realizado exitosamente');
+                    activateCallback?.(3);
+                });
+            }
         });
     }
 
     onCancel(): void {
-        const fromCustomerId = this.queryCustomerId();
-        if (fromCustomerId) {
-            this.router.navigate(['/app/clientes/detalle-cliente', fromCustomerId, 'estudios-credito']);
-        } else {
-            this.router.navigate(['/app/estudio-credito']);
-        }
-    }
-
-    isInvalid(form: FormGroup, controlName: string): boolean {
-        const control = form.get(controlName);
-        return !!control && control.invalid && control.touched;
-    }
-
-    getErrorMessage(form: FormGroup, controlName: string): string {
-        const control = form.get(controlName);
-        if (!control || !control.errors || !control.touched) return '';
-        if (control.errors['required']) return 'Este campo es obligatorio';
-        return '';
-    }
-
-    canSaveStudy(): boolean {
-        return this.step1Form.valid && this.step2Form.valid;
-    }
-
-    canPerformStudy(): boolean {
-        return this.isEditMode() && !!this.creditStudyId();
-    }
-
-    private readonly fieldLabels: Record<string, string> = {
-        customerId: 'Cliente',
-        studyDate: 'Fecha del Estudio',
-        requestedTerm: 'Plazo Solicitado',
-        requestedCreditLine: 'Cupo de Crédito Solicitado',
-        notes: 'Observaciones',
-        cashAndEquivalents: 'Efectivo y Equivalentes',
-        accountsReceivable1: 'Cuentas Por Cobrar Periodo Anterior',
-        accountsReceivable2: 'Cuentas Por Cobrar Periodo Actual',
-        balanceSheetDate: 'Fecha Balance General',
-        inventories1: 'Inventario Periodo Anterior',
-        inventories2: 'Inventario Periodo Actual',
-        totalCurrentAssets: 'Total Activos Corrientes',
-        fixedAssetsProperty: 'Activos Fijos / Propiedad',
-        totalNonCurrentAssets: 'Total Activos No Corrientes',
-        shortTermFinancialLiabilities: 'Obligaciones Financieras Corrientes',
-        suppliers1: 'Cuentas Comerciales Por Pagar Año Anterior',
-        suppliers2: 'Cuentas Comerciales Por Pagar Año Actual',
-        totalCurrentLiabilities: 'Total Pasivos Corrientes',
-        longTermFinancialLiabilities: 'Obligaciones Financieras No Corrientes',
-        totalNonCurrentLiabilities: 'Total Pasivos No Corrientes',
-        retainedEarnings: 'Ganancias Acumuladas',
-        incomeStatementId: 'Período',
-        ordinaryActivityRevenue: 'Ingresos Actividad Ordinaria',
-        costOfSales: 'Costos De Venta',
-        administrativeExpenses: 'Gastos Administrativos',
-        sellingExpenses: 'Gastos de Ventas o Distribución',
-        depreciation: 'Depreciación',
-        amortization: 'Amortización',
-        financialExpenses: 'Gastos Financieros',
-        taxes: 'Impuestos',
-        netIncome: 'Utilidad Neta del Ejercicio'
-    };
-
-    private getMissingRequiredFields(): string[] {
-        const missing: string[] = [];
-        const forms: FormGroup[] = [this.step1Form, this.step2Form];
-        for (const form of forms) {
-            Object.keys(form.controls).forEach(key => {
-                const control = form.get(key);
-                if (control?.invalid && control.errors?.['required']) {
-                    missing.push(this.fieldLabels[key] ?? key);
-                }
-            });
-        }
-        return missing;
-    }
-
-    onPerformStudy(activateCallback: (step: number) => void): void {
-        if (!this.creditStudyId()) {
-            return;
-        }
-
-        this.step1Form.markAllAsTouched();
-        this.step2Form.markAllAsTouched();
-
-        const missing = this.getMissingRequiredFields();
-        if (missing.length) {
-            this.notificationService.warn(
-                `Faltan campos requeridos: ${missing.join(', ')}.`,
-                'Campos requeridos faltantes'
-            );
-            return;
-        }
-
-        this.confirmService.confirm({
-            title: 'Confirmar Estudio',
-            message: '¿Está seguro de que desea iniciar el proceso de estudio de crédito? Esta acción no se puede deshacer.',
-            kind: 'warn',
-            acceptLabel: 'Sí, realizar estudio',
-            onAccept: () => {
-                this.performingStudy.set(true);
-
-                this.creditStudyService.performCreditStudy(this.creditStudyId()!).pipe(
-                    finalize(() => this.performingStudy.set(false)),
-                    takeUntilDestroyed(this.destroyRef)
-                ).subscribe((data: any) => {
-                    this.notificationService.success('Estudio de crédito realizado exitosamente');
-                    this.studyResult.set(data);
-                    this.studyCompleted.set(true);
-                    setTimeout(() => activateCallback(4), 300);
-                });
-            }
-        });
-    }
-
-    onApproveCredit(): void {
-        const id = this.creditStudyId();
-        if (!id) {
-            return;
-        }
-
-        this.loadingPreview.set(true);
-        this.creditStudyService.previewPromissoryNote(id).pipe(
-            finalize(() => this.loadingPreview.set(false)),
-            takeUntilDestroyed(this.destroyRef)
-        ).subscribe((response) => {
-            this.previewHtml.set(this.sanitizer.bypassSecurityTrustHtml(response.html));
-            this.previewVisible.set(true);
-        });
-    }
-
-    decliningSignature = signal(false);
-
-    onDeclineSignature(): void {
-        const note = this.latestPromissoryNote();
-        if (!note) return;
-
-        this.confirmService.confirm({
-            title: 'Cancelar Firma del Pagaré',
-            message: '¿Está seguro de que desea cancelar la firma del pagaré? El documento dejará de estar disponible para el cliente.',
-            kind: 'danger',
-            acceptLabel: 'Sí, cancelar firma',
-            rejectLabel: 'Volver',
-            onAccept: () => {
-                this.decliningSignature.set(true);
-
-                this.creditStudyService.declinePromissoryNote(note.id).pipe(
-                    finalize(() => this.decliningSignature.set(false)),
-                    takeUntilDestroyed(this.destroyRef)
-                ).subscribe(() => {
-                    this.notificationService.success('La firma del pagaré ha sido cancelada.');
-                    this.loadCreditStudy(this.creditStudyId()!);
-                });
-            }
-        });
-    }
-
-    onConfirmApproveCredit(): void {
-        const id = this.creditStudyId();
-        if (!id) {
-            return;
-        }
-
-        this.previewVisible.set(false);
-        this.approvingCredit.set(true);
-
-        this.creditStudyService.approveCreditStudy(id).pipe(
-            finalize(() => this.approvingCredit.set(false)),
-            takeUntilDestroyed(this.destroyRef)
-        ).subscribe({
-            next: () => {
-                this.notificationService.success(
-                    'Crédito aprobado. Se ha enviado el pagaré al cliente para su firma.'
-                );
-                this.loadCreditStudy(this.creditStudyId()!);
-            },
-            error: () => {
-                // El errorInterceptor ya muestra la notificación de error
-            }
-        });
+        this.router.navigate(['/app/estudio-credito']);
     }
 }
