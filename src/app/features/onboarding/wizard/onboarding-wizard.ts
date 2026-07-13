@@ -16,6 +16,7 @@ import { SectorSelect } from '@/app/shared/components/sector-select/sector-selec
 import { StateControl } from '@/app/shared/components/state-control/state-control';
 import { CityControl } from '@/app/shared/components/city-control/city-control';
 import { PackCard } from '@/app/shared/components/pack-card/pack-card';
+import { formatCurrency } from '@/app/shared/utils/format.util';
 import { BillingForm } from '@/app/shared/components/billing-form/billing-form';
 import { buildBillingForm } from '@/app/shared/components/billing-form/billing-form.builder';
 import { EpaycoCheckout } from '@/app/shared/components/epayco-checkout/epayco-checkout';
@@ -383,12 +384,5 @@ export class OnboardingWizard {
         };
     }
 
-    formatCurrency(value: number, currency = 'COP'): string {
-        return new Intl.NumberFormat('es-CO', {
-            style: 'currency',
-            currency,
-            currencyDisplay: 'narrowSymbol',
-            maximumFractionDigits: 0
-        }).format(value);
-    }
+    formatCurrency = formatCurrency;
 }

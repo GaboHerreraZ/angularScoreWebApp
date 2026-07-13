@@ -1,5 +1,5 @@
 import { Component, computed, DestroyRef, effect, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { ActivatedRoute, Router, RouterOutlet, NavigationEnd } from '@angular/router';
 import { toSignal, takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { filter, finalize, map } from 'rxjs';
@@ -9,13 +9,13 @@ import { TabsModule } from 'primeng/tabs';
 import { SkeletonModule } from 'primeng/skeleton';
 import { TagModule } from 'primeng/tag';
 import { CustomersService } from '../customers.service';
-import { Customer } from '@/app/types/customer';
+import { CustomerDetail } from '@/app/types/customer';
 import { RecentItemsService } from '@/app/shared/services/recent-items.service';
 
 @Component({
     selector: 'app-customer-view',
     standalone: true,
-    imports: [CommonModule, RouterOutlet, ButtonModule, CardModule, TabsModule, SkeletonModule, TagModule],
+    imports: [CommonModule, DatePipe, RouterOutlet, ButtonModule, CardModule, TabsModule, SkeletonModule, TagModule],
     templateUrl: './customer-view.html'
 })
 export class CustomerView {
@@ -33,7 +33,7 @@ export class CustomerView {
         this.route.queryParams.pipe(map(qp => qp['returnUrl']))
     );
 
-    customer = signal<Customer | null>(null);
+    customer = signal<CustomerDetail | null>(null);
     loading = signal(false);
 
     private url = toSignal(
@@ -59,7 +59,7 @@ export class CustomerView {
         });
     }
 
-    loadCustomer(id: number): void {
+    loadCustomer(id: string): void {
         this.loading.set(true);
         this.customersService.getCustomerById(id).pipe(
             finalize(() => this.loading.set(false)),
@@ -67,7 +67,7 @@ export class CustomerView {
         ).subscribe(customer => {
             this.customer.set(customer);
             if (customer?.id && customer.businessName) {
-                this.recentItemsService.setCustomer(String(customer.id), customer.businessName);
+                this.recentItemsService.setCustomer(customer.id, customer.businessName);
             }
         });
     }

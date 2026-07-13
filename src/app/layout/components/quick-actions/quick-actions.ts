@@ -23,12 +23,6 @@ export class QuickActions {
         const perms = this.permissions();
         const list: MenuItem[] = [];
 
-        list.push({
-            label: 'Nuevo cliente',
-            icon: 'pi pi-user-plus',
-            command: () => this.router.navigate(['/app/clientes/detalle-cliente'])
-        });
-
         if (perms?.canAddCreditStudy && perms?.hasCredits) {
             list.push({
                 label: 'Nuevo estudio',

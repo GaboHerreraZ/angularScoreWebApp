@@ -52,8 +52,7 @@ export class CreditStudy implements OnInit {
             loading: this.exporting()
         },
         actions: [
-            { id: 'edit', icon: 'pi pi-pencil', severity: 'info', tooltip: 'Editar' },
-            { id: 'delete', icon: 'pi pi-trash', severity: 'danger', tooltip: 'Eliminar' }
+            { id: 'edit', icon: 'pi pi-pencil', severity: 'info', tooltip: 'Editar' }
         ],
         actionsHeader: 'Acciones',
         columns: [
@@ -121,13 +120,8 @@ export class CreditStudy implements OnInit {
     }
 
     onActionClick(event: TableActionEvent): void {
-        switch (event.action) {
-            case 'edit':
-                this.router.navigate(['/app/estudio-credito/detalle-estudio', event.row.id]);
-                break;
-            case 'delete':
-                console.log('Eliminar estudio de crédito:', event.row);
-                break;
+        if (event.action === 'edit') {
+            this.router.navigate(['/app/estudio-credito/detalle-estudio', event.row.id]);
         }
     }
 

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { CardModule } from 'primeng/card';
 import { TooltipModule } from 'primeng/tooltip';
 import type { KpiValue } from '@/app/types/dashboard';
+import { formatNumber } from '@/app/shared/utils/format.util';
 
 type Trend = 'up' | 'down' | 'flat' | 'new' | 'none';
 
@@ -72,14 +73,10 @@ export class KpiCard {
     tooltipText = computed<string>(() => {
         const k = this.kpi();
         const t = this.trend();
-        const prev = this.formattedPrevious() ?? this.formatNumber(k.previous);
+        const prev = this.formattedPrevious() ?? formatNumber(k.previous);
         if (t === 'new') return 'Sin datos del período anterior para comparar.';
         if (k.deltaPercent === null) return `Período anterior: ${prev}. Sin comparación disponible.`;
         const direction = k.delta > 0 ? 'Aumento' : k.delta < 0 ? 'Disminución' : 'Sin cambio';
         return `${direction} respecto al período anterior (${prev})`;
     });
-
-    private formatNumber(n: number): string {
-        return new Intl.NumberFormat('es-CO').format(n);
-    }
 }

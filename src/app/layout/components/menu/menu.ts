@@ -23,6 +23,18 @@ export class Menu {
                 }
             ]
         },
+           {
+            label: 'Créditos',
+            icon: 'pi pi-credit-card',
+            path: '/app/estudio-credito',
+            items: [
+                {
+                    label: 'Estudios de Crédito',
+                    icon: 'pi pi-credit-card',
+                    routerLink: ['/app/estudio-credito']
+                }
+            ]
+        },
         {
             label: 'Clientes',
             icon: 'pi pi-address-book',
@@ -32,18 +44,6 @@ export class Menu {
                     label: 'Gestión de Clientes',
                     icon: 'pi pi-address-book',
                     routerLink: ['/app/clientes']
-                }
-            ]
-        },
-        {
-            label: 'Créditos',
-            icon: 'pi pi-credit-card',
-            path: '/app/estudio-credito',
-            items: [
-                {
-                    label: 'Estudios de Crédito',
-                    icon: 'pi pi-credit-card',
-                    routerLink: ['/app/estudio-credito']
                 }
             ]
         }

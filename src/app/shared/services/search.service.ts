@@ -39,7 +39,6 @@ export class SearchService {
         { id: 'page-profile', title: 'Perfil', description: 'Información personal y preferencias', route: '/app/administracion/perfil', icon: 'pi pi-user', category: 'page', keywords: ['cuenta', 'usuario'] },
         { id: 'page-company', title: 'Empresa', description: 'Configuración de la empresa', route: '/app/administracion/empresa', icon: 'pi pi-building', category: 'page', keywords: ['organizacion', 'compañia'] },
 
-        { id: 'action-new-customer', title: 'Crear nuevo cliente', description: 'Registrar un cliente nuevo', route: '/app/clientes/detalle-cliente', icon: 'pi pi-user-plus', category: 'action', keywords: ['nuevo', 'agregar', 'registrar'] },
         { id: 'action-new-credit-study', title: 'Nuevo estudio de crédito', description: 'Iniciar un estudio de crédito', route: '/app/estudio-credito/detalle-estudio', icon: 'pi pi-plus-circle', category: 'action', keywords: ['nuevo', 'crear', 'analisis'] }
     ];
 

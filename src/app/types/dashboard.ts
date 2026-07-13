@@ -5,21 +5,14 @@ export interface KpiValue {
     deltaPercent: number | null;
 }
 
-export interface DashboardSummary {
-    totalCustomers: KpiValue;
-    totalStudies: KpiValue;
-    studiesThisMonth: KpiValue;
-    activeUsers: KpiValue;
+export interface AnalysisCredits {
+    remaining: number;
+    nearestExpiry: string | null;
 }
 
-export interface DashboardCreditSummary {
-    totalRequestedThisMonth: KpiValue;
-    avgRequestedThisMonth: KpiValue;
-    avgRequestedTerm: KpiValue;
-}
-
-export interface StudyByStatus {
+export interface PipelineItem {
     statusId: number;
+    code: string;
     label: string;
     count: number;
 }
@@ -29,96 +22,98 @@ export interface StudyByMonth {
     count: number;
 }
 
-export interface CustomerByPersonType {
-    personTypeId: number;
-    label: string;
-    count: number;
-}
-
 export interface RecentStudy {
     id: string;
     customerName: string;
     studyDate: string;
+    statusCode: string;
     statusLabel: string;
     requestedCreditLine: number;
+    approvedCreditLine: number;
+    viabilityScore: number | null;
+    viabilityStatus: string | null;
+}
+
+export interface BasicSummary {
+    totalCustomers: KpiValue;
+    studiesThisMonth: KpiValue;
+    analysisCredits: AnalysisCredits;
+}
+
+export interface BasicCredit {
+    totalRequestedThisMonth: KpiValue;
+    totalApprovedThisMonth: KpiValue;
 }
 
 export interface BasicDashboard {
-    summary: DashboardSummary;
-    creditSummary: DashboardCreditSummary;
-    studiesByStatus: StudyByStatus[];
+    summary: BasicSummary;
+    credit: BasicCredit;
+    pipeline: PipelineItem[];
     studiesByMonth: StudyByMonth[];
-    customersByPersonType: CustomerByPersonType[];
     recentStudies: RecentStudy[];
 }
 
 // Advanced-only fields
-export interface FinancialIndicators {
-    avgEbitda: KpiValue;
-    avgMonthlyPaymentCapacity: KpiValue;
-    avgStabilityFactor: KpiValue;
-    avgPaymentTimeSuppliers: KpiValue;
+export interface DashboardPeriod {
+    from: string;
+    to: string;
+    previousFrom: string;
+    previousTo: string;
 }
 
-export interface StabilityBand {
-    band: string;
+export interface AdvancedKpis {
+    analysisCredits: AnalysisCredits;
+    studiesInPeriod: KpiValue;
+    approvalRate: KpiValue;
+    avgViabilityScore: KpiValue;
+}
+
+export interface AdvancedCredit {
+    totalRequested: KpiValue;
+    totalApproved: KpiValue;
+    approvedOverRequestedPercent: number;
+}
+
+export interface Verdicts {
+    approved: number;
+    conditional: number;
+    rejected: number;
+    analyzed: number;
+}
+
+export interface BureauRiskBand {
+    code: string;
+    label: string;
+    min: number;
     count: number;
 }
 
-export interface PaymentCapacityTrendItem {
-    month: string;
-    value: number;
-}
-
-export interface AvgTurnoverIndicators {
-    accountsReceivableTurnover: KpiValue;
-    inventoryTurnover: KpiValue;
-    suppliersTurnover: KpiValue;
-    paymentTimeSuppliers: KpiValue;
+export interface BureauRisk {
+    avgScore: number | null;
+    consultedCustomers: number;
+    withoutHistory: number;
+    withArrears: number;
+    byBand: BureauRiskBand[];
 }
 
 export interface TopCustomerByCredit {
     customerId: string;
     businessName: string;
-    totalCredit: number;
+    totalRequested: number;
+    totalApproved: number;
     studiesCount: number;
 }
 
-export interface RevenueVsNetIncomeItem {
-    month: string;
-    avgRevenue: number;
-    avgNetIncome: number;
-}
-
-export interface AvgDebtStructure {
-    avgCurrentLiabilities: KpiValue;
-    avgNonCurrentLiabilities: KpiValue;
-    avgEquity: KpiValue;
-    debtToEquityRatio: KpiValue;
-}
-
-export interface StudyByAnalyst {
-    analystId: string;
-    analystName: string;
-    count: number;
-}
-
-export interface CustomerByEconomicActivity {
-    economicActivityId: number;
-    label: string;
-    count: number;
-}
-
-export interface AdvancedDashboard extends BasicDashboard {
-    financialIndicators: FinancialIndicators;
-    stabilityDistribution: StabilityBand[];
-    paymentCapacityTrend: PaymentCapacityTrendItem[];
-    avgTurnoverIndicators: AvgTurnoverIndicators;
+export interface AdvancedDashboard {
+    period: DashboardPeriod;
+    kpis: AdvancedKpis;
+    credit: AdvancedCredit;
+    pipeline: PipelineItem[];
+    verdicts: Verdicts;
+    studiesByMonth: StudyByMonth[];
+    bureauRisk: BureauRisk;
     topCustomersByCredit: TopCustomerByCredit[];
-    revenueVsNetIncome: RevenueVsNetIncomeItem[];
-    avgDebtStructure: AvgDebtStructure;
-    studiesByAnalyst: StudyByAnalyst[];
-    customersByEconomicActivity: CustomerByEconomicActivity[];
+    recentStudies: RecentStudy[];
 }
 
 export type DashboardLevel = 'basic' | 'advanced' | 'premium';

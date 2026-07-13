@@ -1,5 +1,6 @@
 import { Component, computed, input, output } from '@angular/core';
 import { PackOffering } from '@/app/types/onboarding';
+import { formatCurrency } from '@/app/shared/utils/format.util';
 
 /**
  * Tarjeta reutilizable para un pack de consultas. Es seleccionable: al
@@ -43,12 +44,5 @@ export class PackCard {
         this.select.emit(this.pack());
     }
 
-    formatCurrency(value: number, currency = 'COP'): string {
-        return new Intl.NumberFormat('es-CO', {
-            style: 'currency',
-            currency,
-            currencyDisplay: 'narrowSymbol',
-            maximumFractionDigits: 0
-        }).format(value);
-    }
+    formatCurrency = formatCurrency;
 }

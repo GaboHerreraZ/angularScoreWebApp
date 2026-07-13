@@ -109,6 +109,25 @@
     box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
 }
 
+/* Loaders con mensajes rotativos (crear estudio / extraer PDF) */
+.loader-dot {
+    animation: loader-bounce 1.2s ease-in-out infinite;
+}
+
+@keyframes loader-bounce {
+    0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+    40% { transform: scale(1); opacity: 1; }
+}
+
+.loader-message-fade {
+    animation: loader-message-fade 0.5s ease;
+}
+
+@keyframes loader-message-fade {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
 /* Vista previa del pagaré: forzar tema claro sin importar el modo de la app */
 .promissory-preview,
 .promissory-preview * {
@@ -272,4 +291,34 @@
     > :first-child {
         margin-top: 0;
     }
+}
+
+/* Card de sección con separación visual clara: borde definido, sombra sutil
+   y encabezado con divisor inferior. Usar via styleClass="section-card". */
+.section-card.p-card {
+    border: 1px solid var(--p-content-border-color);
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.06);
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.section-card.p-card:hover {
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06), 0 4px 12px rgba(0, 0, 0, 0.08);
+    border-color: var(--p-primary-200);
+}
+
+.section-card.p-card .p-card-title {
+    padding-bottom: 0.85rem;
+    margin-bottom: 1.25rem;
+    border-bottom: 1px solid var(--p-content-border-color);
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+:root[class*='app-dark'] .section-card.p-card {
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25), 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+:root[class*='app-dark'] .section-card.p-card:hover {
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35), 0 4px 12px rgba(0, 0, 0, 0.4);
 }

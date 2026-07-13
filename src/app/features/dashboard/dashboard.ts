@@ -10,10 +10,11 @@ import { TagModule } from 'primeng/tag';
 import { SkeletonModule } from 'primeng/skeleton';
 import { ButtonModule } from 'primeng/button';
 import { DashboardService } from './dashboard.service';
-import { BasicDashboard, AdvancedDashboard } from '@/app/types/dashboard';
+import { BasicDashboard, AdvancedDashboard, RecentStudy } from '@/app/types/dashboard';
 import { HelpTooltip } from '@/app/shared/components/help-tooltip/help-tooltip';
 import { AuthService } from '@/app/core/services/auth.service';
 import { KpiCard } from '@/app/shared/components/kpi-card/kpi-card';
+import { formatCurrency, formatCompactCurrency } from '@/app/shared/utils/format.util';
 
 @Component({
     selector: 'app-dashboard',
@@ -39,7 +40,6 @@ export class Dashboard implements OnInit {
     private destroyRef = inject(DestroyRef);
     private authService = inject(AuthService);
 
-    floor = (value: number | null | undefined) => Math.floor(value ?? 0);
     loading = signal(false);
     lastUpdated = signal<Date | null>(null);
     currentTime = signal<Date>(new Date());
@@ -81,18 +81,12 @@ export class Dashboard implements OnInit {
     });
 
     chartTooltips: Record<string, string> = {
-        studiesByStatus: 'Distribucion de los estudios de credito segun su estado actual (aprobado, pendiente, rechazado, realizado).',
         studiesByMonth: 'Cantidad total de estudios de credito realizados mes a mes, para visualizar la tendencia de actividad.',
-        customersByPersonType: 'Proporcion de clientes clasificados como persona natural o persona juridica.',
-        recentStudies: 'Listado de los estudios de credito mas recientes con su cliente, fecha, estado y cupo solicitado.',
-        stabilityDistribution: 'Distribucion de clientes segun las bandas del Altman Z-Score: alto riesgo, zona gris y zona segura.',
-        paymentCapacityTrend: 'Evolucion del promedio mensual de capacidad de pago del portafolio en los ultimos 12 meses.',
-        turnoverIndicators: 'Dias promedio del portafolio en rotacion de cartera, inventario, proveedores y plazo maximo de pago.',
-        topCustomers: 'Los 10 clientes con el mayor cupo de credito solicitado dentro del portafolio.',
-        revenueVsNetIncome: 'Comparacion mes a mes del promedio de ingresos frente al promedio de utilidad neta del portafolio.',
-        debtStructure: 'Composicion promedio del balance entre pasivo corriente, pasivo no corriente y patrimonio.',
-        analyst: 'Cantidad de estudios de credito realizados por cada analista del equipo.',
-        economicActivity: 'Numero de clientes clasificados por su actividad economica principal.'
+        recentStudies: 'Listado de los estudios de credito mas recientes con su cliente, fecha, estado, cupos y veredicto de viabilidad.',
+        pipeline: 'Cantidad de estudios del periodo segun la etapa del proceso en la que se encuentran.',
+        verdicts: 'Resultado de viabilidad de los estudios analizados en el periodo: aprobados, condicionados y rechazados.',
+        bureauRisk: 'Distribucion de los clientes consultados en centrales de riesgo segun la banda de su score de buro.',
+        topCustomers: 'Los clientes con mayor cupo de credito solicitado en el periodo, comparando cupo solicitado vs aprobado.'
     };
 
     basicData = signal<BasicDashboard | null>(null);
@@ -100,39 +94,24 @@ export class Dashboard implements OnInit {
 
     data = computed<BasicDashboard | null>(() => this.basicData());
 
+    // Estudios recientes: se prefiere la lista del endpoint avanzado (acotada al periodo consultado).
+    recentStudiesList = computed<RecentStudy[]>(
+        () => this.advancedData()?.recentStudies ?? this.data()?.recentStudies ?? []
+    );
+
     // ── Chart configs ──────────────────────────────────────────────────────────
 
-    studiesByStatusChart = computed(() => {
-        const d = this.data();
-        if (!d?.studiesByStatus?.length) return null;
-        const s = getComputedStyle(document.documentElement);
-        return {
-            data: {
-                labels: d.studiesByStatus.map(x => x.label),
-                datasets: [{
-                    data: d.studiesByStatus.map(x => x.count),
-                    backgroundColor: [
-                        s.getPropertyValue('--p-yellow-400').trim(),
-                        s.getPropertyValue('--p-blue-400').trim(),
-                        s.getPropertyValue('--p-green-400').trim(),
-                        s.getPropertyValue('--p-red-400').trim()
-                    ]
-                }]
-            },
-            options: this.doughnutOptions()
-        };
-    });
-
     studiesByMonthChart = computed(() => {
-        const d = this.data();
-        if (!d?.studiesByMonth?.length) return null;
+        // El endpoint avanzado trae la serie acotada al periodo consultado; se prefiere sobre la basica.
+        const months = this.advancedData()?.studiesByMonth ?? this.data()?.studiesByMonth;
+        if (!months?.length) return null;
         const s = getComputedStyle(document.documentElement);
         return {
             data: {
-                labels: d.studiesByMonth.map(m => this.formatMonth(m.month)),
+                labels: months.map(m => this.formatMonth(m.month)),
                 datasets: [{
                     label: 'Estudios',
-                    data: d.studiesByMonth.map(m => m.count),
+                    data: months.map(m => m.count),
                     backgroundColor: s.getPropertyValue('--p-primary-400').trim(),
                     borderRadius: 4
                 }]
@@ -141,88 +120,74 @@ export class Dashboard implements OnInit {
         };
     });
 
-    customersByPersonTypeChart = computed(() => {
-        const d = this.data();
-        if (!d?.customersByPersonType?.length) return null;
+    pipelineChart = computed(() => {
+        // El endpoint avanzado trae el pipeline acotado al periodo consultado; se prefiere sobre el basico.
+        const pipeline = this.advancedData()?.pipeline ?? this.data()?.pipeline;
+        if (!pipeline?.length) return null;
         const s = getComputedStyle(document.documentElement);
+        const colorByCode: Record<string, string> = {
+            pending: '--p-yellow-400',
+            inProgress: '--p-cyan-400',
+            studyCompleted: '--p-blue-400',
+            approved: '--p-green-400',
+            conditional: '--p-orange-400',
+            rejected: '--p-red-400'
+        };
+        const fallback = ['--p-primary-400', '--p-purple-400', '--p-teal-400', '--p-indigo-400', '--p-pink-400'];
         return {
             data: {
-                labels: d.customersByPersonType.map(p => p.label),
+                labels: pipeline.map(x => x.label),
                 datasets: [{
-                    data: d.customersByPersonType.map(p => p.count),
-                    backgroundColor: [
-                        s.getPropertyValue('--p-indigo-400').trim(),
-                        s.getPropertyValue('--p-teal-400').trim()
-                    ]
+                    data: pipeline.map(x => x.count),
+                    backgroundColor: pipeline.map((x, i) =>
+                        s.getPropertyValue(colorByCode[x.code] ?? fallback[i % fallback.length]).trim()
+                    )
                 }]
             },
             options: this.doughnutOptions()
         };
     });
 
-    stabilityDistributionChart = computed(() => {
-        const d = this.advancedData();
-        if (!d?.stabilityDistribution?.length) return null;
+    verdictsChart = computed(() => {
+        const v = this.advancedData()?.verdicts;
+        if (!v || v.analyzed === 0) return null;
         const s = getComputedStyle(document.documentElement);
-        const labelMap: Record<string, string> = {
-            high_risk: 'Alto Riesgo (≤1.8)',
-            medium_risk: 'Zona Gris (1.8-3.0)',
-            low_risk: 'Zona Segura (>3.0)'
-        };
         return {
             data: {
-                labels: d.stabilityDistribution.map(x => labelMap[x.band] ?? x.band),
+                labels: ['Aprobados', 'Condicionados', 'Rechazados'],
                 datasets: [{
-                    data: d.stabilityDistribution.map(x => x.count),
+                    data: [v.approved, v.conditional, v.rejected],
                     backgroundColor: [
-                        s.getPropertyValue('--p-red-400').trim(),
-                        s.getPropertyValue('--p-yellow-400').trim(),
-                        s.getPropertyValue('--p-green-400').trim()
-                    ]
-                }]
-            },
-            options: this.doughnutOptions()
-        };
-    });
-
-    paymentCapacityTrendChart = computed(() => {
-        const d = this.advancedData();
-        if (!d?.paymentCapacityTrend?.length) return null;
-        const s = getComputedStyle(document.documentElement);
-        return {
-            data: {
-                labels: d.paymentCapacityTrend.map(m => this.formatMonth(m.month)),
-                datasets: [{
-                    label: 'Cap. Pago Mensual Prom.',
-                    data: d.paymentCapacityTrend.map(m => m.value),
-                    fill: true,
-                    borderColor: s.getPropertyValue('--p-primary-500').trim(),
-                    backgroundColor: 'rgba(99,102,241,0.1)',
-                    tension: 0.4,
-                    pointRadius: 4
-                }]
-            },
-            options: this.lineOptions(true)
-        };
-    });
-
-    turnoverIndicatorsChart = computed(() => {
-        const d = this.advancedData();
-        if (!d?.avgTurnoverIndicators) return null;
-        const s = getComputedStyle(document.documentElement);
-        const t = d.avgTurnoverIndicators;
-        return {
-            data: {
-                labels: ['Cartera (días)', 'Inventario (días)', 'Proveedores (días)', 'Plazo máx. (días)'],
-                datasets: [{
-                    label: 'Días promedio',
-                    data: [t.accountsReceivableTurnover.value, t.inventoryTurnover.value, Math.abs(t.suppliersTurnover.value), t.paymentTimeSuppliers.value],
-                    backgroundColor: [
-                        s.getPropertyValue('--p-blue-400').trim(),
                         s.getPropertyValue('--p-green-400').trim(),
-                        s.getPropertyValue('--p-orange-400').trim(),
-                        s.getPropertyValue('--p-purple-400').trim()
-                    ],
+                        s.getPropertyValue('--p-yellow-400').trim(),
+                        s.getPropertyValue('--p-red-400').trim()
+                    ]
+                }]
+            },
+            options: this.doughnutOptions()
+        };
+    });
+
+    bureauRiskChart = computed(() => {
+        const d = this.advancedData();
+        if (!d?.bureauRisk?.byBand?.length || d.bureauRisk.consultedCustomers === 0) return null;
+        const s = getComputedStyle(document.documentElement);
+        const colorByBand: Record<string, string> = {
+            excellent: '--p-green-500',
+            good: '--p-green-400',
+            acceptable: '--p-yellow-400',
+            fair: '--p-orange-400',
+            high_risk: '--p-red-400'
+        };
+        return {
+            data: {
+                labels: d.bureauRisk.byBand.map(b => b.label),
+                datasets: [{
+                    label: 'Clientes',
+                    data: d.bureauRisk.byBand.map(b => b.count),
+                    backgroundColor: d.bureauRisk.byBand.map(b =>
+                        s.getPropertyValue(colorByBand[b.code] ?? '--p-primary-400').trim()
+                    ),
                     borderRadius: 4
                 }]
             },
@@ -237,98 +202,30 @@ export class Dashboard implements OnInit {
         return {
             data: {
                 labels: d.topCustomersByCredit.map(c => c.businessName),
-                datasets: [{
-                    label: 'Cupo solicitado',
-                    data: d.topCustomersByCredit.map(c => c.totalCredit),
-                    backgroundColor: s.getPropertyValue('--p-teal-400').trim(),
-                    borderRadius: 4
-                }]
-            },
-            options: this.horizontalBarOptions(true)
-        };
-    });
-
-    revenueVsNetIncomeChart = computed(() => {
-        const d = this.advancedData();
-        if (!d?.revenueVsNetIncome?.length) return null;
-        const s = getComputedStyle(document.documentElement);
-        return {
-            data: {
-                labels: d.revenueVsNetIncome.map(m => this.formatMonth(m.month)),
                 datasets: [
                     {
-                        label: 'Ingresos prom.',
-                        data: d.revenueVsNetIncome.map(m => m.avgRevenue),
+                        label: 'Cupo solicitado',
+                        data: d.topCustomersByCredit.map(c => c.totalRequested),
                         backgroundColor: s.getPropertyValue('--p-blue-400').trim(),
                         borderRadius: 4
                     },
                     {
-                        label: 'Utilidad neta prom.',
-                        data: d.revenueVsNetIncome.map(m => m.avgNetIncome),
+                        label: 'Cupo aprobado',
+                        data: d.topCustomersByCredit.map(c => c.totalApproved),
                         backgroundColor: s.getPropertyValue('--p-green-400').trim(),
                         borderRadius: 4
                     }
                 ]
             },
-            options: this.barOptions(true, true)
+            options: this.horizontalBarOptions(true, true)
         };
     });
 
-    debtStructureChart = computed(() => {
-        const d = this.advancedData();
-        if (!d?.avgDebtStructure) return null;
-        const s = getComputedStyle(document.documentElement);
-        const ds = d.avgDebtStructure;
-        return {
-            data: {
-                labels: ['Pasivo corriente', 'Pasivo no corriente', 'Patrimonio'],
-                datasets: [{
-                    data: [ds.avgCurrentLiabilities.value, ds.avgNonCurrentLiabilities.value, ds.avgEquity.value],
-                    backgroundColor: [
-                        s.getPropertyValue('--p-red-400').trim(),
-                        s.getPropertyValue('--p-orange-400').trim(),
-                        s.getPropertyValue('--p-green-400').trim()
-                    ]
-                }]
-            },
-            options: this.doughnutOptions()
-        };
-    });
-
-    analystChart = computed(() => {
-        const d = this.advancedData();
-        if (!d?.studiesByAnalyst?.length) return null;
-        const s = getComputedStyle(document.documentElement);
-        return {
-            data: {
-                labels: d.studiesByAnalyst.map(a => a.analystName),
-                datasets: [{
-                    label: 'Estudios realizados',
-                    data: d.studiesByAnalyst.map(a => a.count),
-                    backgroundColor: s.getPropertyValue('--p-indigo-400').trim(),
-                    borderRadius: 4
-                }]
-            },
-            options: this.barOptions()
-        };
-    });
-
-    economicActivityChart = computed(() => {
-        const d = this.advancedData();
-        if (!d?.customersByEconomicActivity?.length) return null;
-        const s = getComputedStyle(document.documentElement);
-        return {
-            data: {
-                labels: d.customersByEconomicActivity.map(e => e.label),
-                datasets: [{
-                    label: 'Clientes',
-                    data: d.customersByEconomicActivity.map(e => e.count),
-                    backgroundColor: s.getPropertyValue('--p-cyan-400').trim(),
-                    borderRadius: 4
-                }]
-            },
-            options: this.horizontalBarOptions()
-        };
+    periodLabel = computed(() => {
+        const p = this.advancedData()?.period;
+        if (!p) return null;
+        const fmt = (iso: string) => new Date(iso).toLocaleDateString('es-CO', { day: 'numeric', month: 'short', year: 'numeric' });
+        return `${fmt(p.from)} – ${fmt(p.to)}`;
     });
 
     ngOnInit(): void {
@@ -353,27 +250,33 @@ export class Dashboard implements OnInit {
         return map[status] ?? 'secondary';
     }
 
+    getVerdictSeverity(status: string | null | undefined): 'success' | 'warn' | 'danger' | 'secondary' {
+        const map: Record<string, 'success' | 'warn' | 'danger'> = {
+            approved: 'success',
+            conditional: 'warn',
+            rejected: 'danger'
+        };
+        return map[status ?? ''] ?? 'secondary';
+    }
+
+    getVerdictLabel(status: string | null | undefined): string {
+        const map: Record<string, string> = {
+            approved: 'Aprobado',
+            conditional: 'Condicionado',
+            rejected: 'Rechazado'
+        };
+        return map[status ?? ''] ?? '—';
+    }
+
     formatMonth(month: string): string {
         const [year, m] = month.split('-');
         const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
         return `${months[parseInt(m, 10) - 1]} ${year}`;
     }
 
-    formatCompactCurrency(value: number): string {
-        if (value >= 1_000_000_000) return `$${(value / 1_000_000_000).toFixed(1)}B`;
-        if (value >= 1_000_000) return `$${(value / 1_000_000).toFixed(1)}M`;
-        if (value >= 1_000) return `$${(value / 1_000).toFixed(0)}K`;
-        return `$${value}`;
-    }
-
-    formatCurrency(value: number): string {
-        return new Intl.NumberFormat('es-CO', {
-            style: 'currency',
-            currency: 'COP',
-            currencyDisplay: 'narrowSymbol',
-            maximumFractionDigits: 0
-        }).format(value);
-    }
+    // Expuestos al template; delegan en las utilidades compartidas.
+    formatCurrency = formatCurrency;
+    formatCompactCurrency = formatCompactCurrency;
 
     private loadBasic(): void {
         this.loading.set(true);
@@ -446,28 +349,7 @@ export class Dashboard implements OnInit {
         };
     }
 
-    private lineOptions(currency = false) {
-        const s = getComputedStyle(document.documentElement);
-        const textMuted = s.getPropertyValue('--p-text-muted-color').trim();
-        const border = s.getPropertyValue('--p-content-border-color').trim();
-        return {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
-            scales: {
-                x: { ticks: { color: textMuted }, grid: { color: border } },
-                y: {
-                    ticks: {
-                        color: textMuted,
-                        ...(currency ? { callback: (v: number) => this.formatCompactCurrency(v) } : {})
-                    },
-                    grid: { color: border }
-                }
-            }
-        };
-    }
-
-    private horizontalBarOptions(currency = false) {
+    private horizontalBarOptions(currency = false, showLegend = false) {
         const s = getComputedStyle(document.documentElement);
         const textMuted = s.getPropertyValue('--p-text-muted-color').trim();
         const border = s.getPropertyValue('--p-content-border-color').trim();
@@ -475,7 +357,9 @@ export class Dashboard implements OnInit {
             indexAxis: 'y',
             responsive: true,
             maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
+            plugins: {
+                legend: { display: showLegend, position: 'bottom', labels: { color: s.getPropertyValue('--p-text-color').trim() } }
+            },
             scales: {
                 x: {
                     ticks: {

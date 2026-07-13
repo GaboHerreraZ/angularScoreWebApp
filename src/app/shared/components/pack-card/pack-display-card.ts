@@ -1,6 +1,7 @@
 import { Component, computed, input, output } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { PackOffering } from '@/app/types/onboarding';
+import { formatCurrency } from '@/app/shared/utils/format.util';
 
 /**
  * Tarjeta presentacional de un pack de análisis de crédito para el landing. A diferencia
@@ -53,12 +54,5 @@ export class PackDisplayCard {
         this.register.emit(this.pack());
     }
 
-    formatCurrency(value: number, currency = 'COP'): string {
-        return new Intl.NumberFormat('es-CO', {
-            style: 'currency',
-            currency,
-            currencyDisplay: 'narrowSymbol',
-            maximumFractionDigits: 0
-        }).format(value);
-    }
+    formatCurrency = formatCurrency;
 }
