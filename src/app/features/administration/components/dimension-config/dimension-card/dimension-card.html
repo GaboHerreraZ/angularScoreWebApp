@@ -1,12 +1,30 @@
-<div class="rounded-2xl border border-surface p-5 flex flex-col gap-4 bg-surface-0 dark:bg-surface-900/40 h-full">
-    <!-- Encabezado: ícono + nombre -->
+<div
+    class="rounded-2xl border p-5 flex flex-col gap-4 bg-surface-0 dark:bg-surface-900/40 h-full transition-all duration-200"
+    [class.border-surface]="!belowMin()"
+    [class.border-red-400]="belowMin()"
+    [class.opacity-55]="dimmed()"
+>
+    <!-- Encabezado: ícono + nombre + interruptor -->
     <div class="flex items-center gap-2 min-w-0">
         <span class="flex items-center justify-center w-9 h-9 rounded-lg bg-primary/10 shrink-0">
-            <i [class]="dimension().icon + ' text-primary'"></i>
+            <i [class]="icon() + ' text-primary'"></i>
         </span>
-        <span class="font-semibold text-color leading-tight">{{ dimension().label }}</span>
+        <span class="font-semibold text-color leading-tight flex-1 min-w-0">{{ label() }}</span>
+
+        @if (required()) {
+        <i class="pi pi-lock text-muted-color text-sm"
+           pTooltip="Dimensión obligatoria: no se puede desactivar." tooltipPosition="left"></i>
+        } @else {
+        <p-toggleswitch
+            [(ngModel)]="enabled"
+            [disabled]="!canToggle()"
+            pTooltip="Activa o desactiva esta dimensión en el cálculo del score."
+            tooltipPosition="left"
+        />
+        }
     </div>
 
+    @if (enabled()) {
     <!-- Porcentaje destacado -->
     <div class="flex items-end justify-center py-1">
         @if (editing()) {
@@ -36,14 +54,13 @@
     @if (editing() && belowMin()) {
     <small class="text-red-500">Mínimo {{ minWeight() }} % por dimensión.</small>
     }
-
-    <!-- Descripción siempre visible de qué mide la dimensión -->
-    <p class="text-sm text-muted-color leading-relaxed m-0">{{ dimension().tooltip }}</p>
-
-    @if (dimension().note) {
-    <div class="flex items-start gap-2 rounded-lg bg-primary/5 border border-primary/20 p-2.5 mt-auto">
-        <i class="pi pi-info-circle text-primary text-sm mt-0.5"></i>
-        <span class="text-xs text-color leading-relaxed">{{ dimension().note }}</span>
+    } @else {
+    <!-- Deshabilitada: no cuenta para el score -->
+    <div class="flex items-center justify-center py-3">
+        <span class="text-sm text-muted-color italic">No cuenta para el score</span>
     </div>
     }
+
+    <!-- Descripción siempre visible de qué mide la dimensión -->
+    <p class="text-sm text-muted-color leading-relaxed m-0 mt-auto">{{ description() }}</p>
 </div>

@@ -2,11 +2,17 @@ import { computed, inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from '@/app/core/services/api.service';
 import { AuthService } from '@/app/core/services/auth.service';
-import { PersonTypeCode, ScoringConfiguration, ScoringWeights } from '@/app/types/scoring-configuration';
+import {
+    CreateScoringConfigurationDto,
+    PersonTypeCode,
+    ScoringConfiguration,
+    ScoringDimension
+} from '@/app/types/scoring-configuration';
 
 /**
- * Configuraciones de ponderación (scoring) de la empresa: la vigente, el historial
- * de versiones y la creación de una versión nueva. El companyId sale del perfil.
+ * Configuraciones de ponderación (scoring) de la empresa: el catálogo de dimensiones,
+ * la config vigente, el historial de versiones y la creación de una versión nueva.
+ * El companyId sale del perfil.
  */
 @Injectable({ providedIn: 'root' })
 export class DimensionConfigService {
@@ -17,6 +23,11 @@ export class DimensionConfigService {
 
     private get basePath(): string {
         return `companies/${this.companyId()}/scoring-configurations`;
+    }
+
+    /** Catálogo completo de dimensiones del sistema (global, no por empresa). */
+    getDimensions(): Observable<ScoringDimension[]> {
+        return this.apiService.get<ScoringDimension[]>('scoring-dimensions');
     }
 
     /**
@@ -34,11 +45,11 @@ export class DimensionConfigService {
     }
 
     /**
-     * Crea una versión nueva con los pesos dados para el tipo de persona indicado;
-     * queda vigente y la anterior pasa al historial. El backend responde 400 si no
-     * suman 100 o alguno es menor a 5.
+     * Crea una versión nueva con las dimensiones habilitadas y sus pesos para el tipo de
+     * persona indicado; queda vigente y la anterior pasa al historial. El backend responde
+     * 400 si faltan las obligatorias, alguna no aplica al tipo, un peso es < 5 o no suman 100.
      */
-    create(personType: PersonTypeCode, weights: ScoringWeights): Observable<ScoringConfiguration> {
-        return this.apiService.post<ScoringConfiguration>(this.basePath, weights, { params: { personType } });
+    create(personType: PersonTypeCode, dto: CreateScoringConfigurationDto): Observable<ScoringConfiguration> {
+        return this.apiService.post<ScoringConfiguration>(this.basePath, dto, { params: { personType } });
     }
 }

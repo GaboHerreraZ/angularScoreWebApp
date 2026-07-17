@@ -1,19 +1,24 @@
 /**
- * Configuración de ponderación (scoring) de una empresa: cuánto pesa cada una de
- * las 7 dimensiones al calcular el estudio de crédito. Los pesos deben sumar 100
- * y cada uno ser ≥ 5 (validación replicada en el front, la valida también el backend).
+ * Configuración de ponderación (scoring) de una empresa: qué dimensiones pesan y
+ * cuánto al calcular el estudio de crédito. El catálogo de dimensiones lo define el
+ * backend (GET /api/scoring-dimensions); la empresa habilita las que quiera y les
+ * asigna un peso. Los pesos de las habilitadas deben sumar 100 y cada uno ser ≥ 5.
  *
  * Endpoints:
- * - GET  companies/:companyId/scoring-configurations/active  → config vigente (o defaults con isDefault=true, id=null)
- * - GET  companies/:companyId/scoring-configurations         → historial (reciente primero)
- * - POST companies/:companyId/scoring-configurations         → crea una versión nueva; la anterior pasa al historial
+ * - GET  /api/scoring-dimensions                                  → catálogo completo de dimensiones
+ * - GET  companies/:companyId/scoring-configurations/active       → config vigente (weights[] anidado)
+ * - GET  companies/:companyId/scoring-configurations              → historial (reciente primero)
+ * - POST companies/:companyId/scoring-configurations?personType=  → crea versión nueva; la anterior pasa a histórica
  */
 
-/** Peso mínimo permitido por dimensión. */
+/** Peso mínimo permitido por dimensión habilitada. */
 export const MIN_DIMENSION_WEIGHT = 5;
 
-/** Suma exacta que deben alcanzar los 7 pesos. */
+/** Suma exacta que deben alcanzar los pesos de las dimensiones habilitadas. */
 export const TOTAL_WEIGHT = 100;
+
+/** Codes de las dimensiones obligatorias: siempre habilitadas, no se pueden quitar. */
+export const REQUIRED_DIMENSION_CODES = ['paymentCapacity', 'centralRisk'] as const;
 
 /**
  * Tipo de persona al que aplica una configuración de scoring. Cada empresa tiene
@@ -38,23 +43,56 @@ export interface PersonType {
     id: number;
     code: PersonTypeCode;
     label: string;
-    description?: string;
+    description?: string | null;
 }
 
-/** Claves de los 7 pesos que componen una configuración. */
-export type ScoringWeightKey =
-    | 'weightFinancialHealth'
-    | 'weightPaymentCapacity'
-    | 'weightTermCoherence'
-    | 'weightCreditLineAdequacy'
-    | 'weightCapitalExposure'
-    | 'weightVeracity'
-    | 'weightCentralRisk';
+// ── Catálogo de dimensiones (GET /api/scoring-dimensions) ──────────────────
 
-/** Solo los pesos (cuerpo del POST para crear una versión). */
-export type ScoringWeights = Record<ScoringWeightKey, number>;
+/** A qué tipos de persona aplica una dimensión. */
+export interface DimensionAppliesTo {
+    legalEntity: boolean;
+    naturalPerson: boolean;
+}
 
-export interface ScoringConfiguration extends ScoringWeights {
+/** Una dimensión del catálogo del sistema. */
+export interface ScoringDimension {
+    id: number;
+    code: string;
+    label: string;
+    description: string;
+    isActive: boolean;
+    sortOrder: number;
+    createdAt?: string;
+    updatedAt?: string;
+    /** El motor la soporta (tiene lógica de evaluación). Si es false, no se puede habilitar. */
+    supported: boolean;
+    /** Obligatoria: no se puede deshabilitar. */
+    required: boolean;
+    /** Tipos de persona a los que aplica. */
+    appliesTo: DimensionAppliesTo;
+}
+
+// ── Configuración activa (weights anidados) ────────────────────────────────
+
+/** Dimensión reducida que viene dentro de cada peso del active/POST. */
+export interface ConfigDimension {
+    id: number;
+    code: string;
+    label: string;
+    description: string | null;
+    sortOrder: number;
+}
+
+/** Un peso de la configuración: la dimensión habilitada y su porcentaje. */
+export interface ScoringWeightEntry {
+    id: string;
+    configId: string;
+    dimensionId: number;
+    weight: number;
+    dimension: ConfigDimension;
+}
+
+export interface ScoringConfiguration {
     /** null cuando la empresa no tiene config propia y se están mostrando los defaults del sistema. */
     id: string | null;
     companyId: string | null;
@@ -68,75 +106,41 @@ export interface ScoringConfiguration extends ScoringWeights {
     /** Nombre de quien creó la versión, si el backend lo expande (para "quién cambió qué"). */
     createdByName?: string | null;
     createdAt?: string;
+    /** Dimensiones habilitadas con su peso (las ausentes están deshabilitadas). */
+    weights: ScoringWeightEntry[];
 }
 
-/** Metadatos de UI de cada dimensión: label y tooltip explicativo. */
-export interface DimensionMeta {
-    key: ScoringWeightKey;
-    label: string;
-    tooltip: string;
-    icon: string;
-    /** Nota extra visible bajo el control (p. ej. Veracidad, que solo aplica con PDF). */
-    note?: string;
-    /**
-     * Tipos de persona a los que aplica la dimensión. Si se omite, aplica a todos.
-     * Veracidad solo aplica a Persona Jurídica: en Persona Natural no hay PDF de
-     * estados financieros que contrastar, por lo que ni se muestra ni se edita
-     * (se envía en 0 y las demás dimensiones deben sumar 100).
-     */
-    personTypes?: PersonTypeCode[];
+// ── Body del POST ──────────────────────────────────────────────────────────
+
+/** Un peso a enviar: code de la dimensión + su porcentaje entero. */
+export interface ScoringWeightInput {
+    dimension: string;
+    weight: number;
 }
 
-/** Las dimensiones aplicables a un tipo de persona (respeta el orden original). */
-export function dimensionsFor(personType: PersonTypeCode): DimensionMeta[] {
-    return SCORING_DIMENSIONS.filter(d => !d.personTypes || d.personTypes.includes(personType));
+/** Cuerpo del POST: solo las dimensiones habilitadas. */
+export interface CreateScoringConfigurationDto {
+    weights: ScoringWeightInput[];
 }
 
-/** Las 7 dimensiones con sus explicaciones para labels y tooltips del formulario. */
-export const SCORING_DIMENSIONS: DimensionMeta[] = [
-    {
-        key: 'weightFinancialHealth',
-        label: 'Salud financiera',
-        icon: 'pi pi-heart',
-        tooltip: 'Qué tan sólida es la empresa según su balance (liquidez, rentabilidad, endeudamiento). Un negocio robusto tiene baja probabilidad de quiebra.'
-    },
-    {
-        key: 'weightPaymentCapacity',
-        label: 'Capacidad de pago',
-        icon: 'pi pi-wallet',
-        tooltip: 'Si el flujo de caja del cliente alcanza para cubrir la cuota del crédito solicitado. Es la pregunta central: ¿puede pagar?'
-    },
-    {
-        key: 'weightTermCoherence',
-        label: 'Coherencia de plazos',
-        icon: 'pi pi-clock',
-        tooltip: 'Si el plazo del crédito calza con lo que el cliente tarda en cobrarle a sus propios clientes. Si el crédito vence antes de que él cobre, no tendrá con qué pagar.'
-    },
-    {
-        key: 'weightCreditLineAdequacy',
-        label: 'Adecuación del cupo',
-        icon: 'pi pi-sliders-h',
-        tooltip: 'Si el monto solicitado es razonable frente a su capacidad de pago. Un cupo demasiado alto para lo que puede pagar es riesgoso.'
-    },
-    {
-        key: 'weightCapitalExposure',
-        label: 'Exposición del capital',
-        icon: 'pi pi-shield',
-        tooltip: 'Cuánto capital propio queda inmovilizado y por cuánto tiempo. Como el crédito es sin intereses, prestar mucho por mucho tiempo es mal negocio aunque el cliente pueda pagar.'
-    },
-    {
-        key: 'weightVeracity',
-        label: 'Veracidad',
-        icon: 'pi pi-verified',
-        tooltip: 'Si los estados financieros del PDF coinciden con lo que la empresa reportó oficialmente en la central. Detecta cifras maquilladas.',
-        note: 'Aplica solo si se carga el PDF de estados financieros. Si no hay con qué contrastar, su peso se reparte entre las demás.',
-        // Solo Persona Jurídica: la Persona Natural no aporta PDF de estados financieros.
-        personTypes: ['legalEntity']
-    },
-    {
-        key: 'weightCentralRisk',
-        label: 'Riesgo de la central',
-        icon: 'pi pi-chart-line',
-        tooltip: 'El nivel de riesgo que le asigna DataCrédito según su historial crediticio, sector y comportamiento de pago (mora). Es la opinión de un tercero experto.'
-    }
-];
+// ── Íconos locales por dimensión (el backend no manda íconos) ──────────────
+
+const DIMENSION_ICONS: Record<string, string> = {
+    financialHealth: 'pi pi-heart',
+    paymentCapacity: 'pi pi-wallet',
+    termCoherence: 'pi pi-clock',
+    creditLineAdequacy: 'pi pi-sliders-h',
+    capitalExposure: 'pi pi-shield',
+    veracity: 'pi pi-verified',
+    centralRisk: 'pi pi-chart-line'
+};
+
+/** Ícono de una dimensión por su code, con fallback genérico para codes nuevos. */
+export function dimensionIcon(code: string): string {
+    return DIMENSION_ICONS[code] ?? 'pi pi-gauge';
+}
+
+/** ¿La dimensión aplica al tipo de persona indicado? */
+export function dimensionAppliesTo(dim: ScoringDimension, personType: PersonTypeCode): boolean {
+    return dim.appliesTo?.[personType] ?? false;
+}
