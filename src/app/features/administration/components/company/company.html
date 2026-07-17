@@ -59,8 +59,9 @@
                 <span class="text-muted-color text-sm">Información general de tu empresa. Puedes actualizar el nombre, ciudad y sector.</span>
             </ng-template>
 
-            <!-- Logo -->
-            <div class="flex items-center gap-5 mb-6 pb-6 border-b border-surface">
+            <!-- Logo + estado del contrato -->
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-6 pb-6 border-b border-surface">
+                <div class="flex items-center gap-5">
                 <div class="relative group cursor-pointer" (click)="onUploadLogo()">
                     @if (currentLogoUrl()) {
                     <img [src]="currentLogoUrl()" alt="Logo de la empresa" class="w-20 h-20 rounded-xl object-cover border border-surface shadow-sm" />
@@ -83,6 +84,33 @@
                     <span class="text-muted-color text-sm">PNG, JPG o WebP. Máximo 2 MB.</span>
                     <p-button label="Cambiar logo" icon="pi pi-upload" severity="secondary" size="small" [outlined]="true" [loading]="uploadingLogo()" (onClick)="onUploadLogo()" styleClass="mt-1" />
                 </div>
+                </div>
+
+                <!-- Estado del contrato: al lado derecho del logo -->
+                @if (contract(); as contractInfo) {
+                <div class="flex items-center gap-4 w-full lg:w-auto lg:pl-6 lg:border-l border-surface">
+                    <div class="flex items-center justify-center w-12 h-12 rounded-xl shrink-0"
+                         [class]="contractInfo.isSigned ? 'bg-green-100 dark:bg-green-500/15' : 'bg-amber-100 dark:bg-amber-500/15'">
+                        <i class="pi text-xl"
+                           [class]="contractInfo.isSigned ? 'pi-verified text-green-600 dark:text-green-400' : 'pi-clock text-amber-500'"></i>
+                    </div>
+                    <div class="flex flex-col gap-1 min-w-0">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="font-medium">Contrato de servicio</span>
+                            <p-tag [value]="contractInfo.statusLabel" [severity]="contractInfo.isSigned ? 'success' : 'warn'" />
+                        </div>
+                        @if (contractSignedDate()) {
+                            <span class="text-muted-color text-sm">Firmado el {{ contractSignedDate() }}</span>
+                        } @else {
+                            <span class="text-muted-color text-sm">Aún no se ha completado la firma.</span>
+                        }
+                        <p-button label="Descargar documento" icon="pi pi-download" severity="secondary" size="small" [outlined]="true"
+                                  [loading]="downloadingContract()" [disabled]="!contractDownloadable()"
+                                  [pTooltip]="contractDownloadable() ? '' : 'El documento firmado aún no está disponible'" tooltipPosition="top"
+                                  (onClick)="onDownloadContract()" styleClass="mt-1 w-full sm:w-auto" />
+                    </div>
+                </div>
+                }
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">

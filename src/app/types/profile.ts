@@ -19,6 +19,8 @@ export interface ContractInfo {
   signedAt: string | null;
   refusedAt: string | null;
   refusedReason: string | null;
+  /** True cuando el documento firmado ya está disponible para descargar. */
+  hasSignedDocument?: boolean;
 }
 
 export interface Profile {
