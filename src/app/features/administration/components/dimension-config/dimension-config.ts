@@ -1,29 +1,46 @@
 import { Component, computed, DestroyRef, effect, inject, resource, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { finalize, firstValueFrom } from 'rxjs';
+import { finalize, firstValueFrom, forkJoin } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { TabsModule } from 'primeng/tabs';
 import { TagModule } from 'primeng/tag';
 import { SkeletonModule } from 'primeng/skeleton';
-import { TooltipModule } from 'primeng/tooltip';
 import { CustomTable } from '@/app/shared/components/table/table';
 import { NotificationService } from '@/app/shared/components/notification/notification.service';
 import { DimensionConfigService } from './dimension-config.service';
 import { DimensionCard } from './dimension-card/dimension-card';
 import {
-    dimensionsFor,
+    CreateScoringConfigurationDto,
+    dimensionAppliesTo,
+    dimensionIcon,
     MIN_DIMENSION_WEIGHT,
     PersonTypeCode,
     PERSON_TYPE_TABS,
+    REQUIRED_DIMENSION_CODES,
     ScoringConfiguration,
-    ScoringWeightKey,
-    ScoringWeights,
-    SCORING_DIMENSIONS,
+    ScoringDimension,
     TOTAL_WEIGHT
 } from '@/app/types/scoring-configuration';
 import { TableSettings } from '@/app/types/table';
+
+/** Fila del editor: una dimensión del catálogo con su estado editable. */
+export interface DimensionRow {
+    code: string;
+    label: string;
+    description: string;
+    icon: string;
+    required: boolean;
+    enabled: boolean;
+    weight: number;
+}
+
+/** Catálogo + config activa cargados juntos por tipo de persona. */
+interface ConfigBundle {
+    dimensions: ScoringDimension[];
+    active: ScoringConfiguration;
+}
 
 @Component({
     selector: 'app-dimension-config',
@@ -52,13 +69,15 @@ export class DimensionConfig {
     /** Tipo de persona activo. Por defecto, Persona Jurídica. */
     personType = signal<PersonTypeCode>('legalEntity');
 
-    /** Dimensiones que aplican al tipo de persona activo (Veracidad se excluye en PN). */
-    dimensions = computed(() => dimensionsFor(this.personType()));
-
-    // ── Config activa (por tipo de persona) ───────────────────────────
-    activeResource = resource<ScoringConfiguration, PersonTypeCode>({
+    // ── Catálogo + config activa (por tipo de persona) ────────────────
+    bundleResource = resource<ConfigBundle, PersonTypeCode>({
         params: () => this.personType(),
-        loader: ({ params: personType }) => firstValueFrom(this.service.getActive(personType))
+        loader: ({ params: personType }) => firstValueFrom(
+            forkJoin({
+                dimensions: this.service.getDimensions(),
+                active: this.service.getActive(personType)
+            })
+        )
     });
 
     // ── Historial de versiones (por tipo de persona) ──────────────────
@@ -67,28 +86,48 @@ export class DimensionConfig {
         loader: ({ params: personType }) => firstValueFrom(this.service.getHistory(personType))
     });
 
+    active = computed(() => this.bundleResource.value()?.active ?? null);
+
     // ── Edición ───────────────────────────────────────────────────────
     editing = signal<boolean>(false);
     saving = signal<boolean>(false);
 
-    /** Pesos que se están editando, indexados por clave de dimensión. */
-    weights = signal<ScoringWeights>(this.emptyWeights());
+    /** Filas del editor (una por dimensión aplicable y soportada). */
+    rows = signal<DimensionRow[]>([]);
 
-    /** Suma actual de los pesos de las dimensiones visibles para el tipo activo. */
-    total = computed<number>(() =>
-        this.dimensions().reduce((sum, d) => sum + (this.weights()[d.key] ?? 0), 0)
-    );
+    /** Solo las filas habilitadas cuentan para el total y la validez. */
+    enabledRows = computed(() => this.rows().filter(r => r.enabled));
+
+    /** Suma de los pesos de las dimensiones habilitadas. */
+    total = computed<number>(() => this.enabledRows().reduce((sum, r) => sum + (r.weight ?? 0), 0));
 
     /** Cuánto falta o sobra respecto a 100 (positivo = falta, negativo = sobra). */
     remaining = computed<number>(() => this.totalWeight - this.total());
 
-    /** Alguna dimensión visible por debajo del mínimo permitido. */
+    /** Alguna habilitada por debajo del mínimo permitido. */
     private hasBelowMin = computed<boolean>(() =>
-        this.dimensions().some(d => (this.weights()[d.key] ?? 0) < this.minWeight)
+        this.enabledRows().some(r => (r.weight ?? 0) < this.minWeight)
     );
 
-    /** El reparto es válido: suma exactamente 100 y ninguna dimensión bajo el mínimo. */
-    isValid = computed<boolean>(() => this.total() === this.totalWeight && !this.hasBelowMin());
+    /** Todas las obligatorias están habilitadas. */
+    private requiredEnabled = computed<boolean>(() =>
+        REQUIRED_DIMENSION_CODES.every(code => {
+            const row = this.rows().find(r => r.code === code);
+            // Si una obligatoria no está en el catálogo aplicable, no la exigimos.
+            return !row || row.enabled;
+        })
+    );
+
+    /** Al menos una dimensión habilitada. */
+    private hasEnabled = computed<boolean>(() => this.enabledRows().length > 0);
+
+    /** El reparto es válido: hay habilitadas, obligatorias presentes, suma 100 y ninguna bajo el mínimo. */
+    isValid = computed<boolean>(() =>
+        this.hasEnabled() &&
+        this.requiredEnabled() &&
+        this.total() === this.totalWeight &&
+        !this.hasBelowMin()
+    );
 
     /** Severidad del tag/barra del total según su validez. */
     totalSeverity = computed<'success' | 'warn' | 'danger'>(() => {
@@ -97,12 +136,12 @@ export class DimensionConfig {
     });
 
     constructor() {
-        // Al cargar (o recargar) la config activa, siembra los pesos del editor y sale
-        // del modo edición: cambiar de tab debe mostrar la config del nuevo tipo.
+        // Al cargar (o recargar) el bundle, siembra las filas del editor y sale del modo
+        // edición: cambiar de tab debe mostrar la config del nuevo tipo.
         effect(() => {
-            const active = this.activeResource.value();
-            if (active) {
-                this.weights.set(this.pickWeights(active));
+            const bundle = this.bundleResource.value();
+            if (bundle) {
+                this.rows.set(this.buildRows(bundle));
                 this.editing.set(false);
             }
         });
@@ -117,13 +156,12 @@ export class DimensionConfig {
             createdBy: cfg.createdByName ?? '—',
             personType: cfg.personType?.label ?? '—',
             status: cfg.isActive ? 'Vigente' : 'Histórica',
-            weightFinancialHealth: `${cfg.weightFinancialHealth}%`,
-            weightPaymentCapacity: `${cfg.weightPaymentCapacity}%`,
-            weightTermCoherence: `${cfg.weightTermCoherence}%`,
-            weightCreditLineAdequacy: `${cfg.weightCreditLineAdequacy}%`,
-            weightCapitalExposure: `${cfg.weightCapitalExposure}%`,
-            weightVeracity: `${cfg.weightVeracity}%`,
-            weightCentralRisk: `${cfg.weightCentralRisk}%`
+            dimensions: cfg.weights.length,
+            detail: cfg.weights
+                .slice()
+                .sort((a, b) => a.dimension.sortOrder - b.dimension.sortOrder)
+                .map(w => `${w.dimension.label} ${w.weight}%`)
+                .join(' · ')
         }));
     });
 
@@ -135,13 +173,8 @@ export class DimensionConfig {
             { header: 'Modificado por', field: 'createdBy', type: 'text' },
             { header: 'Tipo de persona', field: 'personType', type: 'text' },
             { header: 'Estado', field: 'status', type: 'status', severityMap: { 'Vigente': 'success', 'Histórica': 'secondary' }, defaultSeverity: 'secondary' },
-            { header: 'Salud fin.', field: 'weightFinancialHealth', type: 'text', filterable: false },
-            { header: 'Cap. pago', field: 'weightPaymentCapacity', type: 'text', filterable: false },
-            { header: 'Plazos', field: 'weightTermCoherence', type: 'text', filterable: false },
-            { header: 'Cupo', field: 'weightCreditLineAdequacy', type: 'text', filterable: false },
-            { header: 'Capital', field: 'weightCapitalExposure', type: 'text', filterable: false },
-            { header: 'Veracidad', field: 'weightVeracity', type: 'text', filterable: false },
-            { header: 'Central', field: 'weightCentralRisk', type: 'text', filterable: false }
+            { header: 'Dim.', field: 'dimensions', type: 'text', filterable: false },
+            { header: 'Detalle', field: 'detail', type: 'text', filterable: false }
         ],
         rows: 5,
         rowsPerPageOptions: [5, 10, 25],
@@ -158,31 +191,40 @@ export class DimensionConfig {
     }
 
     startEditing(): void {
-        const active = this.activeResource.value();
-        if (active) this.weights.set(this.pickWeights(active));
+        const bundle = this.bundleResource.value();
+        if (bundle) this.rows.set(this.buildRows(bundle));
         this.editing.set(true);
     }
 
     cancelEditing(): void {
-        const active = this.activeResource.value();
-        if (active) this.weights.set(this.pickWeights(active));
+        const bundle = this.bundleResource.value();
+        if (bundle) this.rows.set(this.buildRows(bundle));
         this.editing.set(false);
     }
 
     /** Actualiza el peso de una dimensión (desde el slider o el input numérico). */
-    setWeight(key: ScoringWeightKey, value: number): void {
-        this.weights.update(w => ({ ...w, [key]: value ?? 0 }));
+    setWeight(code: string, value: number): void {
+        this.rows.update(rows => rows.map(r => r.code === code ? { ...r, weight: value ?? 0 } : r));
+    }
+
+    /** Habilita o deshabilita una dimensión (las obligatorias no se pueden apagar). */
+    setEnabled(code: string, enabled: boolean): void {
+        this.rows.update(rows => rows.map(r => {
+            if (r.code !== code || r.required) return r;
+            // Al deshabilitar, el peso se pone en 0 para no contaminar el total.
+            return { ...r, enabled, weight: enabled ? r.weight : 0 };
+        }));
     }
 
     save(): void {
         if (!this.isValid() || this.saving()) return;
 
-        // Solo se envían las dimensiones que aplican al tipo; las excluidas (Veracidad
-        // en PN) se mandan en 0 para que el backend las persista consistentemente.
-        const payload = this.buildPayload();
+        const dto: CreateScoringConfigurationDto = {
+            weights: this.enabledRows().map(r => ({ dimension: r.code, weight: r.weight }))
+        };
 
         this.saving.set(true);
-        this.service.create(this.personType(), payload).pipe(
+        this.service.create(this.personType(), dto).pipe(
             finalize(() => this.saving.set(false)),
             takeUntilDestroyed(this.destroyRef)
         ).subscribe({
@@ -190,33 +232,36 @@ export class DimensionConfig {
                 this.notification.success('Configuración de dimensiones actualizada correctamente.');
                 this.editing.set(false);
                 // Refresca el active (header) y el historial para reflejar la nueva versión.
-                this.activeResource.reload();
+                this.bundleResource.reload();
                 this.historyResource.reload();
             }
         });
     }
 
     // ── Helpers ───────────────────────────────────────────────────────
-    private emptyWeights(): ScoringWeights {
-        return SCORING_DIMENSIONS.reduce((acc, d) => {
-            acc[d.key] = 0;
-            return acc;
-        }, {} as ScoringWeights);
-    }
+    /**
+     * Construye las filas del editor cruzando el catálogo con la config activa:
+     * solo dimensiones aplicables al tipo y soportadas por el motor; cada una queda
+     * habilitada con su peso si está en el active, o deshabilitada en 0 si no.
+     */
+    private buildRows(bundle: ConfigBundle): DimensionRow[] {
+        const personType = this.personType();
+        const weightByCode = new Map(bundle.active.weights.map(w => [w.dimension.code, w.weight]));
 
-    private pickWeights(cfg: ScoringConfiguration): ScoringWeights {
-        return SCORING_DIMENSIONS.reduce((acc, d) => {
-            acc[d.key] = cfg[d.key] ?? 0;
-            return acc;
-        }, {} as ScoringWeights);
-    }
-
-    /** Pesos a enviar: los de las dimensiones visibles; las no aplicables van en 0. */
-    private buildPayload(): ScoringWeights {
-        const visible = new Set(this.dimensions().map(d => d.key));
-        return SCORING_DIMENSIONS.reduce((acc, d) => {
-            acc[d.key] = visible.has(d.key) ? (this.weights()[d.key] ?? 0) : 0;
-            return acc;
-        }, {} as ScoringWeights);
+        return bundle.dimensions
+            .filter(d => d.isActive && d.supported && dimensionAppliesTo(d, personType))
+            .sort((a, b) => a.sortOrder - b.sortOrder)
+            .map(d => {
+                const enabled = weightByCode.has(d.code) || d.required;
+                return {
+                    code: d.code,
+                    label: d.label,
+                    description: d.description,
+                    icon: dimensionIcon(d.code),
+                    required: d.required,
+                    enabled,
+                    weight: weightByCode.get(d.code) ?? 0
+                };
+            });
     }
 }
