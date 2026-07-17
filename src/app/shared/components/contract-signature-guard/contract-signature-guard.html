@@ -1,0 +1,62 @@
+<p-dialog
+    [visible]="visible()"
+    [modal]="true"
+    [closable]="false"
+    [closeOnEscape]="false"
+    [draggable]="false"
+    [resizable]="false"
+    [dismissableMask]="false"
+    [showHeader]="false"
+    [style]="{ width: '32rem' }"
+    styleClass="max-w-[92vw]">
+
+    <div class="flex flex-col items-center gap-5 text-center px-2 py-3">
+        <div class="flex items-center justify-center w-16 h-16 rounded-full"
+             [class]="refused() ? 'bg-red-100 dark:bg-red-500/15' : 'bg-amber-100 dark:bg-amber-500/15'">
+            <i class="pi text-3xl"
+               [class]="refused() ? 'pi-times-circle text-red-500' : 'pi-file-edit text-amber-500'"></i>
+        </div>
+
+        @if (refused()) {
+            <div class="flex flex-col gap-2">
+                <h2 class="text-xl font-semibold text-color m-0">Tu contrato fue rechazado</h2>
+                <p class="text-muted-color text-sm leading-relaxed m-0">
+                    El contrato macro aparece como rechazado, por lo que no puedes usar Creditia por ahora.
+                    Si fue un error, vuelve a firmarlo desde el enlace o contacta a nuestro equipo de soporte.
+                </p>
+            </div>
+        } @else {
+            <div class="flex flex-col gap-2">
+                <h2 class="text-xl font-semibold text-color m-0">Firma tu contrato para continuar</h2>
+                <p class="text-muted-color text-sm leading-relaxed m-0">
+                    Antes de empezar a usar Creditia necesitas firmar el contrato macro de servicio.
+                    Es un paso único que habilita tu cuenta por completo.
+                </p>
+            </div>
+        }
+
+        <div class="flex flex-col gap-3 w-full mt-1">
+            <p-button
+                [label]="refused() ? 'Volver a firmar' : 'Firmar contrato ahora'"
+                icon="pi pi-external-link"
+                iconPos="right"
+                [disabled]="!signUrl()"
+                styleClass="w-full"
+                (onClick)="openSignUrl()" />
+
+            <p-button
+                label="Ya lo firmé, actualizar página"
+                icon="pi pi-refresh"
+                severity="secondary"
+                [outlined]="true"
+                [loading]="checking()"
+                styleClass="w-full"
+                (onClick)="verifySignature()" />
+        </div>
+
+        <p class="text-muted-color text-xs leading-relaxed m-0 mt-1">
+            Se abrirá el portal de firma en una pestaña nueva. Cuando termines, vuelve aquí y
+            presiona <span class="font-medium text-color">«Ya lo firmé, actualizar página»</span>.
+        </p>
+    </div>
+</p-dialog>
