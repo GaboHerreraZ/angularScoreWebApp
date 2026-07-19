@@ -20,7 +20,7 @@ export class FeaturesWidget implements OnDestroy {
         { label: 'Salud financiera', value: 22, color: 'bg-emerald-500' },
         { label: 'Capacidad de pago', value: 24, color: 'bg-blue-500' },
         { label: 'Coherencia de plazos', value: 20, color: 'bg-purple-500' },
-        { label: 'Adecuación del cupo', value: 21, color: 'bg-orange-500' }
+        { label: 'Adecuación del monto', value: 21, color: 'bg-orange-500' }
     ];
 
     showcaseRef = viewChild<ElementRef<HTMLElement>>('showcase');
