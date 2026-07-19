@@ -7,6 +7,22 @@
         <h3 class="text-xl font-bold m-0" [ngClass]="statusConfig().titleColor">{{ statusConfig().title }}</h3>
         <p class="text-sm text-muted-color m-0 text-center max-w-lg">{{ statusConfig().description }}</p>
 
+        <!-- Fuente del cálculo + verificación: la salvedad siempre visible junto al veredicto -->
+        @if (calculationSourceConfig() || verificationConfig()) {
+        <div class="flex items-center justify-center gap-2 flex-wrap">
+            @if (calculationSourceConfig(); as source) {
+            <span class="text-xs font-semibold px-2.5 py-1 rounded-full inline-flex items-center gap-1.5" [ngClass]="[source.bg, source.color]">
+                <i [ngClass]="source.icon"></i>Fuente: {{ calculationSourceLabel() }}
+            </span>
+            }
+            @if (verificationConfig(); as v) {
+            <span class="text-xs font-semibold px-2.5 py-1 rounded-full inline-flex items-center gap-1.5" [ngClass]="[v.bg, v.color]">
+                <i [ngClass]="v.icon"></i>{{ v.label }}
+            </span>
+            }
+        </div>
+        }
+
         <!-- Metricas principales -->
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 w-full mt-4 pt-4 border-t" [ngClass]="statusConfig().border">
             <div class="flex flex-col items-center gap-1">
@@ -14,7 +30,7 @@
                 <span class="font-semibold text-base">{{ requestedAmount() | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</span>
             </div>
             <div class="flex flex-col items-center gap-1">
-                <span class="text-xs font-bold text-muted-color">Cupo Aprobado</span>
+                <span class="text-xs font-bold text-muted-color">Cupo Viable</span>
                 <span class="font-semibold text-base" [ngClass]="statusConfig().titleColor">{{ approvedAmount() | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</span>
             </div>
             <div class="flex flex-col items-center gap-1">
@@ -36,10 +52,13 @@
         @if (cappedByBureau()) {
         <div class="flex items-center gap-2 mt-2 px-3 py-2 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800">
             <i class="pi pi-info-circle text-amber-600 dark:text-amber-400 text-sm shrink-0"></i>
-            <span class="text-xs text-amber-700 dark:text-amber-400">El cupo aprobado se ajustó al monto máximo avalado por la central de riesgo.</span>
+            <span class="text-xs text-amber-700 dark:text-amber-400">El cupo viable se ajustó al monto máximo avalado por la central de riesgo.</span>
         </div>
         }
     </div>
+
+    <!-- ══════════ Comportamiento en Centrales de Riesgo (PN/PJ) ══════════ -->
+    <app-central-risk [centralRisk]="centralRisk()" />
 
     <!-- ══════════ Cifras Financieras Clave ══════════ -->
     @if (keyFigures().length) {
@@ -363,7 +382,7 @@
                     <span class="text-sm font-semibold">{{ requestedAmount() | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</span>
                 </div>
                 <div class="flex justify-between items-center py-2">
-                    <span class="text-sm text-muted-color">Cupo Aprobado:</span>
+                    <span class="text-sm text-muted-color">Cupo Viable:</span>
                     <span class="text-sm font-semibold" [ngClass]="statusConfig().titleColor">{{ approvedAmount() | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</span>
                 </div>
             </div>

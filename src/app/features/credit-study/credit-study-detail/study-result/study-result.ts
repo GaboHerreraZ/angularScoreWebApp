@@ -9,6 +9,7 @@ import { AccordionModule } from 'primeng/accordion';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
 import {
+    CustomerCentralRisk,
     PerformStudyResponse,
     ReliabilityFlag,
     ScoringDimension,
@@ -17,6 +18,7 @@ import {
 import { CreditStudyService } from '../../credit-study.service';
 import { NotificationService } from '@/app/shared/components/notification/notification.service';
 import { AuthService } from '@/app/core/services/auth.service';
+import { CentralRisk } from '../central-risk/central-risk';
 
 interface DimensionView extends ScoringDimension {
     key: string;
@@ -27,7 +29,7 @@ interface DimensionView extends ScoringDimension {
 @Component({
     selector: 'app-study-result',
     standalone: true,
-    imports: [CommonModule, CurrencyPipe, DatePipe, CardModule, MessageModule, ButtonModule, AccordionModule, ConfirmDialogModule],
+    imports: [CommonModule, CurrencyPipe, DatePipe, CardModule, MessageModule, ButtonModule, AccordionModule, ConfirmDialogModule, CentralRisk],
     providers: [ConfirmationService],
     templateUrl: './study-result.html'
 })
@@ -45,6 +47,8 @@ export class StudyResult {
     customer = input<{ businessName?: string; identificationNumber?: string; city?: string }>();
     companyInfo = input<{ name: string; city: string; nit: string }>();
     readOnly = input<boolean>(false);
+    /** Snapshot de la central de riesgo (apoyo a la decisión, sin score numérico). */
+    centralRisk = input<CustomerCentralRisk | null>(null);
 
     /** Plazo solicitado resuelto: el input o el que traiga el estudio. */
     requestedTermValue = computed(() => this.requestedTerm() ?? this.study().requestedTerm ?? null);
@@ -75,6 +79,20 @@ export class StudyResult {
     summary = computed(() => this.scoring()?.summary ?? null);
     approvedCreditLine = computed(() => this.scoring()?.approvedCreditLine ?? null);
     reference = computed(() => this.scoring()?.reference ?? null);
+
+    /** Si las cifras del análisis fueron verificadas contra la central. */
+    financialsVerified = computed(() => this.summary()?.financialsVerified ?? false);
+
+    /**
+     * Badge de verificación mostrado junto al veredicto: recuerda que un "Viable"
+     * calculado sobre cifras sin verificar no equivale a uno sobre DataCrédito.
+     */
+    verificationConfig = computed(() => {
+        if (!this.summary()) return null;
+        return this.financialsVerified()
+            ? { label: 'Cifras verificadas', icon: 'pi pi-verified', bg: 'bg-green-100 dark:bg-green-900/30', color: 'text-green-700 dark:text-green-400' }
+            : { label: 'Cifras sin verificar', icon: 'pi pi-exclamation-circle', bg: 'bg-amber-100 dark:bg-amber-900/30', color: 'text-amber-700 dark:text-amber-400' };
+    });
 
     /** Badge de la fuente del cálculo, resaltado en la sección de cifras clave. */
     calculationSourceConfig = computed(() => {
@@ -143,8 +161,8 @@ export class StudyResult {
                     iconBg: 'bg-green-500',
                     icon: 'pi pi-check-circle',
                     titleColor: 'text-green-700 dark:text-green-400',
-                    title: 'Cupo Aprobado',
-                    description: 'El análisis crediticio indica que el cliente es apto para el cupo solicitado.'
+                    title: 'Viable',
+                    description: 'El análisis indica que el cliente es apto para el cupo solicitado. La decisión final de otorgamiento es de su empresa.'
                 };
             case 'conditional':
                 return {
@@ -153,8 +171,8 @@ export class StudyResult {
                     iconBg: 'bg-amber-500',
                     icon: 'pi pi-exclamation-triangle',
                     titleColor: 'text-amber-700 dark:text-amber-400',
-                    title: 'Cupo Aprobado con Condiciones',
-                    description: 'El análisis crediticio indica que el cliente es apto para el cupo, sujeto a condiciones adicionales.'
+                    title: 'Viable con condiciones',
+                    description: 'El cliente es apto sujeto a las condiciones señaladas. Revíselas antes de otorgar el cupo.'
                 };
             case 'rejected':
                 return {
@@ -163,8 +181,8 @@ export class StudyResult {
                     iconBg: 'bg-red-500',
                     icon: 'pi pi-times-circle',
                     titleColor: 'text-red-700 dark:text-red-400',
-                    title: 'Cupo No Aprobado',
-                    description: 'El análisis crediticio indica que el cliente no cumple con los requisitos mínimos para el cupo solicitado.'
+                    title: 'No viable',
+                    description: 'El análisis no respalda el cupo solicitado bajo las condiciones actuales.'
                 };
             default:
                 return {

@@ -8,6 +8,7 @@ import {
     CreateCreditStudy,
     CreateFromBureauPayload,
     CreateFromBureauResponse,
+    CustomerAuthorization,
     CreditStudyStepsResponse,
     ExtractFinancialStatementsResponse,
     PerformStudyResponse
@@ -98,6 +99,17 @@ export class CreditStudyService {
      */
     createFromBureau(payload: CreateFromBureauPayload): Observable<CreateFromBureauResponse> {
         return this.apiService.post<CreateFromBureauResponse>(`${this.basePath}/from-bureau`, payload);
+    }
+
+    /**
+     * Consulta (solo lectura) el estado de la autorización de tratamiento de datos
+     * del titular por su número de identificación. Sirve para saber si ya firmó
+     * (isSigned) sin disparar la creación del estudio.
+     */
+    getCustomerAuthorization(identificationNumber: string): Observable<CustomerAuthorization> {
+        return this.apiService.get<CustomerAuthorization>(
+            `companies/${this.companyId()}/customer-authorizations/${identificationNumber}`
+        );
     }
 
     /** Devuelve los datos de cada step del estudio (step1 = perfil del cliente en centrales). */
