@@ -52,4 +52,13 @@ export class DimensionConfigService {
     create(personType: PersonTypeCode, dto: CreateScoringConfigurationDto): Observable<ScoringConfiguration> {
         return this.apiService.post<ScoringConfiguration>(this.basePath, dto, { params: { personType } });
     }
+
+    /**
+     * Restaura la configuración del tipo de persona a los valores por defecto del sistema:
+     * crea una versión nueva con las dimensiones y pesos predeterminados, que queda vigente
+     * y desplaza la anterior al historial. Responde igual que {@link create}.
+     */
+    reset(personType: PersonTypeCode): Observable<ScoringConfiguration> {
+        return this.apiService.post<ScoringConfiguration>(`${this.basePath}/reset`, null, { params: { personType } });
+    }
 }

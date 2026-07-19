@@ -91,6 +91,7 @@ export class DimensionConfig {
     // ── Edición ───────────────────────────────────────────────────────
     editing = signal<boolean>(false);
     saving = signal<boolean>(false);
+    resetting = signal<boolean>(false);
 
     /** Filas del editor (una por dimensión aplicable y soportada). */
     rows = signal<DimensionRow[]>([]);
@@ -230,6 +231,25 @@ export class DimensionConfig {
         ).subscribe({
             next: () => {
                 this.notification.success('Configuración de dimensiones actualizada correctamente.');
+                this.editing.set(false);
+                // Refresca el active (header) y el historial para reflejar la nueva versión.
+                this.bundleResource.reload();
+                this.historyResource.reload();
+            }
+        });
+    }
+
+    /** Restaura la configuración del tipo de persona activo a los valores por defecto del sistema. */
+    resetDefaults(): void {
+        if (this.resetting() || this.saving()) return;
+
+        this.resetting.set(true);
+        this.service.reset(this.personType()).pipe(
+            finalize(() => this.resetting.set(false)),
+            takeUntilDestroyed(this.destroyRef)
+        ).subscribe({
+            next: () => {
+                this.notification.success('Configuración restaurada a los valores predeterminados.');
                 this.editing.set(false);
                 // Refresca el active (header) y el historial para reflejar la nueva versión.
                 this.bundleResource.reload();
