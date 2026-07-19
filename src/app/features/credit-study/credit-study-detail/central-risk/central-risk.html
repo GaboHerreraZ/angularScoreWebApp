@@ -1,0 +1,251 @@
+@if (hasData() && centralRisk(); as cr) {
+<div class="rounded-xl border border-surface overflow-hidden">
+    <p-accordion [value]="[]" expandIcon="pi pi-chevron-down" collapseIcon="pi pi-chevron-up">
+        <p-accordion-panel value="centralRiskBehavior">
+            <p-accordion-header>
+                <div class="flex items-center gap-3 w-full">
+                    <div class="w-8 h-8 rounded-lg bg-linear-to-br from-primary-500 to-primary-600 flex items-center justify-center shrink-0">
+                        <i class="pi pi-shield text-white text-sm"></i>
+                    </div>
+                    <div class="flex flex-col min-w-0">
+                        <span class="font-bold text-base">Comportamiento en Centrales de Riesgo</span>
+                        @if (cr.consultedAt) {
+                        <span class="text-xs text-muted-color">Consultado el {{ cr.consultedAt | date:'dd/MM/yyyy' }}</span>
+                        }
+                    </div>
+                    @if (cr.hasAlertas) {
+                    <span class="ml-auto text-xs font-semibold px-2.5 py-1 rounded-full inline-flex items-center gap-1.5 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400">
+                        <i class="pi pi-exclamation-triangle"></i>Alertas detectadas
+                    </span>
+                    } @else {
+                    <span class="ml-auto text-xs font-semibold px-2.5 py-1 rounded-full inline-flex items-center gap-1.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400">
+                        <i class="pi pi-check-circle"></i>Sin alertas
+                    </span>
+                    }
+                </div>
+            </p-accordion-header>
+            <p-accordion-content>
+                <div class="flex flex-col gap-5 pt-2">
+                    <!-- Alertas de la central (self = del cliente · linked = de vínculos) -->
+                    @if (selfAlerts().length || linkedAlerts().length) {
+                    <div class="flex flex-col gap-4">
+                        @if (selfAlerts().length) {
+                        <div class="flex flex-col gap-2">
+                            <span class="text-xs font-semibold text-muted-color uppercase tracking-wide">Alertas del cliente</span>
+                            @for (a of selfAlerts(); track $index) {
+                            <div class="flex items-start gap-2.5 p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
+                                <i class="pi pi-exclamation-triangle text-red-600 dark:text-red-400 text-sm mt-0.5 shrink-0"></i>
+                                <div class="flex flex-col gap-0.5 min-w-0">
+                                    @if (a.subject) {
+                                    <span class="text-sm font-semibold text-red-800 dark:text-red-300">{{ a.subject }}{{ a.count ? ' · ' + a.count + ' alerta(s)' : '' }}</span>
+                                    }
+                                    <span class="text-sm text-red-800 dark:text-red-300">{{ a.message || (a.count ? a.count + ' alerta(s) reportada(s)' : 'Alerta reportada') }}</span>
+                                    @if (a.identification) {
+                                    <span class="text-xs text-red-700/70 dark:text-red-400/70">Identificación: {{ a.identification }}</span>
+                                    }
+                                </div>
+                            </div>
+                            }
+                        </div>
+                        }
+
+                        @if (linkedAlerts().length) {
+                        <div class="flex flex-col gap-2">
+                            <span class="text-xs font-semibold text-muted-color uppercase tracking-wide">Alertas de vínculos (riesgo de grupo)</span>
+                            @for (a of linkedAlerts(); track $index) {
+                            <div class="flex items-start gap-2.5 p-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800">
+                                <i class="pi pi-sitemap text-amber-600 dark:text-amber-400 text-sm mt-0.5 shrink-0"></i>
+                                <div class="flex flex-col gap-0.5 min-w-0">
+                                    @if (a.subject) {
+                                    <span class="text-sm font-semibold text-amber-800 dark:text-amber-300">{{ a.subject }}{{ a.count ? ' · ' + a.count + ' alerta(s)' : '' }}</span>
+                                    }
+                                    <span class="text-sm text-amber-800 dark:text-amber-300">{{ a.message || (a.count ? a.count + ' alerta(s) en la entidad vinculada' : 'Alerta en entidad vinculada') }}</span>
+                                    @if (a.identification) {
+                                    <span class="text-xs text-amber-700/70 dark:text-amber-400/70">Identificación: {{ a.identification }}</span>
+                                    }
+                                </div>
+                            </div>
+                            }
+                        </div>
+                        }
+                    </div>
+                    }
+
+                    <!-- Calificaciones cualitativas (PN: viabilidad/recaudos · PJ: nivel/sectorial) -->
+                    @if (cr.viabilidad?.label || cr.ratingRecaudos?.label || cr.nivelRiesgo?.label || cr.ratingSectorial?.label) {
+                    <div class="flex flex-wrap gap-3">
+                        @if (cr.viabilidad?.label) {
+                        <div class="flex flex-col gap-1 px-4 py-3 rounded-lg bg-surface-50 dark:bg-surface-800/50 border border-surface flex-1 min-w-48">
+                            <span class="text-xs text-muted-color">Viabilidad (central)</span>
+                            <span class="text-sm font-semibold">{{ cr.viabilidad!.label }}</span>
+                        </div>
+                        }
+                        @if (cr.ratingRecaudos?.label) {
+                        <div class="flex flex-col gap-1 px-4 py-3 rounded-lg bg-surface-50 dark:bg-surface-800/50 border border-surface flex-1 min-w-48">
+                            <span class="text-xs text-muted-color">Rating de recaudos</span>
+                            <span class="text-sm font-semibold">{{ cr.ratingRecaudos!.label }}</span>
+                        </div>
+                        }
+                        @if (cr.nivelRiesgo?.label) {
+                        <div class="flex flex-col gap-1 px-4 py-3 rounded-lg bg-surface-50 dark:bg-surface-800/50 border border-surface flex-1 min-w-48">
+                            <span class="text-xs text-muted-color">Nivel de riesgo</span>
+                            <span class="text-sm font-semibold">{{ cr.nivelRiesgo!.label }}</span>
+                        </div>
+                        }
+                        @if (cr.ratingSectorial?.label) {
+                        <div class="flex flex-col gap-1 px-4 py-3 rounded-lg bg-surface-50 dark:bg-surface-800/50 border border-surface flex-1 min-w-48">
+                            <span class="text-xs text-muted-color">Riesgo sectorial</span>
+                            <span class="text-sm font-semibold">{{ cr.ratingSectorial!.label }}</span>
+                        </div>
+                        }
+                    </div>
+                    }
+
+                    <!-- Endeudamiento reportado (PN+PJ) -->
+                    @if (cr.indebtedness; as debt) {
+                    <div class="flex flex-col gap-2">
+                        <span class="text-xs font-semibold text-muted-color uppercase tracking-wide">Endeudamiento reportado</span>
+                        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                            <div class="flex flex-col gap-0.5 p-3 rounded-lg border border-surface">
+                                <span class="text-xs text-muted-color">Saldo actual</span>
+                                <span class="text-sm font-semibold">{{ debt.saldoActual != null ? (debt.saldoActual | currency:'COP':'symbol-narrow':'1.0-0':'es-CO') : '—' }}</span>
+                            </div>
+                            <div class="flex flex-col gap-0.5 p-3 rounded-lg border border-surface">
+                                <span class="text-xs text-muted-color">% de deuda</span>
+                                <span class="text-sm font-semibold">{{ debt.porcentajeDeuda != null ? (debt.porcentajeDeuda | number:'1.0-1':'es-CO') + '%' : '—' }}</span>
+                            </div>
+                            <div class="flex flex-col gap-0.5 p-3 rounded-lg border border-surface">
+                                <span class="text-xs text-muted-color">Saldo en mora</span>
+                                <span class="text-sm font-semibold" [ngClass]="{ 'text-red-600 dark:text-red-400': debt.saldoMora }">{{ debt.saldoMora != null ? (debt.saldoMora | currency:'COP':'symbol-narrow':'1.0-0':'es-CO') : '—' }}</span>
+                            </div>
+                            <div class="flex flex-col gap-0.5 p-3 rounded-lg border border-surface">
+                                <span class="text-xs text-muted-color">Monto sugerido</span>
+                                <span class="text-sm font-semibold">{{ debt.montoSugerido != null ? (debt.montoSugerido | currency:'COP':'symbol-narrow':'1.0-0':'es-CO') : '—' }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    }
+
+                    <!-- Ingreso / capacidad de pago reportada (solo PN) -->
+                    @if (cr.income; as inc) {
+                    <div class="flex flex-col gap-2">
+                        <span class="text-xs font-semibold text-muted-color uppercase tracking-wide">Capacidad de pago (central)</span>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="flex flex-col gap-0.5 p-3 rounded-lg border border-surface">
+                                <span class="text-xs text-muted-color">Ingreso reportado (mensual)</span>
+                                <span class="text-sm font-semibold">{{ inc.reportedIncome != null ? (inc.reportedIncome | currency:'COP':'symbol-narrow':'1.0-0':'es-CO') : '—' }}</span>
+                            </div>
+                            <div class="flex flex-col gap-0.5 p-3 rounded-lg border border-surface">
+                                <span class="text-xs text-muted-color">Cuotas / ingreso</span>
+                                <span class="text-sm font-semibold">{{ inc.quotaToIncomePct != null ? (inc.quotaToIncomePct | number:'1.0-1':'es-CO') + '%' : '—' }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    }
+
+                    <!-- Portafolio por tipo de crédito (solo PJ) -->
+                    @if (cr.creditPortfolio?.length) {
+                    <div class="flex flex-col gap-2">
+                        <span class="text-xs font-semibold text-muted-color uppercase tracking-wide">Portafolio por tipo de crédito</span>
+                        <div class="rounded-lg border border-surface overflow-hidden">
+                            <p-table [value]="cr.creditPortfolio!" styleClass="p-datatable-sm" [tableStyle]="{ 'min-width': '28rem' }">
+                                <ng-template #header>
+                                    <tr>
+                                        <th>Tipo de crédito</th>
+                                        <th class="text-right">Saldo</th>
+                                        <th class="text-right">% participación</th>
+                                    </tr>
+                                </ng-template>
+                                <ng-template #body let-p>
+                                    <tr>
+                                        <td class="font-medium">{{ p.tipoCreditoLabel || p.tipoCredito || '—' }}</td>
+                                        <td class="text-right">{{ toNumber(p.saldo) != null ? (toNumber(p.saldo) | currency:'COP':'symbol-narrow':'1.0-0':'es-CO') : '—' }}</td>
+                                        <td class="text-right">{{ toNumber(p.porcentajePart) != null ? (toNumber(p.porcentajePart) | number:'1.0-1':'es-CO') + '%' : '—' }}</td>
+                                    </tr>
+                                </ng-template>
+                            </p-table>
+                        </div>
+                    </div>
+                    }
+
+                    <!-- Comportamiento de pago mensual (PN+PJ) -->
+                    @if (cr.paymentBehavior?.length) {
+                    <div class="flex flex-col gap-2">
+                        <span class="text-xs font-semibold text-muted-color uppercase tracking-wide">Comportamiento de pago (mes más antiguo → más reciente)</span>
+                        <div class="flex flex-wrap gap-2">
+                            @for (m of cr.paymentBehavior; track m.anioMes) {
+                            <div class="flex flex-col items-center gap-1 px-2.5 py-2 rounded-lg border border-surface min-w-14 cursor-default"
+                                 [ngClass]="paymentBehaviorConfig(m.comportamiento).bg" [pTooltip]="m.comportamientoLabel" tooltipPosition="top">
+                                <span class="w-2 h-2 rounded-full" [ngClass]="paymentBehaviorConfig(m.comportamiento).dot"></span>
+                                <span class="text-xs font-bold" [ngClass]="paymentBehaviorConfig(m.comportamiento).text">{{ m.comportamiento || '—' }}</span>
+                                <span class="text-[10px] text-muted-color">{{ formatBehaviorMonth(m.anioMes) }}</span>
+                            </div>
+                            }
+                        </div>
+                    </div>
+                    }
+
+                    <!-- Sectores de crédito (PN+PJ) -->
+                    @if (cr.creditSectors?.length) {
+                    <div class="flex flex-col gap-2">
+                        <span class="text-xs font-semibold text-muted-color uppercase tracking-wide">Sectores de crédito</span>
+                        <div class="rounded-lg border border-surface overflow-hidden">
+                            <p-table [value]="cr.creditSectors!" styleClass="p-datatable-sm" [tableStyle]="{ 'min-width': '40rem' }">
+                                <ng-template #header>
+                                    <tr>
+                                        <th>Sector</th>
+                                        <th class="text-center">Vigentes</th>
+                                        <th class="text-center">Cerrados</th>
+                                        <th class="text-right">Saldo actual</th>
+                                        <th class="text-right">Saldo en mora</th>
+                                        <th class="text-right">% deuda</th>
+                                    </tr>
+                                </ng-template>
+                                <ng-template #body let-s>
+                                    <tr>
+                                        <td class="font-medium">{{ s.sectorLabel || s.sector || '—' }}</td>
+                                        <td class="text-center">{{ s.creditosVigentes || '—' }}</td>
+                                        <td class="text-center">{{ s.creditosCerrados || '—' }}</td>
+                                        <td class="text-right">{{ toNumber(s.saldoActual) != null ? (toNumber(s.saldoActual) | currency:'COP':'symbol-narrow':'1.0-0':'es-CO') : '—' }}</td>
+                                        <td class="text-right" [ngClass]="{ 'text-red-600 dark:text-red-400 font-medium': toNumber(s.saldoMora) }">{{ toNumber(s.saldoMora) != null ? (toNumber(s.saldoMora) | currency:'COP':'symbol-narrow':'1.0-0':'es-CO') : '—' }}</td>
+                                        <td class="text-right">{{ toNumber(s.porcentajeDeuda) != null ? (toNumber(s.porcentajeDeuda) | number:'1.0-1':'es-CO') + '%' : '—' }}</td>
+                                    </tr>
+                                </ng-template>
+                            </p-table>
+                        </div>
+                    </div>
+                    }
+
+                    <!-- Red de vínculos económicos (solo PJ) -->
+                    @if (linkNetworkRows().length) {
+                    <div class="flex flex-col gap-2">
+                        <span class="text-xs font-semibold text-muted-color uppercase tracking-wide">Red de vínculos económicos</span>
+                        <div class="flex flex-col divide-y divide-surface rounded-lg border border-surface overflow-hidden">
+                            @for (row of linkNetworkRows(); track $index) {
+                            <div class="flex items-center gap-3 px-4 py-2.5" [style.padding-left.rem]="1 + row.depth * 1.5">
+                                @if (row.depth > 0) {
+                                <i class="pi pi-angle-right text-muted-color text-xs shrink-0"></i>
+                                }
+                                <div class="flex flex-col min-w-0 flex-1">
+                                    <span class="text-sm font-medium truncate">{{ row.node.name || '—' }}</span>
+                                    <span class="text-xs text-muted-color">{{ row.node.documentType || '' }} {{ row.node.documentNumber || '' }}</span>
+                                </div>
+                                @if (row.node.linkTypeLabel) {
+                                <span class="text-xs font-medium px-2 py-0.5 rounded-full bg-surface-100 dark:bg-surface-800 text-muted-color shrink-0">{{ row.node.linkTypeLabel }}</span>
+                                }
+                                @if (row.node.alertCount) {
+                                <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 inline-flex items-center gap-1 shrink-0">
+                                    <i class="pi pi-exclamation-triangle"></i>{{ row.node.alertCount }}
+                                </span>
+                                }
+                            </div>
+                            }
+                        </div>
+                    </div>
+                    }
+                </div>
+            </p-accordion-content>
+        </p-accordion-panel>
+    </p-accordion>
+</div>
+}

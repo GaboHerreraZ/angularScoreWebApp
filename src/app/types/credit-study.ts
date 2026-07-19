@@ -221,12 +221,34 @@ export interface CreateFromBureauPayload {
     identificationTypeCode: string;
     numeroIdentificacion: string;
     apellidoRazonSocial: string;
+    titularEmail: string;
     requestedTerm: number;
     requestedCreditLine: number;
 }
 
+/**
+ * Estado de la autorización de tratamiento de datos (habeas data) del titular,
+ * firmada vía ZapSign. Cuando el cliente no existe/no ha firmado, `from-bureau`
+ * devuelve esta info en vez de crear el estudio.
+ */
+export interface CustomerAuthorization {
+    id?: string;
+    status: string; // 'pending' | 'signed' | 'refused' | 'revoked' | 'not_requested'
+    statusLabel?: string;
+    isSigned: boolean;
+    signUrl: string | null;
+    sentAt: string | null;
+    signedAt: string | null;
+    refusedAt: string | null;
+    refusedReason: string | null;
+    revokedAt: string | null;
+}
+
 export interface CreateFromBureauResponse {
-    creditStudyId: string;
+    /** 'created' → estudio creado; 'authorization_pending' → falta firma del titular. */
+    status?: 'created' | 'authorization_pending';
+    creditStudyId?: string;
+    authorization?: CustomerAuthorization;
 }
 
 // ─── Perfil del cliente en centrales de riesgo ───────────────────────────────
@@ -331,9 +353,105 @@ export interface BureauCustomer {
     lastConsultedAt: string | null;
 }
 
+/** Etiqueta parametrizada (código + label) reportada por la central. */
+export interface CentralRiskLabel {
+    code: string | null;
+    label: string | null;
+}
+
+/**
+ * Alerta de la central. `source` indica sobre quién es:
+ * - `self`: sobre el titular consultado (alerta directa, pesa en la decisión).
+ * - `linked`: sobre una entidad vinculada en la malla (riesgo de contagio del grupo).
+ * En PN todas son `self`; en PJ la raíz de la malla es `self` y los vínculos `linked`.
+ */
+export interface CentralRiskAlert {
+    count: number | null;
+    source: 'self' | 'linked' | string;
+    message: string | null;
+    subject: string | null;
+    identification: string | null;
+}
+
+/** Endeudamiento reportado por la central de riesgo. */
+export interface CentralRiskIndebtedness {
+    saldoActual: number | null;
+    porcentajeDeuda: number | null;
+    saldoMora: number | null;
+    montoSugerido: number | null;
+}
+
+/** Ingreso reportado (solo persona natural). */
+export interface CentralRiskIncome {
+    reportedIncome: number | null;
+    quotaToIncomePct: number | null;
+}
+
+/** Comportamiento de pago mensual (Tabla 9). */
+export interface CentralRiskPaymentBehavior {
+    anioMes: string;
+    comportamiento: string;
+    comportamientoLabel: string;
+}
+
+/** Sector de crédito (Tabla 10). Cifras vienen como string desde la central. */
+export interface CentralRiskCreditSector {
+    sector: string | null;
+    sectorLabel: string | null;
+    creditosVigentes: string | null;
+    creditosCerrados: string | null;
+    saldoActual: string | null;
+    saldoMora: string | null;
+    porcentajeDeuda: string | null;
+}
+
+/** Portafolio por tipo de crédito (Tabla 8, solo PJ). Cifras como string. */
+export interface CentralRiskCreditPortfolioItem {
+    tipoCredito: string | null;
+    tipoCreditoLabel: string | null;
+    saldo: string | null;
+    porcentajePart: string | null;
+}
+
+/** Nodo de la red de vínculos económicos (Tabla 15, solo PJ). Recursivo. */
+export interface CentralRiskLinkNode {
+    name: string | null;
+    documentType: string | null;
+    documentNumber: string | null;
+    alertCount: number | null;
+    linkType: string | null;
+    linkTypeLabel: string | null;
+    children: CentralRiskLinkNode[] | null;
+}
+
+/**
+ * Resumen del último snapshot del cliente en la central de riesgo.
+ * Se muestra al analista como apoyo a la decisión (sin el score numérico).
+ * Los campos exclusivos de PJ (nivelRiesgo, ratingSectorial, creditPortfolio,
+ * linkNetwork) llegan null en persona natural.
+ */
+export interface CustomerCentralRisk {
+    consultedAt: string | null;
+    score: number | null;
+    hasAlertas: boolean;
+    alerts: CentralRiskAlert[] | null;
+    viabilidad: CentralRiskLabel | null;
+    ratingRecaudos: CentralRiskLabel | null;
+    indebtedness: CentralRiskIndebtedness | null;
+    income: CentralRiskIncome | null;
+    paymentBehavior: CentralRiskPaymentBehavior[] | null;
+    creditSectors: CentralRiskCreditSector[] | null;
+    nivelRiesgo: CentralRiskLabel | null;
+    ratingSectorial: CentralRiskLabel | null;
+    creditPortfolio: CentralRiskCreditPortfolioItem[] | null;
+    linkNetwork: CentralRiskLinkNode | null;
+}
+
 export interface CreditStudyStep1 {
     isLegalEntity: boolean;
     customer: BureauCustomer;
+    /** Resumen de la central del último snapshot del customer. null si nunca se consultó. */
+    centralRisk?: CustomerCentralRisk | null;
 }
 
 /** Datos de la solicitud (a nivel raíz del GET /steps). */

@@ -21,7 +21,7 @@ import { DialogModule } from 'primeng/dialog';
 import { CreditStudyService } from '../credit-study.service';
 import { CustomersService } from '@/app/features/customers/customers.service';
 import { CustomerDetail as CustomerDetailModel } from '@/app/types/customer';
-import { CreditStudyRequest, CreditStudyStep1, CreditStudyStep2, PerformStudyResponse } from '@/app/types/credit-study';
+import { CreateFromBureauPayload, CreditStudyRequest, CreditStudyStep1, CreditStudyStep2, CustomerAuthorization, PerformStudyResponse } from '@/app/types/credit-study';
 import { NotificationService } from '@/app/shared/components/notification/notification.service';
 import { ParameterService } from '@/app/core/services/parameter.service';
 import { Parameter } from '@/app/types/parameter';
@@ -198,12 +198,26 @@ export class CreditStudyDetail {
     /** Modal de advertencia / resumen previo a crear el estudio. */
     summaryVisible = signal(false);
 
+    /**
+     * Modal de firma de autorización (habeas data): se abre cuando `from-bureau`
+     * responde `authorization_pending` porque el titular aún no ha firmado.
+     */
+    authVisible = signal(false);
+    /** true mientras se consulta el estado de la firma. */
+    checkingAuth = signal(false);
+    /** true mientras, tras confirmar la firma, se crea el estudio en el bureau. */
+    finalizingStudy = signal(false);
+    authInfo = signal<CustomerAuthorization | null>(null);
+    /** Payload de la última consulta a bureau, para reintentar tras la firma. */
+    private lastBureauPayload: CreateFromBureauPayload | null = null;
+
     identificationTypes = toSignal(this.parameterService.getByType('identification_type'));
 
     step1Form = new FormGroup({
         identificationTypeId: new FormControl<Parameter | null>(null, { validators: [Validators.required] }),
         identificationNumber: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
         businessName: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+        titularEmail: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.email] }),
         requestedTerm: new FormControl<number | null>(null, { validators: [Validators.required] }),
         requestedCreditLine: new FormControl<number | null>(null, { validators: [Validators.required] })
     });
@@ -217,12 +231,14 @@ export class CreditStudyDetail {
         identificationType: string;
         identificationNumber: string;
         businessName: string;
+        titularEmail: string;
         requestedTerm: number | null;
         requestedCreditLine: number | null;
     }>({
         identificationType: '—',
         identificationNumber: '—',
         businessName: '—',
+        titularEmail: '—',
         requestedTerm: null,
         requestedCreditLine: null
     });
@@ -263,7 +279,8 @@ export class CreditStudyDetail {
             this.step1Form.patchValue({
                 identificationTypeId: idType,
                 identificationNumber: customer.identificationNumber ?? '',
-                businessName: customer.businessName ?? ''
+                businessName: customer.businessName ?? '',
+                titularEmail: customer.email ?? ''
             });
         });
 
@@ -323,6 +340,7 @@ export class CreditStudyDetail {
         const control = this.step1Form.get(controlName);
         if (!control || !control.errors || !control.touched) return '';
         if (control.errors['required']) return 'Este campo es obligatorio';
+        if (control.errors['email']) return 'Ingrese un correo electrónico válido';
         return '';
     }
 
@@ -352,6 +370,7 @@ export class CreditStudyDetail {
             identificationType: v.identificationTypeId?.label ?? '—',
             identificationNumber: v.identificationNumber || '—',
             businessName: v.businessName || '—',
+            titularEmail: v.titularEmail || '—',
             requestedTerm: v.requestedTerm,
             requestedCreditLine: v.requestedCreditLine
         });
@@ -363,28 +382,100 @@ export class CreditStudyDetail {
     onConfirmCreateStudy(): void {
         const v = this.step1Form.getRawValue();
 
-        this.creatingStudy.set(true);
-        this.startLoaderMessages(this.createStudyMessages);
-        this.creditStudyService.createFromBureau({
+        const payload: CreateFromBureauPayload = {
             identificationTypeCode: v.identificationTypeId?.code ?? '',
             numeroIdentificacion: v.identificationNumber,
             apellidoRazonSocial: v.businessName,
+            titularEmail: v.titularEmail,
             requestedTerm: v.requestedTerm ?? 0,
             requestedCreditLine: v.requestedCreditLine ?? 0
-        }).pipe(
+        };
+        this.lastBureauPayload = payload;
+
+        this.creatingStudy.set(true);
+        this.startLoaderMessages(this.createStudyMessages);
+        this.creditStudyService.createFromBureau(payload).pipe(
             finalize(() => {
                 this.creatingStudy.set(false);
                 this.stopLoaderMessages();
             }),
             takeUntilDestroyed(this.destroyRef)
         ).subscribe((response) => {
-            this.summaryVisible.set(false);
-            this.notificationService.success('Estudio de crédito creado correctamente');
+            // El titular aún no ha firmado la autorización: abre el modal de firma.
+            if (response.status === 'authorization_pending' && response.authorization) {
+                this.authInfo.set(response.authorization);
+                this.summaryVisible.set(false);
+                this.authVisible.set(true);
+                return;
+            }
 
-            // Crear un estudio consume cuota: refresca permisos.
-            this.authService.refreshProfile();
+            this.onStudyCreated(response.creditStudyId);
+        });
+    }
 
-            this.router.navigate(['/app/estudio-credito/detalle-estudio', response.creditStudyId]);
+    /** Navega al estudio recién creado y refresca la cuota. */
+    private onStudyCreated(creditStudyId?: string): void {
+        if (!creditStudyId) return;
+        this.summaryVisible.set(false);
+        this.authVisible.set(false);
+        this.notificationService.success('Estudio de crédito creado correctamente');
+
+        // Crear un estudio consume cuota: refresca permisos.
+        this.authService.refreshProfile();
+
+        this.router.navigate(['/app/estudio-credito/detalle-estudio', creditStudyId]);
+    }
+
+    /**
+     * Botón "Verificar firma" del modal de autorización: consulta si el titular
+     * ya firmó. Si firmó, relanza `from-bureau` (que esta vez crea el estudio).
+     */
+    onCheckAuthorization(): void {
+        const identificationNumber = this.lastBureauPayload?.numeroIdentificacion;
+        if (!identificationNumber) return;
+
+        this.checkingAuth.set(true);
+        this.creditStudyService.getCustomerAuthorization(identificationNumber).pipe(
+            takeUntilDestroyed(this.destroyRef)
+        ).subscribe({
+            next: (auth) => {
+                this.authInfo.set(auth);
+                if (auth.isSigned) {
+                    // Transiciona el modal de "verificando" a "creando estudio".
+                    this.checkingAuth.set(false);
+                    this.createAfterSignature();
+                } else {
+                    this.checkingAuth.set(false);
+                    this.notificationService.info('El titular aún no ha firmado la autorización. Inténtelo de nuevo en unos minutos.', 'Firma pendiente');
+                }
+            },
+            error: () => this.checkingAuth.set(false)
+        });
+    }
+
+    /** Relanza la consulta al bureau una vez el titular firmó, para crear el estudio. */
+    private createAfterSignature(): void {
+        const payload = this.lastBureauPayload;
+        if (!payload) return;
+
+        // Muestra el loader "Creando estudio..." dentro del modal de firma.
+        this.finalizingStudy.set(true);
+        this.startLoaderMessages(this.createStudyMessages);
+
+        this.creditStudyService.createFromBureau(payload).pipe(
+            finalize(() => {
+                this.finalizingStudy.set(false);
+                this.stopLoaderMessages();
+            }),
+            takeUntilDestroyed(this.destroyRef)
+        ).subscribe((response) => {
+            // Caso poco probable: el backend aún no refleja la firma.
+            if (response.status === 'authorization_pending' && response.authorization) {
+                this.authInfo.set(response.authorization);
+                this.notificationService.warn('La autorización aún figura como pendiente. Inténtelo de nuevo en unos segundos.');
+                return;
+            }
+            this.onStudyCreated(response.creditStudyId);
         });
     }
 

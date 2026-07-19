@@ -264,7 +264,7 @@
     </div>
 
     <!-- Contacto persona natural (si hay datos) -->
-    @if (customer().email || customer().phone || customer().address || customer().city) {
+    @if (customer().email || customer().phone || customer().address || customer().city || customer().state) {
     <div class="flex flex-col gap-3">
         <div class="flex items-center gap-2">
             <i class="pi pi-map-marker text-primary-500"></i>
@@ -278,6 +278,10 @@
             <div class="flex flex-col gap-0.5">
                 <span class="text-xs text-muted-color">Ciudad</span>
                 <span class="text-sm font-medium">{{ customer().city || 'No disponible' }}</span>
+            </div>
+            <div class="flex flex-col gap-0.5">
+                <span class="text-xs text-muted-color">Departamento</span>
+                <span class="text-sm font-medium">{{ customer().state || 'No disponible' }}</span>
             </div>
             <div class="flex flex-col gap-0.5">
                 <span class="text-xs text-muted-color">Teléfono</span>

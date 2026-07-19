@@ -92,6 +92,10 @@
                 <span class="text-sm font-medium text-right">{{ summary().businessName }}</span>
             </div>
             <div class="flex justify-between items-center gap-4 px-4 py-2.5">
+                <span class="text-sm text-muted-color">Correo del titular</span>
+                <span class="text-sm font-medium text-right">{{ summary().titularEmail }}</span>
+            </div>
+            <div class="flex justify-between items-center gap-4 px-4 py-2.5">
                 <span class="text-sm text-muted-color">Plazo solicitado</span>
                 <span class="text-sm font-medium text-right">{{ summary().requestedTerm ? summary().requestedTerm + ' días' : '—' }}</span>
             </div>
@@ -114,6 +118,88 @@
         <div class="flex justify-end gap-2">
             <p-button label="Cancelar" severity="secondary" [text]="true" (onClick)="summaryVisible.set(false)" />
             <p-button label="Confirmar y crear" icon="pi pi-check" (onClick)="onConfirmCreateStudy()" />
+        </div>
+    </ng-template>
+    }
+</p-dialog>
+
+<!-- ═══════════ Modal de firma de autorización (habeas data) ═══════════ -->
+<p-dialog
+    [(visible)]="authVisible"
+    [modal]="true"
+    [closable]="!checkingAuth() && !finalizingStudy()"
+    [showHeader]="!finalizingStudy()"
+    [dismissableMask]="false"
+    [draggable]="false"
+    [style]="{ width: '90vw', maxWidth: '480px' }">
+
+    @if (finalizingStudy()) {
+    <!-- Estado de carga: creando el estudio tras confirmar la firma -->
+    <div class="flex flex-col items-center gap-5 py-6">
+        <div class="relative w-20 h-20">
+            <div class="absolute inset-0 rounded-full border-4 border-primary-100 dark:border-primary-900/40"></div>
+            <div class="absolute inset-0 rounded-full border-4 border-transparent border-t-primary-500 animate-spin"></div>
+            <div class="absolute inset-2.5 rounded-full bg-linear-to-br from-primary-500 to-primary-600 flex items-center justify-center shadow-lg shadow-primary-500/25">
+                <i class="pi pi-file-check text-white text-xl ai-sparkle-spin"></i>
+            </div>
+        </div>
+        <div class="text-center min-h-12">
+            <h6 class="font-bold text-base m-0">Creando el estudio de crédito...</h6>
+            @for (msg of [loaderMessage()]; track msg) {
+            <p class="text-sm text-muted-color m-0 mt-1 loader-message-fade">{{ msg }}</p>
+            }
+        </div>
+        <div class="flex gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-primary-400 loader-dot"></span>
+            <span class="w-2 h-2 rounded-full bg-primary-400 loader-dot" style="animation-delay: 0.2s"></span>
+            <span class="w-2 h-2 rounded-full bg-primary-400 loader-dot" style="animation-delay: 0.4s"></span>
+        </div>
+    </div>
+    } @else {
+    <ng-template #header>
+        <div class="flex items-center gap-3">
+            <div class="flex items-center justify-center rounded-full bg-amber-50 text-amber-500 dark:bg-amber-500/10 dark:text-amber-400 shrink-0" style="width: 2.5rem; height: 2.5rem;">
+                <i class="pi pi-file-edit text-base"></i>
+            </div>
+            <div class="flex flex-col">
+                <span class="text-base font-semibold">Autorización pendiente de firma</span>
+                <span class="text-xs text-muted-color">El titular debe autorizar el tratamiento de sus datos</span>
+            </div>
+        </div>
+    </ng-template>
+
+    <div class="flex flex-col gap-4">
+        <!-- Explicación -->
+        <div class="flex items-start gap-2.5 p-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800">
+            <i class="pi pi-info-circle text-amber-600 dark:text-amber-400 text-sm mt-0.5 shrink-0"></i>
+            <span class="text-sm text-amber-800 dark:text-amber-300">
+                Se envió al correo <span class="font-semibold">{{ summary().titularEmail }}</span> un documento de autorización de tratamiento de datos.
+                El estudio no se puede crear hasta que el titular lo <span class="font-semibold">firme</span>.
+            </span>
+        </div>
+
+        <!-- Motivo de rechazo si aplica -->
+        @if (authInfo()?.status === 'refused') {
+        <div class="flex items-start gap-2.5 p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
+            <i class="pi pi-times-circle text-red-600 dark:text-red-400 text-sm mt-0.5 shrink-0"></i>
+            <span class="text-sm text-red-800 dark:text-red-300">
+                El titular rechazó la autorización.{{ authInfo()?.refusedReason ? ' Motivo: ' + authInfo()?.refusedReason : '' }}
+            </span>
+        </div>
+        }
+
+        <!-- Enlace de firma -->
+        @if (authInfo()?.signUrl) {
+        <a [href]="authInfo()?.signUrl" target="_blank" rel="noopener noreferrer" class="no-underline">
+            <p-button label="Abrir documento de firma" icon="pi pi-external-link" severity="secondary" [outlined]="true" styleClass="w-full" />
+        </a>
+        }
+    </div>
+
+    <ng-template #footer>
+        <div class="flex justify-end gap-2">
+            <p-button label="Cerrar" severity="secondary" [text]="true" [disabled]="checkingAuth()" (onClick)="authVisible.set(false)" />
+            <p-button label="Ya firmó, verificar" icon="pi pi-refresh" [loading]="checkingAuth()" (onClick)="onCheckAuthorization()" />
         </div>
     </ng-template>
     }
@@ -255,6 +341,16 @@
 
                                         <div class="flex flex-col gap-1">
                                             <p-floatlabel variant="on">
+                                                <input pInputText id="titularEmail" type="email" formControlName="titularEmail" [invalid]="isInvalid('titularEmail')" class="w-full" />
+                                                <label for="titularEmail">Correo del Titular *</label>
+                                            </p-floatlabel>
+                                            @if (isInvalid('titularEmail')) {
+                                            <small class="text-red-500">{{ getErrorMessage('titularEmail') }}</small>
+                                            }
+                                        </div>
+
+                                        <div class="flex flex-col gap-1">
+                                            <p-floatlabel variant="on">
                                                 <p-inputnumber id="requestedTerm" formControlName="requestedTerm" [invalid]="isInvalid('requestedTerm')" [useGrouping]="false" />
                                                 <label for="requestedTerm">Plazo Solicitado (Días) *</label>
                                             </p-floatlabel>
@@ -353,7 +449,7 @@
                             </div>
                             <div class="text-center">
                                 <h5 class="font-bold text-lg m-0">Analizando estudio de crédito...</h5>
-                                <p class="text-sm text-muted-color m-0 mt-1 ai-typing">Calculando score, cupo aprobado y condiciones de crédito</p>
+                                <p class="text-sm text-muted-color m-0 mt-1 ai-typing">Calculando score, cupo viable y condiciones de crédito</p>
                             </div>
                         </div>
                         } @else if (studyCompleted() && studyResult()) {
@@ -364,6 +460,7 @@
                             [requestedTerm]="studyRequest()?.requestedTerm ?? null"
                             [customer]="resultCustomer()"
                             [companyInfo]="company()"
+                            [centralRisk]="step1Data()?.centralRisk ?? null"
                             [readOnly]="false"
                         />
                         <div class="flex py-6 gap-2 mt-2">
@@ -374,7 +471,7 @@
                         <p-message severity="info" styleClass="mb-4">
                             <span class="text-sm">
                                 Al realizar el estudio, el sistema analiza la información del cliente y sus estados financieros para calcular el
-                                <span class="font-semibold">score de viabilidad</span>, el <span class="font-semibold">cupo aprobado</span> y las
+                                <span class="font-semibold">score de viabilidad</span>, el <span class="font-semibold">cupo viable</span> y las
                                 <span class="font-semibold">condiciones de crédito</span>, contrastando las cifras contra las centrales de riesgo.
                             </span>
                         </p-message>
