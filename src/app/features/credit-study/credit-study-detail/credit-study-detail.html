@@ -254,6 +254,9 @@
                     <span>{{ st.label }}</span>
                 </div>
                 }
+                @if (isEditMode() && studyCompleted()) {
+                <p-button label="Descargar PDF" icon="pi pi-file-pdf" severity="danger" [outlined]="true" (onClick)="onDownloadPdf()" [loading]="downloadingPdf()" [disabled]="downloadingPdf()" />
+                }
                 @if (!isEditMode()) {
                 <p-button label="Crear Estudio" icon="pi pi-check" severity="success" (onClick)="onCreateStudy()" [loading]="creatingStudy()" [disabled]="creatingStudy()" />
                 }
@@ -453,6 +456,17 @@
                             </div>
                         </div>
                         } @else if (studyCompleted() && studyResult()) {
+                        <!-- Encabezado del resultado: título + descarga del PDF -->
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+                            <div class="flex flex-col gap-1">
+                                <h3 class="text-base font-semibold m-0">Resultado del Estudio de Crédito</h3>
+                                <span class="text-sm text-muted-color">
+                                    Score, cupo viable y condiciones de crédito calculados para el cliente.
+                                </span>
+                            </div>
+                            <p-button label="Descargar PDF" icon="pi pi-file-pdf" severity="danger" [outlined]="true" (onClick)="onDownloadPdf()" [loading]="downloadingPdf()" [disabled]="downloadingPdf()" styleClass="w-full sm:w-auto shrink-0" />
+                        </div>
+
                         <!-- Resultado -->
                         <app-study-result
                             [study]="studyResult()!"
