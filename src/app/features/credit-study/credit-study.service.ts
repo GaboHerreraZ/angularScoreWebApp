@@ -80,6 +80,14 @@ export class CreditStudyService {
         });
     }
 
+    /** Descarga el PDF del estudio de crédito (solo disponible cuando el estudio ya tiene resultado). */
+    downloadPdf(id: string): Observable<HttpResponse<Blob>> {
+        return this.http.get(`${environment.apiUrl}/${this.basePath}/${id}/pdf`, {
+            responseType: 'blob',
+            observe: 'response'
+        });
+    }
+
     createCreditStudy(creditStudy: Omit<CreateCreditStudy, 'id' | 'createdBy' | 'updatedBy' | 'createdAt' | 'updatedAt' | 'statusId'>): Observable<CreateCreditStudy> {
         return this.apiService.post<CreateCreditStudy>(this.basePath, creditStudy);
     }

@@ -88,6 +88,7 @@ export class CreditStudyDetail {
     creatingStudy = signal(false);
     extractingPdf = signal(false);
     performingStudy = signal(false);
+    downloadingPdf = signal(false);
     activeStep = 1;
 
     /** Mensaje rotativo mostrado en los loaders animados. */
@@ -572,6 +573,44 @@ export class CreditStudyDetail {
                 });
             }
         });
+    }
+
+    /** Descarga el PDF del estudio. Solo tiene sentido cuando el estudio ya tiene resultado. */
+    onDownloadPdf(): void {
+        const id = this.creditStudyId();
+        if (!id || !this.studyCompleted() || this.downloadingPdf()) return;
+
+        this.downloadingPdf.set(true);
+        this.creditStudyService.downloadPdf(id).pipe(
+            finalize(() => this.downloadingPdf.set(false)),
+            takeUntilDestroyed(this.destroyRef)
+        ).subscribe({
+            next: (response) => {
+                const blob = response.body;
+                if (!blob) {
+                    this.notificationService.error('No fue posible descargar el PDF del estudio', 'Descarga fallida');
+                    return;
+                }
+
+                const businessName = this.step1Data()?.customer?.businessName;
+                const fallbackName = `estudio-credito-${businessName ? businessName.replace(/\s+/g, '-') : id}.pdf`;
+                const fileName = this.extractFileName(response.headers.get('Content-Disposition')) ?? fallbackName;
+
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = fileName;
+                link.click();
+                window.URL.revokeObjectURL(url);
+            },
+            error: () => this.notificationService.error('No fue posible descargar el PDF del estudio', 'Descarga fallida')
+        });
+    }
+
+    private extractFileName(contentDisposition: string | null): string | null {
+        if (!contentDisposition) return null;
+        const match = /filename="?([^"]+)"?/.exec(contentDisposition);
+        return match?.[1] ?? null;
     }
 
     onCancel(): void {
