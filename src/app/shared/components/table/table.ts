@@ -65,6 +65,39 @@ export class CustomTable {
         return col.severityMap[value] ?? col.severityMap[key] ?? col.defaultSeverity ?? 'info';
     }
 
+    // ── Score: anillo de progreso ─────────────────────────────────────
+    /** Valor numérico del score, o null si la fila aún no tiene resultado. */
+    getScoreValue(row: any, col: TableColumn): number | null {
+        const raw = this.resolveField(row, col.field);
+        return typeof raw === 'number' && !Number.isNaN(raw) ? raw : null;
+    }
+
+    /** Porcentaje (0-100) que llena el anillo, según el máximo de la escala. */
+    getScorePercent(row: any, col: TableColumn): number {
+        const value = this.getScoreValue(row, col);
+        if (value == null) return 0;
+        const max = col.scoreMax ?? 100;
+        if (max <= 0) return 0;
+        return Math.max(0, Math.min(100, (value / max) * 100));
+    }
+
+    /** Etiqueta opcional junto al anillo (p. ej. el statusLabel de viabilidad). */
+    getScoreLabel(row: any, col: TableColumn): string | null {
+        if (!col.scoreLabelField) return null;
+        return this.resolveField(row, col.scoreLabelField) ?? null;
+    }
+
+    /** Colores del anillo y del número según la banda en la que cae el score. */
+    getScoreClasses(row: any, col: TableColumn): { ring: string; text: string } {
+        if (this.getScoreValue(row, col) == null) {
+            return { ring: 'stroke-surface-300 dark:stroke-surface-600', text: 'text-surface-400' };
+        }
+        const percent = this.getScorePercent(row, col);
+        if (percent >= 70) return { ring: 'stroke-green-500', text: 'text-green-600 dark:text-green-400' };
+        if (percent >= 40) return { ring: 'stroke-amber-500', text: 'text-amber-600 dark:text-amber-400' };
+        return { ring: 'stroke-red-500', text: 'text-red-500 dark:text-red-400' };
+    }
+
     getImageSrc(row: any, col: TableColumn): string {
         if (col.imageDynamicClass) {
             return col.imagePrefix ?? '';

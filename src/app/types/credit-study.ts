@@ -117,6 +117,15 @@ export interface CreateCreditStudy {
         label: string;
         code: string;
     };
+    /** Resumen del resultado del estudio; ausente mientras no se haya analizado. */
+    result?: {
+        score: number;
+        status: string;
+        statusLabel: string;
+        isViable: boolean;
+        recommendedTerm: number;
+        recommendedCreditLine: number;
+    } | null;
 
     createdBy: string;
     updatedBy: string;
