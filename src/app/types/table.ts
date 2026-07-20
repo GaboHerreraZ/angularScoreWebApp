@@ -1,4 +1,4 @@
-export type TableColumnType = 'text' | 'number' | 'currency' | 'date' | 'avatar' | 'status' | 'boolean' | 'image';
+export type TableColumnType = 'text' | 'number' | 'currency' | 'date' | 'avatar' | 'status' | 'boolean' | 'image' | 'score';
 
 export type TagSeverity = 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast';
 
@@ -26,6 +26,12 @@ export interface TableColumn {
     // status
     severityMap?: Record<string, TagSeverity>;
     defaultSeverity?: TagSeverity;
+
+    // score: anillo de progreso coloreado por banda
+    /** Valor máximo de la escala. Por defecto 100. */
+    scoreMax?: number;
+    /** Campo opcional con una etiqueta que se muestra al lado del anillo (p. ej. "Viable"). */
+    scoreLabelField?: string;
 
     // filtering
     filterable?: boolean;

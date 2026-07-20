@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
 import { CustomTable } from '@/app/shared/components/table/table';
-import { TableSettings, TablePageChangeEvent, TableSearchEvent, TableActionEvent } from '@/app/types/table';
+import { TableColumn, TableSettings, TablePageChangeEvent, TableSearchEvent, TableActionEvent } from '@/app/types/table';
 import { CreditStudyService } from './credit-study.service';
 import { AuthService } from '@/app/core/services/auth.service';
 
@@ -55,7 +55,7 @@ export class CreditStudy implements OnInit {
             { id: 'edit', icon: 'pi pi-pencil', severity: 'info', tooltip: 'Editar' }
         ],
         actionsHeader: 'Acciones',
-        columns: [
+        columns: <TableColumn[]>[
             {
                 header: 'Cliente',
                 field: 'customer.businessName',
@@ -94,6 +94,29 @@ export class CreditStudy implements OnInit {
                 filterOptions: [
                     { label: 'En Revisión', value: 'En Revisión' },
                     { label: 'Estudio Realizado', value: 'Estudio Realizado' },
+                ]
+            },
+            {
+                header: 'Score',
+                field: 'result.score',
+                type: 'score',
+                minWidth: '6rem'
+            },
+            {
+                header: 'Viabilidad',
+                field: 'result.statusLabel',
+                type: 'status',
+                minWidth: '10rem',
+                severityMap: {
+                    'Viable': 'success',
+                    'Viable con condiciones': 'warn',
+                    'No viable': 'danger'
+                },
+                defaultSeverity: 'secondary',
+                filterOptions: [
+                    { label: 'Viable', value: 'Viable' },
+                    { label: 'Viable con condiciones', value: 'Viable con condiciones' },
+                    { label: 'No viable', value: 'No viable' }
                 ]
             }
         ]
