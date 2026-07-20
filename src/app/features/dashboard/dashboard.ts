@@ -86,7 +86,7 @@ export class Dashboard implements OnInit {
         pipeline: 'Cantidad de estudios del periodo segun la etapa del proceso en la que se encuentran.',
         verdicts: 'Resultado de viabilidad de los estudios analizados en el periodo: aprobados, condicionados y rechazados.',
         bureauRisk: 'Distribucion de los clientes consultados en centrales de riesgo segun la banda de su score de buro.',
-        topCustomers: 'Los clientes con mayor cupo de credito solicitado en el periodo, comparando cupo solicitado vs aprobado.'
+        topCustomers: 'Los clientes con mayor cupo de credito solicitado en el periodo, comparando cupo solicitado vs cupo viable.'
     };
 
     basicData = signal<BasicDashboard | null>(null);
@@ -210,7 +210,7 @@ export class Dashboard implements OnInit {
                         borderRadius: 4
                     },
                     {
-                        label: 'Cupo aprobado',
+                        label: 'Cupo viable',
                         data: d.topCustomersByCredit.map(c => c.totalApproved),
                         backgroundColor: s.getPropertyValue('--p-green-400').trim(),
                         borderRadius: 4
