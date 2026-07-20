@@ -1,5 +1,13 @@
 <p-confirmDialog [style]="{ width: '90vw', maxWidth: '440px' }" />
 
+<!-- ═══════════ Modal de firma del pagaré ═══════════ -->
+<app-promissory-note-modal
+    [(visible)]="promissoryNoteVisible"
+    [creditStudyId]="creditStudyId()"
+    [defaultAmount]="promissoryNoteAmount()"
+    [defaultTermDays]="promissoryNoteTermDays()"
+    (generated)="onPromissoryNoteGenerated()" />
+
 <!-- ═══════════ Modal de carga mientras se extrae el PDF ═══════════ -->
 <p-dialog
     [(visible)]="extractingPdf"
@@ -255,10 +263,79 @@
                 </div>
                 }
                 @if (isEditMode() && studyCompleted()) {
-                <p-button label="Descargar PDF" icon="pi pi-file-pdf" severity="danger" [outlined]="true" (onClick)="onDownloadPdf()" [loading]="downloadingPdf()" [disabled]="downloadingPdf()" />
+                    @if (canSignPromissoryNote()) {
+                    <p-button label="Firmar Pagaré" icon="pi pi-pen-to-square" severity="success" (onClick)="promissoryNoteVisible.set(true)" />
+                    }
+                <p-button label="Descargar PDF" icon="pi pi-file-pdf" severity="info" [outlined]="true" (onClick)="onDownloadPdf()" [loading]="downloadingPdf()" [disabled]="downloadingPdf()" />
                 }
                 @if (!isEditMode()) {
                 <p-button label="Crear Estudio" icon="pi pi-check" severity="success" (onClick)="onCreateStudy()" [loading]="creatingStudy()" [disabled]="creatingStudy()" />
+                }
+            </div>
+        </div>
+    </p-card>
+    }
+
+    <!-- ═══════════ Pagaré del estudio ═══════════ -->
+    @if (!loading() && promissoryNote(); as note) {
+    <p-card class="mt-2 block">
+        <div class="flex flex-col lg:flex-row lg:items-center gap-4">
+            <div class="flex items-center gap-3 flex-1 min-w-0">
+                <div class="flex items-center justify-center rounded-full bg-emerald-50 text-emerald-500 dark:bg-emerald-500/10 dark:text-emerald-400 shrink-0" style="width: 2.75rem; height: 2.75rem;">
+                    <i class="pi pi-pen-to-square text-lg"></i>
+                </div>
+                <div class="flex flex-col min-w-0 gap-0.5">
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <span class="font-semibold text-lg">Pagaré No. {{ note.noteNumber }}</span>
+                        @if (promissoryNoteStatusConfig(); as pn) {
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border text-xs font-semibold" [ngClass]="pn.classes">
+                            <i [ngClass]="pn.icon" class="text-xs"></i>
+                            {{ pn.label }}
+                        </span>
+                        }
+                    </div>
+                    <span class="text-sm text-muted-color">
+                        {{ note.amount | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}
+                        ({{ note.amountInWords }} pesos) · {{ note.termDays }} días · vence el {{ note.dueDate | date:'dd/MM/yyyy' }}
+                    </span>
+                    @if (note.refusedReason) {
+                    <span class="text-sm text-red-600 dark:text-red-400">Motivo del rechazo: {{ note.refusedReason }}</span>
+                    }
+                </div>
+            </div>
+
+            <div class="flex flex-wrap gap-x-6 gap-y-1 text-sm lg:justify-end">
+                @if (note.signCity) {
+                <div class="flex flex-col">
+                    <span class="text-xs text-muted-color">Ciudad de firma</span>
+                    <span class="font-medium">{{ note.signCity }}</span>
+                </div>
+                }
+                @if (note.sentAt) {
+                <div class="flex flex-col">
+                    <span class="text-xs text-muted-color">Enviado a firma</span>
+                    <span class="font-medium">{{ note.sentAt | date:'dd/MM/yyyy HH:mm' }}</span>
+                </div>
+                }
+                @if (note.signedAt) {
+                <div class="flex flex-col">
+                    <span class="text-xs text-muted-color">Firmado</span>
+                    <span class="font-medium">{{ note.signedAt | date:'dd/MM/yyyy HH:mm' }}</span>
+                </div>
+                }
+                @if (note.declinedAt) {
+                <div class="flex flex-col">
+                    <span class="text-xs text-muted-color">Rechazado</span>
+                    <span class="font-medium">{{ note.declinedAt | date:'dd/MM/yyyy HH:mm' }}</span>
+                </div>
+                }
+            </div>
+
+            <div class="flex gap-2 shrink-0">
+                @if (note.hasSignedDocument && note.documentUrl) {
+                <p-button label="Descargar Pagaré" icon="pi pi-download" severity="success" (onClick)="openPromissoryNoteDocument()" />
+                } @else if (note.signingUrl) {
+                <p-button label="Enlace de firma" icon="pi pi-external-link" severity="info" [outlined]="true" (onClick)="openPromissoryNoteSigningUrl()" />
                 }
             </div>
         </div>
@@ -464,7 +541,7 @@
                                     Score, cupo viable y condiciones de crédito calculados para el cliente.
                                 </span>
                             </div>
-                            <p-button label="Descargar PDF" icon="pi pi-file-pdf" severity="danger" [outlined]="true" (onClick)="onDownloadPdf()" [loading]="downloadingPdf()" [disabled]="downloadingPdf()" styleClass="w-full sm:w-auto shrink-0" />
+                            <p-button label="Descargar PDF" icon="pi pi-file-pdf" severity="info" [outlined]="true" (onClick)="onDownloadPdf()" [loading]="downloadingPdf()" [disabled]="downloadingPdf()" styleClass="w-full sm:w-auto shrink-0" />
                         </div>
 
                         <!-- Resultado -->
@@ -475,7 +552,7 @@
                             [customer]="resultCustomer()"
                             [companyInfo]="company()"
                             [centralRisk]="step1Data()?.centralRisk ?? null"
-                            [readOnly]="false"
+                            [readOnly]="isStudyClosed()"
                         />
                         <div class="flex py-6 gap-2 mt-2">
                             <p-button label="Volver" icon="pi pi-arrow-left" severity="secondary" (onClick)="activateCallback(2)" />

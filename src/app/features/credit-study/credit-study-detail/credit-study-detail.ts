@@ -22,6 +22,7 @@ import { CreditStudyService } from '../credit-study.service';
 import { CustomersService } from '@/app/features/customers/customers.service';
 import { CustomerDetail as CustomerDetailModel } from '@/app/types/customer';
 import { CreateFromBureauPayload, CreditStudyRequest, CreditStudyStep1, CreditStudyStep2, CustomerAuthorization, PerformStudyResponse } from '@/app/types/credit-study';
+import { PromissoryNoteSummary } from '@/app/types/promissory-note';
 import { NotificationService } from '@/app/shared/components/notification/notification.service';
 import { ParameterService } from '@/app/core/services/parameter.service';
 import { Parameter } from '@/app/types/parameter';
@@ -31,6 +32,7 @@ import { ConfirmService, provideConfirm } from '@/app/shared/services/confirm.se
 import { BureauProfile } from './bureau-profile/bureau-profile';
 import { FinancialStatements } from './financial-statements/financial-statements';
 import { StudyResult } from './study-result/study-result';
+import { PromissoryNoteModal } from './promissory-note-modal/promissory-note-modal';
 
 @Component({
     selector: 'app-credit-study-detail',
@@ -53,7 +55,8 @@ import { StudyResult } from './study-result/study-result';
         DialogModule,
         BureauProfile,
         FinancialStatements,
-        StudyResult
+        StudyResult,
+        PromissoryNoteModal
     ],
     providers: [provideConfirm()],
     templateUrl: './credit-study-detail.html'
@@ -116,9 +119,70 @@ export class CreditStudyDetail {
     studyStatus = signal<{ code: string; label: string } | null>(null);
     studyRequest = signal<CreditStudyRequest | null>(null);
     studyDate = signal<string | null>(null);
+    promissoryNote = signal<PromissoryNoteSummary | null>(null);
 
     hasFinancialData = computed(() => (this.step2Data()?.sources?.length ?? 0) > 0);
     studyCompleted = computed(() => !!this.studyResult());
+
+    /** Modal de firma del pagaré. */
+    promissoryNoteVisible = signal(false);
+
+    /** El estudio cerrado ya no admite más acciones (pagaré, análisis IA). */
+    isStudyClosed = computed(() => this.studyStatus()?.code === 'closed');
+
+    /**
+     * El pagaré solo aplica cuando el estudio es viable o viable con condiciones,
+     * aún no está cerrado y no se ha generado un pagaré.
+     */
+    canSignPromissoryNote = computed(() => {
+        const status = this.studyResult()?.viabilityStatus;
+        return (status === 'approved' || status === 'conditional')
+            && !this.isStudyClosed()
+            && !this.promissoryNote();
+    });
+
+    /** Colores del chip de estado del pagaré según su código. */
+    promissoryNoteStatusConfig = computed(() => {
+        const note = this.promissoryNote();
+        if (!note) return null;
+
+        const map: Record<string, { icon: string; classes: string }> = {
+            signed: {
+                icon: 'pi pi-verified',
+                classes: 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800'
+            },
+            sent: {
+                icon: 'pi pi-send',
+                classes: 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800'
+            },
+            pending: {
+                icon: 'pi pi-clock',
+                classes: 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-800'
+            },
+            declined: {
+                icon: 'pi pi-times-circle',
+                classes: 'bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800'
+            }
+        };
+
+        const config = map[note.status] ?? {
+            icon: 'pi pi-info-circle',
+            classes: 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800'
+        };
+
+        return { ...config, label: note.statusLabel };
+    });
+
+    /** Cupo viable del resultado (con fallback al recomendado) para prellenar el pagaré. */
+    promissoryNoteAmount = computed(() => {
+        const result = this.studyResult();
+        return result?.result?.approvedCreditLine?.amount ?? result?.recommendedCreditLine ?? null;
+    });
+
+    /** Plazo solicitado en días para prellenar el pagaré. */
+    promissoryNoteTermDays = computed(() =>
+        this.studyRequest()?.requestedTerm ?? this.studyResult()?.requestedTerm ?? null
+    );
 
     /** Configuración visual (ícono + colores) según el estado del estudio. */
     studyStatusConfig = computed(() => {
@@ -140,13 +204,18 @@ export class CreditStudyDetail {
                 icon: 'pi pi-check-circle',
                 classes: 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800',
                 dot: 'bg-green-500'
+            },
+            closed: {
+                icon: 'pi pi-verified',
+                classes: 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800',
+                dot: 'bg-green-500'
             }
         };
 
         const config = map[status.code] ?? {
             icon: 'pi pi-info-circle',
-            classes: 'bg-surface-100 text-surface-600 border-surface-200 dark:bg-surface-800 dark:text-surface-300 dark:border-surface-700',
-            dot: 'bg-surface-400'
+            classes: 'bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-900/20 dark:text-indigo-400 dark:border-indigo-800',
+            dot: 'bg-indigo-500'
         };
 
         return { ...config, label: status.label };
@@ -317,6 +386,7 @@ export class CreditStudyDetail {
             this.studyResult.set(response.step3 ?? null);
             this.studyRequest.set(response.request ?? null);
             this.studyDate.set(response.studyDate ?? null);
+            this.promissoryNote.set(response.promissoryNote ?? null);
             this.studyStatus.set(response.status ? { code: response.status.code, label: response.status.label } : null);
 
             const businessName = response.step1?.customer?.businessName;
@@ -330,6 +400,30 @@ export class CreditStudyDetail {
             const hasStep2 = (response.step2?.sources?.length ?? 0) > 0;
             this.activeStep = response.step3 ? 3 : (hasStep2 ? 2 : (response.step1 ? 2 : 1));
         });
+    }
+
+    /** Abre en otra pestaña el PDF firmado del pagaré (URL temporal del storage). */
+    openPromissoryNoteDocument(): void {
+        const url = this.promissoryNote()?.documentUrl;
+        if (url) {
+            window.open(url, '_blank', 'noopener');
+        }
+    }
+
+    /** Abre en otra pestaña el enlace de firma electrónica del pagaré. */
+    openPromissoryNoteSigningUrl(): void {
+        const url = this.promissoryNote()?.signingUrl;
+        if (url) {
+            window.open(url, '_blank', 'noopener');
+        }
+    }
+
+    /** Al cerrar el modal con el pagaré generado se refresca el estudio. */
+    onPromissoryNoteGenerated(): void {
+        const id = this.creditStudyId();
+        if (id) {
+            this.loadSteps(id);
+        }
     }
 
     isInvalid(controlName: string): boolean {
@@ -554,7 +648,7 @@ export class CreditStudyDetail {
         this.confirmService.confirm({
             title: 'Realizar Estudio de Crédito',
             message: 'Se ejecutará el análisis de viabilidad con la información del cliente y los estados financieros. ' +
-                'El sistema calculará el score, el cupo aprobado y las condiciones de crédito. Esta acción no se puede deshacer.',
+                'El sistema calculará el score y el resultado de viabilidad de la solicitud. Esta acción no se puede deshacer.',
             kind: 'warn',
             icon: 'pi pi-bolt',
             acceptLabel: 'Sí, realizar estudio',

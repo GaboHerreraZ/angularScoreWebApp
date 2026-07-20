@@ -1,3 +1,5 @@
+import { PromissoryNoteSummary } from './promissory-note';
+
 export interface ViabilityAlert {
     type: 'success' | 'warning' | 'danger' | 'info';
     message: string;
@@ -566,6 +568,8 @@ export interface CreditStudyStepsResponse {
     };
     studyDate: string | null;
     request: CreditStudyRequest | null;
+    /** Pagaré del estudio (si ya se generó). */
+    promissoryNote?: PromissoryNoteSummary | null;
     step1: CreditStudyStep1 | null;
     step2: CreditStudyStep2 | null;
     step3: PerformStudyResponse | null;

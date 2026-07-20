@@ -13,6 +13,7 @@ import {
     ExtractFinancialStatementsResponse,
     PerformStudyResponse
 } from '@/app/types/credit-study';
+import { PromissoryNote, PromissoryNotePayload, PromissoryNotePreviewResponse } from '@/app/types/promissory-note';
 import { environment } from '@/environments/environment';
 
 interface LoadCreditStudiesParams {
@@ -170,16 +171,20 @@ export class CreditStudyService {
         return this.apiService.post<CreateCreditStudy>(`companies/${this.companyId()}/ai-analyses/extract-pdf`, formData);
     }
 
-    previewPromissoryNote(creditStudyId: string): Observable<{ html: string }> {
-        return this.apiService.post<{ html: string }>(`companies/${this.companyId()}/promissory-notes/preview`, { creditStudyId });
+    /** Vista previa del pagaré: devuelve el documento HTML completo ya rellenado. */
+    previewPromissoryNote(payload: PromissoryNotePayload): Observable<PromissoryNotePreviewResponse> {
+        return this.apiService.post<PromissoryNotePreviewResponse>(
+            `companies/${this.companyId()}/documents/promissory-notes/preview`,
+            payload
+        );
     }
 
-    declinePromissoryNote(promissoryNoteId: number): Observable<any> {
-        return this.apiService.patch<any>(`companies/${this.companyId()}/promissory-notes/${promissoryNoteId}/decline`, {});
-    }
-
-    approveCreditStudy(creditStudyId: string): Observable<any> {
-        return this.apiService.post<any>(`companies/${this.companyId()}/promissory-notes/html`, { creditStudyId });
+    /** Genera el pagaré del estudio y lo envía a firma electrónica. */
+    createPromissoryNote(payload: PromissoryNotePayload): Observable<PromissoryNote> {
+        return this.apiService.post<PromissoryNote>(
+            `companies/${this.companyId()}/documents/promissory-notes`,
+            payload
+        );
     }
 
     performAiAnalysis(creditStudyId: string): Observable<AiAnalysisResponse> {
