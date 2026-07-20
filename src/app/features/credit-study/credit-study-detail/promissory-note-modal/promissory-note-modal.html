@@ -1,0 +1,138 @@
+<p-dialog
+    [(visible)]="visible"
+    [modal]="true"
+    [draggable]="false"
+    [dismissableMask]="false"
+    [closable]="!previewing() && !generating()"
+    [style]="{ width: '95vw', maxWidth: preview() && !note() ? '900px' : '520px' }"
+    (onHide)="onHide()">
+
+    <ng-template #header>
+        <div class="flex items-center gap-3">
+            <div class="flex items-center justify-center rounded-full bg-emerald-50 text-emerald-500 dark:bg-emerald-500/10 dark:text-emerald-400 shrink-0" style="width: 2.5rem; height: 2.5rem;">
+                <i class="pi pi-pen-to-square text-base"></i>
+            </div>
+            <div class="flex flex-col">
+                <span class="text-base font-semibold">Firma del Pagaré</span>
+                <span class="text-xs text-muted-color">Genere el pagaré del estudio y envíelo a firma electrónica</span>
+            </div>
+        </div>
+    </ng-template>
+
+    @if (note(); as n) {
+    <!-- ─── Pagaré generado: resumen del envío a firma ─── -->
+    <div class="flex flex-col items-center gap-4 py-2">
+        <div class="flex items-center justify-center w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/30">
+            <i class="pi pi-check-circle text-3xl text-green-600 dark:text-green-400"></i>
+        </div>
+        <div class="text-center">
+            <h6 class="font-bold text-lg m-0">Pagaré No. {{ n.noteNumber }} generado</h6>
+            <p class="text-sm text-muted-color m-0 mt-1">El documento fue enviado a firma electrónica.</p>
+        </div>
+
+        <div class="w-full flex flex-col divide-y divide-surface rounded-lg border border-surface">
+            @if (n.customer; as customer) {
+            <div class="flex justify-between items-center gap-4 px-4 py-2.5">
+                <span class="text-sm text-muted-color">Cliente</span>
+                <span class="text-sm font-medium text-right">{{ customer.businessName }}</span>
+            </div>
+            <div class="flex justify-between items-center gap-4 px-4 py-2.5">
+                <span class="text-sm text-muted-color">Correo del firmante</span>
+                <span class="text-sm font-medium text-right">{{ customer.email }}</span>
+            </div>
+            }
+            <div class="flex justify-between items-center gap-4 px-4 py-2.5">
+                <span class="text-sm text-muted-color">Monto</span>
+                <span class="text-sm font-medium text-right">{{ n.amount | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</span>
+            </div>
+            <div class="flex justify-between items-center gap-4 px-4 py-2.5">
+                <span class="text-sm text-muted-color">Plazo</span>
+                <span class="text-sm font-medium text-right">{{ n.termDays }} días</span>
+            </div>
+            <div class="flex justify-between items-center gap-4 px-4 py-2.5">
+                <span class="text-sm text-muted-color">Vencimiento</span>
+                <span class="text-sm font-medium text-right">{{ n.dueDate | date:'dd/MM/yyyy' }}</span>
+            </div>
+            @if (n.status; as status) {
+            <div class="flex justify-between items-center gap-4 px-4 py-2.5">
+                <span class="text-sm text-muted-color">Estado</span>
+                <span class="text-xs font-bold px-2 py-0.5 rounded-full bg-primary-50 text-primary-600 dark:bg-primary-500/10 dark:text-primary-400">{{ status.label }}</span>
+            </div>
+            }
+        </div>
+
+        @if (n.signingUrl) {
+        <a [href]="n.signingUrl" target="_blank" rel="noopener" class="inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline">
+            <i class="pi pi-external-link text-xs"></i>
+            Abrir enlace de firma
+        </a>
+        }
+    </div>
+    } @else {
+    <!-- ─── Formulario: monto y plazo + vista previa ─── -->
+    <div class="flex flex-col gap-4">
+        <p class="text-sm text-muted-color m-0">
+            Verifique el monto y el plazo del pagaré. Con la vista previa podrá revisar el documento antes de generarlo.
+        </p>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+            <p-floatlabel variant="on">
+                <p-inputnumber
+                    inputId="pnAmount"
+                    [ngModel]="amount()"
+                    (ngModelChange)="onAmountChange($event)"
+                    mode="currency" currency="COP" locale="es-CO"
+                    [minFractionDigits]="0" [maxFractionDigits]="0" [min]="0"
+                    [disabled]="previewing() || generating()"
+                    styleClass="w-full" />
+                <label for="pnAmount">Cupo viable</label>
+            </p-floatlabel>
+            <p-floatlabel variant="on">
+                <p-inputnumber
+                    inputId="pnTerm"
+                    [ngModel]="termDays()"
+                    (ngModelChange)="onTermChange($event)"
+                    suffix=" días" [min]="1" [maxFractionDigits]="0"
+                    [disabled]="previewing() || generating()"
+                    styleClass="w-full" />
+                <label for="pnTerm">Plazo solicitado</label>
+            </p-floatlabel>
+        </div>
+
+        @if (preview(); as p) {
+        <div class="flex items-center justify-between gap-4">
+            <span class="text-sm font-semibold">Pagaré No. {{ p.noteNumber }}</span>
+            <span class="text-xs text-muted-color">
+                Cupo solicitado: {{ p.requestedCreditLine | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}
+            </span>
+        </div>
+        <iframe
+            [srcdoc]="previewHtml()"
+            sandbox=""
+            class="w-full rounded-lg border border-surface bg-white"
+            style="height: 55vh"
+            title="Vista previa del pagaré"></iframe>
+        }
+    </div>
+    }
+
+    <ng-template #footer>
+        <div class="flex justify-end gap-2">
+            @if (note()) {
+            <p-button label="Cerrar" icon="pi pi-check" (onClick)="close()" />
+            } @else {
+            <p-button label="Cancelar" severity="secondary" [text]="true" (onClick)="close()" [disabled]="previewing() || generating()" />
+            <p-button
+                [label]="preview() ? 'Actualizar vista previa' : 'Vista previa'"
+                icon="pi pi-eye"
+                [outlined]="!!preview()"
+                (onClick)="onPreview()"
+                [loading]="previewing()"
+                [disabled]="!canPreview() || generating()" />
+            @if (preview()) {
+            <p-button label="Generar Pagaré" icon="pi pi-pen-to-square" (onClick)="onGenerate()" [loading]="generating()" [disabled]="previewing()" />
+            }
+            }
+        </div>
+    </ng-template>
+</p-dialog>
