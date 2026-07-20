@@ -9,7 +9,7 @@ export interface AnalysisPackConsumption {
 
 export interface AnalysisPackPaymentEvent {
     date: string;
-    epaycoRef: string;
+    providerReference: string;
     codResponse: number;
     statusLabel: string;
     responseText: string;
@@ -41,13 +41,14 @@ export interface AnalysisPack {
     currencyCode: string;
     consultationPriceId: string;
     statusId: number;
-    epaycoSessionId: string | null;
-    epaycoRef: string | null;
-    epaycoTransactionId: string | null;
-    epaycoFranchise: string | null;
-    epaycoCardLast4: string | null;
-    epaycoApprovalCode: string | null;
-    epaycoResponseReason: string | null;
+    provider: string;
+    providerSessionId: string | null;
+    providerReference: string | null;
+    providerTransactionId: string | null;
+    providerFranchise: string | null;
+    providerCardLast4: string | null;
+    providerApprovalCode: string | null;
+    providerResponseReason: string | null;
     paidAt: string | null;
     isTest: boolean;
     paymentToken: string | null;
