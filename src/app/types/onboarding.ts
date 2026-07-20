@@ -141,8 +141,8 @@ export interface AnalysisPackByReference {
         discountAmount: number;
         total: number;
         currency: string;
-        epaycoRef: string;
-        epaycoTransactionId: string;
+        providerReference: string;
+        providerTransactionId: string;
     };
     validity: {
         startDate: string;
