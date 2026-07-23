@@ -9,6 +9,16 @@
     [class.ring-primary]="featured()"
     [class.shadow-xl]="featured()"
 >
+    <!-- Decoración de fondo (clipeada al borde de la tarjeta) -->
+    <div class="pointer-events-none absolute inset-0 rounded-2xl overflow-hidden">
+        @if (featured()) {
+            <div class="absolute inset-x-0 top-0 h-1.5 bg-linear-to-r from-primary-400 via-primary to-primary-600"></div>
+            <div class="absolute -top-16 -right-16 w-48 h-48 rounded-full bg-primary/10 blur-3xl"></div>
+        } @else {
+            <div class="absolute -top-16 -right-16 w-48 h-48 rounded-full bg-primary/5 blur-3xl"></div>
+        }
+    </div>
+
     <!-- Badge destacado -->
     @if (featured()) {
         <span class="absolute -top-3 left-1/2 -translate-x-1/2 inline-flex items-center gap-1 text-xs font-bold px-3 py-1 rounded-full bg-primary text-primary-contrast shadow-sm">
@@ -19,7 +29,7 @@
 
     <!-- Badge de descuento (siempre reserva el alto para igualar las tarjetas sin descuento) -->
     <span
-        class="self-start inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 mb-4"
+        class="relative self-start inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 mb-4"
         [class.invisible]="!hasDiscount()"
     >
         <i class="pi pi-tag text-[10px]"></i>
@@ -27,22 +37,30 @@
     </span>
 
     <!-- Nombre del pack -->
-    <span class="text-sm font-semibold uppercase tracking-wider text-primary mb-2">{{ p.name }}</span>
+    <span class="relative text-sm font-semibold uppercase tracking-wider text-primary mb-2">{{ p.name }}</span>
 
     <!-- Cantidad de análisis -->
-    <div class="flex items-baseline gap-2 mb-1">
-        <span class="text-5xl font-extrabold text-color leading-none">{{ p.quantity }}</span>
+    <div class="relative flex items-baseline gap-2 mb-1">
+        <span
+            class="text-5xl font-extrabold leading-none"
+            [class.text-color]="!featured()"
+            [class.bg-linear-to-br]="featured()"
+            [class.from-primary-400]="featured()"
+            [class.to-primary-600]="featured()"
+            [class.bg-clip-text]="featured()"
+            [class.text-transparent]="featured()"
+        >{{ p.quantity }}</span>
         <span class="text-muted-color font-medium">Análisis de Crédito</span>
     </div>
 
     @if (p.description) {
-        <p class="text-sm text-muted-color m-0 mb-5">{{ p.description }}</p>
+        <p class="relative text-sm text-muted-color m-0 mb-5">{{ p.description }}</p>
     } @else {
         <div class="mb-5"></div>
     }
 
     <!-- Precio -->
-    <div class="flex items-end justify-between mb-1">
+    <div class="relative flex items-end justify-between gap-2 mb-1">
         <div class="flex flex-col">
             <!-- Reservamos la altura del subtotal aunque no haya descuento, para alinear precios entre tarjetas. -->
             <span class="text-sm leading-none" [class.text-muted-color]="hasDiscount()" [class.line-through]="hasDiscount()" [class.invisible]="!hasDiscount()">
@@ -50,11 +68,13 @@
             </span>
             <span class="text-3xl font-extrabold text-color leading-tight">{{ formatCurrency(p.total, p.currency) }}</span>
         </div>
-        <span class="text-xs text-muted-color">{{ formatCurrency(effectiveUnitPrice(), p.currency) }} c/u</span>
+        <span class="inline-flex items-center whitespace-nowrap rounded-full bg-primary/10 text-primary text-xs font-semibold px-2.5 py-1 mb-1">
+            {{ formatCurrency(effectiveUnitPrice(), p.currency) }} / análisis
+        </span>
     </div>
 
     <!-- Vigencia (mt-auto empuja todo lo de abajo para alinear el CTA entre tarjetas) -->
-    <div class="flex items-center gap-2 mt-auto pt-4 border-t border-surface text-sm text-muted-color">
+    <div class="relative flex items-center gap-2 mt-auto pt-4 border-t border-surface text-sm text-muted-color">
         <i class="pi pi-clock text-primary"></i>
         Vigencia de {{ p.validityDays }} días
     </div>

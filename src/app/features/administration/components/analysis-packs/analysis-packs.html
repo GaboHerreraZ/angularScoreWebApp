@@ -13,11 +13,14 @@
             }
         </div>
         } @else if (catalog().length) {
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            @for (pack of catalog(); track pack.id) {
-            <app-pack-display-card [pack]="pack" ctaLabel="Comprar" (register)="onBuyPack($event)" />
-            }
-        </div>
+        <app-card-carousel [items]="catalog()">
+            <ng-template let-pack>
+                <app-pack-display-card [pack]="pack" ctaLabel="Comprar" (register)="onBuyPack($event)" />
+            </ng-template>
+        </app-card-carousel>
+
+        <!-- Qué incluye cada análisis (una sola vez, aplica a todos los packs) -->
+        <app-pack-included-features class="block mt-6" />
         } @else {
         <p class="text-sm text-muted-color italic">No hay paquetes disponibles por el momento.</p>
         }

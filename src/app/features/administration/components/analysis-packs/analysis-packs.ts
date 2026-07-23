@@ -15,6 +15,8 @@ import { FormsModule } from '@angular/forms';
 import { AnalysisPacksService } from '@/app/shared/services/analysis-packs.service';
 import { PackOfferingsService } from '@/app/shared/services/pack-offerings.service';
 import { PackDisplayCard } from '@/app/shared/components/pack-card/pack-display-card';
+import { PackIncludedFeatures } from '@/app/shared/components/pack-card/pack-included-features';
+import { CardCarousel } from '@/app/shared/components/card-carousel/card-carousel';
 import { EpaycoCheckout } from '@/app/shared/components/epayco-checkout/epayco-checkout';
 import { AuthService } from '@/app/core/services/auth.service';
 import { NotificationService } from '@/app/shared/components/notification/notification.service';
@@ -28,7 +30,7 @@ const REDIRECT_PATH = '/app/administracion/analisis-credito';
 @Component({
     selector: 'app-analysis-packs',
     standalone: true,
-    imports: [CommonModule, FormsModule, TableModule, TagModule, ButtonModule, TooltipModule, SkeletonModule, DialogModule, InputTextModule, PackDisplayCard, EpaycoCheckout],
+    imports: [CommonModule, FormsModule, TableModule, TagModule, ButtonModule, TooltipModule, SkeletonModule, DialogModule, InputTextModule, PackDisplayCard, PackIncludedFeatures, CardCarousel, EpaycoCheckout],
     templateUrl: './analysis-packs.html'
 })
 export class AnalysisPacks {
