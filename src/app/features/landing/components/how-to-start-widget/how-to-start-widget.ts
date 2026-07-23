@@ -5,13 +5,15 @@ import { ButtonModule } from 'primeng/button';
 import { SkeletonModule } from 'primeng/skeleton';
 import { ScrollAnimateDirective } from '@/app/shared/directives/scroll-animate.directive';
 import { PackDisplayCard } from '@/app/shared/components/pack-card/pack-display-card';
+import { PackIncludedFeatures } from '@/app/shared/components/pack-card/pack-included-features';
+import { CardCarousel } from '@/app/shared/components/card-carousel/card-carousel';
 import { PackOfferingsService } from '@/app/shared/services/pack-offerings.service';
 import { PackOffering } from '@/app/types/onboarding';
 
 @Component({
     standalone: true,
     selector: 'how-to-start-widget',
-    imports: [ButtonModule, SkeletonModule, ScrollAnimateDirective, PackDisplayCard],
+    imports: [ButtonModule, SkeletonModule, ScrollAnimateDirective, PackDisplayCard, PackIncludedFeatures, CardCarousel],
     templateUrl: './how-to-start-widget.html'
 })
 export class HowToStartWidget {

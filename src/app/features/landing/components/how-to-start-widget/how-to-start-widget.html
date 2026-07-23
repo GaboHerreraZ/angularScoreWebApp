@@ -68,17 +68,20 @@
                 <p-button label="Registrarme" icon="pi pi-arrow-right" iconPos="right" (onClick)="goToRegister()" />
             </div>
         } @else {
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 items-stretch">
-                @for (pack of packs(); track pack.id) {
-                    <div appScrollAnimate="fade-up">
+            <div appScrollAnimate="fade-up">
+                <app-card-carousel [items]="packs()">
+                    <ng-template let-pack>
                         <app-pack-display-card
                             [pack]="pack"
                             [featured]="pack.id === featuredId()"
                             (register)="goToRegister()"
                         />
-                    </div>
-                }
+                    </ng-template>
+                </app-card-carousel>
             </div>
+
+            <!-- Qué incluye cada análisis (una sola vez, aplica a todos los packs) -->
+            <app-pack-included-features class="block mt-8" appScrollAnimate="fade-up" />
         }
     </div>
 </section>

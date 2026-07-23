@@ -1,0 +1,55 @@
+<div class="relative">
+    <!-- Viewport: scroll nativo con snap; -mx-3 compensa el px-3 de los ítems para alinear con el resto de la sección.
+         pt-4/pb-6 dan aire para el badge "Más elegido" y la sombra del hover, que de otro modo se clipearían. -->
+    <div
+        #viewport
+        class="flex overflow-x-auto -mx-3 pt-4 pb-6 select-none cursor-grab
+               [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        [style.scroll-snap-type]="snapEnabled() ? 'x mandatory' : 'none'"
+        [class.cursor-grabbing]="dragging()"
+        (scroll)="updateNav()"
+        (pointerdown)="onPointerDown($event)"
+        (pointermove)="onPointerMove($event)"
+        (pointerup)="onPointerUp($event)"
+        (pointercancel)="onPointerUp($event)"
+        (dragstart)="$event.preventDefault()"
+    >
+        @for (item of items(); track $index) {
+            <div
+                data-carousel-item
+                class="shrink-0 w-full sm:w-1/2 lg:w-1/3 snap-start px-3"
+                [class.pointer-events-none]="dragging()"
+            >
+                <ng-container *ngTemplateOutlet="itemTemplate(); context: { $implicit: item, index: $index }" />
+            </div>
+        }
+    </div>
+
+    <!-- Flechas: solo existen cuando hay overflow; la inactiva se atenúa. -->
+    @if (canPrev() || canNext()) {
+        <button
+            type="button"
+            aria-label="Anterior"
+            class="absolute -left-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full border border-surface bg-surface-0 dark:bg-surface-800 shadow-lg
+                   flex items-center justify-center text-color cursor-pointer transition-all duration-150
+                   hover:bg-primary hover:text-primary-contrast hover:border-primary
+                   disabled:opacity-40 disabled:pointer-events-none"
+            [disabled]="!canPrev()"
+            (click)="prev()"
+        >
+            <i class="pi pi-chevron-left text-sm"></i>
+        </button>
+        <button
+            type="button"
+            aria-label="Siguiente"
+            class="absolute -right-4 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full border border-surface bg-surface-0 dark:bg-surface-800 shadow-lg
+                   flex items-center justify-center text-color cursor-pointer transition-all duration-150
+                   hover:bg-primary hover:text-primary-contrast hover:border-primary
+                   disabled:opacity-40 disabled:pointer-events-none"
+            [disabled]="!canNext()"
+            (click)="next()"
+        >
+            <i class="pi pi-chevron-right text-sm"></i>
+        </button>
+    }
+</div>
