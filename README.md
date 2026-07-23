@@ -1,187 +1,50 @@
-# Riskia NG
+# Creditia NG
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.
+Angular application generated with [Angular CLI](https://github.com/angular/angular-cli) version 21.
 
-## Development server
+## Build
 
-To start a local development server, run:
+### Environment variables
 
-```bash
-ng serve
-```
+The files `src/environments/environment.ts` and `environment.prod.ts` are gitignored:
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+- **Local development**: create them manually (see [Local development](#local-development)).
+- **CI**: they are generated automatically by the `scripts/generate-env.mjs` script (npm `prebuild` hook) from the following environment variables:
 
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Supabase Edge Functions
-
-### Send SMS (Infobip)
-
-La funcion `send-sms` es una Edge Function que envia codigos OTP via SMS usando la API de Infobip. Supabase Auth la invoca automaticamente a traves del hook `send_sms` cuando un usuario solicita login por telefono.
-
-#### Estructura
-
-```
-supabase/
-  functions/
-    send-sms/
-      index.ts       # Logica de envio SMS via Infobip
-      deno.json       # Configuracion de Deno e import map
-  .env.local          # Variables de entorno locales (no se sube a git)
-  .env.example        # Plantilla de variables de entorno
-  config.toml         # Configuracion de Supabase
-```
-
-#### Variables de entorno requeridas
-
-| Variable | Descripcion |
-|---|---|
-| `INFOBIP_BASE_URL` | Dominio de tu cuenta Infobip (ej: `xxxxx.api.infobip.com`) |
-| `INFOBIP_API_KEY` | API Key de Infobip |
-| `INFOBIP_SENDER` | Nombre del remitente (por defecto: `RISKIA`) |
-
-#### Configuracion inicial
-
-1. Copia el archivo de ejemplo y completa tus credenciales:
-   ```bash
-   cp supabase/.env.example supabase/.env.local
-   ```
-
-2. Instala Supabase CLI (no soporta instalacion global con npm):
-   ```bash
-   npx supabase --version
-   ```
-
-3. Login y vincula tu proyecto:
-   ```bash
-   npx supabase login
-   npx supabase link --project-ref <tu-project-ref>
-   ```
-
-#### Despliegue
-
-1. Configura los secrets en Supabase Cloud:
-   ```bash
-   npx supabase secrets set INFOBIP_BASE_URL=<tu-base-url> INFOBIP_API_KEY=<tu-api-key> INFOBIP_SENDER=RISKIA
-   ```
-
-2. Despliega la funcion:
-   ```bash
-   npx supabase functions deploy send-sms --no-verify-jwt
-   ```
-
-3. Configura el hook en el dashboard de Supabase:
-   - Ve a **Authentication > Hooks**
-   - Habilita **Send SMS**
-   - Tipo: **HTTPS**
-   - URL: `https://<tu-project-ref>.supabase.co/functions/v1/send-sms`
-
-#### Flujo de autenticacion
-
-1. El usuario ingresa su numero de telefono en el login
-2. Se llama a `signInWithOtp()` del cliente Supabase
-3. Supabase Auth genera el OTP y dispara el hook `send_sms`
-4. El hook llama a la Edge Function `send-sms`
-5. La funcion envia el SMS usando la API de Infobip
-6. El usuario recibe el codigo y lo verifica para completar el login
-
-## Despliegue en Vercel
-
-La aplicacion se despliega automaticamente en **Vercel** con cada push a `main`.
-
-### Requisitos
-
-- Cuenta en [Vercel](https://vercel.com)
-- Repositorio conectado al proyecto de Vercel
-
-### Variables de entorno
-
-Los archivos `src/environments/environment.ts` y `environment.prod.ts` estan en `.gitignore` y se generan durante el build mediante el script `scripts/set-env.js`.
-
-Configura las siguientes variables en **Vercel > Settings > Environment Variables**:
-
-| Variable | Descripcion | Ejemplo |
+| Variable | Description | Example |
 |---|---|---|
-| `SUPABASE_URL` | URL del proyecto Supabase | `https://xxxxx.supabase.co` |
-| `SUPABASE_KEY` | Anon key de Supabase | `eyJhbGci...` |
-| `API_URL` | URL del backend (Railway) | `https://xxx.up.railway.app/api` |
-| `WOMPI_PUBLIC_KEY` | Llave publica de Wompi | `pub_test_xxx` o `pub_prod_xxx` |
+| `SUPABASE_URL` | Supabase project URL | `https://xxxxx.supabase.co` |
+| `SUPABASE_KEY` | Supabase anon key | `eyJhbGci...` |
+| `API_URL` | Backend URL (Railway) | `https://xxx.up.railway.app/api` |
 
-> Asegurate de marcar el checkbox de **Production**, **Preview** y **Development** para cada variable.
+If the files already exist, the script does not overwrite them.
 
-### Configuracion de Vercel
+### Compile
 
-El archivo `vercel.json` en la raiz del proyecto configura:
+```bash
+npm ci
+npm run build
+```
 
-- **Build command**: genera los environments y compila Angular
-- **Output directory**: `dist/riskia-ng/browser`
-- **Rewrites**: redirige todas las rutas a `index.html` (SPA)
+`npm run build` first runs `generate-env.mjs` and then `ng build` (production configuration by default). The build artifacts are output to:
 
-### Despliegue manual
+```
+dist/creditia-ng/browser
+```
 
-Si necesitas forzar un redeploy:
+That directory contains the static SPA, ready to be served from any static file hosting. Since Angular handles routing on the client, the hosting must rewrite all routes to `index.html`.
 
-1. Ve a **Deployments** en el dashboard de Vercel
-2. Click en los 3 puntos (...) del ultimo deploy
-3. Click en **Redeploy**
+### Local development
 
-### Desarrollo local
-
-Para desarrollo local, crea el archivo `src/environments/environment.ts` manualmente:
+For local development, create the file `src/environments/environment.ts` manually:
 
 ```typescript
 export const environment = {
     production: false,
-    supabaseUrl: 'https://tu-proyecto.supabase.co',
-    supabaseKey: 'tu-anon-key',
+    supabaseUrl: 'https://your-project.supabase.co',
+    supabaseKey: 'your-anon-key',
     apiUrl: 'http://localhost:3000/api',
-    wompiPublicKey: 'pub_test_xxx',
 };
 ```
 
-Este archivo no se sube a git.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+This file is not committed to git.
