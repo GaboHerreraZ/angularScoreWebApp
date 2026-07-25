@@ -1,5 +1,5 @@
 import { Component, computed, input } from '@angular/core';
-import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
+import { CommonModule, CurrencyPipe } from '@angular/common';
 import { AccordionModule } from 'primeng/accordion';
 import { TableModule } from 'primeng/table';
 import { TooltipModule } from 'primeng/tooltip';
@@ -13,14 +13,14 @@ interface LinkNetworkRow {
 
 /**
  * Resumen del comportamiento del cliente en la central de riesgo (apoyo a la
- * decisión del analista, sin el score numérico). El shape es idéntico en PN y
- * PJ: cada bloque se muestra solo si viene poblado, así que este único mapper
- * sirve para ambos tipos de persona.
+ * decisión del analista, con el score de la central destacado). El shape es
+ * idéntico en PN y PJ: cada bloque se muestra solo si viene poblado, así que
+ * este único mapper sirve para ambos tipos de persona.
  */
 @Component({
     selector: 'app-central-risk',
     standalone: true,
-    imports: [CommonModule, CurrencyPipe, DatePipe, AccordionModule, TableModule, TooltipModule],
+    imports: [CommonModule, CurrencyPipe, AccordionModule, TableModule, TooltipModule],
     templateUrl: './central-risk.html'
 })
 export class CentralRisk {
@@ -31,7 +31,9 @@ export class CentralRisk {
         const cr = this.centralRisk();
         if (!cr) return false;
         return !!(
+            cr.score != null ||
             cr.alerts?.length ||
+            cr.suggestions?.length ||
             cr.viabilidad?.label ||
             cr.ratingRecaudos?.label ||
             cr.nivelRiesgo?.label ||
@@ -43,6 +45,44 @@ export class CentralRisk {
             cr.creditPortfolio?.length ||
             cr.linkNetwork
         );
+    });
+
+    /** Grupos de sugerencias de la central con contenido real (título o ítems). */
+    suggestions = computed(() => (this.centralRisk()?.suggestions ?? []).filter(s => s?.title || s?.items?.length));
+
+    /**
+     * Clases de color del score de la central. Rangos heurísticos solo para la
+     * visualización (no son política de crédito): ≥700 favorable, 500-699
+     * intermedio, <500 desfavorable.
+     */
+    scoreConfig = computed(() => {
+        const score = this.centralRisk()?.score;
+        if (score == null) return null;
+        if (score >= 700) {
+            return {
+                label: 'Puntaje favorable',
+                text: 'text-green-700 dark:text-green-400',
+                ring: 'border-green-500',
+                panel: 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800',
+                chip: 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
+            };
+        }
+        if (score >= 500) {
+            return {
+                label: 'Puntaje intermedio',
+                text: 'text-amber-700 dark:text-amber-400',
+                ring: 'border-amber-500',
+                panel: 'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800',
+                chip: 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'
+            };
+        }
+        return {
+            label: 'Puntaje bajo',
+            text: 'text-red-700 dark:text-red-400',
+            ring: 'border-red-500',
+            panel: 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800',
+            chip: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
+        };
     });
 
     /** Alertas directas sobre el titular consultado (pesan en la decisión). */
