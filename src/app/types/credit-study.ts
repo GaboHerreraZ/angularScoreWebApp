@@ -424,6 +424,15 @@ export interface CentralRiskCreditPortfolioItem {
     porcentajePart: string | null;
 }
 
+/**
+ * Grupo de sugerencias operativas de la central (p. ej. documentación adicional
+ * a solicitar según el perfil del cliente).
+ */
+export interface CentralRiskSuggestionGroup {
+    title: string | null;
+    items: string[] | null;
+}
+
 /** Nodo de la red de vínculos económicos (Tabla 15, solo PJ). Recursivo. */
 export interface CentralRiskLinkNode {
     name: string | null;
@@ -437,9 +446,9 @@ export interface CentralRiskLinkNode {
 
 /**
  * Resumen del último snapshot del cliente en la central de riesgo.
- * Se muestra al analista como apoyo a la decisión (sin el score numérico).
- * Los campos exclusivos de PJ (nivelRiesgo, ratingSectorial, creditPortfolio,
- * linkNetwork) llegan null en persona natural.
+ * Se muestra al analista como apoyo a la decisión, con el score de la central
+ * como dato destacado. Los campos exclusivos de PJ (nivelRiesgo,
+ * ratingSectorial, creditPortfolio, linkNetwork) llegan null en persona natural.
  */
 export interface CustomerCentralRisk {
     consultedAt: string | null;
@@ -452,6 +461,8 @@ export interface CustomerCentralRisk {
     income: CentralRiskIncome | null;
     paymentBehavior: CentralRiskPaymentBehavior[] | null;
     creditSectors: CentralRiskCreditSector[] | null;
+    /** Sugerencias operativas de la central; ausente en snapshots antiguos. */
+    suggestions?: CentralRiskSuggestionGroup[] | null;
     nivelRiesgo: CentralRiskLabel | null;
     ratingSectorial: CentralRiskLabel | null;
     creditPortfolio: CentralRiskCreditPortfolioItem[] | null;
