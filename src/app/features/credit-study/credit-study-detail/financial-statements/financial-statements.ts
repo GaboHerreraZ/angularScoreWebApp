@@ -1,4 +1,4 @@
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, input, model } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CreditStudyStep2, FinancialSource } from '@/app/types/credit-study';
 
@@ -21,6 +21,10 @@ interface SourceView {
     label: string;
     icon: string;
     hasData: boolean;
+    /** Columnas que ocupa la fuente en la tabla combinada (1 por periodo, mínimo 1). */
+    cols: number;
+    /** true si es la fuente elegida para el estudio (o la usada, si ya se realizó). */
+    selected: boolean;
 }
 
 @Component({
@@ -32,23 +36,39 @@ interface SourceView {
 export class FinancialStatements {
     step2 = input.required<CreditStudyStep2>();
 
+    /** Fuente elegida para ejecutar el estudio (two-way con el padre, que define el default). */
+    selectedSource = model<string | null>(null);
+
+    /**
+     * true cuando el estudio ya se realizó o está cerrado: bloquea el cambio de
+     * fuente; el resaltado pasa a indicar la fuente con la que se calculó.
+     */
+    readOnly = input(false);
+
     private readonly sourceMeta: Record<string, { label: string; icon: string }> = {
         pdf_upload: { label: 'Estados Financieros (PDF)', icon: 'pi pi-file-pdf' },
         datacredito: { label: 'Datacrédito', icon: 'pi pi-database' }
     };
 
-    /** Fuentes con metadata de presentación y bandera de disponibilidad de datos. */
+    /** Fuentes con metadata de presentación, disponibilidad de datos y estado de selección. */
     sources = computed<SourceView[]>(() => {
+        const selected = this.selectedSource();
         return (this.step2()?.sources ?? []).map(source => {
             const meta = this.sourceMeta[source.source] ?? { label: source.source, icon: 'pi pi-server' };
+            const periodCount = source.periods?.length ?? 0;
             return {
                 source,
                 label: meta.label,
                 icon: meta.icon,
-                hasData: (source.periods?.length ?? 0) > 0
+                hasData: periodCount > 0,
+                cols: Math.max(1, periodCount),
+                selected: source.source === selected
             };
         });
     });
+
+    /** Total de columnas de la tabla combinada (concepto + periodos de cada fuente). */
+    totalCols = computed(() => 1 + this.sources().reduce((acc, v) => acc + v.cols, 0));
 
     /** Grupos de filas del balance / estado de resultados (mapean a FinancialPeriod). */
     readonly periodGroups: RowGroup[] = [
@@ -133,6 +153,28 @@ export class FinancialStatements {
         { label: 'ROA', key: 'roa', format: 'percent' },
         { label: 'ROE', key: 'roe', format: 'percent' }
     ];
+
+    selectSource(source: string): void {
+        this.selectedSource.set(source);
+    }
+
+    /**
+     * Clases del marco de la columna de la fuente seleccionada: bordes primary
+     * en los costados del grupo (y arriba/abajo en los extremos de la tabla)
+     * más un tinte de fondo. Para fuentes no seleccionadas conserva el
+     * separador izquierdo estándar entre grupos.
+     */
+    sourceCellClasses(view: SourceView, opts: { first?: boolean; last?: boolean; top?: boolean; bottom?: boolean } = {}): string {
+        if (!view.selected) {
+            return opts.first ? 'border-l border-surface' : '';
+        }
+        const classes = ['bg-primary-50/40', 'dark:bg-primary-500/5'];
+        if (opts.first) classes.push('border-l-2', 'border-l-primary-500');
+        if (opts.last) classes.push('border-r-2', 'border-r-primary-500');
+        if (opts.top) classes.push('border-t-2', 'border-t-primary-500');
+        if (opts.bottom) classes.push('border-b-2', 'border-b-primary-500');
+        return classes.join(' ');
+    }
 
     /** Formatea un valor según el tipo de fila para mostrarlo en la tabla. */
     formatValue(value: unknown, format: RowFormat = 'currency'): string {

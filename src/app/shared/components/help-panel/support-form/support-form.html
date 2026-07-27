@@ -1,7 +1,7 @@
 @if (submitting()) {
     <!-- Skeleton de envío -->
     <div class="flex flex-col gap-5 pt-2">
-        <p class="text-sm text-muted-color m-0">Enviando tu solicitud…</p>
+        <p class="text-m text-muted-color m-0">Enviando tu solicitud…</p>
 
         <!-- Solicitante -->
         <div class="rounded-lg bg-surface-100 dark:bg-surface-800 p-4 flex flex-col gap-2">
@@ -38,62 +38,78 @@
 
     <!-- Solicitante -->
     <div class="rounded-lg bg-surface-100 dark:bg-surface-800 p-4 flex flex-col gap-1">
-        <p class="text-xs font-semibold uppercase tracking-wider text-surface-400 mb-2">Solicitante</p>
-        <p class="text-sm font-medium">{{ profile?.name }} {{ profile?.lastName }}</p>
-        <p class="text-xs text-surface-500">{{ profile?.email }}</p>
-        @if (profile?.companyName) {
-            <p class="text-xs text-surface-500">{{ profile?.companyName }}</p>
+        <p class="text-sm font-semibold uppercase tracking-wider text-surface-400 mb-2">Solicitante</p>
+        <p class="text-m font-medium">{{ profile()?.name }} {{ profile()?.lastName }}</p>
+        <p class="text-sm text-surface-500">{{ profile()?.email }}</p>
+        @if (profile()?.companyName) {
+            <p class="text-sm text-surface-500">{{ profile()?.companyName }}</p>
         }
     </div>
 
-    <!-- Área -->
-    <div class="flex flex-col gap-2">
-        <label class="text-sm font-medium" for="area">
-            ¿Con qué área se relaciona? <span class="text-red-500">*</span>
-        </label>
-        <p-select
-            inputId="area"
-            formControlName="area"
-            [options]="areaOptions()"
-            optionLabel="label"
-            optionValue="code"
-            placeholder="Selecciona un área"
-            [fluid]="true"
-            (onChange)="onAreaChange($event.value)"
-            [ngClass]="{ 'ng-invalid ng-dirty': isInvalid('area') }"
-        />
-        @if (isInvalid('area')) {
-            <small class="text-red-500 text-xs">El área es requerida.</small>
-        }
-    </div>
+    @if (prefill(); as ctx) {
+        <!-- Registro sobre el que se abrió el panel: el ticket queda atado a él -->
+        <div class="rounded-lg border border-primary-200 dark:border-primary-500/30 bg-primary-50 dark:bg-primary-500/10 p-4 flex items-start gap-2.5">
+            <i class="pi pi-link text-primary-600 dark:text-primary-400 mt-0.5 shrink-0"></i>
+            <div class="flex flex-col gap-0.5 min-w-0">
+                <p class="text-m font-medium m-0">
+                    Solicitud sobre {{ ctx.area === 'credit_study' ? 'este estudio de crédito' : 'este cliente' }}
+                </p>
+                @if (ctx.label) {
+                    <p class="text-sm text-surface-500 m-0 truncate">{{ ctx.label }}</p>
+                }
+                <p class="text-sm text-surface-500 m-0">
+                    Adjuntaremos el registro para que soporte lo revise directamente.
+                </p>
+            </div>
+        </div>
+    } @else {
+        <!-- Consulta general: las áreas con registro se crean desde su pantalla -->
+        <div class="rounded-lg border border-surface bg-surface-50 dark:bg-surface-800/50 p-4 flex items-start gap-2.5">
+            <i class="pi pi-info-circle text-surface-500 mt-0.5 shrink-0"></i>
+            <div class="flex flex-col gap-0.5 min-w-0">
+                <p class="text-m font-medium m-0">Consultas generales</p>
+                <p class="text-sm text-surface-500 m-0">
+                    Si tu solicitud es sobre un cliente o un estudio de crédito en particular,
+                    ve a la pantalla del cliente o del estudio y crea el ticket desde el botón de
+                    soporte que aparece allí. Así lo recibimos con la información del caso.
+                </p>
+            </div>
+        </div>
+    }
 
-    <!-- Registro relacionado -->
-    @if (showRelatedSelect()) {
+    <!-- Área (con registro asociado la define el contexto) -->
+    @if (prefill()) {
         <div class="flex flex-col gap-2">
-            <label class="text-sm font-medium" for="relatedEntity">{{ relatedLabel() }}</label>
+            <label class="text-m font-medium">Área</label>
+            <div class="flex items-center gap-2 rounded-lg bg-surface-100 dark:bg-surface-800 px-3 py-2.5">
+                <i class="pi pi-check-circle text-primary-500"></i>
+                <span class="text-m">{{ prefillAreaLabel() }}</span>
+            </div>
+        </div>
+    } @else {
+        <div class="flex flex-col gap-2">
+            <label class="text-m font-medium" for="area">
+                ¿Con qué área se relaciona? <span class="text-red-500">*</span>
+            </label>
             <p-select
-                inputId="relatedEntity"
-                formControlName="relatedEntityId"
-                [options]="relatedOptions()"
+                inputId="area"
+                formControlName="area"
+                [options]="areaOptions()"
                 optionLabel="label"
-                optionValue="id"
-                [filter]="true"
-                filterPlaceholder="Buscar..."
-                [placeholder]="loadingRelated() ? 'Cargando...' : 'Selecciona un registro (opcional)'"
-                [loading]="loadingRelated()"
-                [showClear]="true"
+                optionValue="code"
+                placeholder="Selecciona un área"
                 [fluid]="true"
-                emptyMessage="Sin registros para mostrar"
+                [ngClass]="{ 'ng-invalid ng-dirty': isInvalid('area') }"
             />
-            <small class="text-surface-400 text-xs">
-                Vincular el registro nos ayuda a resolver tu caso más rápido.
-            </small>
+            @if (isInvalid('area')) {
+                <small class="text-red-500 text-sm">El área es requerida.</small>
+            }
         </div>
     }
 
     <!-- Tipo -->
     <div class="flex flex-col gap-2">
-        <label class="text-sm font-medium" for="type">
+        <label class="text-m font-medium" for="type">
             Tipo <span class="text-red-500">*</span>
         </label>
         <p-select
@@ -108,7 +124,7 @@
 
     <!-- Prioridad -->
     <div class="flex flex-col gap-2">
-        <label class="text-sm font-medium" for="priority">
+        <label class="text-m font-medium" for="priority">
             Prioridad <span class="text-red-500">*</span>
         </label>
         <p-select
@@ -123,7 +139,7 @@
 
     <!-- Asunto -->
     <div class="flex flex-col gap-2">
-        <label class="text-sm font-medium" for="subject">
+        <label class="text-m font-medium" for="subject">
             Asunto <span class="text-red-500">*</span>
         </label>
         <input
@@ -135,13 +151,13 @@
             [ngClass]="{ 'ng-invalid ng-dirty': isInvalid('subject') }"
         />
         @if (isInvalid('subject')) {
-            <small class="text-red-500 text-xs">El asunto debe tener entre 5 y 120 caracteres.</small>
+            <small class="text-red-500 text-sm">El asunto es requerido (máximo 255 caracteres).</small>
         }
     </div>
 
     <!-- Descripción -->
     <div class="flex flex-col gap-2">
-        <label class="text-sm font-medium" for="description">
+        <label class="text-m font-medium" for="description">
             Descripción <span class="text-red-500">*</span>
         </label>
         <textarea
@@ -155,11 +171,11 @@
         ></textarea>
         <div class="flex justify-between">
             @if (isInvalid('description')) {
-                <small class="text-red-500 text-xs">La descripción debe tener al menos 20 caracteres.</small>
+                <small class="text-red-500 text-sm">La descripción debe tener al menos 20 caracteres.</small>
             } @else {
                 <span></span>
             }
-            <small class="text-surface-400 text-xs">{{ descriptionLength }}/2000</small>
+            <small class="text-surface-400 text-sm">{{ descriptionLength }}/5000</small>
         </div>
     </div>
 
@@ -173,7 +189,7 @@
     />
 
     <!-- Alternativa por correo -->
-    <p class="text-center text-xs text-surface-400">
+    <p class="text-center text-sm text-surface-400">
         ¿Prefieres escribirnos? <a href="mailto:soporte@creditia.co" class="text-primary hover:underline">soporte&#64;creditia.co</a>
     </p>
 </form>

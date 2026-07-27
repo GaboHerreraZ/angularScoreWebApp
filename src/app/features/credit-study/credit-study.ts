@@ -52,7 +52,7 @@ export class CreditStudy implements OnInit {
             loading: this.exporting()
         },
         actions: [
-            { id: 'edit', icon: 'pi pi-pencil', severity: 'info', tooltip: 'Editar' }
+            { id: 'view', icon: 'pi pi-eye', severity: 'info', tooltip: 'Ver detalle' }
         ],
         actionsHeader: 'Acciones',
         columns: <TableColumn[]>[
@@ -143,7 +143,7 @@ export class CreditStudy implements OnInit {
     }
 
     onActionClick(event: TableActionEvent): void {
-        if (event.action === 'edit') {
+        if (event.action === 'view') {
             this.router.navigate(['/app/estudio-credito/detalle-estudio', event.row.id]);
         }
     }

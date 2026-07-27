@@ -1,4 +1,4 @@
-import { Component, DestroyRef, effect, inject, signal, computed } from '@angular/core';
+import { Component, DestroyRef, effect, inject, signal, computed, linkedSignal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -33,6 +33,7 @@ import { BureauProfile } from './bureau-profile/bureau-profile';
 import { FinancialStatements } from './financial-statements/financial-statements';
 import { StudyResult } from './study-result/study-result';
 import { PromissoryNoteModal } from './promissory-note-modal/promissory-note-modal';
+import { SupportFab } from '@/app/shared/components/support-fab/support-fab';
 
 @Component({
     selector: 'app-credit-study-detail',
@@ -56,7 +57,8 @@ import { PromissoryNoteModal } from './promissory-note-modal/promissory-note-mod
         BureauProfile,
         FinancialStatements,
         StudyResult,
-        PromissoryNoteModal
+        PromissoryNoteModal,
+        SupportFab
     ],
     providers: [provideConfirm()],
     templateUrl: './credit-study-detail.html'
@@ -82,7 +84,11 @@ export class CreditStudyDetail {
         this.route.queryParams.pipe(map(qp => qp['customerId'] as string | undefined))
     );
 
-    isEditMode = computed(() => !!this.creditStudyId());
+    /**
+     * true cuando se abre un estudio existente. Los estudios no se editan: este
+     * modo es de consulta (perfil del cliente, estados financieros y resultado).
+     */
+    isDetailMode = computed(() => !!this.creditStudyId());
 
     private readonly MAX_PDF_SIZE_MB = 10;
     private readonly MAX_PDF_SIZE_BYTES = this.MAX_PDF_SIZE_MB * 1024 * 1024;
@@ -115,6 +121,25 @@ export class CreditStudyDetail {
     /** Resultado del GET /steps una vez el estudio existe. */
     step1Data = signal<CreditStudyStep1 | null>(null);
     step2Data = signal<CreditStudyStep2 | null>(null);
+
+    /**
+     * Fuente de estados financieros del estudio. Con resultado, refleja la
+     * fuente con la que realmente se calculó (calculationSource, donde 'pdf'
+     * equivale a 'pdf_upload'). Sin resultado, es la fuente a enviar en el
+     * perform: Datacrédito por defecto cuando el step 2 la retorna; si no, el
+     * PDF. El analista puede cambiarla desde la tabla de estados financieros.
+     */
+    selectedFinancialSource = linkedSignal<string | null>(() => {
+        const result = this.studyResult();
+        if (result) {
+            const used = result.result?.summary?.calculationSource;
+            if (!used || used === 'none') return null;
+            return used === 'pdf' ? 'pdf_upload' : used;
+        }
+        const sources = this.step2Data()?.sources ?? [];
+        if (!sources.length) return null;
+        return sources.some(s => s.source === 'datacredito') ? 'datacredito' : 'pdf_upload';
+    });
     studyResult = signal<PerformStudyResponse | null>(null);
     studyStatus = signal<{ code: string; label: string } | null>(null);
     studyRequest = signal<CreditStudyRequest | null>(null);
@@ -226,7 +251,7 @@ export class CreditStudyDetail {
      * (hay datos del cliente) o si el paso ya tiene su propia información.
      * Regla: si un paso tiene datos, nunca debe quedar bloqueado.
      */
-    step2Enabled = computed(() => this.isEditMode() || !!this.step1Data() || this.hasFinancialData());
+    step2Enabled = computed(() => this.isDetailMode() || !!this.step1Data() || this.hasFinancialData());
     step3Enabled = computed(() => this.hasFinancialData() || this.studyCompleted());
 
     /** Datos del cliente (del step1) para el resumen del resultado. */
@@ -237,6 +262,12 @@ export class CreditStudyDetail {
             identificationNumber: customer?.identificationNumber ?? undefined,
             city: customer?.city ?? customer?.bureauProfile?.contact?.city ?? undefined
         };
+    });
+
+    /** Etiqueta del estudio para el ticket de soporte (cliente al que pertenece). */
+    supportRecordLabel = computed(() => {
+        const customer = this.step1Data()?.customer;
+        return customer?.businessName ?? null;
     });
 
     /** Perfil de empresa para el resultado (nombre, nit, ciudad). */
@@ -329,7 +360,7 @@ export class CreditStudyDetail {
         effect(() => {
             const customerId = this.prefillCustomerId();
             // Solo en modo creación (sin estudio existente) y una sola vez.
-            if (!customerId || this.isEditMode() || this.prefillCustomer()) return;
+            if (!customerId || this.isDetailMode() || this.prefillCustomer()) return;
             this.customersService.getCustomerById(customerId).pipe(
                 takeUntilDestroyed(this.destroyRef)
             ).subscribe(customer => this.prefillCustomer.set(customer));
@@ -645,16 +676,19 @@ export class CreditStudyDetail {
         const id = this.creditStudyId();
         if (!id) return;
 
+        const source = this.selectedFinancialSource();
+        const sourceLabel = source === 'datacredito' ? 'Datacrédito' : 'Estados Financieros (PDF)';
+
         this.confirmService.confirm({
             title: 'Realizar Estudio de Crédito',
-            message: 'Se ejecutará el análisis de viabilidad con la información del cliente y los estados financieros. ' +
+            message: `Se ejecutará el análisis de viabilidad con la información del cliente y los estados financieros de la fuente "${sourceLabel}". ` +
                 'El sistema calculará el score y el resultado de viabilidad de la solicitud. Esta acción no se puede deshacer.',
             kind: 'warn',
             icon: 'pi pi-bolt',
             acceptLabel: 'Sí, realizar estudio',
             onAccept: () => {
                 this.performingStudy.set(true);
-                this.creditStudyService.performStudy(id).pipe(
+                this.creditStudyService.performStudy(id, source).pipe(
                     finalize(() => this.performingStudy.set(false)),
                     takeUntilDestroyed(this.destroyRef)
                 ).subscribe((result) => {

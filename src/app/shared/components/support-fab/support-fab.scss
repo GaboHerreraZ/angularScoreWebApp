@@ -1,0 +1,30 @@
+/**
+ * Se ubica a la IZQUIERDA del SpeedDial global (.quick-actions-fab, bottom/right
+ * 1.75rem), no encima: ese contenedor es `display: flex` con los ítems ocultos en
+ * `scale(0)`, así que sigue ocupando alto hacia arriba, se comía el clic y chocaba
+ * con los ítems al expandirse. Lado a lado ya no se cruzan, y el z-index queda por
+ * debajo del suyo (900) para que el SpeedDial siempre mande al desplegarse.
+ */
+.support-fab {
+    position: fixed;
+    bottom: 1.75rem;
+    right: 5.75rem;
+    z-index: 899;
+
+    :host ::ng-deep .p-button {
+        width: 3.25rem;
+        height: 3.25rem;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+
+        .p-button-icon {
+            font-size: 1.1rem;
+        }
+    }
+}
+
+@media (max-width: 640px) {
+    .support-fab {
+        bottom: 1.25rem;
+        right: 5rem;
+    }
+}

@@ -28,7 +28,7 @@
             <div class="text-center min-h-12">
                 <h6 class="font-bold text-base m-0 text-blue-800 dark:text-blue-300">Procesando estados financieros...</h6>
                 @for (msg of [loaderMessage()]; track msg) {
-                <p class="text-sm text-blue-600/70 dark:text-blue-400/70 m-0 mt-1 loader-message-fade">{{ msg }}</p>
+                <p class="text-m text-blue-600/70 dark:text-blue-400/70 m-0 mt-1 loader-message-fade">{{ msg }}</p>
                 }
             </div>
             <div class="flex gap-1.5">
@@ -62,7 +62,7 @@
         <div class="text-center min-h-12">
             <h6 class="font-bold text-base m-0">Creando el estudio de crédito...</h6>
             @for (msg of [loaderMessage()]; track msg) {
-            <p class="text-sm text-muted-color m-0 mt-1 loader-message-fade">{{ msg }}</p>
+            <p class="text-m text-muted-color m-0 mt-1 loader-message-fade">{{ msg }}</p>
             }
         </div>
         <div class="flex gap-1.5">
@@ -79,7 +79,7 @@
             </div>
             <div class="flex flex-col">
                 <span class="text-base font-semibold">Confirmar creación del estudio</span>
-                <span class="text-xs text-muted-color">Revise los datos antes de continuar</span>
+                <span class="text-sm text-muted-color">Revise los datos antes de continuar</span>
             </div>
         </div>
     </ng-template>
@@ -88,35 +88,35 @@
         <!-- Resumen de los datos ingresados -->
         <div class="flex flex-col divide-y divide-surface rounded-lg border border-surface">
             <div class="flex justify-between items-center gap-4 px-4 py-2.5">
-                <span class="text-sm text-muted-color">Tipo de identificación</span>
-                <span class="text-sm font-medium text-right">{{ summary().identificationType }}</span>
+                <span class="text-m text-muted-color">Tipo de identificación</span>
+                <span class="text-m font-medium text-right">{{ summary().identificationType }}</span>
             </div>
             <div class="flex justify-between items-center gap-4 px-4 py-2.5">
-                <span class="text-sm text-muted-color">Número de identificación</span>
-                <span class="text-sm font-medium text-right">{{ summary().identificationNumber }}</span>
+                <span class="text-m text-muted-color">Número de identificación</span>
+                <span class="text-m font-medium text-right">{{ summary().identificationNumber }}</span>
             </div>
             <div class="flex justify-between items-center gap-4 px-4 py-2.5">
-                <span class="text-sm text-muted-color">Razón social</span>
-                <span class="text-sm font-medium text-right">{{ summary().businessName }}</span>
+                <span class="text-m text-muted-color">Razón social</span>
+                <span class="text-m font-medium text-right">{{ summary().businessName }}</span>
             </div>
             <div class="flex justify-between items-center gap-4 px-4 py-2.5">
-                <span class="text-sm text-muted-color">Correo del titular</span>
-                <span class="text-sm font-medium text-right">{{ summary().titularEmail }}</span>
+                <span class="text-m text-muted-color">Correo del titular</span>
+                <span class="text-m font-medium text-right">{{ summary().titularEmail }}</span>
             </div>
             <div class="flex justify-between items-center gap-4 px-4 py-2.5">
-                <span class="text-sm text-muted-color">Plazo solicitado</span>
-                <span class="text-sm font-medium text-right">{{ summary().requestedTerm ? summary().requestedTerm + ' días' : '—' }}</span>
+                <span class="text-m text-muted-color">Plazo solicitado</span>
+                <span class="text-m font-medium text-right">{{ summary().requestedTerm ? summary().requestedTerm + ' días' : '—' }}</span>
             </div>
             <div class="flex justify-between items-center gap-4 px-4 py-2.5">
-                <span class="text-sm text-muted-color">Cupo solicitado</span>
-                <span class="text-sm font-medium text-right">{{ (summary().requestedCreditLine | currency:'COP':'symbol-narrow':'1.0-0':'es-CO') || '—' }}</span>
+                <span class="text-m text-muted-color">Cupo solicitado</span>
+                <span class="text-m font-medium text-right">{{ (summary().requestedCreditLine | currency:'COP':'symbol-narrow':'1.0-0':'es-CO') || '—' }}</span>
             </div>
         </div>
 
         <!-- Nota informativa que resalta sin alarmar -->
         <div class="flex items-start gap-2.5 p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
-            <i class="pi pi-info-circle text-blue-600 dark:text-blue-400 text-sm mt-0.5 shrink-0"></i>
-            <span class="text-sm text-blue-800 dark:text-blue-300">
+            <i class="pi pi-info-circle text-blue-600 dark:text-blue-400 text-m mt-0.5 shrink-0"></i>
+            <span class="text-m text-blue-800 dark:text-blue-300">
                 Se consultará al cliente en las centrales de riesgo. Esto <span class="font-semibold">descuenta un estudio de su bolsa disponible</span> y no se puede deshacer.
             </span>
         </div>
@@ -154,7 +154,7 @@
         <div class="text-center min-h-12">
             <h6 class="font-bold text-base m-0">Creando el estudio de crédito...</h6>
             @for (msg of [loaderMessage()]; track msg) {
-            <p class="text-sm text-muted-color m-0 mt-1 loader-message-fade">{{ msg }}</p>
+            <p class="text-m text-muted-color m-0 mt-1 loader-message-fade">{{ msg }}</p>
             }
         </div>
         <div class="flex gap-1.5">
@@ -171,7 +171,7 @@
             </div>
             <div class="flex flex-col">
                 <span class="text-base font-semibold">Autorización pendiente de firma</span>
-                <span class="text-xs text-muted-color">El titular debe autorizar el tratamiento de sus datos</span>
+                <span class="text-sm text-muted-color">El titular debe autorizar el tratamiento de sus datos</span>
             </div>
         </div>
     </ng-template>
@@ -179,8 +179,8 @@
     <div class="flex flex-col gap-4">
         <!-- Explicación -->
         <div class="flex items-start gap-2.5 p-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800">
-            <i class="pi pi-info-circle text-amber-600 dark:text-amber-400 text-sm mt-0.5 shrink-0"></i>
-            <span class="text-sm text-amber-800 dark:text-amber-300">
+            <i class="pi pi-info-circle text-amber-600 dark:text-amber-400 text-m mt-0.5 shrink-0"></i>
+            <span class="text-m text-amber-800 dark:text-amber-300">
                 Se envió al correo <span class="font-semibold">{{ summary().titularEmail }}</span> un documento de autorización de tratamiento de datos.
                 El estudio no se puede crear hasta que el titular lo <span class="font-semibold">firme</span>.
             </span>
@@ -189,8 +189,8 @@
         <!-- Motivo de rechazo si aplica -->
         @if (authInfo()?.status === 'refused') {
         <div class="flex items-start gap-2.5 p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
-            <i class="pi pi-times-circle text-red-600 dark:text-red-400 text-sm mt-0.5 shrink-0"></i>
-            <span class="text-sm text-red-800 dark:text-red-300">
+            <i class="pi pi-times-circle text-red-600 dark:text-red-400 text-m mt-0.5 shrink-0"></i>
+            <span class="text-m text-red-800 dark:text-red-300">
                 El titular rechazó la autorización.{{ authInfo()?.refusedReason ? ' Motivo: ' + authInfo()?.refusedReason : '' }}
             </span>
         </div>
@@ -237,38 +237,38 @@
             <div class="flex items-center gap-3 flex-1 min-w-0">
                 <p-button icon="pi pi-arrow-left" [rounded]="true" [text]="true" severity="secondary" (onClick)="onCancel()" />
                 <div class="flex items-center justify-center rounded-full shrink-0"
-                     [ngClass]="isEditMode() ? 'bg-blue-50 text-blue-500 dark:bg-blue-500/10 dark:text-blue-400' : 'bg-green-50 text-green-500 dark:bg-green-500/10 dark:text-green-400'"
+                     [ngClass]="isDetailMode() ? 'bg-blue-50 text-blue-500 dark:bg-blue-500/10 dark:text-blue-400' : 'bg-green-50 text-green-500 dark:bg-green-500/10 dark:text-green-400'"
                      style="width: 2.75rem; height: 2.75rem;">
-                    <i class="pi text-lg" [ngClass]="isEditMode() ? 'pi-file-edit' : 'pi-file-plus'"></i>
+                    <i class="pi text-lg" [ngClass]="isDetailMode() ? 'pi-file-check' : 'pi-file-plus'"></i>
                 </div>
                 <div class="flex flex-col min-w-0">
                     <h2 class="text-xl sm:text-2xl font-semibold m-0 truncate">
-                        {{ isEditMode() ? 'Estudio de Crédito' : 'Nuevo Estudio de Crédito' }}
+                        {{ isDetailMode() ? 'Estudio de Crédito' : 'Nuevo Estudio de Crédito' }}
                     </h2>
-                    <span class="text-muted-color text-sm">
-                        {{ isEditMode() ? 'Consulta del cliente y análisis del estudio' : 'Ingrese los datos de la solicitud para consultar al cliente' }}
+                    <span class="text-muted-color text-m">
+                        {{ isDetailMode() ? 'Consulta del cliente y análisis del estudio' : 'Ingrese los datos de la solicitud para consultar al cliente' }}
                     </span>
                 </div>
             </div>
 
             <div class="flex flex-wrap gap-2 shrink-0 items-center">
-                @if (isEditMode() && studyStatusConfig(); as st) {
+                @if (isDetailMode() && studyStatusConfig(); as st) {
                 <div class="inline-flex items-center gap-2 pl-3 pr-3.5 py-1.5 rounded-full border text-base font-medium" [ngClass]="st.classes">
                     <span class="relative flex items-center justify-center">
                         <span class="absolute inline-flex h-2.5 w-2.5 rounded-full opacity-60 animate-ping" [ngClass]="st.dot"></span>
                         <span class="relative inline-flex h-2.5 w-2.5 rounded-full" [ngClass]="st.dot"></span>
                     </span>
-                    <i [ngClass]="st.icon" class="text-sm"></i>
+                    <i [ngClass]="st.icon" class="text-m"></i>
                     <span>{{ st.label }}</span>
                 </div>
                 }
-                @if (isEditMode() && studyCompleted()) {
+                @if (isDetailMode() && studyCompleted()) {
                     @if (canSignPromissoryNote()) {
                     <p-button label="Firmar Pagaré" icon="pi pi-pen-to-square" severity="success" (onClick)="promissoryNoteVisible.set(true)" />
                     }
                 <p-button label="Descargar PDF" icon="pi pi-file-pdf" severity="info" [outlined]="true" (onClick)="onDownloadPdf()" [loading]="downloadingPdf()" [disabled]="downloadingPdf()" />
                 }
-                @if (!isEditMode()) {
+                @if (!isDetailMode()) {
                 <p-button label="Crear Estudio" icon="pi pi-check" severity="success" (onClick)="onCreateStudy()" [loading]="creatingStudy()" [disabled]="creatingStudy()" />
                 }
             </div>
@@ -288,44 +288,44 @@
                     <div class="flex items-center gap-2 flex-wrap">
                         <span class="font-semibold text-lg">Pagaré No. {{ note.noteNumber }}</span>
                         @if (promissoryNoteStatusConfig(); as pn) {
-                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border text-xs font-semibold" [ngClass]="pn.classes">
-                            <i [ngClass]="pn.icon" class="text-xs"></i>
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border text-sm font-semibold" [ngClass]="pn.classes">
+                            <i [ngClass]="pn.icon" class="text-sm"></i>
                             {{ pn.label }}
                         </span>
                         }
                     </div>
-                    <span class="text-sm text-muted-color">
+                    <span class="text-m text-muted-color">
                         {{ note.amount | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}
                         ({{ note.amountInWords }} pesos) · {{ note.termDays }} días · vence el {{ note.dueDate | date:'dd/MM/yyyy' }}
                     </span>
                     @if (note.refusedReason) {
-                    <span class="text-sm text-red-600 dark:text-red-400">Motivo del rechazo: {{ note.refusedReason }}</span>
+                    <span class="text-m text-red-600 dark:text-red-400">Motivo del rechazo: {{ note.refusedReason }}</span>
                     }
                 </div>
             </div>
 
-            <div class="flex flex-wrap gap-x-6 gap-y-1 text-sm lg:justify-end">
+            <div class="flex flex-wrap gap-x-6 gap-y-1 text-m lg:justify-end">
                 @if (note.signCity) {
                 <div class="flex flex-col">
-                    <span class="text-xs text-muted-color">Ciudad de firma</span>
+                    <span class="text-sm text-muted-color">Ciudad de firma</span>
                     <span class="font-medium">{{ note.signCity }}</span>
                 </div>
                 }
                 @if (note.sentAt) {
                 <div class="flex flex-col">
-                    <span class="text-xs text-muted-color">Enviado a firma</span>
+                    <span class="text-sm text-muted-color">Enviado a firma</span>
                     <span class="font-medium">{{ note.sentAt | date:'dd/MM/yyyy HH:mm' }}</span>
                 </div>
                 }
                 @if (note.signedAt) {
                 <div class="flex flex-col">
-                    <span class="text-xs text-muted-color">Firmado</span>
+                    <span class="text-sm text-muted-color">Firmado</span>
                     <span class="font-medium">{{ note.signedAt | date:'dd/MM/yyyy HH:mm' }}</span>
                 </div>
                 }
                 @if (note.declinedAt) {
                 <div class="flex flex-col">
-                    <span class="text-xs text-muted-color">Rechazado</span>
+                    <span class="text-sm text-muted-color">Rechazado</span>
                     <span class="font-medium">{{ note.declinedAt | date:'dd/MM/yyyy HH:mm' }}</span>
                 </div>
                 }
@@ -366,14 +366,14 @@
             <!-- ─────────── STEP 1: Datos de la Solicitud / Información del Cliente ─────────── -->
             <p-step-item [value]="1">
                 <p-step>
-                    <span>{{ isEditMode() ? 'Información del Cliente' : 'Datos de la Solicitud' }}</span>
-                    @if (!isEditMode() && isStepInvalid()) {
+                    <span>{{ isDetailMode() ? 'Información del Cliente' : 'Datos de la Solicitud' }}</span>
+                    @if (!isDetailMode() && isStepInvalid()) {
                     <p-badge [value]="getInvalidCount().toString()" severity="danger" class="ml-2" />
                     }
                 </p-step>
                 <p-step-panel>
                     <ng-template #content let-activateCallback="activateCallback">
-                        @if (isEditMode()) {
+                        @if (isDetailMode()) {
                             <!-- Modo detalle: perfil del cliente en centrales (solo lectura) -->
                             @if (step1Data(); as s1) {
                             <app-bureau-profile [step1]="s1" />
@@ -478,21 +478,21 @@
                         <!-- Encabezado del paso -->
                         <div class="flex flex-col gap-1 mb-6">
                             <h3 class="text-base font-semibold m-0">Estados Financieros del Cliente</h3>
-                            <span class="text-sm text-muted-color">
+                            <span class="text-m text-muted-color">
                                 Cargue el PDF de estados financieros para extraer los periodos y combinarlos con la información de las centrales de riesgo.
                             </span>
                         </div>
 
                         @if (hasFinancialData()) {
-                        <app-financial-statements [step2]="step2Data()!" />
+                        <app-financial-statements [step2]="step2Data()!" [(selectedSource)]="selectedFinancialSource" [readOnly]="studyCompleted() || isStudyClosed()" />
                         } @else {
                         <div class="flex flex-col items-center justify-center gap-3 py-14 rounded-lg border border-dashed border-surface">
                             <div class="flex items-center justify-center rounded-full bg-primary-50 text-primary-500 dark:bg-primary-500/10 dark:text-primary-400" style="width: 3.5rem; height: 3.5rem;">
                                 <i class="pi pi-file-pdf text-2xl"></i>
                             </div>
                             <div class="text-center">
-                                <p class="text-sm font-medium m-0">Aún no se han cargado los estados financieros</p>
-                                <p class="text-sm text-muted-color m-0 mt-1">Cargue el documento PDF para continuar con el estudio.</p>
+                                <p class="text-m font-medium m-0">Aún no se han cargado los estados financieros</p>
+                                <p class="text-m text-muted-color m-0 mt-1">Cargue el documento PDF para continuar con el estudio.</p>
                             </div>
                             @if (canExtractPdf()) {
                             <p-button label="Cargar Estados Financieros" icon="pi pi-file-pdf" (onClick)="onUploadFinancialStatements()" [loading]="extractingPdf()" [disabled]="extractingPdf()" />
@@ -529,7 +529,7 @@
                             </div>
                             <div class="text-center">
                                 <h5 class="font-bold text-lg m-0">Analizando estudio de crédito...</h5>
-                                <p class="text-sm text-muted-color m-0 mt-1 ai-typing">Calculando score, cupo viable y condiciones de crédito</p>
+                                <p class="text-m text-muted-color m-0 mt-1 ai-typing">Calculando score, cupo viable y condiciones de crédito</p>
                             </div>
                         </div>
                         } @else if (studyCompleted() && studyResult()) {
@@ -537,7 +537,7 @@
                         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
                             <div class="flex flex-col gap-1">
                                 <h3 class="text-base font-semibold m-0">Resultado del Estudio de Crédito</h3>
-                                <span class="text-sm text-muted-color">
+                                <span class="text-m text-muted-color">
                                     Score, cupo viable y condiciones de crédito calculados para el cliente.
                                 </span>
                             </div>
@@ -560,7 +560,7 @@
                         } @else {
                         <!-- Pre-estudio: summary corto + info + botón realizar -->
                         <p-message severity="info" styleClass="mb-4">
-                            <span class="text-sm">
+                            <span class="text-m">
                                 Al realizar el estudio, el sistema analiza la información del cliente y sus estados financieros para calcular el
                                 <span class="font-semibold">score de viabilidad</span>, el <span class="font-semibold">cupo viable</span> y las
                                 <span class="font-semibold">condiciones de crédito</span>, contrastando las cifras contra las centrales de riesgo.
@@ -570,28 +570,28 @@
                         <div class="rounded-xl border border-surface p-5 mt-4">
                             <div class="flex items-center gap-2 mb-4">
                                 <i class="pi pi-file-check text-primary-500"></i>
-                                <h4 class="text-sm font-semibold m-0">Resumen de la Solicitud</h4>
+                                <h4 class="text-m font-semibold m-0">Resumen de la Solicitud</h4>
                             </div>
                             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                                 <div class="flex flex-col gap-0.5">
-                                    <span class="text-xs text-muted-color">Cliente</span>
-                                    <span class="text-sm font-medium">{{ studyRequestSummary().businessName }}</span>
+                                    <span class="text-sm text-muted-color">Cliente</span>
+                                    <span class="text-m font-medium">{{ studyRequestSummary().businessName }}</span>
                                 </div>
                                 <div class="flex flex-col gap-0.5">
-                                    <span class="text-xs text-muted-color">Identificación</span>
-                                    <span class="text-sm font-medium">{{ studyRequestSummary().identification }}</span>
+                                    <span class="text-sm text-muted-color">Identificación</span>
+                                    <span class="text-m font-medium">{{ studyRequestSummary().identification }}</span>
                                 </div>
                                 <div class="flex flex-col gap-0.5">
-                                    <span class="text-xs text-muted-color">Fecha del Estudio</span>
-                                    <span class="text-sm font-medium">{{ (studyRequestSummary().studyDate | date:'d \'de\' MMMM \'de\' yyyy':'':'es-CO') || '—' }}</span>
+                                    <span class="text-sm text-muted-color">Fecha del Estudio</span>
+                                    <span class="text-m font-medium">{{ (studyRequestSummary().studyDate | date:'d \'de\' MMMM \'de\' yyyy':'':'es-CO') || '—' }}</span>
                                 </div>
                                 <div class="flex flex-col gap-0.5">
-                                    <span class="text-xs text-muted-color">Plazo Solicitado</span>
-                                    <span class="text-sm font-medium">{{ studyRequestSummary().requestedTerm ? studyRequestSummary().requestedTerm + ' días' : '—' }}</span>
+                                    <span class="text-sm text-muted-color">Plazo Solicitado</span>
+                                    <span class="text-m font-medium">{{ studyRequestSummary().requestedTerm ? studyRequestSummary().requestedTerm + ' días' : '—' }}</span>
                                 </div>
                                 <div class="flex flex-col gap-0.5">
-                                    <span class="text-xs text-muted-color">Cupo Solicitado</span>
-                                    <span class="text-sm font-medium">{{ (studyRequestSummary().requestedCreditLine | currency:'COP':'symbol-narrow':'1.0-0':'es-CO') || '—' }}</span>
+                                    <span class="text-sm text-muted-color">Cupo Solicitado</span>
+                                    <span class="text-m font-medium">{{ (studyRequestSummary().requestedCreditLine | currency:'COP':'symbol-narrow':'1.0-0':'es-CO') || '—' }}</span>
                                 </div>
                             </div>
                         </div>
@@ -608,3 +608,8 @@
     </p-card>
     }
 </div>
+
+<!-- Soporte sobre este estudio: única vía para tickets del área `credit_study` -->
+@if (creditStudyId(); as id) {
+<app-support-fab area="credit_study" [recordId]="id" [label]="supportRecordLabel()" />
+}
