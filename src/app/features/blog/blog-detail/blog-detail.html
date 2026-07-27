@@ -35,13 +35,13 @@
         } @else if (postResource.value(); as post) {
             <article class="max-w-3xl mx-auto px-6 py-10 lg:py-14">
                 <!-- Volver -->
-                <a routerLink="/blog" class="inline-flex items-center gap-2 text-sm font-medium text-muted-color hover:text-primary no-underline transition-colors mb-8">
-                    <i class="pi pi-arrow-left text-xs"></i>
+                <a routerLink="/blog" class="inline-flex items-center gap-2 text-m font-medium text-muted-color hover:text-primary no-underline transition-colors mb-8">
+                    <i class="pi pi-arrow-left text-sm"></i>
                     Volver al blog
                 </a>
 
                 <!-- Categoría -->
-                <span class="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full bg-primary/10 text-primary mb-4">
+                <span class="inline-flex items-center gap-1.5 text-sm font-semibold px-3 py-1 rounded-full bg-primary/10 text-primary mb-4">
                     <i class="pi pi-tag text-[10px]"></i>
                     {{ post.category.name }}
                 </span>
@@ -59,13 +59,13 @@
                     @if (post.author.avatarUrl) {
                         <img [src]="post.author.avatarUrl" [alt]="post.author.name" class="w-11 h-11 rounded-full object-cover shrink-0" />
                     } @else {
-                        <span class="w-11 h-11 rounded-full bg-primary/10 text-primary text-sm font-bold flex items-center justify-center shrink-0">
+                        <span class="w-11 h-11 rounded-full bg-primary/10 text-primary text-m font-bold flex items-center justify-center shrink-0">
                             <i class="pi pi-user"></i>
                         </span>
                     }
                     <div>
-                        <p class="text-sm font-semibold text-color m-0">{{ post.author.name }}</p>
-                        <p class="text-xs text-muted-color m-0">
+                        <p class="text-m font-semibold text-color m-0">{{ post.author.name }}</p>
+                        <p class="text-sm text-muted-color m-0">
                             {{ post.author.role }} · {{ post.publishedAt | date:'d MMMM y' }} · {{ post.readingMinutes }} min de lectura
                         </p>
                     </div>
@@ -87,7 +87,7 @@
                 @if (post.tags.length) {
                     <div class="flex flex-wrap gap-2 mt-10 pt-6 border-t border-surface">
                         @for (tag of post.tags; track tag) {
-                            <span class="text-xs font-medium px-3 py-1 rounded-full bg-surface-100 dark:bg-surface-800 text-muted-color">
+                            <span class="text-sm font-medium px-3 py-1 rounded-full bg-surface-100 dark:bg-surface-800 text-muted-color">
                                 #{{ tag }}
                             </span>
                         }
@@ -96,7 +96,7 @@
 
                 <!-- Fuente -->
                 @if (post.sourceUrl) {
-                    <p class="text-xs text-muted-color mt-6 m-0">
+                    <p class="text-sm text-muted-color mt-6 m-0">
                         Fuente:
                         <a [href]="post.sourceUrl" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline break-all">
                             {{ post.sourceUrl }}

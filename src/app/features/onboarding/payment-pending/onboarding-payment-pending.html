@@ -18,11 +18,11 @@
                 <p-skeleton width="40%" height="1rem" />
             </div>
         } @else if (pendingPack(); as pack) {
-            <p class="text-xs font-bold text-muted-color uppercase tracking-wide m-0 mb-4">Estás comprando</p>
+            <p class="text-sm font-bold text-muted-color uppercase tracking-wide m-0 mb-4">Estás comprando</p>
             <div class="flex items-center justify-between mb-5">
                 <div>
                     <p class="m-0 font-bold text-color text-lg">{{ pack.packOffering.name }}</p>
-                    <p class="m-0 text-sm text-muted-color">{{ pack.packOffering.quantity }} consultas</p>
+                    <p class="m-0 text-m text-muted-color">{{ pack.packOffering.quantity }} consultas</p>
                 </div>
                 <span class="text-2xl font-extrabold text-color">
                     {{ formatCurrency(pack.totalPaid, pack.currencyCode) }}
@@ -61,7 +61,7 @@
             </a>
         </div>
 
-        <p class="text-center text-xs text-muted-color mt-5 mb-0">
+        <p class="text-center text-sm text-muted-color mt-5 mb-0">
             ¿Necesitas ayuda? Escríbenos a
             <a [href]="supportMailto()" class="text-primary hover:underline">{{ supportEmail }}</a>
         </p>

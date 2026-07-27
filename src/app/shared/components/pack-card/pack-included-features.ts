@@ -29,7 +29,7 @@ export interface IncludedFeature {
                 <!-- Encabezado -->
                 <div class="flex items-center justify-center gap-4 mb-8">
                     <span class="hidden sm:block h-px w-16 bg-linear-to-r from-transparent to-primary/40"></span>
-                    <span class="text-xs font-bold uppercase tracking-widest text-primary whitespace-nowrap">Cada análisis incluye</span>
+                    <span class="text-sm font-bold uppercase tracking-widest text-primary whitespace-nowrap">Cada análisis incluye</span>
                     <span class="hidden sm:block h-px w-16 bg-linear-to-l from-transparent to-primary/40"></span>
                 </div>
 
@@ -43,7 +43,7 @@ export interface IncludedFeature {
                             >
                                 <i class="pi {{ feature.icon }} text-lg"></i>
                             </div>
-                            <span class="text-sm font-medium text-color leading-snug max-w-40">{{ feature.label }}</span>
+                            <span class="text-m font-medium text-color leading-snug max-w-40">{{ feature.label }}</span>
                         </div>
                     }
                 </div>

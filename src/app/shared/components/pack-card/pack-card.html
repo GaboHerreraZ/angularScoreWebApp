@@ -24,12 +24,12 @@
         [class.dark:bg-surface-800]="!selected()"
         [class.text-transparent]="!selected()"
     >
-        <i class="pi pi-check text-xs"></i>
+        <i class="pi pi-check text-sm"></i>
     </span>
 
     <!-- Badge de descuento (siempre reserva el alto para igualar las tarjetas sin descuento) -->
     <span
-        class="inline-flex self-start items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 mb-4"
+        class="inline-flex self-start items-center gap-1 text-sm font-bold px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 mb-4"
         [class.invisible]="!hasDiscount()"
     >
         <i class="pi pi-tag text-[10px]"></i>
@@ -42,7 +42,7 @@
         <span class="text-muted-color font-medium">consultas</span>
     </div>
 
-    <p class="text-sm text-muted-color m-0 mb-5">
+    <p class="text-m text-muted-color m-0 mb-5">
         {{ p.description || p.name }}
     </p>
 
@@ -50,16 +50,16 @@
     <div class="flex items-end justify-between">
         <div class="flex flex-col">
             <!-- Subtotal tachado: siempre presente (invisible sin descuento) para alinear el precio entre tarjetas -->
-            <span class="text-sm text-muted-color line-through leading-none" [class.invisible]="!hasDiscount()">
+            <span class="text-m text-muted-color line-through leading-none" [class.invisible]="!hasDiscount()">
                 {{ formatCurrency(p.subtotal, p.currency) }}
             </span>
             <span class="text-2xl font-extrabold text-color leading-tight">{{ formatCurrency(p.total, p.currency) }}</span>
         </div>
-        <span class="text-xs text-muted-color">{{ formatCurrency(p.unitPrice, p.currency) }} c/u</span>
+        <span class="text-sm text-muted-color">{{ formatCurrency(p.unitPrice, p.currency) }} c/u</span>
     </div>
 
     <!-- Vigencia (mt-auto la fija al fondo para que la línea inferior quede alineada) -->
-    <div class="flex items-center gap-2 mt-auto pt-4 border-t border-surface text-xs text-muted-color">
+    <div class="flex items-center gap-2 mt-auto pt-4 border-t border-surface text-sm text-muted-color">
         <i class="pi pi-clock text-primary"></i>
         Vigencia de {{ p.validityDays }} días
     </div>

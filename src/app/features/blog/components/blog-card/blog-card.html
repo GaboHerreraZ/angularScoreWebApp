@@ -22,7 +22,7 @@
             </div>
         }
         <!-- Badge de categoría -->
-        <span class="absolute top-3 left-3 inline-flex items-center gap-1 text-xs font-semibold px-3 py-1 rounded-full bg-surface-0/90 dark:bg-surface-900/90 text-primary backdrop-blur-sm">
+        <span class="absolute top-3 left-3 inline-flex items-center gap-1 text-sm font-semibold px-3 py-1 rounded-full bg-surface-0/90 dark:bg-surface-900/90 text-primary backdrop-blur-sm">
             <i class="pi pi-tag text-[10px]"></i>
             {{ p.category.name }}
         </span>
@@ -33,7 +33,7 @@
         <h3 class="text-lg font-bold text-color leading-snug m-0 mb-2 line-clamp-2 group-hover:text-primary transition-colors">
             {{ p.title }}
         </h3>
-        <p class="text-sm text-muted-color leading-relaxed m-0 mb-5 line-clamp-3">
+        <p class="text-m text-muted-color leading-relaxed m-0 mb-5 line-clamp-3">
             {{ p.excerpt }}
         </p>
 
@@ -42,13 +42,13 @@
             @if (p.author.avatarUrl) {
                 <img [src]="p.author.avatarUrl" [alt]="p.author.name" class="w-9 h-9 rounded-full object-cover shrink-0" />
             } @else {
-                <span class="w-9 h-9 rounded-full bg-primary/10 text-primary text-xs font-bold flex items-center justify-center shrink-0">
+                <span class="w-9 h-9 rounded-full bg-primary/10 text-primary text-sm font-bold flex items-center justify-center shrink-0">
                     {{ authorInitials() }}
                 </span>
             }
             <div class="min-w-0 flex-1">
-                <p class="text-sm font-medium text-color m-0 truncate">{{ p.author.name }}</p>
-                <p class="text-xs text-muted-color m-0">
+                <p class="text-m font-medium text-color m-0 truncate">{{ p.author.name }}</p>
+                <p class="text-sm text-muted-color m-0">
                     {{ p.publishedAt | date:'d MMM y' }} · {{ p.readingMinutes }} min
                 </p>
             </div>

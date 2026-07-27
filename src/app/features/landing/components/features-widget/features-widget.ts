@@ -15,12 +15,16 @@ export class FeaturesWidget implements OnDestroy {
     readonly radius = 52;
     readonly circumference = 2 * Math.PI * this.radius;
 
-    /** Las cuatro dimensiones que componen el score (cada una sobre 25). */
+    /** Puntaje máximo de cada dimensión (5 dimensiones × 20 = 100). */
+    readonly dimensionMax = 20;
+
+    /** Las cinco dimensiones que componen el score (cada una sobre 20). */
     readonly dimensions = [
-        { label: 'Salud financiera', value: 22, color: 'bg-emerald-500' },
-        { label: 'Capacidad de pago', value: 24, color: 'bg-blue-500' },
-        { label: 'Coherencia de plazos', value: 20, color: 'bg-purple-500' },
-        { label: 'Adecuación del monto', value: 21, color: 'bg-orange-500' }
+        { label: 'Salud financiera', value: 17, color: 'bg-emerald-500' },
+        { label: 'Capacidad de pago', value: 19, color: 'bg-blue-500' },
+        { label: 'Riesgo de la central', value: 18, color: 'bg-red-500' },
+        { label: 'Coherencia de plazos', value: 16, color: 'bg-purple-500' },
+        { label: 'Adecuación del monto', value: 17, color: 'bg-orange-500' }
     ];
 
     showcaseRef = viewChild<ElementRef<HTMLElement>>('showcase');

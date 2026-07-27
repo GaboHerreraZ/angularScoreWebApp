@@ -20,14 +20,14 @@ import { AuthService } from '@/app/core/services/auth.service';
                 tooltipPosition="bottom"
             >
                 <i
-                    class="pi pi-bolt text-sm"
+                    class="pi pi-bolt text-m"
                     [ngClass]="hasCredits() ? 'text-primary' : 'text-red-500'"
                 ></i>
                 <div class="flex flex-col leading-none">
                     <span class="text-[10px] uppercase tracking-wide text-surface-400 dark:text-surface-500">Análisis restantes</span>
                 </div>
                 <span
-                    class="inline-flex items-center justify-center min-w-7 h-7 px-2 rounded-full text-sm font-bold tabular-nums"
+                    class="inline-flex items-center justify-center min-w-7 h-7 px-2 rounded-full text-m font-bold tabular-nums"
                     [ngClass]="hasCredits()
                         ? 'bg-primary text-primary-contrast'
                         : 'bg-red-500 text-white'"

@@ -471,7 +471,7 @@ export class PhoneInput implements ControlValueAccessor {
 `phone-input.html`:
 ```html
 <p-inputgroup [styleClass]="styleClass()">
-    <p-inputgroup-addon><span class="font-semibold text-sm">{{ countryCode() }}</span></p-inputgroup-addon>
+    <p-inputgroup-addon><span class="font-semibold text-m">{{ countryCode() }}</span></p-inputgroup-addon>
     <p-floatlabel [variant]="variant()">
         <input [id]="inputId()" pInputText type="tel" [formControl]="innerControl"
                [class.ng-invalid]="invalid()" [class.ng-dirty]="invalid()" class="w-full" (blur)="onBlur()" />

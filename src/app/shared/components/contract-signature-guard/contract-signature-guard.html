@@ -20,7 +20,7 @@
         @if (refused()) {
             <div class="flex flex-col gap-2">
                 <h2 class="text-xl font-semibold text-color m-0">Tu contrato fue rechazado</h2>
-                <p class="text-muted-color text-sm leading-relaxed m-0">
+                <p class="text-muted-color text-m leading-relaxed m-0">
                     El contrato macro aparece como rechazado, por lo que no puedes usar Creditia por ahora.
                     Si fue un error, vuelve a firmarlo desde el enlace o contacta a nuestro equipo de soporte.
                 </p>
@@ -28,7 +28,7 @@
         } @else {
             <div class="flex flex-col gap-2">
                 <h2 class="text-xl font-semibold text-color m-0">Firma tu contrato para continuar</h2>
-                <p class="text-muted-color text-sm leading-relaxed m-0">
+                <p class="text-muted-color text-m leading-relaxed m-0">
                     Antes de empezar a usar Creditia necesitas firmar el contrato macro de servicio.
                     Es un paso único que habilita tu cuenta por completo.
                 </p>
@@ -54,7 +54,7 @@
                 (onClick)="verifySignature()" />
         </div>
 
-        <p class="text-muted-color text-xs leading-relaxed m-0 mt-1">
+        <p class="text-muted-color text-sm leading-relaxed m-0 mt-1">
             Se abrirá el portal de firma en una pestaña nueva. Cuando termines, vuelve aquí y
             presiona <span class="font-medium text-color">«Ya lo firmé, actualizar página»</span>.
         </p>

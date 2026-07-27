@@ -12,7 +12,7 @@
         <span class="font-semibold text-color leading-tight flex-1 min-w-0">{{ label() }}</span>
 
         @if (required()) {
-        <i class="pi pi-lock text-muted-color text-sm"
+        <i class="pi pi-lock text-muted-color text-m"
            pTooltip="Dimensión obligatoria: no se puede desactivar." tooltipPosition="left"></i>
         } @else {
         <p-toggleswitch
@@ -57,10 +57,10 @@
     } @else {
     <!-- Deshabilitada: no cuenta para el score -->
     <div class="flex items-center justify-center py-3">
-        <span class="text-sm text-muted-color italic">No cuenta para el score</span>
+        <span class="text-m text-muted-color italic">No cuenta para el score</span>
     </div>
     }
 
     <!-- Descripción siempre visible de qué mide la dimensión -->
-    <p class="text-sm text-muted-color leading-relaxed m-0 mt-auto">{{ description() }}</p>
+    <p class="text-m text-muted-color leading-relaxed m-0 mt-auto">{{ description() }}</p>
 </div>
