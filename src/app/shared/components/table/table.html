@@ -115,12 +115,12 @@
                                     [class]="getScoreClasses(row, col).ring + ' transition-all duration-300'"
                                 />
                             </svg>
-                            <span class="absolute inset-0 flex items-center justify-center text-xs font-bold tabular-nums" [class]="getScoreClasses(row, col).text">
+                            <span class="absolute inset-0 flex items-center justify-center text-sm font-bold tabular-nums" [class]="getScoreClasses(row, col).text">
                                 {{ getScoreValue(row, col) ?? '—' }}
                             </span>
                         </div>
                         @if (getScoreLabel(row, col); as scoreLabel) {
-                        <span class="text-sm font-medium" [class]="getScoreClasses(row, col).text">{{ scoreLabel }}</span>
+                        <span class="text-m font-medium" [class]="getScoreClasses(row, col).text">{{ scoreLabel }}</span>
                         }
                     </div>
                     } @case ('boolean') {
@@ -156,7 +156,7 @@
                                 <i class="pi pi-search text-2xl text-surface-400"></i>
                             </div>
                             <h3 class="text-base font-semibold text-surface-800 dark:text-surface-100 mb-1">Sin resultados</h3>
-                            <p class="text-sm text-surface-500 mb-4 max-w-sm">No encontramos coincidencias para "{{ searchValue() }}". Prueba con otro término o limpia los filtros.</p>
+                            <p class="text-m text-surface-500 mb-4 max-w-sm">No encontramos coincidencias para "{{ searchValue() }}". Prueba con otro término o limpia los filtros.</p>
                             <button pButton type="button" label="Limpiar búsqueda" icon="pi pi-filter-slash" severity="secondary" [outlined]="true" size="small" (click)="clearSearch(dt)"></button>
                         } @else {
                             <div class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-primary/10 mb-4">
@@ -164,7 +164,7 @@
                             </div>
                             <h3 class="text-base font-semibold text-surface-800 dark:text-surface-100 mb-1">{{ emptyState()?.title ?? emptyMessage() }}</h3>
                             @if (emptyState()?.description) {
-                                <p class="text-sm text-surface-500 mb-4 max-w-sm">{{ emptyState()?.description }}</p>
+                                <p class="text-m text-surface-500 mb-4 max-w-sm">{{ emptyState()?.description }}</p>
                             }
                             @if (emptyState()?.actionLabel) {
                                 <button pButton type="button" [label]="emptyState()!.actionLabel!" [icon]="emptyState()?.actionIcon ?? 'pi pi-plus'" [severity]="emptyState()?.actionSeverity ?? 'success'" size="small" (click)="onEmptyStateAction()"></button>

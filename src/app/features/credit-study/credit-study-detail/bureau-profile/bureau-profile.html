@@ -12,7 +12,7 @@
                 <p-tag [value]="customer().personType!.label" severity="info" />
                 }
             </div>
-            <span class="text-muted-color text-sm mt-1">
+            <span class="text-muted-color text-m mt-1">
                 {{ identificationDisplay() || 'Sin identificación' }}
                 @if (customer().documentStatus) {
                 · <span class="font-medium">{{ customer().documentStatus }}</span>
@@ -20,7 +20,7 @@
             </span>
         </div>
         @if (lastConsultedDisplay()) {
-        <div class="flex items-center gap-2 text-xs text-muted-color shrink-0">
+        <div class="flex items-center gap-2 text-sm text-muted-color shrink-0">
             <i class="pi pi-clock"></i>
             <span>Consultado el {{ lastConsultedDisplay() | date:'dd/MM/yyyy HH:mm' }}</span>
         </div>
@@ -35,51 +35,51 @@
             <div class="flex flex-col gap-3">
                 <div class="flex items-center gap-2">
                     <i class="pi pi-briefcase text-primary-500"></i>
-                    <h4 class="text-sm font-semibold m-0">Perfil General</h4>
+                    <h4 class="text-m font-semibold m-0">Perfil General</h4>
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4 p-4 rounded-lg border border-surface">
                     <div class="flex flex-col gap-0.5">
-                        <span class="text-xs text-muted-color">Organización Jurídica</span>
-                        <span class="text-sm font-medium">{{ g.legalOrganizationLabel || g.legalOrganization || 'No disponible' }}</span>
+                        <span class="text-sm text-muted-color">Organización Jurídica</span>
+                        <span class="text-m font-medium">{{ g.legalOrganizationLabel || g.legalOrganization || 'No disponible' }}</span>
                     </div>
                     <div class="flex flex-col gap-0.5">
-                        <span class="text-xs text-muted-color">Actividad Económica</span>
-                        <span class="text-sm font-medium">{{ g.economicActivity || 'No disponible' }}</span>
+                        <span class="text-sm text-muted-color">Actividad Económica</span>
+                        <span class="text-m font-medium">{{ g.economicActivity || 'No disponible' }}</span>
                     </div>
                     <div class="flex flex-col gap-0.5">
-                        <span class="text-xs text-muted-color">Código CIIU</span>
-                        <span class="text-sm font-medium">{{ g.ciiuCode || 'No disponible' }}</span>
+                        <span class="text-sm text-muted-color">Código CIIU</span>
+                        <span class="text-m font-medium">{{ g.ciiuCode || 'No disponible' }}</span>
                     </div>
                     <div class="flex flex-col gap-0.5">
-                        <span class="text-xs text-muted-color">Empleados</span>
-                        <span class="text-sm font-medium">
+                        <span class="text-sm text-muted-color">Empleados</span>
+                        <span class="text-m font-medium">
                             {{ g.employeeCount || '—' }}
                             @if (g.employeeRange) { <span class="text-muted-color">({{ g.employeeRange }})</span> }
                         </span>
                     </div>
                     <div class="flex flex-col gap-0.5">
-                        <span class="text-xs text-muted-color">Fecha de Constitución</span>
-                        <span class="text-sm font-medium">{{ (g.incorporationDate | date:'dd/MM/yyyy') || 'No disponible' }}</span>
+                        <span class="text-sm text-muted-color">Fecha de Constitución</span>
+                        <span class="text-m font-medium">{{ (g.incorporationDate | date:'dd/MM/yyyy') || 'No disponible' }}</span>
                     </div>
                     <div class="flex flex-col gap-0.5">
-                        <span class="text-xs text-muted-color">En Liquidación</span>
-                        <span class="text-sm font-medium">{{ g.inLiquidationLabel || g.inLiquidation || 'No disponible' }}</span>
+                        <span class="text-sm text-muted-color">En Liquidación</span>
+                        <span class="text-m font-medium">{{ g.inLiquidationLabel || g.inLiquidation || 'No disponible' }}</span>
                     </div>
                     <div class="flex flex-col gap-0.5">
-                        <span class="text-xs text-muted-color">Embargado</span>
-                        <span class="text-sm font-medium">{{ g.seizedLabel || g.seized || 'No disponible' }}</span>
+                        <span class="text-sm text-muted-color">Embargado</span>
+                        <span class="text-m font-medium">{{ g.seizedLabel || g.seized || 'No disponible' }}</span>
                     </div>
                     <div class="flex flex-col gap-0.5">
-                        <span class="text-xs text-muted-color">Capital Autorizado</span>
-                        <span class="text-sm font-medium">{{ g.authorizedCapital ? (+g.authorizedCapital | currency:'COP':'symbol-narrow':'1.0-0':'es-CO') : 'No disponible' }}</span>
+                        <span class="text-sm text-muted-color">Capital Autorizado</span>
+                        <span class="text-m font-medium">{{ g.authorizedCapital ? (+g.authorizedCapital | currency:'COP':'symbol-narrow':'1.0-0':'es-CO') : 'No disponible' }}</span>
                     </div>
                     <div class="flex flex-col gap-0.5">
-                        <span class="text-xs text-muted-color">Capital Suscrito</span>
-                        <span class="text-sm font-medium">{{ g.subscribedCapital ? (+g.subscribedCapital | currency:'COP':'symbol-narrow':'1.0-0':'es-CO') : 'No disponible' }}</span>
+                        <span class="text-sm text-muted-color">Capital Suscrito</span>
+                        <span class="text-m font-medium">{{ g.subscribedCapital ? (+g.subscribedCapital | currency:'COP':'symbol-narrow':'1.0-0':'es-CO') : 'No disponible' }}</span>
                     </div>
                     <div class="flex flex-col gap-0.5">
-                        <span class="text-xs text-muted-color">Capital Pagado</span>
-                        <span class="text-sm font-medium">{{ g.paidCapital ? (+g.paidCapital | currency:'COP':'symbol-narrow':'1.0-0':'es-CO') : 'No disponible' }}</span>
+                        <span class="text-sm text-muted-color">Capital Pagado</span>
+                        <span class="text-m font-medium">{{ g.paidCapital ? (+g.paidCapital | currency:'COP':'symbol-narrow':'1.0-0':'es-CO') : 'No disponible' }}</span>
                     </div>
                 </div>
             </div>
@@ -90,27 +90,27 @@
             <div class="flex flex-col gap-3">
                 <div class="flex items-center gap-2">
                     <i class="pi pi-book text-primary-500"></i>
-                    <h4 class="text-sm font-semibold m-0">Registro Mercantil</h4>
+                    <h4 class="text-m font-semibold m-0">Registro Mercantil</h4>
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4 p-4 rounded-lg border border-surface">
                     <div class="flex flex-col gap-0.5">
-                        <span class="text-xs text-muted-color">Matrícula</span>
-                        <span class="text-sm font-medium">{{ r.number || 'No disponible' }}</span>
+                        <span class="text-sm text-muted-color">Matrícula</span>
+                        <span class="text-m font-medium">{{ r.number || 'No disponible' }}</span>
                     </div>
                     <div class="flex flex-col gap-0.5">
-                        <span class="text-xs text-muted-color">Cámara de Comercio</span>
-                        <span class="text-sm font-medium">{{ r.chamberOfCommerce || 'No disponible' }}</span>
+                        <span class="text-sm text-muted-color">Cámara de Comercio</span>
+                        <span class="text-m font-medium">{{ r.chamberOfCommerce || 'No disponible' }}</span>
                     </div>
                     <div class="flex flex-col gap-0.5">
-                        <span class="text-xs text-muted-color">Última Renovación</span>
-                        <span class="text-sm font-medium">{{ r.lastRenewal || 'No disponible' }}</span>
+                        <span class="text-sm text-muted-color">Última Renovación</span>
+                        <span class="text-m font-medium">{{ r.lastRenewal || 'No disponible' }}</span>
                     </div>
                     <div class="flex flex-col gap-0.5">
-                        <span class="text-xs text-muted-color">Estado</span>
+                        <span class="text-sm text-muted-color">Estado</span>
                         @if (r.status) {
                         <p-tag [value]="r.status" [severity]="statusSeverity(r.status)" class="w-fit" />
                         } @else {
-                        <span class="text-sm font-medium">No disponible</span>
+                        <span class="text-m font-medium">No disponible</span>
                         }
                     </div>
                 </div>
@@ -122,7 +122,7 @@
             <div class="flex flex-col gap-3">
                 <div class="flex items-center gap-2">
                     <i class="{{ section.icon }} text-primary-500"></i>
-                    <h4 class="text-sm font-semibold m-0">{{ section.title }}</h4>
+                    <h4 class="text-m font-semibold m-0">{{ section.title }}</h4>
                 </div>
                 <div class="rounded-lg border border-surface overflow-hidden">
                     <p-table [value]="section.people" styleClass="p-datatable-sm" [tableStyle]="{ 'min-width': '40rem' }">
@@ -159,10 +159,10 @@
                 <div class="flex items-center justify-between flex-wrap gap-2">
                     <div class="flex items-center gap-2">
                         <i class="pi pi-chart-pie text-primary-500"></i>
-                        <h4 class="text-sm font-semibold m-0">Socios / Accionistas</h4>
+                        <h4 class="text-m font-semibold m-0">Socios / Accionistas</h4>
                     </div>
                     @if (partners()!.totalContributions) {
-                    <span class="text-xs text-muted-color">
+                    <span class="text-sm text-muted-color">
                         Total aportes: <span class="font-semibold text-color">{{ +partners()!.totalContributions! | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</span>
                     </span>
                     }
@@ -199,30 +199,30 @@
             <div class="flex flex-col gap-3">
                 <div class="flex items-center gap-2">
                     <i class="pi pi-map-marker text-primary-500"></i>
-                    <h4 class="text-sm font-semibold m-0">Información de Contacto</h4>
+                    <h4 class="text-m font-semibold m-0">Información de Contacto</h4>
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 p-4 rounded-lg border border-surface">
                     <div class="flex flex-col gap-0.5">
-                        <span class="text-xs text-muted-color">Dirección</span>
-                        <span class="text-sm font-medium">{{ ct.address || 'No disponible' }}</span>
+                        <span class="text-sm text-muted-color">Dirección</span>
+                        <span class="text-m font-medium">{{ ct.address || 'No disponible' }}</span>
                     </div>
                     <div class="flex flex-col gap-0.5">
-                        <span class="text-xs text-muted-color">Ciudad</span>
-                        <span class="text-sm font-medium">{{ ct.city || 'No disponible' }}</span>
+                        <span class="text-sm text-muted-color">Ciudad</span>
+                        <span class="text-m font-medium">{{ ct.city || 'No disponible' }}</span>
                     </div>
                     <div class="flex flex-col gap-0.5">
-                        <span class="text-xs text-muted-color">Teléfono</span>
-                        <span class="text-sm font-medium">{{ ct.phone || 'No disponible' }}</span>
+                        <span class="text-sm text-muted-color">Teléfono</span>
+                        <span class="text-m font-medium">{{ ct.phone || 'No disponible' }}</span>
                     </div>
                     <div class="flex flex-col gap-0.5">
-                        <span class="text-xs text-muted-color">Correo Electrónico</span>
-                        <span class="text-sm font-medium">{{ ct.email || 'No disponible' }}</span>
+                        <span class="text-sm text-muted-color">Correo Electrónico</span>
+                        <span class="text-m font-medium">{{ ct.email || 'No disponible' }}</span>
                     </div>
                 </div>
             </div>
             }
         } @else {
-        <p class="text-sm text-muted-color italic p-4 rounded-lg border border-surface">
+        <p class="text-m text-muted-color italic p-4 rounded-lg border border-surface">
             No se encontró información adicional del cliente en las centrales de riesgo.
         </p>
         }
@@ -233,32 +233,32 @@
     <div class="flex flex-col gap-3">
         <div class="flex items-center gap-2">
             <i class="pi pi-user text-primary-500"></i>
-            <h4 class="text-sm font-semibold m-0">Datos Personales</h4>
+            <h4 class="text-m font-semibold m-0">Datos Personales</h4>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4 p-4 rounded-lg border border-surface">
             <div class="flex flex-col gap-0.5">
-                <span class="text-xs text-muted-color">Nombre Completo</span>
-                <span class="text-sm font-medium">{{ fullName() || 'No disponible' }}</span>
+                <span class="text-sm text-muted-color">Nombre Completo</span>
+                <span class="text-m font-medium">{{ fullName() || 'No disponible' }}</span>
             </div>
             <div class="flex flex-col gap-0.5">
-                <span class="text-xs text-muted-color">Estado del Documento</span>
-                <span class="text-sm font-medium">{{ customer().documentStatus || 'No disponible' }}</span>
+                <span class="text-sm text-muted-color">Estado del Documento</span>
+                <span class="text-m font-medium">{{ customer().documentStatus || 'No disponible' }}</span>
             </div>
             <div class="flex flex-col gap-0.5">
-                <span class="text-xs text-muted-color">Fecha de Nacimiento</span>
-                <span class="text-sm font-medium">{{ (customer().birthDate | date:'dd/MM/yyyy') || 'No disponible' }}</span>
+                <span class="text-sm text-muted-color">Fecha de Nacimiento</span>
+                <span class="text-m font-medium">{{ (customer().birthDate | date:'dd/MM/yyyy') || 'No disponible' }}</span>
             </div>
             <div class="flex flex-col gap-0.5">
-                <span class="text-xs text-muted-color">Ciudad de Nacimiento</span>
-                <span class="text-sm font-medium">{{ customer().birthCity || 'No disponible' }}</span>
+                <span class="text-sm text-muted-color">Ciudad de Nacimiento</span>
+                <span class="text-m font-medium">{{ customer().birthCity || 'No disponible' }}</span>
             </div>
             <div class="flex flex-col gap-0.5">
-                <span class="text-xs text-muted-color">Género</span>
-                <span class="text-sm font-medium">{{ customer().gender === 'M' ? 'Masculino' : (customer().gender === 'F' ? 'Femenino' : (customer().gender || 'No disponible')) }}</span>
+                <span class="text-sm text-muted-color">Género</span>
+                <span class="text-m font-medium">{{ customer().gender === 'M' ? 'Masculino' : (customer().gender === 'F' ? 'Femenino' : (customer().gender || 'No disponible')) }}</span>
             </div>
             <div class="flex flex-col gap-0.5">
-                <span class="text-xs text-muted-color">Rango de Edad</span>
-                <span class="text-sm font-medium">{{ customer().ageRange || 'No disponible' }}</span>
+                <span class="text-sm text-muted-color">Rango de Edad</span>
+                <span class="text-m font-medium">{{ customer().ageRange || 'No disponible' }}</span>
             </div>
         </div>
     </div>
@@ -268,28 +268,28 @@
     <div class="flex flex-col gap-3">
         <div class="flex items-center gap-2">
             <i class="pi pi-map-marker text-primary-500"></i>
-            <h4 class="text-sm font-semibold m-0">Información de Contacto</h4>
+            <h4 class="text-m font-semibold m-0">Información de Contacto</h4>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 p-4 rounded-lg border border-surface">
             <div class="flex flex-col gap-0.5">
-                <span class="text-xs text-muted-color">Dirección</span>
-                <span class="text-sm font-medium">{{ customer().address || 'No disponible' }}</span>
+                <span class="text-sm text-muted-color">Dirección</span>
+                <span class="text-m font-medium">{{ customer().address || 'No disponible' }}</span>
             </div>
             <div class="flex flex-col gap-0.5">
-                <span class="text-xs text-muted-color">Ciudad</span>
-                <span class="text-sm font-medium">{{ customer().city || 'No disponible' }}</span>
+                <span class="text-sm text-muted-color">Ciudad</span>
+                <span class="text-m font-medium">{{ customer().city || 'No disponible' }}</span>
             </div>
             <div class="flex flex-col gap-0.5">
-                <span class="text-xs text-muted-color">Departamento</span>
-                <span class="text-sm font-medium">{{ customer().state || 'No disponible' }}</span>
+                <span class="text-sm text-muted-color">Departamento</span>
+                <span class="text-m font-medium">{{ customer().state || 'No disponible' }}</span>
             </div>
             <div class="flex flex-col gap-0.5">
-                <span class="text-xs text-muted-color">Teléfono</span>
-                <span class="text-sm font-medium">{{ customer().phone || 'No disponible' }}</span>
+                <span class="text-sm text-muted-color">Teléfono</span>
+                <span class="text-m font-medium">{{ customer().phone || 'No disponible' }}</span>
             </div>
             <div class="flex flex-col gap-0.5">
-                <span class="text-xs text-muted-color">Correo Electrónico</span>
-                <span class="text-sm font-medium">{{ customer().email || 'No disponible' }}</span>
+                <span class="text-sm text-muted-color">Correo Electrónico</span>
+                <span class="text-m font-medium">{{ customer().email || 'No disponible' }}</span>
             </div>
         </div>
     </div>

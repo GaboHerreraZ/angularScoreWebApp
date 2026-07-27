@@ -24,19 +24,19 @@
                 class="!border-0 !shadow-none !bg-transparent flex-1 !p-0 text-base focus:!outline-none"
                 autocomplete="off"
             />
-            <kbd class="hidden sm:inline-flex items-center px-2 py-0.5 text-xs rounded border border-surface-300 dark:border-surface-600 text-surface-500">Esc</kbd>
+            <kbd class="hidden sm:inline-flex items-center px-2 py-0.5 text-sm rounded border border-surface-300 dark:border-surface-600 text-surface-500">Esc</kbd>
         </div>
 
         <div class="max-h-[60vh] overflow-y-auto py-2">
             @if (searchService.groupedResults().length === 0) {
                 <div class="px-4 py-8 text-center text-surface-500">
                     <i class="pi pi-inbox text-3xl mb-2 block"></i>
-                    <p class="text-sm">Sin resultados para "{{ searchService.query() }}"</p>
+                    <p class="text-m">Sin resultados para "{{ searchService.query() }}"</p>
                 </div>
             } @else {
                 @for (group of searchService.groupedResults(); track group.category) {
                     <div class="px-2 pb-2">
-                        <div class="px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-surface-500">{{ group.label }}</div>
+                        <div class="px-3 py-1.5 text-sm font-semibold uppercase tracking-wider text-surface-500">{{ group.label }}</div>
                         @for (item of group.items; track item.id) {
                             <button
                                 type="button"
@@ -49,13 +49,13 @@
                             >
                                 <i [class]="item.icon + ' w-5 ' + (isActive(item) ? 'text-primary-contrast' : 'text-surface-500')"></i>
                                 <div class="flex-1 min-w-0">
-                                    <div class="text-sm font-medium truncate">{{ item.title }}</div>
+                                    <div class="text-m font-medium truncate">{{ item.title }}</div>
                                     @if (item.description) {
-                                        <div [ngClass]="isActive(item) ? 'text-primary-contrast/80' : 'text-surface-500'" class="text-xs truncate">{{ item.description }}</div>
+                                        <div [ngClass]="isActive(item) ? 'text-primary-contrast/80' : 'text-surface-500'" class="text-sm truncate">{{ item.description }}</div>
                                     }
                                 </div>
                                 @if (isActive(item)) {
-                                    <i class="pi pi-arrow-right text-xs text-primary-contrast"></i>
+                                    <i class="pi pi-arrow-right text-sm text-primary-contrast"></i>
                                 }
                             </button>
                         }
@@ -64,7 +64,7 @@
             }
         </div>
 
-        <div class="hidden sm:flex items-center gap-4 px-4 py-2 border-t border-surface-200 dark:border-surface-700 text-xs text-surface-500">
+        <div class="hidden sm:flex items-center gap-4 px-4 py-2 border-t border-surface-200 dark:border-surface-700 text-sm text-surface-500">
             <span class="flex items-center gap-1"><kbd class="px-1.5 py-0.5 rounded border border-surface-300 dark:border-surface-600">↑</kbd><kbd class="px-1.5 py-0.5 rounded border border-surface-300 dark:border-surface-600">↓</kbd> navegar</span>
             <span class="flex items-center gap-1"><kbd class="px-1.5 py-0.5 rounded border border-surface-300 dark:border-surface-600">↵</kbd> seleccionar</span>
             <span class="flex items-center gap-1"><kbd class="px-1.5 py-0.5 rounded border border-surface-300 dark:border-surface-600">Esc</kbd> cerrar</span>

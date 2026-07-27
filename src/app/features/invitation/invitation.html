@@ -24,7 +24,7 @@
     <div class="w-full lg:w-1/2 flex flex-col bg-surface-100 dark:bg-surface-950 overflow-y-auto">
         <!-- Top bar: volver al inicio + logo móvil -->
         <div class="flex items-center justify-between p-6">
-            <a routerLink="/" class="inline-flex items-center gap-2 text-muted-color hover:text-primary text-sm font-medium no-underline transition-colors">
+            <a routerLink="/" class="inline-flex items-center gap-2 text-muted-color hover:text-primary text-m font-medium no-underline transition-colors">
                 <i class="pi pi-arrow-left"></i>
                 Ir a Creditia
             </a>
@@ -89,13 +89,13 @@
                         <i class="pi pi-envelope text-amber-500 text-xl mt-0.5"></i>
                         <div class="flex flex-col">
                             <span class="font-semibold text-color">Confirma tu correo</span>
-                            <span class="text-muted-color text-sm">
+                            <span class="text-muted-color text-m">
                                 Te enviamos un enlace a <strong>{{ email }}</strong>. Ábrelo para activar tu cuenta y poder iniciar sesión.
                             </span>
                         </div>
                     </div>
 
-                    <p class="text-muted-color text-sm m-0">
+                    <p class="text-muted-color text-m m-0">
                         Una vez confirmado tu correo, inicia sesión para empezar a usar <strong>CREDITIA</strong>.
                     </p>
 
@@ -128,11 +128,11 @@
                         <i class="pi pi-building text-primary text-xl"></i>
                         <div class="flex flex-col text-left">
                             <span class="font-semibold">{{ invitation.company.name }}</span>
-                            <span class="text-muted-color text-sm">NIT: {{ invitation.company.nit }}</span>
+                            <span class="text-muted-color text-m">NIT: {{ invitation.company.nit }}</span>
                         </div>
                     </div>
 
-                    <p class="text-muted-color text-sm m-0">
+                    <p class="text-muted-color text-m m-0">
                         @if (loginMode()) {
                         Inicia sesión para administrar tu empresa.
                         } @else {
@@ -158,11 +158,11 @@
                         <i class="pi pi-building text-primary text-xl"></i>
                         <div class="flex flex-col text-left">
                             <span class="font-semibold">{{ invitation.company.name }}</span>
-                            <span class="text-muted-color text-sm">NIT: {{ invitation.company.nit }}</span>
+                            <span class="text-muted-color text-m">NIT: {{ invitation.company.nit }}</span>
                         </div>
                     </div>
 
-                    <p class="text-muted-color text-sm m-0">
+                    <p class="text-muted-color text-m m-0">
                         @if (loginMode()) {
                         Inicia sesión para unirte al equipo.
                         } @else {
@@ -227,7 +227,7 @@
                     <!-- Toggle login / signup -->
                     <button
                         type="button"
-                        class="text-primary hover:underline text-sm cursor-pointer bg-transparent border-0 p-0"
+                        class="text-primary hover:underline text-m cursor-pointer bg-transparent border-0 p-0"
                         (click)="toggleLoginMode()"
                         [disabled]="actionsDisabled()"
                     >
@@ -241,7 +241,7 @@
                     <!-- Separator -->
                     <div class="flex items-center gap-3 w-full">
                         <div class="flex-1 border-t border-surface-300 dark:border-surface-600"></div>
-                        <span class="text-muted-color text-sm">o</span>
+                        <span class="text-muted-color text-m">o</span>
                         <div class="flex-1 border-t border-surface-300 dark:border-surface-600"></div>
                     </div>
 
@@ -265,7 +265,7 @@
                         <span class="font-medium text-surface-700 dark:text-surface-200">Unirme con Google</span>
                     </button>
 
-                    <p class="text-muted-color text-xs m-0">
+                    <p class="text-muted-color text-sm m-0">
                         Tu correo es <strong>{{ invitation.email }}</strong>. Debes usar este mismo correo para unirte.
                     </p>
 
@@ -273,7 +273,7 @@
                     @if (!isOnboarding()) {
                     <button
                         type="button"
-                        class="text-muted-color hover:text-red-500 text-sm cursor-pointer bg-transparent border-0 p-0 transition-colors"
+                        class="text-muted-color hover:text-red-500 text-m cursor-pointer bg-transparent border-0 p-0 transition-colors"
                         (click)="rejectInvitation()"
                         [disabled]="actionsDisabled()"
                     >
@@ -293,7 +293,7 @@
 
         <!-- Footer -->
         <footer class="px-6 py-5 border-t border-surface-200 dark:border-surface-800">
-            <div class="flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-muted-color">
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-3 text-m text-muted-color">
                 <span>© {{ year }} CREDITIA — un producto de Ruser Consultores S.A.S. Todos los derechos reservados.</span>
                 <nav class="flex items-center gap-4">
                     <a routerLink="/legal/terminos" class="hover:text-primary no-underline transition-colors">Términos</a>

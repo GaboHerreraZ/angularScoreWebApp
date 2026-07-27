@@ -8,7 +8,7 @@
     } @else {
     <!-- Encabezado del asistente -->
     <div class="text-center mb-8">
-        <span class="inline-flex items-center gap-2 bg-primary/10 text-primary rounded-full px-4 py-1.5 text-xs font-semibold uppercase tracking-wide mb-4">
+        <span class="inline-flex items-center gap-2 bg-primary/10 text-primary rounded-full px-4 py-1.5 text-sm font-semibold uppercase tracking-wide mb-4">
             <i class="pi pi-sparkles"></i>
             Puesta en marcha
         </span>
@@ -29,14 +29,14 @@
             </div>
             <div>
                 <h2 class="text-xl font-bold m-0 text-color">Cuéntanos sobre ti</h2>
-                <p class="text-muted-color text-sm mt-1 mb-0">Serás el administrador de la cuenta de tu empresa.</p>
+                <p class="text-muted-color text-m mt-1 mb-0">Serás el administrador de la cuenta de tu empresa.</p>
             </div>
         </div>
 
         <form [formGroup]="profileForm" class="p-6 sm:p-8 flex flex-col gap-7">
             <!-- Datos personales -->
             <div>
-                <p class="text-xs font-bold text-muted-color uppercase tracking-wide m-0 mb-4 flex items-center gap-2">
+                <p class="text-sm font-bold text-muted-color uppercase tracking-wide m-0 mb-4 flex items-center gap-2">
                     <i class="pi pi-id-card text-primary"></i> Datos personales
                 </p>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
@@ -74,7 +74,7 @@
 
             <!-- Contacto y rol -->
             <div>
-                <p class="text-xs font-bold text-muted-color uppercase tracking-wide m-0 mb-4 flex items-center gap-2">
+                <p class="text-sm font-bold text-muted-color uppercase tracking-wide m-0 mb-4 flex items-center gap-2">
                     <i class="pi pi-briefcase text-primary"></i> Contacto y rol
                 </p>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
@@ -104,14 +104,14 @@
             </div>
             <div>
                 <h2 class="text-xl font-bold m-0 text-color">Datos de tu empresa</h2>
-                <p class="text-muted-color text-sm mt-1 mb-0">Con esto creamos tu cuenta y emitimos tus facturas.</p>
+                <p class="text-muted-color text-m mt-1 mb-0">Con esto creamos tu cuenta y emitimos tus facturas.</p>
             </div>
         </div>
 
         <div class="p-6 sm:p-8 flex flex-col gap-7">
             <!-- Información de la empresa -->
             <div>
-                <p class="text-xs font-bold text-muted-color uppercase tracking-wide m-0 mb-4 flex items-center gap-2">
+                <p class="text-sm font-bold text-muted-color uppercase tracking-wide m-0 mb-4 flex items-center gap-2">
                     <i class="pi pi-briefcase text-primary"></i> Información de la empresa
                 </p>
                 <form [formGroup]="companyForm" class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
@@ -153,7 +153,7 @@
 
             <!-- Datos de facturación -->
             <div>
-                <p class="text-xs font-bold text-muted-color uppercase tracking-wide m-0 mb-4 flex items-center gap-2">
+                <p class="text-sm font-bold text-muted-color uppercase tracking-wide m-0 mb-4 flex items-center gap-2">
                     <i class="pi pi-receipt text-primary"></i> Datos de facturación
                 </p>
                 <app-billing-form [formGroup]="billingForm" />
@@ -167,7 +167,7 @@
     <section>
         <div class="mb-6 text-center">
             <h2 class="text-xl font-bold m-0 text-color">Elige tu paquete de consultas</h2>
-            <p class="text-muted-color text-sm mt-1 mb-0">Pagas solo por las consultas que necesitas, sin mensualidades.</p>
+            <p class="text-muted-color text-m mt-1 mb-0">Pagas solo por las consultas que necesitas, sin mensualidades.</p>
         </div>
 
         @if (packsResource.isLoading()) {
@@ -191,38 +191,38 @@
     <section class="bg-surface-0 dark:bg-surface-900 rounded-2xl border border-surface p-6 sm:p-8">
         <div class="mb-6">
             <h2 class="text-xl font-bold m-0 text-color">Revisa y confirma</h2>
-            <p class="text-muted-color text-sm mt-1 mb-0">Verifica que todo esté correcto antes de pagar.</p>
+            <p class="text-muted-color text-m mt-1 mb-0">Verifica que todo esté correcto antes de pagar.</p>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <!-- Perfil -->
             <div class="rounded-xl border border-surface p-5">
-                <h3 class="text-sm font-bold text-muted-color uppercase tracking-wide m-0 mb-3">Perfil</h3>
+                <h3 class="text-m font-bold text-muted-color uppercase tracking-wide m-0 mb-3">Perfil</h3>
                 <p class="m-0 font-medium text-color">{{ profileSummary.name }}</p>
-                <p class="m-0 text-sm text-muted-color">{{ profileSummary.position }}</p>
-                <p class="m-0 text-sm text-muted-color">Doc: {{ profileSummary.docNumber }}</p>
-                <p class="m-0 text-sm text-muted-color">{{ profileSummary.phone }}</p>
-                <p class="m-0 text-sm text-muted-color break-all">{{ userEmail }}</p>
+                <p class="m-0 text-m text-muted-color">{{ profileSummary.position }}</p>
+                <p class="m-0 text-m text-muted-color">Doc: {{ profileSummary.docNumber }}</p>
+                <p class="m-0 text-m text-muted-color">{{ profileSummary.phone }}</p>
+                <p class="m-0 text-m text-muted-color break-all">{{ userEmail }}</p>
             </div>
 
             <!-- Empresa -->
             <div class="rounded-xl border border-surface p-5">
-                <h3 class="text-sm font-bold text-muted-color uppercase tracking-wide m-0 mb-3">Empresa</h3>
+                <h3 class="text-m font-bold text-muted-color uppercase tracking-wide m-0 mb-3">Empresa</h3>
                 <p class="m-0 font-medium text-color">{{ companySummary.name }}</p>
-                <p class="m-0 text-sm text-muted-color">NIT: {{ companySummary.nit }}</p>
-                <p class="m-0 text-sm text-muted-color">{{ companySummary.address }}</p>
-                <p class="m-0 text-sm text-muted-color">{{ companySummary.location }}</p>
+                <p class="m-0 text-m text-muted-color">NIT: {{ companySummary.nit }}</p>
+                <p class="m-0 text-m text-muted-color">{{ companySummary.address }}</p>
+                <p class="m-0 text-m text-muted-color">{{ companySummary.location }}</p>
             </div>
 
             <!-- Facturación -->
             <div class="rounded-xl border border-surface p-5 lg:col-span-2">
-                <h3 class="text-sm font-bold text-muted-color uppercase tracking-wide m-0 mb-3">Facturación</h3>
+                <h3 class="text-m font-bold text-muted-color uppercase tracking-wide m-0 mb-3">Facturación</h3>
                 <p class="m-0 font-medium text-color">{{ billingSummary.name }}</p>
-                <p class="m-0 text-sm text-muted-color">Doc: {{ billingSummary.docNumber }}</p>
-                <p class="m-0 text-sm text-muted-color break-all">{{ billingSummary.email }}</p>
-                <p class="m-0 text-sm text-muted-color">{{ billingSummary.phone }}</p>
-                <p class="m-0 text-sm text-muted-color">{{ billingSummary.address }}</p>
-                <p class="m-0 text-sm text-muted-color">{{ billingSummary.location }}</p>
+                <p class="m-0 text-m text-muted-color">Doc: {{ billingSummary.docNumber }}</p>
+                <p class="m-0 text-m text-muted-color break-all">{{ billingSummary.email }}</p>
+                <p class="m-0 text-m text-muted-color">{{ billingSummary.phone }}</p>
+                <p class="m-0 text-m text-muted-color">{{ billingSummary.address }}</p>
+                <p class="m-0 text-m text-muted-color">{{ billingSummary.location }}</p>
             </div>
         </div>
 
@@ -232,11 +232,11 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="m-0 font-bold text-color">{{ pack.quantity }} consultas</p>
-                    <p class="m-0 text-sm text-muted-color">{{ pack.description || pack.name }} · Vigencia {{ pack.validityDays }} días</p>
+                    <p class="m-0 text-m text-muted-color">{{ pack.description || pack.name }} · Vigencia {{ pack.validityDays }} días</p>
                 </div>
                 <div class="text-right">
                     @if (pack.discountAmount > 0) {
-                    <p class="m-0 text-xs text-muted-color line-through">{{ formatCurrency(pack.subtotal, pack.currency) }}</p>
+                    <p class="m-0 text-sm text-muted-color line-through">{{ formatCurrency(pack.subtotal, pack.currency) }}</p>
                     }
                     <p class="m-0 text-2xl font-extrabold text-color leading-tight">{{ formatCurrency(pack.total, pack.currency) }}</p>
                 </div>

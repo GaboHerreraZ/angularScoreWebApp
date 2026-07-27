@@ -53,7 +53,7 @@
             </div>
         </ng-template>
         <ng-template #subtitle>
-            <span class="text-muted-color text-sm">
+            <span class="text-muted-color text-m">
                 Activa las dimensiones que quieres considerar y define cuánto pesa cada una al calcular el estudio de crédito para <span class="font-medium text-color">{{ active.personType?.label ?? 'este tipo de cliente' }}</span>. Los pesos de las dimensiones activas deben sumar 100 % y cada uno ser al menos {{ minWeight }} %.
             </span>
         </ng-template>
@@ -62,7 +62,7 @@
         @if (active.isDefault) {
         <div class="flex gap-3 rounded-xl bg-primary/5 border border-primary/20 p-4 mb-6">
             <i class="pi pi-info-circle text-primary mt-0.5"></i>
-            <p class="text-sm text-color leading-relaxed m-0">
+            <p class="text-m text-color leading-relaxed m-0">
                 Tu empresa aún no tiene una configuración propia, por lo que se muestran los valores por defecto del sistema.
                 Al guardar por primera vez se creará tu configuración personalizada.
             </p>
@@ -92,7 +92,7 @@
             <div class="flex items-center justify-between">
                 <div class="flex flex-col">
                     <span class="font-semibold text-color">Total</span>
-                    <span class="text-xs text-muted-color">{{ enabledRows().length }} {{ enabledRows().length === 1 ? 'dimensión activa' : 'dimensiones activas' }}</span>
+                    <span class="text-sm text-muted-color">{{ enabledRows().length }} {{ enabledRows().length === 1 ? 'dimensión activa' : 'dimensiones activas' }}</span>
                 </div>
                 <div class="flex items-center gap-3">
                     <span class="font-bold tabular-nums text-lg"

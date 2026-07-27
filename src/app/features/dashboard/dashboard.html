@@ -5,10 +5,10 @@
             <h1 class="text-2xl font-bold text-surface-800 dark:text-surface-100">
                 {{ greeting() }}@if (userFirstName()) {, {{ userFirstName() }}}
             </h1>
-            <p class="text-surface-500 text-sm mt-1 capitalize">{{ formattedDate() }}</p>
+            <p class="text-surface-500 text-m mt-1 capitalize">{{ formattedDate() }}</p>
         </div>
         @if (lastUpdatedLabel(); as updated) {
-            <div class="flex items-center gap-2 text-xs text-surface-500">
+            <div class="flex items-center gap-2 text-sm text-surface-500">
                 <span class="inline-flex items-center gap-1.5">
                     <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>
                     Actualizado {{ updated }}
@@ -61,10 +61,10 @@
                     <i class="pi pi-ticket text-xl text-indigo-600 dark:text-indigo-400"></i>
                 </div>
                 <div class="min-w-0">
-                    <p class="text-surface-500 text-sm truncate">Créditos de análisis</p>
+                    <p class="text-surface-500 text-m truncate">Créditos de análisis</p>
                     <p class="text-2xl font-bold text-surface-800 dark:text-surface-100 leading-tight">{{ d.summary.analysisCredits.remaining }}</p>
                     @if (d.summary.analysisCredits.nearestExpiry) {
-                        <p class="text-xs text-surface-400">Próx. vencimiento: {{ d.summary.analysisCredits.nearestExpiry | date:'dd/MM/yyyy' }}</p>
+                        <p class="text-sm text-surface-400">Próx. vencimiento: {{ d.summary.analysisCredits.nearestExpiry | date:'dd/MM/yyyy' }}</p>
                     }
                 </div>
             </div>
@@ -146,14 +146,14 @@
                 </ng-template>
                 <ng-template pTemplate="body" let-study>
                     <tr>
-                        <td class="font-medium text-sm">{{ study.customerName }}</td>
-                        <td class="text-sm text-surface-500">{{ study.studyDate | date:'dd/MM/yyyy' }}</td>
+                        <td class="font-medium text-m">{{ study.customerName }}</td>
+                        <td class="text-m text-surface-500">{{ study.studyDate | date:'dd/MM/yyyy' }}</td>
                         <td>
                             <p-tag [value]="study.statusLabel" [severity]="getStatusSeverity(study.statusLabel)" />
                         </td>
-                        <td class="text-right text-sm font-semibold">{{ study.requestedCreditLine | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</td>
-                        <td class="text-right text-sm font-semibold">{{ study.approvedCreditLine | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</td>
-                        <td class="text-center text-sm">
+                        <td class="text-right text-m font-semibold">{{ study.requestedCreditLine | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</td>
+                        <td class="text-right text-m font-semibold">{{ study.approvedCreditLine | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</td>
+                        <td class="text-center text-m">
                             @if (study.viabilityScore !== null && study.viabilityScore !== undefined) {
                                 {{ study.viabilityScore }}<span class="text-surface-400">/100</span>
                             } @else { <span class="text-surface-400">—</span> }
@@ -183,7 +183,7 @@
     <div class="flex items-center gap-2 mt-2">
         <h2 class="text-lg font-semibold text-surface-700 dark:text-surface-200">Análisis del periodo</h2>
         @if (periodLabel(); as period) {
-            <span class="text-sm text-surface-400">{{ period }}</span>
+            <span class="text-m text-surface-400">{{ period }}</span>
         }
     </div>
 
@@ -236,9 +236,9 @@
                     <i class="pi pi-percentage text-xl text-cyan-600 dark:text-cyan-400"></i>
                 </div>
                 <div class="min-w-0">
-                    <p class="text-surface-500 text-sm truncate">Viable sobre solicitado</p>
+                    <p class="text-surface-500 text-m truncate">Viable sobre solicitado</p>
                     <p class="text-2xl font-bold text-surface-800 dark:text-surface-100 leading-tight">
-                        {{ adv.credit.approvedOverRequestedPercent | number:'1.0-1' }}<span class="text-sm font-normal text-surface-500 ml-1">%</span>
+                        {{ adv.credit.approvedOverRequestedPercent | number:'1.0-1' }}<span class="text-m font-normal text-surface-500 ml-1">%</span>
                     </p>
                 </div>
             </div>
@@ -255,7 +255,7 @@
                         <h3 class="text-base font-semibold text-surface-700 dark:text-surface-200">Veredictos de Viabilidad</h3>
                         <app-help-tooltip [text]="chartTooltips['verdicts']" />
                     </div>
-                    <p class="text-xs text-surface-400 mt-0.5">{{ adv.verdicts.analyzed }} estudios analizados</p>
+                    <p class="text-sm text-surface-400 mt-0.5">{{ adv.verdicts.analyzed }} estudios analizados</p>
                 </div>
             </ng-template>
             <div class="h-96">
@@ -270,25 +270,25 @@
                         <h3 class="text-base font-semibold text-surface-700 dark:text-surface-200">Riesgo de Buró</h3>
                         <app-help-tooltip [text]="chartTooltips['bureauRisk']" />
                     </div>
-                    <p class="text-xs text-surface-400 mt-0.5">Distribución por banda de score</p>
+                    <p class="text-sm text-surface-400 mt-0.5">Distribución por banda de score</p>
                 </div>
             </ng-template>
             <div class="grid grid-cols-2 gap-2 mb-3 text-center">
                 <div class="rounded-lg bg-surface-50 dark:bg-surface-800 py-2">
                     <p class="text-lg font-bold text-surface-800 dark:text-surface-100 leading-tight">{{ adv.bureauRisk.avgScore ?? '—' }}</p>
-                    <p class="text-xs text-surface-400">Score prom.</p>
+                    <p class="text-sm text-surface-400">Score prom.</p>
                 </div>
                 <div class="rounded-lg bg-surface-50 dark:bg-surface-800 py-2">
                     <p class="text-lg font-bold text-surface-800 dark:text-surface-100 leading-tight">{{ adv.bureauRisk.consultedCustomers }}</p>
-                    <p class="text-xs text-surface-400">Consultados</p>
+                    <p class="text-sm text-surface-400">Consultados</p>
                 </div>
                 <div class="rounded-lg bg-surface-50 dark:bg-surface-800 py-2">
                     <p class="text-lg font-bold text-surface-800 dark:text-surface-100 leading-tight">{{ adv.bureauRisk.withoutHistory }}</p>
-                    <p class="text-xs text-surface-400">Sin historial</p>
+                    <p class="text-sm text-surface-400">Sin historial</p>
                 </div>
                 <div class="rounded-lg bg-surface-50 dark:bg-surface-800 py-2">
                     <p class="text-lg font-bold text-surface-800 dark:text-surface-100 leading-tight">{{ adv.bureauRisk.withArrears }}</p>
-                    <p class="text-xs text-surface-400">Con mora</p>
+                    <p class="text-sm text-surface-400">Con mora</p>
                 </div>
             </div>
             <div class="h-44">
@@ -307,7 +307,7 @@
                     <h3 class="text-base font-semibold text-surface-700 dark:text-surface-200">Top Clientes por Cupo</h3>
                     <app-help-tooltip [text]="chartTooltips['topCustomers']" />
                 </div>
-                <p class="text-xs text-surface-400 mt-0.5">Cupo solicitado vs viable en el periodo</p>
+                <p class="text-sm text-surface-400 mt-0.5">Cupo solicitado vs viable en el periodo</p>
             </div>
         </ng-template>
         <div class="h-40">

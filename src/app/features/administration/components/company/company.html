@@ -56,7 +56,7 @@
                 </div>
             </ng-template>
             <ng-template #subtitle>
-                <span class="text-muted-color text-sm">Información general de tu empresa. Puedes actualizar el nombre, ciudad y sector.</span>
+                <span class="text-muted-color text-m">Información general de tu empresa. Puedes actualizar el nombre, ciudad y sector.</span>
             </ng-template>
 
             <!-- Logo + estado del contrato -->
@@ -81,7 +81,7 @@
                 </div>
                 <div class="flex flex-col gap-1">
                     <span class="font-medium">Logo de la empresa</span>
-                    <span class="text-muted-color text-sm">PNG, JPG o WebP. Máximo 2 MB.</span>
+                    <span class="text-muted-color text-m">PNG, JPG o WebP. Máximo 2 MB.</span>
                     <p-button label="Cambiar logo" icon="pi pi-upload" severity="secondary" size="small" [outlined]="true" [loading]="uploadingLogo()" (onClick)="onUploadLogo()" styleClass="mt-1" />
                 </div>
                 </div>
@@ -100,9 +100,9 @@
                             <p-tag [value]="contractInfo.statusLabel" [severity]="contractInfo.isSigned ? 'success' : 'warn'" />
                         </div>
                         @if (contractSignedDate()) {
-                            <span class="text-muted-color text-sm">Firmado el {{ contractSignedDate() }}</span>
+                            <span class="text-muted-color text-m">Firmado el {{ contractSignedDate() }}</span>
                         } @else {
-                            <span class="text-muted-color text-sm">Aún no se ha completado la firma.</span>
+                            <span class="text-muted-color text-m">Aún no se ha completado la firma.</span>
                         }
                         <p-button label="Descargar documento" icon="pi pi-download" severity="secondary" size="small" [outlined]="true"
                                   [loading]="downloadingContract()" [disabled]="!contractDownloadable()"
@@ -160,7 +160,7 @@
                 </div>
 
                 <div class="flex items-center gap-2">
-                    <span class="text-muted-color text-sm">Estado:</span>
+                    <span class="text-muted-color text-m">Estado:</span>
                     <p-tag [value]="form.controls.isActive.value ? 'Activo' : 'Inactivo'" [severity]="form.controls.isActive.value ? 'success' : 'danger'" />
                 </div>
             </div>
@@ -174,7 +174,7 @@
                 </div>
             </ng-template>
             <ng-template #subtitle>
-                <span class="text-muted-color text-sm">Información bancaria de tu empresa para recibir pagos y transferencias.</span>
+                <span class="text-muted-color text-m">Información bancaria de tu empresa para recibir pagos y transferencias.</span>
             </ng-template>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-5">
@@ -213,7 +213,7 @@
             </div>
         </ng-template>
         <ng-template #subtitle>
-            <span class="text-muted-color text-sm">Información utilizada para la facturación de tu empresa.</span>
+            <span class="text-muted-color text-m">Información utilizada para la facturación de tu empresa.</span>
         </ng-template>
 
         <app-billing-form
@@ -232,7 +232,7 @@
 <!-- Dialog Invitar Usuario -->
 <p-dialog header="Invitar usuario" [(visible)]="inviteDialogVisible" [modal]="true" [style]="{ width: '28rem' }" [closable]="!inviting()" [draggable]="false">
     <div class="flex flex-col gap-4">
-        <span class="text-muted-color text-sm">Invita a un usuario a colaborar en tu empresa. Recibirá un correo con las instrucciones para acceder.</span>
+        <span class="text-muted-color text-m">Invita a un usuario a colaborar en tu empresa. Recibirá un correo con las instrucciones para acceder.</span>
 
         <p-fluid>
             <div class="flex flex-col gap-1">

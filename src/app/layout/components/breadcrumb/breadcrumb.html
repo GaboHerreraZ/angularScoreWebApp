@@ -1,7 +1,7 @@
-<ol class="flex items-center gap-1.5 text-sm text-surface-500">
+<ol class="flex items-center gap-1.5 text-m text-surface-500">
     <li>
         <a [routerLink]="['/app']" class="inline-flex items-center hover:text-primary transition-colors" aria-label="Inicio">
-            <i class="pi pi-home text-xs"></i>
+            <i class="pi pi-home text-sm"></i>
         </a>
     </li>
     @for (item of breadcrumbs$ | async; track item.url; let last = $last) {
