@@ -11,11 +11,12 @@ import { TagModule } from 'primeng/tag';
 import { CustomersService } from '../customers.service';
 import { CustomerDetail } from '@/app/types/customer';
 import { RecentItemsService } from '@/app/shared/services/recent-items.service';
+import { SupportFab } from '@/app/shared/components/support-fab/support-fab';
 
 @Component({
     selector: 'app-customer-view',
     standalone: true,
-    imports: [CommonModule, DatePipe, RouterOutlet, ButtonModule, CardModule, TabsModule, SkeletonModule, TagModule],
+    imports: [CommonModule, DatePipe, RouterOutlet, ButtonModule, CardModule, TabsModule, SkeletonModule, TagModule, SupportFab],
     templateUrl: './customer-view.html'
 })
 export class CustomerView {

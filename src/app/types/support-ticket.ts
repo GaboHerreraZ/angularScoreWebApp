@@ -13,9 +13,6 @@ export type SupportTicketPriority = 'low' | 'medium' | 'high';
 
 export type SupportTicketStatus = 'open' | 'in_progress' | 'resolved' | 'closed';
 
-/** Tipo del registro al que apunta `relatedEntityId` (FK polimórfica). */
-export type SupportTicketRelatedEntityType = 'credit_study' | 'customer' | 'payment';
-
 /** Contexto técnico capturado en el cliente para acelerar el diagnóstico. */
 export interface SupportTicketContext {
     appRoute?: string;
@@ -24,18 +21,22 @@ export interface SupportTicketContext {
     appVersion?: string;
 }
 
-/** Cuerpo de POST companies/{companyId}/support-tickets. companyId y createdBy los pone el backend. */
+/**
+ * Cuerpo de POST companies/{companyId}/support-tickets. companyId y createdBy
+ * los pone el backend (ruta y token). Los ids se envían solo cuando el ticket
+ * nace desde la pantalla del registro: `credit_study` exige creditStudyId y
+ * `customer` exige customerId; las demás áreas no llevan ids.
+ */
 export interface CreateSupportTicketRequest {
     area: SupportTicketArea;
     type: SupportTicketType;
     priority: SupportTicketPriority;
-    /** 5–120 chars. */
+    /** 1–255 chars. */
     subject: string;
-    /** 20–2000 chars. */
+    /** 1–5000 chars. */
     description: string;
-    /** `null` si no apunta a un registro; debe ser coherente con `area`. */
-    relatedEntityType: SupportTicketRelatedEntityType | null;
-    relatedEntityId: string | null;
+    creditStudyId?: string | null;
+    customerId?: string | null;
     context?: SupportTicketContext;
 }
 
@@ -57,8 +58,14 @@ export interface CreateSupportTicketResponse {
     createdAt: string;
 }
 
-/** Opción del selector de "registro relacionado". */
-export interface RelatedEntityOption {
-    id: string;
-    label: string;
+/**
+ * Contexto con el que se abre el Centro de Ayuda desde una pantalla concreta:
+ * fija el área del ticket y el registro (estudio o cliente) al que apunta.
+ */
+export interface SupportTicketPrefill {
+    area: Extract<SupportTicketArea, 'credit_study' | 'customer'>;
+    creditStudyId?: string | null;
+    customerId?: string | null;
+    /** Nombre legible del registro, para mostrarlo en el formulario. */
+    label?: string | null;
 }

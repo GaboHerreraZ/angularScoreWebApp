@@ -143,9 +143,12 @@ export class CreditStudyService {
         return this.apiService.get<any>(`${this.basePath}/${id}/perform`, {});
     }
 
-    /** Ejecuta el análisis de scoring del estudio y devuelve el resultado de viabilidad. */
-    performStudy(id: string): Observable<PerformStudyResponse> {
-        return this.apiService.post<PerformStudyResponse>(`${this.basePath}/${id}/perform`, {});
+    /**
+     * Ejecuta el análisis de scoring del estudio y devuelve el resultado de viabilidad.
+     * `source` indica la fuente de estados financieros a usar (datacredito | pdf_upload).
+     */
+    performStudy(id: string, source?: string | null): Observable<PerformStudyResponse> {
+        return this.apiService.post<PerformStudyResponse>(`${this.basePath}/${id}/perform`, source ? { source } : {});
     }
 
     extractFinancialData(file: File, params: {

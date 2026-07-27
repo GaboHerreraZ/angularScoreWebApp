@@ -1,113 +1,147 @@
 <div class="flex flex-col gap-8">
-    @for (view of sources(); track view.source.source) {
+    @if (sources().length) {
     <div class="flex flex-col gap-4">
-        <!-- Encabezado de la fuente -->
-        <div class="flex items-center gap-3 pb-3 border-b border-surface">
-            <div class="flex items-center justify-center rounded-lg bg-primary-50 text-primary-500 dark:bg-primary-500/10 dark:text-primary-400 shrink-0" style="width: 2.5rem; height: 2.5rem;">
-                <i class="{{ view.icon }} text-base"></i>
-            </div>
-            <div class="flex flex-col">
-                <h3 class="text-base font-semibold m-0">{{ view.label }}</h3>
-                @if (view.hasData) {
-                <span class="text-xs text-muted-color">{{ view.source.periods.length }} periodo(s) reportado(s)</span>
-                }
-            </div>
+        <!-- Mensaje: elegir la fuente antes del estudio, o la fuente usada cuando ya se realizó -->
+        @if (!readOnly()) {
+        <div class="flex items-start gap-2.5 p-3 rounded-lg bg-primary-50 dark:bg-primary-500/10 border border-primary-200 dark:border-primary-500/30">
+            <i class="pi pi-info-circle text-primary-600 dark:text-primary-400 mt-0.5 shrink-0"></i>
+            <span class="text-m">
+                Selecciona la fuente de información con la que se realizará el estudio de crédito.
+                La columna resaltada es la que se usará en el análisis.
+            </span>
         </div>
-
-        @if (!view.hasData) {
-        <!-- Sin datos para toda la sección -->
-        <div class="flex flex-col items-center justify-center gap-2 py-10 rounded-lg border border-dashed border-surface text-muted-color">
-            <i class="pi pi-inbox text-2xl"></i>
-            <span class="text-sm">No hay datos disponibles para esta fuente</span>
-        </div>
-        } @else {
-        <!-- Estados financieros por periodo (dos columnas) -->
-        <div class="rounded-lg border border-surface overflow-x-auto">
-            <div class="min-w-max text-sm">
-                <!-- Encabezado de periodos -->
-                <div class="grid items-stretch bg-surface-50 dark:bg-surface-800 font-semibold"
-                     [style.grid-template-columns]="'minmax(16rem, 1fr) repeat(' + view.source.periods.length + ', minmax(9rem, auto))'">
-                    <div class="px-4 py-2.5">Concepto</div>
-                    @for (period of view.source.periods; track period.id) {
-                    <div class="px-4 py-2.5 text-right">
-                        <span>{{ period.fiscalYear }}</span>
-                        @if (period.balanceSheetDate) {
-                        <span class="block text-xs font-normal text-muted-color">{{ period.balanceSheetDate | date:'dd/MM/yyyy' }}</span>
-                        }
-                    </div>
-                    }
-                </div>
-
-                <!-- Grupos de conceptos -->
-                @for (group of periodGroups; track group.title) {
-                <div class="px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-muted-color bg-surface-100/60 dark:bg-surface-800/60 border-t border-surface">
-                    {{ group.title }}
-                </div>
-                @for (row of group.rows; track row.key) {
-                <div class="grid items-center border-t border-surface"
-                     [style.grid-template-columns]="'minmax(16rem, 1fr) repeat(' + view.source.periods.length + ', minmax(9rem, auto))'">
-                    <div class="px-4 py-2 text-muted-color">{{ row.label }}</div>
-                    @for (period of view.source.periods; track period.id) {
-                    <div class="px-4 py-2 text-right font-medium whitespace-nowrap">{{ formatValue(getValue($any(period), row.key), row.format) }}</div>
-                    }
-                </div>
-                }
-                }
-            </div>
-        </div>
-
-        <!-- Indicadores y Ratios (dos columnas lado a lado) -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <!-- Indicadores -->
-            <div class="flex flex-col gap-2">
-                <div class="flex items-center gap-2">
-                    <i class="pi pi-gauge text-primary-500 text-sm"></i>
-                    <h4 class="text-sm font-semibold m-0">Indicadores</h4>
-                </div>
-                @if (view.source.indicators) {
-                <div class="rounded-lg border border-surface divide-y divide-surface">
-                    @for (row of indicatorRows; track row.key) {
-                    <div class="flex justify-between items-center gap-3 px-4 py-2">
-                        <span class="text-sm text-muted-color">{{ row.label }}</span>
-                        <span class="text-sm font-medium text-right whitespace-nowrap">{{ formatValue(getValue($any(view.source.indicators), row.key), row.format) }}</span>
-                    </div>
-                    }
-                </div>
-                } @else {
-                <div class="flex items-center justify-center py-6 rounded-lg border border-dashed border-surface text-muted-color text-sm">
-                    No hay indicadores disponibles
-                </div>
-                }
-            </div>
-
-            <!-- Ratios -->
-            <div class="flex flex-col gap-2">
-                <div class="flex items-center gap-2">
-                    <i class="pi pi-percentage text-primary-500 text-sm"></i>
-                    <h4 class="text-sm font-semibold m-0">Ratios</h4>
-                </div>
-                @if (view.source.ratios) {
-                <div class="rounded-lg border border-surface divide-y divide-surface">
-                    @for (row of ratioRows; track row.key) {
-                    <div class="flex justify-between items-center gap-3 px-4 py-2">
-                        <span class="text-sm text-muted-color">{{ row.label }}</span>
-                        <span class="text-sm font-medium text-right whitespace-nowrap">{{ formatValue(getValue($any(view.source.ratios), row.key), row.format) }}</span>
-                    </div>
-                    }
-                </div>
-                } @else {
-                <div class="flex items-center justify-center py-6 rounded-lg border border-dashed border-surface text-muted-color text-sm">
-                    No hay ratios disponibles
-                </div>
-                }
-            </div>
+        } @else if (selectedSource()) {
+        <div class="flex items-start gap-2.5 p-3 rounded-lg bg-primary-50 dark:bg-primary-500/10 border border-primary-200 dark:border-primary-500/30">
+            <i class="pi pi-check-circle text-primary-600 dark:text-primary-400 mt-0.5 shrink-0"></i>
+            <span class="text-m">
+                El cálculo del estudio se realizó con los datos de la fuente resaltada.
+            </span>
         </div>
         }
+
+        <!-- Tabla combinada: conceptos a la izquierda, un grupo de columnas por fuente -->
+        <div class="rounded-lg border border-surface overflow-x-auto">
+            <table class="w-full text-m border-collapse">
+                <thead>
+                    <!-- Fila de fuentes: cada una agrupa sus periodos -->
+                    <tr class="bg-surface-50 dark:bg-surface-800">
+                        <th class="px-4 py-2.5 text-left align-bottom font-semibold" rowspan="2">Concepto</th>
+                        @for (view of sources(); track view.source.source) {
+                        <th class="px-4 py-2.5" [attr.colspan]="view.cols" [ngClass]="sourceCellClasses(view, { first: true, last: true, top: true })">
+                            <div class="flex items-center justify-center gap-2">
+                                <i class="{{ view.icon }} text-primary-500"></i>
+                                <span class="font-semibold">{{ view.label }}</span>
+                            </div>
+                            @if (view.hasData) {
+                            <span class="block text-center text-sm font-normal text-muted-color mt-0.5">{{ view.source.periods.length }} periodo(s) reportado(s)</span>
+                            }
+                            @if (!readOnly()) {
+                            <div class="flex justify-center mt-1.5">
+                                <button type="button" (click)="selectSource(view.source.source)"
+                                        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-sm font-semibold border transition-colors cursor-pointer"
+                                        [ngClass]="view.selected
+                                            ? 'bg-primary border-primary text-primary-contrast'
+                                            : 'border-surface text-muted-color hover:border-primary hover:text-primary'">
+                                    <i class="pi" [ngClass]="view.selected ? 'pi-check-circle' : 'pi-circle'"></i>
+                                    {{ view.selected ? 'Seleccionada para el estudio' : 'Usar esta fuente' }}
+                                </button>
+                            </div>
+                            } @else if (view.selected) {
+                            <div class="flex justify-center mt-1.5">
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-sm font-semibold bg-primary border border-primary text-primary-contrast">
+                                    <i class="pi pi-check-circle"></i>Utilizada en el estudio
+                                </span>
+                            </div>
+                            }
+                        </th>
+                        }
+                    </tr>
+                    <!-- Fila de periodos por fuente -->
+                    <tr class="bg-surface-50 dark:bg-surface-800">
+                        @for (view of sources(); track view.source.source) {
+                            @if (view.hasData) {
+                                @for (period of view.source.periods; track period.id; let first = $first; let last = $last) {
+                                <th class="px-4 py-2 text-right font-semibold" [ngClass]="sourceCellClasses(view, { first, last })">
+                                    <span>{{ period.fiscalYear }}</span>
+                                    @if (period.balanceSheetDate) {
+                                    <span class="block text-sm font-normal text-muted-color">{{ period.balanceSheetDate | date:'dd/MM/yyyy' }}</span>
+                                    }
+                                </th>
+                                }
+                            } @else {
+                            <th class="px-4 py-2 text-center font-normal text-muted-color" [ngClass]="sourceCellClasses(view, { first: true, last: true })">Sin datos</th>
+                            }
+                        }
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Balance / estado de resultados: un valor por periodo de cada fuente -->
+                    @for (group of periodGroups; track group.title) {
+                    <tr class="bg-surface-100/60 dark:bg-surface-800/60 border-t border-surface">
+                        <td class="px-4 py-1.5 text-sm font-semibold uppercase tracking-wide text-muted-color">{{ group.title }}</td>
+                        @for (view of sources(); track view.source.source) {
+                        <td [attr.colspan]="view.cols" [ngClass]="sourceCellClasses(view, { first: true, last: true })"></td>
+                        }
+                    </tr>
+                    @for (row of group.rows; track row.key) {
+                    <tr class="border-t border-surface">
+                        <td class="px-4 py-2 text-muted-color">{{ row.label }}</td>
+                        @for (view of sources(); track view.source.source) {
+                            @if (view.hasData) {
+                                @for (period of view.source.periods; track period.id; let first = $first; let last = $last) {
+                                <td class="px-4 py-2 text-right font-medium whitespace-nowrap" [ngClass]="sourceCellClasses(view, { first, last })">{{ formatValue(getValue($any(period), row.key), row.format) }}</td>
+                                }
+                            } @else {
+                            <td class="px-4 py-2 text-center text-muted-color" [ngClass]="sourceCellClasses(view, { first: true, last: true })">—</td>
+                            }
+                        }
+                    </tr>
+                    }
+                    }
+
+                    <!-- Indicadores: un valor por fuente, bajo su grupo de columnas -->
+                    <tr class="bg-surface-100/60 dark:bg-surface-800/60 border-t border-surface">
+                        <td class="px-4 py-1.5 text-sm font-semibold uppercase tracking-wide text-muted-color">
+                            <i class="pi pi-gauge mr-1.5 text-primary-500"></i>Indicadores
+                        </td>
+                        @for (view of sources(); track view.source.source) {
+                        <td [attr.colspan]="view.cols" [ngClass]="sourceCellClasses(view, { first: true, last: true })"></td>
+                        }
+                    </tr>
+                    @for (row of indicatorRows; track row.key) {
+                    <tr class="border-t border-surface">
+                        <td class="px-4 py-2 text-muted-color">{{ row.label }}</td>
+                        @for (view of sources(); track view.source.source) {
+                        <td class="px-4 py-2 text-right font-medium whitespace-nowrap" [attr.colspan]="view.cols" [ngClass]="sourceCellClasses(view, { first: true, last: true })">{{ formatValue(getValue($any(view.source.indicators), row.key), row.format) }}</td>
+                        }
+                    </tr>
+                    }
+
+                    <!-- Ratios: un valor por fuente, bajo su grupo de columnas -->
+                    <tr class="bg-surface-100/60 dark:bg-surface-800/60 border-t border-surface">
+                        <td class="px-4 py-1.5 text-sm font-semibold uppercase tracking-wide text-muted-color">
+                            <i class="pi pi-percentage mr-1.5 text-primary-500"></i>Ratios
+                        </td>
+                        @for (view of sources(); track view.source.source) {
+                        <td [attr.colspan]="view.cols" [ngClass]="sourceCellClasses(view, { first: true, last: true })"></td>
+                        }
+                    </tr>
+                    @for (row of ratioRows; track row.key; let lastRow = $last) {
+                    <tr class="border-t border-surface">
+                        <td class="px-4 py-2 text-muted-color">{{ row.label }}</td>
+                        @for (view of sources(); track view.source.source) {
+                        <td class="px-4 py-2 text-right font-medium whitespace-nowrap" [attr.colspan]="view.cols" [ngClass]="sourceCellClasses(view, { first: true, last: true, bottom: lastRow })">{{ formatValue(getValue($any(view.source.ratios), row.key), row.format) }}</td>
+                        }
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     </div>
-    } @empty {
+    } @else {
     <div class="flex flex-col items-center justify-center gap-2 py-12 text-muted-color">
         <i class="pi pi-inbox text-3xl"></i>
-        <span class="text-sm">Aún no se han cargado los estados financieros</span>
+        <span class="text-m">Aún no se han cargado los estados financieros</span>
     </div>
     }
 </div>

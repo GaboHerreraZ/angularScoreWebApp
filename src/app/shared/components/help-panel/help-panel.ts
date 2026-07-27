@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, effect, inject, signal } from '@angular/core';
 import { DrawerModule } from 'primeng/drawer';
 import { TabsModule } from 'primeng/tabs';
 import { LayoutService } from '@/app/layout/service/layout.service';
@@ -17,6 +17,15 @@ export class HelpPanel {
     activeTab = signal<number>(0);
 
     drawerStyleClass = '!w-full sm:!w-[520px]';
+
+    constructor() {
+        // Al abrir desde un cliente o estudio, el panel arranca en Soporte.
+        effect(() => {
+            if (this.layoutService.supportPrefill()) {
+                this.activeTab.set(1);
+            }
+        });
+    }
 
     get helpPanelVisible(): boolean {
         return this.layoutService.layoutState().helpPanelVisible;

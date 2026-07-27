@@ -38,26 +38,26 @@
                 <!-- Nombre visible solo en desktop -->
                 <h2 class="text-2xl font-semibold m-0 truncate hidden sm:block">{{ c.businessName }}</h2>
 
-                <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 text-muted-color text-sm">
+                <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 text-muted-color text-m">
                     <span class="flex items-center gap-1">
-                        <i class="pi pi-id-card text-xs"></i>
+                        <i class="pi pi-id-card text-sm"></i>
                         {{ c.identificationNumber }}
                     </span>
                     @if (c.email) {
                     <span class="flex items-center gap-1 truncate">
-                        <i class="pi pi-envelope text-xs shrink-0"></i>
+                        <i class="pi pi-envelope text-sm shrink-0"></i>
                         {{ c.email }}
                     </span>
                     }
                     @if (c.phone) {
                     <span class="flex items-center gap-1">
-                        <i class="pi pi-phone text-xs"></i>
+                        <i class="pi pi-phone text-sm"></i>
                         {{ c.phone }}
                     </span>
                     }
                     @if (c.city) {
                     <span class="flex items-center gap-1">
-                        <i class="pi pi-map-marker text-xs"></i>
+                        <i class="pi pi-map-marker text-sm"></i>
                         {{ c.city }}@if (c.state) {, {{ c.state }}}
                     </span>
                     }
@@ -106,3 +106,8 @@
         </div>
     </p-card>
 </div>
+
+<!-- Soporte sobre este cliente: única vía para tickets del área `customer` -->
+@if (customerId(); as id) {
+<app-support-fab area="customer" [recordId]="id" [label]="customer()?.businessName ?? null" />
+}

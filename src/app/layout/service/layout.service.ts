@@ -1,5 +1,6 @@
 import { Injectable, effect, signal, computed, inject } from '@angular/core';
 import { Router } from '@angular/router';
+import { SupportTicketPrefill } from '@/app/types/support-ticket';
 
 export interface MenuItem {
     label?: string;
@@ -60,6 +61,12 @@ export class LayoutService {
     });
 
     tabs = signal<MenuItem[]>([]);
+
+    /**
+     * Registro con el que se abrió el Centro de Ayuda. `null` = consulta general
+     * (entrada por el header): el formulario oculta las áreas que exigen ids.
+     */
+    supportPrefill = signal<SupportTicketPrefill | null>(null);
 
     router = inject(Router);
 
@@ -139,10 +146,22 @@ export class LayoutService {
     }
 
     toggleHelpPanel() {
+        // Abrir desde el header es siempre una consulta general: sin registro asociado.
+        this.supportPrefill.set(null);
         this.layoutState.update((prev) => ({
             ...prev,
             helpPanelVisible: !prev.helpPanelVisible
         }));
+    }
+
+    /**
+     * Abre el Centro de Ayuda en la pestaña de Soporte con el área y el registro
+     * ya resueltos. Lo usan los botones flotantes de cliente y estudio de crédito,
+     * únicas vías para crear tickets que exigen customerId/creditStudyId.
+     */
+    openSupportWith(prefill: SupportTicketPrefill) {
+        this.supportPrefill.set(prefill);
+        this.layoutState.update((prev) => ({ ...prev, helpPanelVisible: true }));
     }
 
     toggleNotificationPanel() {
