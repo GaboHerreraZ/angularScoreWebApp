@@ -52,7 +52,7 @@
                         <i class="pi pi-building text-primary"></i>
                         <span>Datos de la Empresa</span>
                     </div>
-                    <p-button label="Guardar" icon="pi pi-check" severity="success" [loading]="saving()" [disabled]="form.invalid || billingForm.invalid || (form.pristine && billingForm.pristine)" (onClick)="onSave()" styleClass="w-full sm:w-auto" />
+                    <p-button data-tour="company-save" label="Guardar" icon="pi pi-check" severity="success" [loading]="saving()" [disabled]="form.invalid || billingForm.invalid || (form.pristine && billingForm.pristine)" (onClick)="onSave()" styleClass="w-full sm:w-auto" />
                 </div>
             </ng-template>
             <ng-template #subtitle>
@@ -61,7 +61,7 @@
 
             <!-- Logo + estado del contrato -->
             <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-6 pb-6 border-b border-surface">
-                <div class="flex items-center gap-5">
+                <div class="flex items-center gap-5" data-tour="company-logo">
                 <div class="relative group cursor-pointer" (click)="onUploadLogo()">
                     @if (currentLogoUrl()) {
                     <img [src]="currentLogoUrl()" alt="Logo de la empresa" class="w-20 h-20 rounded-xl object-cover border border-surface shadow-sm" />
@@ -88,7 +88,7 @@
 
                 <!-- Estado del contrato: al lado derecho del logo -->
                 @if (contract(); as contractInfo) {
-                <div class="flex items-center gap-4 w-full lg:w-auto lg:pl-6 lg:border-l border-surface">
+                <div class="flex items-center gap-4 w-full lg:w-auto lg:pl-6 lg:border-l border-surface" data-tour="company-contract">
                     <div class="flex items-center justify-center w-12 h-12 rounded-xl shrink-0"
                          [class]="contractInfo.isSigned ? 'bg-green-100 dark:bg-green-500/15' : 'bg-amber-100 dark:bg-amber-500/15'">
                         <i class="pi text-xl"
@@ -113,7 +113,7 @@
                 }
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5" data-tour="company-data">
                 <div class="flex flex-col gap-1">
                     <p-floatlabel variant="on">
                         <input pInputText id="name" [formControl]="form.controls.name" [invalid]="isInvalid('name')" />
@@ -177,7 +177,7 @@
                 <span class="text-muted-color text-m">Información bancaria de tu empresa para recibir pagos y transferencias.</span>
             </ng-template>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-5">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-5" data-tour="company-financial">
                 <div class="flex flex-col gap-1">
                     <p-floatlabel variant="on">
                         <p-select id="accountTypeId" [options]="accountTypesResource.value() ?? []" optionLabel="label" optionValue="id" [formControl]="form.controls.accountTypeId" />
@@ -217,6 +217,7 @@
         </ng-template>
 
         <app-billing-form
+            data-tour="company-billing"
             [formGroup]="billingForm"
             [pendingStateName]="pendingBillingStateName()"
             [pendingCityName]="pendingBillingCityName()"
@@ -225,7 +226,7 @@
     </p-fluid>
 
     <!-- Sección de Usuarios Invitados -->
-    <app-custom-table [tableSettings]="invitationsTableSettings()" [data]="invitationsData()" [totalRecords]="invitationsData().length" (actionClick)="onInvitationAction($event)" (addClick)="onInviteUser()" />
+    <app-custom-table data-tour="company-users" [tableSettings]="invitationsTableSettings()" [data]="invitationsData()" [totalRecords]="invitationsData().length" (actionClick)="onInvitationAction($event)" (addClick)="onInviteUser()" />
     }
 </div>
 

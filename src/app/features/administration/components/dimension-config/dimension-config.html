@@ -2,7 +2,7 @@
 
     <!-- ─────────────── Selector de tipo de persona ─────────────── -->
     <p-tabs [value]="personType()" (valueChange)="onPersonTypeChange($event)">
-        <p-tablist>
+        <p-tablist data-tour="dimensions-person-type">
             @for (tab of personTypeTabs; track tab.code) {
             <p-tab [value]="tab.code">
                 <i [class]="tab.icon + ' mr-2'"></i>
@@ -41,8 +41,8 @@
 
                 @if (!editing()) {
                 <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-                    <p-button label="Restaurar predeterminados" icon="pi pi-refresh" severity="secondary" [outlined]="true" [loading]="resetting()" (onClick)="resetDefaults()" styleClass="w-full sm:w-auto" />
-                    <p-button label="Editar dimensiones" icon="pi pi-pencil" severity="primary" [raised]="true" (onClick)="startEditing()" styleClass="w-full sm:w-auto" />
+                    <p-button data-tour="dimensions-reset" label="Restaurar predeterminados" icon="pi pi-refresh" severity="secondary" [outlined]="true" [loading]="resetting()" (onClick)="resetDefaults()" styleClass="w-full sm:w-auto" />
+                    <p-button data-tour="dimensions-edit" label="Editar dimensiones" icon="pi pi-pencil" severity="primary" [raised]="true" (onClick)="startEditing()" styleClass="w-full sm:w-auto" />
                 </div>
                 } @else {
                 <div class="flex gap-2 w-full sm:w-auto">
@@ -70,7 +70,7 @@
         }
 
         <!-- Grilla de dimensiones: tarjetas, 3 por fila -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5" data-tour="dimensions-grid">
             @for (row of rows(); track row.code) {
             <app-dimension-card
                 [label]="row.label"
@@ -88,7 +88,7 @@
         </div>
 
         <!-- Total en vivo -->
-        <div class="mt-8 pt-6 border-t border-surface flex flex-col gap-3">
+        <div class="mt-8 pt-6 border-t border-surface flex flex-col gap-3" data-tour="dimensions-total">
             <div class="flex items-center justify-between">
                 <div class="flex flex-col">
                     <span class="font-semibold text-color">Total</span>
@@ -140,6 +140,7 @@
     </p-card>
     } @else {
     <app-custom-table
+        data-tour="dimensions-history"
         [tableSettings]="historyTableSettings()"
         [data]="historyData()"
         [totalRecords]="historyData().length"

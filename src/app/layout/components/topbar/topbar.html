@@ -31,6 +31,7 @@
 
     <button
         type="button"
+        data-tour="topbar-search"
         class="topbar-search-trigger hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-100 dark:bg-surface-800 hover:bg-surface-200 dark:hover:bg-surface-700 text-m text-surface-500 transition-colors cursor-pointer w-72 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10"
         (click)="searchService.open()"
         pTooltip="Buscar (Ctrl+K)"
@@ -42,16 +43,16 @@
     </button>
 
     <div class="topbar-actions">
-        <app-credits-indicator></app-credits-indicator>
-        <p-button icon="pi pi-question-circle" rounded severity="help" (onClick)="onHelpButtonClick()" pTooltip="Centro de Ayuda" tooltipPosition="bottom" size="small" styleClass="!text-base"></p-button>
-        <p-button icon="pi pi-palette" rounded severity="secondary" (onClick)="onConfigButtonClick()" pTooltip="Apariencia" tooltipPosition="bottom" size="small" styleClass="!text-base"></p-button>
-        <span class="relative">
+        <app-credits-indicator data-tour="topbar-credits"></app-credits-indicator>
+        <p-button data-tour="topbar-help" icon="pi pi-question-circle" rounded severity="help" (onClick)="onHelpButtonClick()" pTooltip="Centro de Ayuda" tooltipPosition="bottom" size="small" styleClass="!text-base"></p-button>
+        <p-button data-tour="topbar-appearance" icon="pi pi-palette" rounded severity="secondary" (onClick)="onConfigButtonClick()" pTooltip="Apariencia" tooltipPosition="bottom" size="small" styleClass="!text-base"></p-button>
+        <span class="relative" data-tour="topbar-notifications">
             <p-button icon="pi pi-bell" rounded severity="warn" (onClick)="onNotificationButtonClick()" pTooltip="Notificaciones" tooltipPosition="bottom" size="small" styleClass="!text-base"></p-button>
             @if (notificationCenterService.hasUnread()) {
             <p-badge [value]="notificationCenterService.unreadCount().toString()" severity="danger" styleClass="absolute -top-2 -right-2 text-[10px] min-w-4 h-4 flex items-center justify-center animate-pulse-badge pointer-events-none"></p-badge>
             }
         </span>
-        <div class="topbar-profile">
+        <div class="topbar-profile" data-tour="topbar-profile">
             <button class="topbar-profile-button" type="button" pStyleClass="@next" enterFromClass="hidden" enterActiveClass="animate-scalein" leaveToClass="hidden" leaveActiveClass="animate-fadeout" [hideOnOutsideClick]="true">
                 <p-avatar [label]="userInitials()" size="large" shape="circle" styleClass="text-lg mr-2 font-semibold bg-primary text-primary-contrast" />
 

@@ -8,7 +8,7 @@
             <p class="text-surface-500 text-m mt-1 capitalize">{{ formattedDate() }}</p>
         </div>
         @if (lastUpdatedLabel(); as updated) {
-            <div class="flex items-center gap-2 text-sm text-surface-500">
+            <div class="flex items-center gap-2 text-sm text-surface-500" data-tour="dashboard-refresh">
                 <span class="inline-flex items-center gap-1.5">
                     <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>
                     Actualizado {{ updated }}
@@ -42,7 +42,7 @@
     <!-- ══════════════════════════════════════════════════════════
              SECCIÓN 1 — KPI Cards: Resumen General
         ════════════════════════════════════════════════════════════ -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4" data-tour="dashboard-kpis">
         <app-kpi-card
             label="Total clientes"
             icon="pi pi-users text-blue-600 dark:text-blue-400"
@@ -55,7 +55,7 @@
             color="bg-green-100 dark:bg-green-900/30"
             [kpi]="d.summary.studiesThisMonth"
         />
-        <p-card styleClass="h-full">
+        <p-card styleClass="h-full" data-tour="dashboard-credits">
             <div class="flex items-center gap-3">
                 <div class="flex items-center justify-center w-12 h-12 rounded-xl shrink-0 bg-indigo-100 dark:bg-indigo-900/30">
                     <i class="pi pi-ticket text-xl text-indigo-600 dark:text-indigo-400"></i>
@@ -74,7 +74,7 @@
     <!-- ══════════════════════════════════════════════════════════
              SECCIÓN 4 — KPI Cards: Totales de Cupo
         ════════════════════════════════════════════════════════════ -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" data-tour="dashboard-quota">
         <app-kpi-card
             label="Cupo total solicitado (mes)"
             icon="pi pi-dollar text-teal-600 dark:text-teal-400"
@@ -96,13 +96,13 @@
     <!-- ══════════════════════════════════════════════════════════
              SECCIÓN 2 & 3 & 5 — Gráficos básicos
         ════════════════════════════════════════════════════════════ -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4" data-tour="dashboard-charts">
         @if (pipelineChart(); as chart) {
         <p-card styleClass="h-full">
             <ng-template pTemplate="header">
                 <div class="px-4 pt-4 flex items-center gap-2">
                     <h3 class="text-base font-semibold text-surface-700 dark:text-surface-200">Pipeline de Estudios</h3>
-                    <app-help-tooltip [text]="chartTooltips['pipeline']" />
+                    <app-help-tooltip data-tour="dashboard-chart-help" [text]="chartTooltips['pipeline']" />
                 </div>
             </ng-template>
             <div class="h-96">
@@ -124,7 +124,7 @@
         }
     </div>
 
-    <div class="grid grid-cols-1 gap-4">
+    <div class="grid grid-cols-1 gap-4" data-tour="dashboard-recent">
         <p-card styleClass="h-full">
             <ng-template pTemplate="header">
                 <div class="px-4 pt-4 flex items-center gap-2">
@@ -180,7 +180,7 @@
     @if (advancedData(); as adv) {
 
     <!-- Encabezado del periodo -->
-    <div class="flex items-center gap-2 mt-2">
+    <div class="flex items-center gap-2 mt-2" data-tour="dashboard-advanced">
         <h2 class="text-lg font-semibold text-surface-700 dark:text-surface-200">Análisis del periodo</h2>
         @if (periodLabel(); as period) {
             <span class="text-m text-surface-400">{{ period }}</span>
