@@ -29,18 +29,18 @@ function passwordsMatch(group: AbstractControl): ValidationErrors | null {
                     <p-skeleton height="2.75rem" borderRadius="6px" />
                     <p-skeleton height="2.75rem" borderRadius="6px" />
                 } @else {
-                    <p-float-label variant="on">
+                    <p-float-label variant="on" data-tour="password-current">
                         <p-password inputId="current" formControlName="currentPassword" styleClass="w-full" inputStyleClass="w-full" [toggleMask]="true" [feedback]="false" />
                         <label for="current">Contraseña actual</label>
                     </p-float-label>
 
-                    <p-float-label variant="on">
+                    <p-float-label variant="on" data-tour="password-new">
                         <p-password inputId="new" formControlName="newPassword" styleClass="w-full" inputStyleClass="w-full" [toggleMask]="true" />
                         <label for="new">Nueva contraseña</label>
                     </p-float-label>
 
                     <div>
-                        <p-float-label variant="on">
+                        <p-float-label variant="on" data-tour="password-confirm">
                             <p-password inputId="confirm" formControlName="confirm" styleClass="w-full" inputStyleClass="w-full" [toggleMask]="true" [feedback]="false" />
                             <label for="confirm">Confirmar nueva contraseña</label>
                         </p-float-label>
@@ -51,7 +51,7 @@ function passwordsMatch(group: AbstractControl): ValidationErrors | null {
                 }
 
                 <div>
-                    <p-button type="submit" [loading]="saving()" label="Actualizar contraseña" />
+                    <p-button data-tour="password-submit" type="submit" [loading]="saving()" label="Actualizar contraseña" />
                 </div>
             </form>
         </p-card>

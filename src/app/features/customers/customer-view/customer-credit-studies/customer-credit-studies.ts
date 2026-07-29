@@ -56,7 +56,7 @@ export class CustomerCreditStudies implements OnInit {
                 minWidth: '12rem'
             },
             {
-                header: 'Plazo (meses)',
+                header: 'Plazo (días)',
                 field: 'requestedTerm',
                 type: 'number',
                 minWidth: '10rem'

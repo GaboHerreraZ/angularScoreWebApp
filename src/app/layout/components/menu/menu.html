@@ -1,4 +1,4 @@
-<ul class="layout-menu">
+<ul class="layout-menu" data-tour="sidebar-menu">
     @for (item of model; track item.label) { @if (!item.separator) {
     <li app-menuitem [item]="item" [root]="true"></li>
     } @else {

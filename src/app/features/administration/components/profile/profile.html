@@ -29,16 +29,16 @@
                         <i class="pi pi-id-card text-primary"></i>
                         <span>Información Personal</span>
                     </div>
-                    <p-button label="Guardar" icon="pi pi-check" severity="success" [loading]="saving()" [disabled]="form.invalid || form.pristine" (onClick)="onSave()" styleClass="w-full sm:w-auto" />
+                    <p-button data-tour="profile-save" label="Guardar" icon="pi pi-check" severity="success" [loading]="saving()" [disabled]="form.invalid || form.pristine" (onClick)="onSave()" styleClass="w-full sm:w-auto" />
                 </div>
             </ng-template>
 
-            <div class="flex flex-col items-center mb-6">
+            <div class="flex flex-col items-center mb-6" data-tour="profile-avatar">
                 <p-avatar [label]="(form.controls.name.value.charAt(0) || 'U') + (form.controls.lastName.value.charAt(0) || '')" size="xlarge" shape="circle" styleClass="text-2xl font-semibold bg-primary text-primary-contrast" />
                 <p class="text-muted-color mt-2 mb-0 text-m">Completa tu información personal</p>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5" data-tour="profile-personal">
                 <div class="flex flex-col gap-1">
                     <p-floatlabel variant="on">
                         <input pInputText id="name" [formControl]="form.controls.name" [invalid]="isInvalid('name')" />
@@ -59,7 +59,7 @@
                     }
                 </div>
 
-                <div class="flex flex-col gap-1">
+                <div class="flex flex-col gap-1" data-tour="profile-email">
                     <p-floatlabel variant="on">
                         <input pInputText id="email" [formControl]="form.controls.email" [invalid]="isInvalid('email')" />
                         <label for="email">Correo Electrónico *</label>
@@ -101,7 +101,7 @@
                 </div>
             </ng-template>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5 mt-2">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5 mt-2" data-tour="profile-work">
                 <div class="flex flex-col gap-1">
                     <p-floatlabel variant="on">
                         <input pInputText id="role" [formControl]="form.controls.position" />

@@ -1,5 +1,6 @@
 /* You can add global styles to this file, and also import other style files */
 @use 'primeicons/primeicons.css';
+@use 'driver.js/dist/driver.css';
 @use './layout/layout.scss';
 @use './demo/demo.scss';
 
@@ -291,6 +292,131 @@
     > :first-child {
         margin-top: 0;
     }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Fila de botones flotantes de la esquina inferior derecha:
+   guías (izquierda) y acciones rápidas (derecha). Se agrupan en un
+   contenedor flex para que, si el SpeedDial se oculta por permisos,
+   el botón de guías se recoloque solo sin offsets calculados a mano.
+   `align-items: flex-end` alinea por la base: el contenedor del
+   SpeedDial es más alto porque reserva el espacio de sus ítems.
+   ───────────────────────────────────────────────────────────── */
+.layout-fabs {
+    position: fixed;
+    bottom: 1.75rem;
+    right: 1.75rem;
+    z-index: 900;
+    display: flex;
+    align-items: flex-end;
+}
+
+@media (max-width: 640px) {
+    .layout-fabs {
+        bottom: 1.25rem;
+        right: 1.25rem;
+    }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Tours guiados (driver.js). El popover se pinta con tokens de
+   PrimeNG en vez de colores fijos, así sigue el tema y el modo
+   claro/oscuro sin duplicar la paleta.
+   ───────────────────────────────────────────────────────────── */
+.driver-popover.creditia-tour {
+    background-color: var(--p-content-background);
+    color: var(--p-text-color);
+    border: 1px solid var(--p-content-border-color);
+    border-radius: 0.75rem;
+    padding: 1.1rem 1.25rem;
+    max-width: 22rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.22);
+    font-family: inherit;
+}
+
+.driver-popover.creditia-tour .driver-popover-title {
+    font-size: 1.05rem;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--p-text-color);
+    padding-right: 1.75rem;
+}
+
+.driver-popover.creditia-tour .driver-popover-description {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: var(--p-text-muted-color);
+    margin-top: 0.4rem;
+}
+
+.driver-popover.creditia-tour .driver-popover-description b {
+    color: var(--p-text-color);
+    font-weight: 600;
+}
+
+.driver-popover.creditia-tour .driver-popover-progress-text {
+    font-size: 0.8rem;
+    color: var(--p-text-muted-color);
+}
+
+.driver-popover.creditia-tour .driver-popover-close-btn {
+    color: var(--p-text-muted-color);
+    line-height: 28px;
+}
+
+.driver-popover.creditia-tour .driver-popover-close-btn:hover,
+.driver-popover.creditia-tour .driver-popover-close-btn:focus {
+    color: var(--p-text-color);
+}
+
+.driver-popover.creditia-tour .driver-popover-footer {
+    margin-top: 1rem;
+}
+
+.driver-popover.creditia-tour .driver-popover-footer-btn {
+    border-radius: 0.5rem;
+    padding: 0.4rem 0.85rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+    background-color: transparent;
+    border-color: var(--p-content-border-color);
+    color: var(--p-text-color);
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.driver-popover.creditia-tour .driver-popover-footer-btn:hover {
+    background-color: var(--p-content-hover-background);
+}
+
+.driver-popover.creditia-tour .driver-popover-next-btn,
+.driver-popover.creditia-tour .driver-popover-done-btn {
+    background-color: var(--p-primary-color);
+    border-color: var(--p-primary-color);
+    color: var(--p-primary-contrast-color);
+}
+
+.driver-popover.creditia-tour .driver-popover-next-btn:hover,
+.driver-popover.creditia-tour .driver-popover-done-btn:hover {
+    background-color: var(--p-primary-emphasis-alt, var(--p-primary-color));
+    opacity: 0.9;
+}
+
+/* La flecha hereda el fondo del popover: cada lado pinta solo su borde visible,
+   los otros tres los deja transparentes el CSS de la librería. */
+.driver-popover.creditia-tour .driver-popover-arrow-side-left {
+    border-left-color: var(--p-content-background);
+}
+
+.driver-popover.creditia-tour .driver-popover-arrow-side-right {
+    border-right-color: var(--p-content-background);
+}
+
+.driver-popover.creditia-tour .driver-popover-arrow-side-top {
+    border-top-color: var(--p-content-background);
+}
+
+.driver-popover.creditia-tour .driver-popover-arrow-side-bottom {
+    border-bottom-color: var(--p-content-background);
 }
 
 /* Card de sección con separación visual clara: borde definido, sombra sutil
