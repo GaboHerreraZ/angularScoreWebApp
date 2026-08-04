@@ -11,7 +11,76 @@
   --breakpoint-lg: 992px;
   --breakpoint-xl: 1200px;
   --breakpoint-2xl: 1920px;
-  --font-sans: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, sans-serif;
+  --font-sans: 'Geist', 'Geist Fallback', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, sans-serif;
+  --font-mono: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;
+
+  /*
+    Roles de peso al estilo Vercel: 400 lectura, 500 UI, 600 titulos.
+    Vercel no pasa de 600 en titulos; el 700+ queda para casos puntuales.
+    Se remapea aqui en vez de reescribir ~190 clases en las plantillas,
+    asi el ajuste es reversible cambiando estas dos lineas.
+  */
+  --font-weight-bold: 600;
+  --font-weight-extrabold: 700;
+
+  /*
+    text-m se usa 419 veces en las plantillas pero nunca estuvo definido,
+    asi que Tailwind no generaba la clase y esos textos solo heredaban el
+    tamano del padre. Se define en 1rem/1.5, el escalon de "UI text" de Vercel,
+    que es lo que venian renderizando en la practica.
+  */
+  --text-m: 1rem;
+  --text-m--line-height: 1.5;
+  --text-m--letter-spacing: 0em;
+
+  /*
+    Alturas de linea de la escala de Vercel para los escalones de titulo.
+    Los de lectura (sm/base/lg) ya coinciden con los de Tailwind.
+    text-xl se deja como esta: aca se usa para titulos e iconos, no para
+    parrafos de entrada, que es el rol al que Vercel le pone 1.8.
+  */
+  --text-3xl--line-height: 1.25;
+  --text-4xl--line-height: 1.2;
+  --text-5xl--line-height: 1.1;
+
+  /*
+    Escala de tracking al estilo Vercel: el interletrado se cierra a medida que
+    crece el texto y queda neutro en tamanos de lectura/UI. Al declararlo aqui,
+    cada utilidad text-* existente en la app lo hereda sin tocar componentes.
+  */
+  --text-xs--letter-spacing: 0em;
+  --text-sm--letter-spacing: 0em;
+  --text-base--letter-spacing: 0em;
+  --text-lg--letter-spacing: -0.01em;
+  --text-xl--letter-spacing: -0.02em;
+  --text-2xl--letter-spacing: -0.04em;
+  --text-3xl--letter-spacing: -0.04em;
+  --text-4xl--letter-spacing: -0.045em;
+  --text-5xl--letter-spacing: -0.05em;
+  --text-6xl--letter-spacing: -0.055em;
+  --text-7xl--letter-spacing: -0.06em;
+  --text-8xl--letter-spacing: -0.06em;
+  --text-9xl--letter-spacing: -0.06em;
+}
+
+/*
+  Tracking de respaldo para titulos que no llevan una utilidad text-* explicita.
+  Va en @layer base a proposito: si se declara fuera de capas le gana a
+  @layer utilities (en la cascada, lo no-capado vence a lo capado) y aplanaria
+  el tracking de todos los titulos al mismo valor, anulando la escala de arriba.
+*/
+@layer base {
+  h1,
+  h2 {
+    letter-spacing: -0.04em;
+  }
+
+  h3,
+  h4,
+  h5,
+  h6 {
+    letter-spacing: -0.02em;
+  }
 }
 
 /*
