@@ -1,0 +1,208 @@
+/*
+  Efectos de fondo del landing, al estilo de vercel.com.
+
+  La idea detras del efecto es que nada tenga un borde duro: los fondos son
+  gradientes radiales muy suaves y los elementos decorativos se disuelven contra
+  el fondo con mask-image en vez de terminar en una linea recta.
+
+  Todo esta pensado para funcionar en claro y oscuro. En claro los valores son
+  bastante mas bajos: el efecto nacio para fondos casi negros y, sin bajarle la
+  intensidad, en fondo blanco se ve sucio.
+*/
+
+/* ---------------------------------------------------------------------------
+   1. Spotlight: halo radial que cae desde el borde superior de la seccion.
+   Se pinta en ::before con z-index -1, asi queda sobre el fondo del contenedor
+   pero debajo del contenido. El isolation evita que se escape del apilamiento.
+--------------------------------------------------------------------------- */
+.landing-spotlight {
+    position: relative;
+    isolation: isolate;
+
+    &::before {
+        content: '';
+        position: absolute;
+        inset: 0 0 auto 0;
+        height: min(42rem, 100%);
+        z-index: -1;
+        pointer-events: none;
+        background:
+            radial-gradient(55% 45% at 50% 0%, color-mix(in srgb, var(--p-primary-500) 10%, transparent) 0%, transparent 70%),
+            radial-gradient(35% 30% at 85% 5%, color-mix(in srgb, var(--p-primary-400) 6%, transparent) 0%, transparent 70%);
+    }
+}
+
+.app-dark .landing-spotlight::before {
+    background:
+        radial-gradient(55% 45% at 50% 0%, color-mix(in srgb, var(--p-primary-500) 22%, transparent) 0%, transparent 70%),
+        radial-gradient(35% 30% at 85% 5%, color-mix(in srgb, var(--p-primary-400) 12%, transparent) 0%, transparent 70%);
+}
+
+/* ---------------------------------------------------------------------------
+   2. Rejilla de fondo que se desvanece hacia los bordes.
+   La rejilla en si es un patron infinito; lo que la hace ver bien es el
+   mask-image radial, que la deja visible solo en el centro-arriba y la disuelve
+   antes de tocar los bordes de la seccion.
+--------------------------------------------------------------------------- */
+.landing-grid {
+    position: relative;
+    isolation: isolate;
+
+    &::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        pointer-events: none;
+        background-image:
+            linear-gradient(to right, color-mix(in srgb, var(--p-content-border-color) 55%, transparent) 1px, transparent 1px),
+            linear-gradient(to bottom, color-mix(in srgb, var(--p-content-border-color) 55%, transparent) 1px, transparent 1px);
+        background-size: 64px 64px;
+        -webkit-mask-image: radial-gradient(ellipse 65% 55% at 50% 0%, #000 10%, transparent 75%);
+        mask-image: radial-gradient(ellipse 65% 55% at 50% 0%, #000 10%, transparent 75%);
+    }
+}
+
+/* ---------------------------------------------------------------------------
+   3. Mascaras de desvanecimiento.
+   mask-image no depende del color de fondo: recorta la opacidad del elemento,
+   asi que el mismo utilitario sirve en claro y en oscuro sin tocarlo.
+--------------------------------------------------------------------------- */
+
+/* Disuelve el borde inferior. El corte arranca al 86% para insinuar que el
+   contenido sigue, sin llegar a comerse los datos del mockup. */
+.mask-fade-b {
+    -webkit-mask-image: linear-gradient(to bottom, #000 86%, transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 86%, transparent 100%);
+}
+
+/* Version agresiva, para elementos puramente decorativos que si deben cortarse. */
+.mask-fade-b-lg {
+    -webkit-mask-image: linear-gradient(to bottom, #000 45%, transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 45%, transparent 100%);
+}
+
+/* Version minima: solo apaga el filo inferior. Para tarjetas que si llevan
+   texto hasta abajo y no pueden perder contenido. */
+.mask-fade-b-sm {
+    -webkit-mask-image: linear-gradient(to bottom, #000 95%, transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 95%, transparent 100%);
+}
+
+/* Desvanecido de distancia fija (no porcentual).
+   En contenedores que envuelven contenido interactivo, un porcentaje es
+   peligroso: si la tarjeta se hace mas baja en movil, ese mismo porcentaje
+   se come botones o campos. Con una medida fija el degradado siempre ocupa
+   los ultimos --fade-edge, asi que basta con que el padding inferior sea
+   mayor para garantizar que nunca toque un control.
+
+   La distancia sube en pantallas grandes porque ahi el contenedor tiene mas
+   padding (p-16) y aguanta un degradado mas largo; en movil baja a p-8 y un
+   valor fijo de escritorio dejaria el degradado pisando el borde del panel. */
+.mask-fade-b-edge {
+    --fade-edge: 1.5rem;
+    -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - var(--fade-edge)), transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 calc(100% - var(--fade-edge)), transparent 100%);
+
+    /* lg del proyecto (ver --breakpoint-lg en tailwind.css) */
+    @media (min-width: 992px) {
+        --fade-edge: 3rem;
+    }
+}
+
+/* Disuelve los costados: util en carruseles y franjas de logos. */
+.mask-fade-x {
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 12%, #000 88%, transparent 100%);
+    mask-image: linear-gradient(to right, transparent 0%, #000 12%, #000 88%, transparent 100%);
+}
+
+/* ---------------------------------------------------------------------------
+   4. Separador de secciones que se apaga en las puntas.
+   Vercel casi nunca usa una linea de borde a borde; la desvanece a los lados.
+--------------------------------------------------------------------------- */
+.landing-hairline {
+    height: 1px;
+    border: 0;
+    margin: 0;
+    background: linear-gradient(to right, transparent, var(--p-content-border-color) 20%, var(--p-content-border-color) 80%, transparent);
+}
+
+/* ---------------------------------------------------------------------------
+   5. Tarjeta con filo superior degradado.
+   Es la otra mitad del lenguaje de Vercel: en vez de disolver el contenido
+   (que en una tarjeta de texto se comeria palabras), se ilumina el borde de
+   arriba con una linea que se apaga hacia los costados. Da el mismo efecto de
+   "nada termina en un borde duro" sin tocar la legibilidad.
+--------------------------------------------------------------------------- */
+.landing-card {
+    position: relative;
+
+    &::before {
+        content: '';
+        position: absolute;
+        inset: 0 0 auto 0;
+        height: 1px;
+        pointer-events: none;
+        border-radius: inherit;
+        background: linear-gradient(to right, transparent, color-mix(in srgb, var(--p-primary-400) 45%, transparent) 50%, transparent);
+        opacity: 0.7;
+    }
+}
+
+.app-dark .landing-card::before {
+    background: linear-gradient(to right, transparent, color-mix(in srgb, var(--p-primary-400) 70%, transparent) 50%, transparent);
+    opacity: 0.9;
+}
+
+/* ---------------------------------------------------------------------------
+   6. Halo para el bloque de cierre (CTA).
+   Reemplaza la franja de color solido: el verde entra como luz difusa desde
+   abajo, no como un bloque plano que corta la pagina en dos.
+
+   Regla al tocar estos valores: la elipse debe llegar a transparente ANTES de
+   los bordes de la seccion. Con centro en 68% y radio vertical 32%, se apaga
+   exactamente en el 100% (borde inferior) y en el 36% hacia arriba. Si el
+   centro se corre fuera de la caja (por ejemplo at 50% 115%), el contenedor
+   recorta el degradado en su punto mas brillante y aparece una linea divisoria
+   horizontal en el filo de la seccion.
+--------------------------------------------------------------------------- */
+.landing-cta-glow {
+    position: relative;
+    isolation: isolate;
+
+    &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        pointer-events: none;
+        background: radial-gradient(70% 32% at 50% 68%, color-mix(in srgb, var(--p-primary-500) 15%, transparent) 0%, transparent 100%);
+    }
+}
+
+/* ---------------------------------------------------------------------------
+   7. Pie de pagina.
+   Antes usaba bg-gray-900 de Tailwind, que es un gris azulado y desentonaba
+   contra el resto del landing, construido sobre los surface neutros del tema.
+   Ahora arranca del mismo color de la seccion anterior y se hunde apenas hacia
+   abajo, de modo que el pie se lee como el final de la pagina y no como un
+   bloque pegado.
+--------------------------------------------------------------------------- */
+.landing-footer {
+    position: relative;
+    isolation: isolate;
+
+    /*
+      Sin filo superior y sin halo propio.
+
+      El halo que habia aca tenia su punto mas brillante justo en el borde de
+      arriba (at 50% 0%): el contenedor lo recortaba ahi, el brillo pasaba de su
+      maximo a cero de golpe y eso dibujaba una linea divisoria. El degradado de
+      tono del propio pie ya arranca del mismo color de la seccion anterior, asi
+      que la union se resuelve sin necesidad de un segundo resplandor.
+    */
+}
+
+.app-dark .landing-cta-glow::before {
+    background: radial-gradient(70% 32% at 50% 68%, color-mix(in srgb, var(--p-primary-500) 24%, transparent) 0%, transparent 100%);
+}
