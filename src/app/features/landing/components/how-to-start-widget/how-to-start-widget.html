@@ -15,7 +15,7 @@
         <!-- Qué incluye cada análisis -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16 lg:mb-20" appScrollAnimate="fade-up">
             @for (feature of features; track feature.title) {
-                <div class="flex flex-col items-start rounded-2xl border border-surface bg-surface-50 dark:bg-surface-900 p-7">
+                <div class="landing-card flex flex-col items-start rounded-2xl border border-surface bg-surface-50 dark:bg-surface-900 p-7">
                     <div class="w-12 h-12 rounded-xl {{ feature.gradient }} flex items-center justify-center mb-5 shadow-lg">
                         <i class="pi {{ feature.icon }} text-white text-xl"></i>
                     </div>
@@ -62,7 +62,7 @@
             </div>
         } @else if (packsResource.error()) {
             <!-- Fallback si el catálogo no carga: igual invitamos a registrarse -->
-            <div class="rounded-2xl border border-surface bg-surface-50 dark:bg-surface-900 p-10 text-center">
+            <div class="landing-card rounded-2xl border border-surface bg-surface-50 dark:bg-surface-900 p-10 text-center">
                 <i class="pi pi-box text-4xl text-muted-color mb-4"></i>
                 <p class="text-muted-color mb-6">No pudimos cargar los paquetes en este momento, pero puedes registrarte y verlos al momento de comprar.</p>
                 <p-button label="Registrarme" icon="pi pi-arrow-right" iconPos="right" (onClick)="goToRegister()" />

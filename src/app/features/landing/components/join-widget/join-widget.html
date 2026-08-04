@@ -1,44 +1,44 @@
-<section class="px-6 sm:px-12 lg:px-20 py-16 lg:py-24 bg-linear-to-r from-primary to-primary-emphasis text-white">
+<section class="landing-cta-glow relative overflow-hidden px-6 sm:px-12 lg:px-20 py-16 lg:py-24 bg-surface-0 dark:bg-surface-950 text-color">
     <div class="max-w-screen-2xl mx-auto">
         <!-- Impact numbers -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-8 mb-16" appScrollAnimate="fade-up">
             <div class="text-center">
-                <div class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-white/10 mb-4">
-                    <i class="pi pi-bolt text-2xl text-white"></i>
+                <div class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-primary/10 mb-4">
+                    <i class="pi pi-bolt text-2xl text-primary"></i>
                 </div>
-                <div class="text-5xl font-extrabold mb-2">15 min</div>
-                <div class="text-lg text-white/80">vs. 2 días manual</div>
+                <div class="text-5xl font-extrabold mb-2 text-color">15 min</div>
+                <div class="text-lg text-muted-color">vs. 2 días manual</div>
             </div>
             <div class="text-center">
-                <div class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-white/10 mb-4">
-                    <i class="pi pi-chart-line text-2xl text-white"></i>
+                <div class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-primary/10 mb-4">
+                    <i class="pi pi-chart-line text-2xl text-primary"></i>
                 </div>
-                <div class="text-5xl font-extrabold mb-2">Z-Score</div>
-                <div class="text-lg text-white/80">Metodología Altman</div>
+                <div class="text-5xl font-extrabold mb-2 text-color">Z-Score</div>
+                <div class="text-lg text-muted-color">Metodología Altman</div>
             </div>
             <div class="text-center">
-                <div class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-white/10 mb-4">
-                    <i class="pi pi-clock text-2xl text-white"></i>
+                <div class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-primary/10 mb-4">
+                    <i class="pi pi-clock text-2xl text-primary"></i>
                 </div>
-                <div class="text-5xl font-extrabold mb-2">24/7</div>
-                <div class="text-lg text-white/80">Plataforma disponible</div>
+                <div class="text-5xl font-extrabold mb-2 text-color">24/7</div>
+                <div class="text-lg text-muted-color">Plataforma disponible</div>
             </div>
         </div>
 
         <!-- CTA -->
         <div class="text-center" appScrollAnimate="scale-in" [animateDelay]="200">
-            <h2 class="font-extrabold text-3xl sm:text-4xl mt-0 mb-6">Toma mejores decisiones de crédito y haz crecer tu negocio</h2>
-            <p class="text-lg text-white/80 mb-8 max-w-xl mx-auto">Crea tu cuenta, registra tu empresa y empieza a evaluar el crédito de tus clientes hoy.</p>
+            <h2 class="font-extrabold text-3xl sm:text-4xl mt-0 mb-6 text-color">Toma mejores decisiones de crédito y haz crecer tu negocio</h2>
+            <p class="text-lg text-muted-color mb-8 max-w-xl mx-auto">Crea tu cuenta, registra tu empresa y empieza a evaluar el crédito de tus clientes hoy.</p>
             @if (isAuthenticated()) {
                 <a routerLink="/app" class="no-underline">
-                    <button pButton pRipple label="Ir al Dashboard" icon="pi pi-arrow-right" iconPos="right" rounded class="bg-white! text-primary! hover:bg-white/90! text-lg px-8 py-3 font-bold"></button>
+                    <button pButton pRipple label="Ir al Dashboard" icon="pi pi-arrow-right" iconPos="right" rounded class="text-lg px-8 py-3 font-bold"></button>
                 </a>
             } @else {
                 <a routerLink="/onboarding/registro" class="no-underline">
-                    <button pButton pRipple label="Registrarme" icon="pi pi-arrow-right" iconPos="right" rounded class="bg-white! text-primary! hover:bg-white/90! text-lg px-8 py-3 font-bold"></button>
+                    <button pButton pRipple label="Registrarme" icon="pi pi-arrow-right" iconPos="right" rounded class="text-lg px-8 py-3 font-bold"></button>
                 </a>
             }
-            <p class="text-m text-white/60 mt-4 mb-0">Acompañamiento personalizado &middot; Listo para operar en minutos</p>
+            <p class="text-m text-muted-color mt-4 mb-0">Acompañamiento personalizado &middot; Listo para operar en minutos</p>
         </div>
     </div>
 </section>
