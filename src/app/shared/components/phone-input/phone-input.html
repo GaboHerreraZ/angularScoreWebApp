@@ -1,6 +1,9 @@
 <p-inputgroup [styleClass]="styleClass()">
     <p-inputgroup-addon>
-        <span class="font-semibold text-m">{{ countryCode() }}</span>
+        <!-- leading-none es necesario: el interlineado 1.5 de text-m genera una
+             caja de linea mas alta que la del input, y como p-inputgroup estira
+             a sus hijos, el prefijo terminaba definiendo el alto del control. -->
+        <span class="font-semibold text-m leading-none">{{ countryCode() }}</span>
     </p-inputgroup-addon>
     <p-floatlabel [variant]="variant()">
         <input [id]="inputId()" pInputText type="tel" [formControl]="innerControl" [class.ng-invalid]="invalid()" [class.ng-dirty]="invalid()" class="w-full" (blur)="onBlur()" />

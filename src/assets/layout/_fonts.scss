@@ -1,53 +1,41 @@
-/* Poppins 300 - Light */
+/* Geist Variable 100-900 - Roman */
 @font-face {
-    font-family: 'Poppins';
+    font-family: 'Geist';
     font-style: normal;
-    font-weight: 300;
+    font-weight: 100 900;
     font-display: swap;
-    src: url('/fonts/Poppins-Light.ttf') format('truetype');
+    src: url('/fonts/Geist-Variable.woff2') format('woff2-variations');
 }
 
-/* Poppins 400 - Regular */
+/* Geist Variable 100-900 - Italic */
 @font-face {
-    font-family: 'Poppins';
-    font-style: normal;
-    font-weight: 400;
+    font-family: 'Geist';
+    font-style: italic;
+    font-weight: 100 900;
     font-display: swap;
-    src: url('/fonts/Poppins-Regular.ttf') format('truetype');
+    src: url('/fonts/Geist-Italic-Variable.woff2') format('woff2-variations');
 }
 
-/* Poppins 500 - Medium */
+/*
+  Fallback con metricas ajustadas, equivalente al "GeistSans Fallback" que
+  genera next/font en vercel.com. Reescala Arial para que ocupe el mismo alto
+  y ancho que Geist, de modo que al entrar la fuente real no se mueva el layout.
+  Valores calculados sobre los archivos reales de Geist y Arial.
+*/
 @font-face {
-    font-family: 'Poppins';
-    font-style: normal;
-    font-weight: 500;
-    font-display: swap;
-    src: url('/fonts/Poppins-Medium.ttf') format('truetype');
+    font-family: 'Geist Fallback';
+    src: local('Arial');
+    size-adjust: 105.41%;
+    ascent-override: 95.34%;
+    descent-override: 27.98%;
+    line-gap-override: 0%;
 }
 
-/* Poppins 600 - SemiBold */
+/* Geist Mono Variable 100-900 - companion monospace (code, technical labels) */
 @font-face {
-    font-family: 'Poppins';
+    font-family: 'Geist Mono';
     font-style: normal;
-    font-weight: 600;
+    font-weight: 100 900;
     font-display: swap;
-    src: url('/fonts/Poppins-SemiBold.ttf') format('truetype');
-}
-
-/* Poppins 700 - Bold */
-@font-face {
-    font-family: 'Poppins';
-    font-style: normal;
-    font-weight: 700;
-    font-display: swap;
-    src: url('/fonts/Poppins-Bold.ttf') format('truetype');
-}
-
-/* Poppins 800 - ExtraBold */
-@font-face {
-    font-family: 'Poppins';
-    font-style: normal;
-    font-weight: 800;
-    font-display: swap;
-    src: url('/fonts/Poppins-ExtraBold.ttf') format('truetype');
+    src: url('/fonts/GeistMono-Variable.woff2') format('woff2-variations');
 }
