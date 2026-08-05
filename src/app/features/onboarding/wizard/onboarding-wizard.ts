@@ -1,5 +1,5 @@
 import { Component, computed, DestroyRef, effect, inject, resource, signal, viewChild } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { finalize, firstValueFrom } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -9,13 +9,14 @@ import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { SkeletonModule } from 'primeng/skeleton';
-import { DividerModule } from 'primeng/divider';
 import { MenuItem } from 'primeng/api';
 import { PhoneInput } from '@/app/shared/components/phone-input/phone-input';
 import { SectorSelect } from '@/app/shared/components/sector-select/sector-select';
 import { StateControl } from '@/app/shared/components/state-control/state-control';
 import { CityControl } from '@/app/shared/components/city-control/city-control';
-import { PackCard } from '@/app/shared/components/pack-card/pack-card';
+import { PackDisplayCard } from '@/app/shared/components/pack-card/pack-display-card';
+import { PackIncludedFeatures } from '@/app/shared/components/pack-card/pack-included-features';
+import { CardCarousel } from '@/app/shared/components/card-carousel/card-carousel';
 import { formatCurrency } from '@/app/shared/utils/format.util';
 import { BillingForm } from '@/app/shared/components/billing-form/billing-form';
 import { buildBillingForm } from '@/app/shared/components/billing-form/billing-form.builder';
@@ -28,7 +29,7 @@ import { Parameter } from '@/app/types/parameter';
 import { OnboardingService } from '../onboarding.service';
 import { PackOfferingsService } from '@/app/shared/services/pack-offerings.service';
 import { AnalysisPacksService } from '@/app/shared/services/analysis-packs.service';
-import { OnboardingByProfile, OnboardingRequest, PackOffering } from '@/app/types/onboarding';
+import { OnboardingByProfile, OnboardingRequest, PackOffering, PromoCodeValidation } from '@/app/types/onboarding';
 
 type StateCity = { id: number; name: string };
 
@@ -37,18 +38,20 @@ type StateCity = { id: number; name: string };
     standalone: true,
     imports: [
         ReactiveFormsModule,
+        FormsModule,
         StepsModule,
         ButtonModule,
         InputTextModule,
         SelectModule,
         FloatLabelModule,
         SkeletonModule,
-        DividerModule,
         PhoneInput,
         SectorSelect,
         StateControl,
         CityControl,
-        PackCard,
+        PackDisplayCard,
+        PackIncludedFeatures,
+        CardCarousel,
         BillingForm,
         EpaycoCheckout
     ],
@@ -143,6 +146,29 @@ export class OnboardingWizard {
     submittingOnboarding = signal(false);
     purchasing = signal(false);
 
+    // ── Código promocional ────────────────────────────────────────────
+    promoCode = signal<string>('');
+    validatingPromo = signal<boolean>(false);
+    /** Código aplicado tras una validación exitosa; null si no hay descuento. */
+    appliedPromo = signal<PromoCodeValidation | null>(null);
+    /** Motivo de rechazo de la última validación; null si no aplica. */
+    promoError = signal<string | null>(null);
+
+    /** Porcentaje de descuento del código aplicado (0 si no hay). */
+    promoDiscountPercent = computed<number>(() => this.appliedPromo()?.discountPercent ?? 0);
+
+    /**
+     * Total con el descuento del código aplicado sobre el total del pack (que ya
+     * incluye el descuento por volumen), igual que recalcula el backend.
+     */
+    totalWithPromo = computed<number>(() => {
+        const total = this.selectedPack()?.total ?? 0;
+        return Math.round(total * (1 - this.promoDiscountPercent() / 100));
+    });
+
+    /** Pesos que descuenta el código, para mostrarlo como línea del desglose. */
+    promoDiscountAmount = computed<number>(() => (this.selectedPack()?.total ?? 0) - this.totalWithPromo());
+
     // ── Catálogos ─────────────────────────────────────────────────────
     identificationTypesResource = resource<Parameter[], {}>({
         params: () => ({}),
@@ -214,13 +240,67 @@ export class OnboardingWizard {
     }
 
     back(): void {
-        // Con onboarding precargado, perfil y empresa no se editan: el mínimo es "Paquete".
-        const floor = this.prefilled() ? 2 : 0;
-        this.step.update((s) => Math.max(s - 1, floor));
+        this.step.update((s) => Math.max(s - 1, this.stepFloor()));
+    }
+
+    /**
+     * Paso mínimo al que se puede retroceder. Con el onboarding ya precargado,
+     * perfil y empresa no se editan y el mínimo pasa a ser "Paquete".
+     */
+    private stepFloor(): number {
+        return this.prefilled() ? 2 : 0;
+    }
+
+    /** True si desde el resumen se pueden corregir perfil, empresa y facturación. */
+    canEdit = computed(() => !this.prefilled());
+
+    /** Vuelve a un paso anterior desde el resumen para corregir datos. */
+    editStep(index: number): void {
+        if (index < this.stepFloor()) return;
+        this.step.set(index);
     }
 
     onSelectPack(pack: PackOffering): void {
         this.selectedPack.set(pack);
+    }
+
+    // ── Código promocional ────────────────────────────────────────────
+
+    /** Quita el código aplicado y limpia el error, para volver a intentar con otro. */
+    clearPromo(): void {
+        this.promoCode.set('');
+        this.appliedPromo.set(null);
+        this.promoError.set(null);
+    }
+
+    /**
+     * Valida el código promocional contra el backend para previsualizar el descuento.
+     * No canjea el código: eso ocurre al confirmar el pago.
+     */
+    validatePromoCode(): void {
+        const code = this.promoCode().trim();
+        if (!code || this.validatingPromo()) return;
+
+        this.validatingPromo.set(true);
+        this.appliedPromo.set(null);
+        this.promoError.set(null);
+        // companyId explícito: en el onboarding la empresa se acaba de crear y
+        // el perfil en memoria todavía no lo tiene.
+        this.analysisPacksService.validatePromoCode(code, this.companyId() ?? undefined).pipe(
+            finalize(() => this.validatingPromo.set(false)),
+            takeUntilDestroyed(this.destroyRef)
+        ).subscribe({
+            next: (result) => {
+                if (result.valid) {
+                    this.appliedPromo.set(result);
+                } else {
+                    this.promoError.set(result.reason ?? 'El código no es válido.');
+                }
+            },
+            error: () => {
+                this.promoError.set('No se pudo validar el código. Inténtalo de nuevo.');
+            }
+        });
     }
 
     // ── POST /onboarding ──────────────────────────────────────────────
@@ -272,6 +352,7 @@ export class OnboardingWizard {
             billing: {
                 billingName: b.billingName,
                 billingLastName: b.billingLastName,
+                billingBusinessName: b.billingBusinessName,
                 billingDocTypeId: b.billingDocType!.id,
                 billingDocNumber: b.billingDocNumber,
                 billingEmail: b.billingEmail,
@@ -292,7 +373,9 @@ export class OnboardingWizard {
         this.purchasing.set(true);
         // Pasamos el companyId explícito: en el onboarding la empresa se acaba de
         // crear y el perfil en memoria aún no lo tiene.
-        this.analysisPacksService.purchasePack({ packOfferingId: pack.id }, companyId).pipe(
+        // El backend revalida y canjea el código al confirmarse el pago.
+        const promoCode = this.appliedPromo()?.code;
+        this.analysisPacksService.purchasePack({ packOfferingId: pack.id, ...(promoCode && { promoCode }) }, companyId).pipe(
             finalize(() => this.purchasing.set(false)),
             takeUntilDestroyed(this.destroyRef)
         ).subscribe({
@@ -361,11 +444,19 @@ export class OnboardingWizard {
         };
     }
 
+    /**
+     * Nombre a mostrar en el resumen: la razón social si se factura a una
+     * persona jurídica, y si no el nombre completo de la persona natural.
+     */
+    private billingDisplayName(businessName?: string | null, name?: string | null, lastName?: string | null): string {
+        return (businessName ?? '').trim() || `${name ?? ''} ${lastName ?? ''}`.trim();
+    }
+
     get billingSummary() {
         const e = this.existing();
         if (e) {
             return {
-                name: `${e.billing.billingName} ${e.billing.billingLastName}`.trim(),
+                name: this.billingDisplayName(e.billing.billingBusinessName, e.billing.billingName, e.billing.billingLastName),
                 docNumber: e.billing.billingDocNumber,
                 email: e.billing.billingEmail,
                 phone: e.billing.billingPhone,
@@ -375,7 +466,7 @@ export class OnboardingWizard {
         }
         const b = this.billingForm.getRawValue();
         return {
-            name: `${b.billingName ?? ''} ${b.billingLastName ?? ''}`.trim(),
+            name: this.billingDisplayName(b.billingBusinessName, b.billingName, b.billingLastName),
             docNumber: b.billingDocNumber ?? '',
             email: b.billingEmail ?? '',
             phone: b.billingPhone ?? '',

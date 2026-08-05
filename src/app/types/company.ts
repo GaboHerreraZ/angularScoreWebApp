@@ -15,6 +15,8 @@ export interface Company {
     logoSignedUrl: string | null;
     billingName: string | null;
     billingLastName: string | null;
+    /** Razón social de facturación. Se usa en vez de nombre/apellido cuando el documento es NIT. */
+    billingBusinessName: string | null;
     billingDocTypeId: number | null;
     billingDocNumber: string | null;
     billingEmail: string | null;

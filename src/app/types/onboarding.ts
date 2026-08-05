@@ -22,8 +22,11 @@ export interface OnboardingCompany {
 
 /** Datos de facturación. Se derivan de perfil + empresa. POST /api/onboarding → billing. */
 export interface OnboardingBilling {
+    /** Persona natural. Vacío cuando el documento es NIT. */
     billingName: string;
     billingLastName: string;
+    /** Persona jurídica. Vacío salvo que el documento sea NIT. */
+    billingBusinessName: string;
     billingDocTypeId: number;
     billingDocNumber: string;
     billingEmail: string;

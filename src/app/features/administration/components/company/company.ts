@@ -192,10 +192,14 @@ export class Company {
                 this.pendingBillingStateName.set(c.billingState ?? null);
                 this.pendingBillingCityName.set(c.billingCity ?? null);
 
+                // billingDocType va primero a proposito: es quien decide si se
+                // muestran nombres o razon social, y al cambiar limpia el par
+                // contrario. Si se asignara despues, borraria lo recien cargado.
                 this.billingForm.patchValue({
+                    billingDocType: docType,
                     billingName: c.billingName ?? '',
                     billingLastName: c.billingLastName ?? '',
-                    billingDocType: docType,
+                    billingBusinessName: c.billingBusinessName ?? '',
                     billingDocNumber: c.billingDocNumber ?? '',
                     billingEmail: c.billingEmail ?? '',
                     billingAddress: c.billingAddress ?? '',
@@ -277,6 +281,7 @@ export class Company {
             accountNumber: formData.accountNumber,
             billingName: billingData.billingName,
             billingLastName: billingData.billingLastName,
+            billingBusinessName: billingData.billingBusinessName,
             billingDocTypeId: billingData.billingDocType?.id ?? null,
             billingDocNumber: billingData.billingDocNumber,
             billingEmail: billingData.billingEmail,

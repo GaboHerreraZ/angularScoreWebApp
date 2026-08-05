@@ -2,26 +2,6 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
         <div class="flex flex-col gap-1">
             <p-floatlabel variant="on">
-                <input pInputText id="billingName" formControlName="billingName" [invalid]="isInvalid('billingName')" />
-                <label for="billingName">Nombres *</label>
-            </p-floatlabel>
-            @if (isInvalid('billingName')) {
-                <small class="text-red-500">{{ getErrorMessage('billingName') }}</small>
-            }
-        </div>
-
-        <div class="flex flex-col gap-1">
-            <p-floatlabel variant="on">
-                <input pInputText id="billingLastName" formControlName="billingLastName" [invalid]="isInvalid('billingLastName')" />
-                <label for="billingLastName">Apellidos *</label>
-            </p-floatlabel>
-            @if (isInvalid('billingLastName')) {
-                <small class="text-red-500">{{ getErrorMessage('billingLastName') }}</small>
-            }
-        </div>
-
-        <div class="flex flex-col gap-1">
-            <p-floatlabel variant="on">
                 <p-select id="billingDocType" formControlName="billingDocType" [options]="identificationTypesResource.value() ?? []" optionLabel="label" [invalid]="isInvalid('billingDocType')" />
                 <label for="billingDocType">Tipo de Documento *</label>
             </p-floatlabel>
@@ -39,6 +19,40 @@
                 <small class="text-red-500">{{ getErrorMessage('billingDocNumber') }}</small>
             }
         </div>
+
+        <!-- Con NIT se factura a una razón social; con cualquier otro documento,
+             a una persona natural. Los campos son excluyentes. -->
+        @if (isBusiness()) {
+            <div class="flex flex-col gap-1 md:col-span-2">
+                <p-floatlabel variant="on">
+                    <input pInputText id="billingBusinessName" formControlName="billingBusinessName" [invalid]="isInvalid('billingBusinessName')" />
+                    <label for="billingBusinessName">Razón Social *</label>
+                </p-floatlabel>
+                @if (isInvalid('billingBusinessName')) {
+                    <small class="text-red-500">{{ getErrorMessage('billingBusinessName') }}</small>
+                }
+            </div>
+        } @else {
+            <div class="flex flex-col gap-1">
+                <p-floatlabel variant="on">
+                    <input pInputText id="billingName" formControlName="billingName" [invalid]="isInvalid('billingName')" />
+                    <label for="billingName">Nombres *</label>
+                </p-floatlabel>
+                @if (isInvalid('billingName')) {
+                    <small class="text-red-500">{{ getErrorMessage('billingName') }}</small>
+                }
+            </div>
+
+            <div class="flex flex-col gap-1">
+                <p-floatlabel variant="on">
+                    <input pInputText id="billingLastName" formControlName="billingLastName" [invalid]="isInvalid('billingLastName')" />
+                    <label for="billingLastName">Apellidos *</label>
+                </p-floatlabel>
+                @if (isInvalid('billingLastName')) {
+                    <small class="text-red-500">{{ getErrorMessage('billingLastName') }}</small>
+                }
+            </div>
+        }
 
         <div class="flex flex-col gap-1">
             <p-floatlabel variant="on">
