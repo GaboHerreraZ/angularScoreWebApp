@@ -1,4 +1,6 @@
-<div class="max-w-4xl mx-auto px-6 py-8 lg:py-12">
+<!-- El paso de paquetes va mas ancho: el carrusel muestra tres tarjetas a la vez
+     y con el ancho de los formularios cada una queda demasiado angosta. -->
+<div class="mx-auto px-6 py-8 lg:py-12 transition-[max-width] duration-300" [class.max-w-4xl]="step() !== 2" [class.max-w-6xl]="step() === 2">
     @if (checkingExisting()) {
     <!-- Verificando si el usuario ya tiene perfil/empresa -->
     <div class="flex flex-col items-center justify-center text-center gap-4 py-20">
@@ -96,9 +98,12 @@
 
     <!-- ─────────────── Paso 2: Empresa + Facturación ─────────────── -->
     @if (step() === 1) {
-    <section class="bg-surface-0 dark:bg-surface-900 rounded-2xl border border-surface overflow-hidden">
+    <section class="relative bg-surface-0 dark:bg-surface-900 rounded-2xl border border-surface overflow-hidden" [attr.aria-busy]="submittingOnboarding()">
         <!-- Encabezado con acento -->
-        <div class="flex items-start gap-4 p-6 sm:p-8 border-b border-surface bg-linear-to-r from-primary/5 to-transparent">
+        <div
+            class="flex items-start gap-4 p-6 sm:p-8 border-b border-surface bg-linear-to-r from-primary/5 to-transparent transition-opacity duration-200"
+            [class.opacity-40]="submittingOnboarding()"
+        >
             <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
                 <i class="pi pi-building text-primary text-xl"></i>
             </div>
@@ -108,7 +113,11 @@
             </div>
         </div>
 
-        <div class="p-6 sm:p-8 flex flex-col gap-7">
+        <div
+            class="p-6 sm:p-8 flex flex-col gap-7 transition-opacity duration-200"
+            [class.opacity-40]="submittingOnboarding()"
+            [class.pointer-events-none]="submittingOnboarding()"
+        >
             <!-- Información de la empresa -->
             <div>
                 <p class="text-sm font-bold text-muted-color uppercase tracking-wide m-0 mb-4 flex items-center gap-2">
@@ -159,6 +168,17 @@
                 <app-billing-form [formGroup]="billingForm" />
             </div>
         </div>
+
+        <!-- Registro en curso. Se atenua el formulario en vez de reemplazarlo por
+             esqueletos: los datos siguen a la vista y, si el POST falla (por
+             ejemplo un NIT repetido), el usuario los recupera tal cual. -->
+        @if (submittingOnboarding()) {
+        <div class="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-surface-0/70 dark:bg-surface-900/70">
+            <i class="pi pi-spin pi-spinner text-primary text-3xl"></i>
+            <p class="text-color font-semibold m-0">Registrando tu empresa…</p>
+            <p class="text-muted-color text-m m-0">Estamos creando tu cuenta, esto toma unos segundos.</p>
+        </div>
+        }
     </section>
     }
 
@@ -177,86 +197,206 @@
             }
         </div>
         } @else {
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            @for (pack of packsResource.value() ?? []; track pack.id) {
-            <app-pack-card [pack]="pack" [selected]="selectedPack()?.id === pack.id" (select)="onSelectPack($event)" />
-            }
-        </div>
+        <app-card-carousel [items]="packsResource.value() ?? []">
+            <ng-template let-pack>
+                <app-pack-display-card
+                    [pack]="pack"
+                    [selected]="selectedPack()?.id === pack.id"
+                    [ctaLabel]="selectedPack()?.id === pack.id ? 'Seleccionado' : 'Elegir este'"
+                    (register)="onSelectPack($event)"
+                />
+            </ng-template>
+        </app-card-carousel>
+
+        <!-- Qué incluye cada análisis (una sola vez, aplica a todos los packs) -->
+        <app-pack-included-features class="block mt-6" />
         }
     </section>
     }
 
     <!-- ─────────────── Paso 4: Resumen ─────────────── -->
     @if (step() === 3) {
-    <section class="bg-surface-0 dark:bg-surface-900 rounded-2xl border border-surface p-6 sm:p-8">
-        <div class="mb-6">
-            <h2 class="text-xl font-bold m-0 text-color">Revisa y confirma</h2>
-            <p class="text-muted-color text-m mt-1 mb-0">Verifica que todo esté correcto antes de pagar.</p>
-        </div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <!-- Perfil -->
-            <div class="rounded-xl border border-surface p-5">
-                <h3 class="text-m font-bold text-muted-color uppercase tracking-wide m-0 mb-3">Perfil</h3>
-                <p class="m-0 font-medium text-color">{{ profileSummary.name }}</p>
-                <p class="m-0 text-m text-muted-color">{{ profileSummary.position }}</p>
-                <p class="m-0 text-m text-muted-color">Doc: {{ profileSummary.docNumber }}</p>
-                <p class="m-0 text-m text-muted-color">{{ profileSummary.phone }}</p>
-                <p class="m-0 text-m text-muted-color break-all">{{ userEmail }}</p>
+    <section class="bg-surface-0 dark:bg-surface-900 rounded-2xl border border-surface overflow-hidden">
+        <!-- Encabezado con acento, igual que en los pasos anteriores -->
+        <div class="flex items-start gap-4 p-6 sm:p-8 border-b border-surface bg-linear-to-r from-primary/5 to-transparent">
+            <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                <i class="pi pi-verified text-primary text-xl"></i>
             </div>
-
-            <!-- Empresa -->
-            <div class="rounded-xl border border-surface p-5">
-                <h3 class="text-m font-bold text-muted-color uppercase tracking-wide m-0 mb-3">Empresa</h3>
-                <p class="m-0 font-medium text-color">{{ companySummary.name }}</p>
-                <p class="m-0 text-m text-muted-color">NIT: {{ companySummary.nit }}</p>
-                <p class="m-0 text-m text-muted-color">{{ companySummary.address }}</p>
-                <p class="m-0 text-m text-muted-color">{{ companySummary.location }}</p>
-            </div>
-
-            <!-- Facturación -->
-            <div class="rounded-xl border border-surface p-5 lg:col-span-2">
-                <h3 class="text-m font-bold text-muted-color uppercase tracking-wide m-0 mb-3">Facturación</h3>
-                <p class="m-0 font-medium text-color">{{ billingSummary.name }}</p>
-                <p class="m-0 text-m text-muted-color">Doc: {{ billingSummary.docNumber }}</p>
-                <p class="m-0 text-m text-muted-color break-all">{{ billingSummary.email }}</p>
-                <p class="m-0 text-m text-muted-color">{{ billingSummary.phone }}</p>
-                <p class="m-0 text-m text-muted-color">{{ billingSummary.address }}</p>
-                <p class="m-0 text-m text-muted-color">{{ billingSummary.location }}</p>
+            <div>
+                <h2 class="text-xl font-bold m-0 text-color">Revisa y confirma</h2>
+                <p class="text-muted-color text-m mt-1 mb-0">Verifica que todo esté correcto antes de pagar.</p>
             </div>
         </div>
 
-        <!-- Pack seleccionado -->
-        @if (selectedPack(); as pack) {
-        <div class="rounded-xl bg-primary/5 border border-primary/20 p-5 mt-6">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="m-0 font-bold text-color">{{ pack.quantity }} consultas</p>
-                    <p class="m-0 text-m text-muted-color">{{ pack.description || pack.name }} · Vigencia {{ pack.validityDays }} días</p>
+        <div class="p-6 sm:p-8 flex flex-col gap-6">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                <!-- Perfil -->
+                <div class="rounded-xl border border-surface bg-surface-50/50 dark:bg-surface-950/40 p-5">
+                    <div class="flex items-center justify-between gap-3 mb-4">
+                        <span class="inline-flex items-center gap-2 text-sm font-bold text-muted-color uppercase tracking-widest">
+                            <i class="pi pi-user text-primary"></i> Perfil
+                        </span>
+                        @if (canEdit()) {
+                        <button type="button" class="text-sm font-semibold text-primary hover:underline cursor-pointer bg-transparent border-0 p-0" (click)="editStep(0)">Editar</button>
+                        }
+                    </div>
+                    <p class="m-0 mb-3 font-semibold text-color">{{ profileSummary.name }}</p>
+                    <dl class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 m-0 text-m">
+                        <dt class="text-muted-color">Cargo</dt>
+                        <dd class="m-0 text-color">{{ profileSummary.position }}</dd>
+                        <dt class="text-muted-color">Documento</dt>
+                        <dd class="m-0 text-color">{{ profileSummary.docNumber }}</dd>
+                        <dt class="text-muted-color">Teléfono</dt>
+                        <dd class="m-0 text-color">{{ profileSummary.phone }}</dd>
+                        <dt class="text-muted-color">Correo</dt>
+                        <dd class="m-0 text-color break-all">{{ userEmail }}</dd>
+                    </dl>
                 </div>
-                <div class="text-right">
+
+                <!-- Empresa -->
+                <div class="rounded-xl border border-surface bg-surface-50/50 dark:bg-surface-950/40 p-5">
+                    <div class="flex items-center justify-between gap-3 mb-4">
+                        <span class="inline-flex items-center gap-2 text-sm font-bold text-muted-color uppercase tracking-widest">
+                            <i class="pi pi-building text-primary"></i> Empresa
+                        </span>
+                        @if (canEdit()) {
+                        <button type="button" class="text-sm font-semibold text-primary hover:underline cursor-pointer bg-transparent border-0 p-0" (click)="editStep(1)">Editar</button>
+                        }
+                    </div>
+                    <p class="m-0 mb-3 font-semibold text-color">{{ companySummary.name }}</p>
+                    <dl class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 m-0 text-m">
+                        <dt class="text-muted-color">NIT</dt>
+                        <dd class="m-0 text-color">{{ companySummary.nit }}</dd>
+                        <dt class="text-muted-color">Dirección</dt>
+                        <dd class="m-0 text-color">{{ companySummary.address }}</dd>
+                        <dt class="text-muted-color">Ubicación</dt>
+                        <dd class="m-0 text-color">{{ companySummary.location }}</dd>
+                    </dl>
+                </div>
+
+                <!-- Facturación -->
+                <div class="rounded-xl border border-surface bg-surface-50/50 dark:bg-surface-950/40 p-5 lg:col-span-2">
+                    <div class="flex items-center justify-between gap-3 mb-4">
+                        <span class="inline-flex items-center gap-2 text-sm font-bold text-muted-color uppercase tracking-widest">
+                            <i class="pi pi-receipt text-primary"></i> Facturación
+                        </span>
+                        @if (canEdit()) {
+                        <button type="button" class="text-sm font-semibold text-primary hover:underline cursor-pointer bg-transparent border-0 p-0" (click)="editStep(1)">Editar</button>
+                        }
+                    </div>
+                    <p class="m-0 mb-3 font-semibold text-color">{{ billingSummary.name }}</p>
+                    <dl class="grid grid-cols-[auto_1fr] sm:grid-cols-[auto_1fr_auto_1fr] gap-x-4 gap-y-1.5 m-0 text-m">
+                        <dt class="text-muted-color">Documento</dt>
+                        <dd class="m-0 text-color">{{ billingSummary.docNumber }}</dd>
+                        <dt class="text-muted-color">Teléfono</dt>
+                        <dd class="m-0 text-color">{{ billingSummary.phone }}</dd>
+                        <dt class="text-muted-color">Correo</dt>
+                        <dd class="m-0 text-color break-all">{{ billingSummary.email }}</dd>
+                        <dt class="text-muted-color">Dirección</dt>
+                        <dd class="m-0 text-color">{{ billingSummary.address }}</dd>
+                        <dt class="text-muted-color">Ubicación</dt>
+                        <dd class="m-0 text-color">{{ billingSummary.location }}</dd>
+                    </dl>
+                </div>
+            </div>
+
+            <!-- Resumen de compra: el pack elegido y el desglose del cobro -->
+            @if (selectedPack(); as pack) {
+            <div class="rounded-xl border border-primary/30 bg-primary/5 overflow-hidden">
+                <div class="flex flex-wrap items-center justify-between gap-3 p-5 border-b border-primary/20">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-lg bg-primary/15 flex items-center justify-center shrink-0">
+                            <i class="pi pi-box text-primary"></i>
+                        </div>
+                        <div>
+                            <p class="m-0 font-bold text-color">{{ pack.quantity }} Análisis de Crédito</p>
+                            <p class="m-0 text-m text-muted-color">{{ pack.description || pack.name }} · Vigencia {{ pack.validityDays }} días</p>
+                        </div>
+                    </div>
                     @if (pack.discountAmount > 0) {
-                    <p class="m-0 text-sm text-muted-color line-through">{{ formatCurrency(pack.subtotal, pack.currency) }}</p>
+                    <span class="inline-flex items-center gap-1 text-sm font-bold px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                        <i class="pi pi-tag text-[10px]"></i>
+                        Ahorras {{ formatCurrency(pack.discountAmount, pack.currency) }}
+                    </span>
                     }
-                    <p class="m-0 text-2xl font-extrabold text-color leading-tight">{{ formatCurrency(pack.total, pack.currency) }}</p>
+                </div>
+
+                <!-- Código promocional. Solo previsualiza el descuento: el canje
+                     ocurre en el backend al confirmarse el pago. -->
+                <div class="p-5 flex flex-col gap-2 border-b border-primary/20">
+                    <div class="flex items-start gap-2">
+                        <input
+                            pInputText
+                            type="text"
+                            class="flex-1 w-full"
+                            placeholder="Código promocional"
+                            [ngModel]="promoCode()"
+                            (ngModelChange)="promoCode.set($event); promoError.set(null)"
+                            (keydown.enter)="validatePromoCode()"
+                            [disabled]="!!appliedPromo()"
+                        />
+                        @if (appliedPromo()) {
+                        <p-button label="Quitar" severity="secondary" [outlined]="true" (onClick)="clearPromo()" />
+                        } @else {
+                        <p-button label="Validar" [loading]="validatingPromo()" [disabled]="!promoCode().trim()" (onClick)="validatePromoCode()" />
+                        }
+                    </div>
+
+                    @if (promoError()) {
+                    <span class="text-m text-red-500 flex items-center gap-1">
+                        <i class="pi pi-times-circle"></i>
+                        {{ promoError() }}
+                    </span>
+                    } @else if (appliedPromo(); as promo) {
+                    <span class="text-m text-green-600 dark:text-green-400 flex items-center gap-1">
+                        <i class="pi pi-check-circle"></i>
+                        Código {{ promo.code }} aplicado: {{ promo.discountPercent }}% de descuento.
+                    </span>
+                    }
+                </div>
+
+                <div class="p-5 flex flex-col gap-2">
+                    <div class="flex items-center justify-between text-m">
+                        <span class="text-muted-color">Subtotal</span>
+                        <span class="text-color tabular-nums">{{ formatCurrency(pack.subtotal, pack.currency) }}</span>
+                    </div>
+                    @if (pack.discountAmount > 0) {
+                    <div class="flex items-center justify-between text-m">
+                        <span class="text-muted-color">Descuento por volumen</span>
+                        <span class="text-emerald-600 dark:text-emerald-400 tabular-nums">-{{ formatCurrency(pack.discountAmount, pack.currency) }}</span>
+                    </div>
+                    }
+                    @if (appliedPromo(); as promo) {
+                    <div class="flex items-center justify-between text-m">
+                        <span class="text-muted-color">Código {{ promo.code }} ({{ promo.discountPercent }}%)</span>
+                        <span class="text-emerald-600 dark:text-emerald-400 tabular-nums">-{{ formatCurrency(promoDiscountAmount(), pack.currency) }}</span>
+                    </div>
+                    }
+                    <div class="flex items-end justify-between gap-3 pt-3 mt-1 border-t border-primary/20">
+                        <span class="text-color font-semibold">Total a pagar</span>
+                        <div class="text-right">
+                            @if (appliedPromo()) {
+                            <span class="block text-m text-muted-color line-through leading-none mb-1 tabular-nums">{{ formatCurrency(pack.total, pack.currency) }}</span>
+                            }
+                            <span class="block text-3xl font-extrabold text-color leading-none tabular-nums">{{ formatCurrency(totalWithPromo(), pack.currency) }}</span>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <p-divider />
-
-        <div class="flex items-end justify-between">
-            <span class="text-muted-color font-semibold">Total a pagar</span>
-            <span class="text-3xl font-extrabold text-color">{{ formatCurrency(pack.total, pack.currency) }}</span>
+            <p class="flex items-center justify-center gap-2 text-m text-muted-color m-0">
+                <i class="pi pi-lock text-primary"></i>
+                Pago seguro. Serás redirigido a la pasarela para completar la compra.
+            </p>
+            }
         </div>
-        }
     </section>
     }
 
     <!-- ─────────────── Navegación ─────────────── -->
     <div class="flex items-center justify-between mt-8">
         @if (step() > (prefilled() ? 2 : 0)) {
-        <p-button label="Atrás" icon="pi pi-arrow-left" severity="secondary" [text]="true" (onClick)="back()" />
+        <p-button label="Atrás" icon="pi pi-arrow-left" severity="secondary" [text]="true" [disabled]="submittingOnboarding()" (onClick)="back()" />
         } @else {
         <span></span>
         }

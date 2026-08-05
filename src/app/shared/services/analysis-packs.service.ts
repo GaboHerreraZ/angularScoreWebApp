@@ -67,10 +67,14 @@ export class AnalysisPacksService {
      * Valida un código promocional para previsualizar el descuento antes de pagar.
      * No canjea el código (eso ocurre al confirmarse el pago). Responde siempre 200:
      * el resultado de negocio viene en `valid`/`reason`.
+     *
+     * Igual que {@link purchasePack}, acepta un companyId explícito para el
+     * onboarding: ahí la empresa se acaba de crear y el perfil en memoria
+     * todavía no tiene el companyId.
      */
-    validatePromoCode(code: string): Observable<PromoCodeValidation> {
+    validatePromoCode(code: string, companyId?: string): Observable<PromoCodeValidation> {
         return this.apiService.get<PromoCodeValidation>(
-            `companies/${this.companyId()}/promo-codes/validate`,
+            `companies/${companyId || this.companyId()}/promo-codes/validate`,
             { params: { code }, headers: { 'X-Silent-Error': 'true' } }
         );
     }

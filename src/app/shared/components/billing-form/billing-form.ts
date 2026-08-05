@@ -12,6 +12,7 @@ import { StateControl } from '@/app/shared/components/state-control/state-contro
 import { CityControl } from '@/app/shared/components/city-control/city-control';
 import { ParameterService } from '@/app/core/services/parameter.service';
 import { Parameter } from '@/app/types/parameter';
+import { isBusinessDocType, syncBillingNameValidators } from './billing-form.builder';
 
 @Component({
     selector: 'app-billing-form',
@@ -44,12 +45,39 @@ export class BillingForm {
     private resolvedStateName = signal<string | null>(null);
     private resolvedCityName = signal<string | null>(null);
 
+    /** True cuando el documento es NIT: se factura a una razón social, no a una persona. */
+    isBusiness = signal(false);
+
     identificationTypesResource = resource<Parameter[], {}>({
         params: () => ({}),
         loader: () => firstValueFrom(this.parameterService.getByType('identification_type'))
     });
 
     constructor() {
+        // Alterna entre "Nombres/Apellidos" y "Razón social" segun el tipo de documento.
+        effect((onCleanup) => {
+            const docTypeCtrl = this.formGroup().get('billingDocType');
+            if (!docTypeCtrl) return;
+
+            let wasBusiness = isBusinessDocType(docTypeCtrl.value);
+            this.isBusiness.set(wasBusiness);
+            syncBillingNameValidators(this.formGroup(), false);
+
+            const sub = docTypeCtrl.valueChanges
+                .pipe(takeUntilDestroyed(this.destroyRef))
+                .subscribe((docType: Parameter | null) => {
+                    const nowBusiness = isBusinessDocType(docType);
+                    // Solo se limpia al cruzar entre persona y empresa. Pasar de
+                    // cédula a pasaporte no debe borrar los nombres ya escritos.
+                    const crossed = nowBusiness !== wasBusiness;
+                    wasBusiness = nowBusiness;
+                    this.isBusiness.set(nowBusiness);
+                    syncBillingNameValidators(this.formGroup(), crossed);
+                });
+
+            onCleanup(() => sub.unsubscribe());
+        });
+
         effect((onCleanup) => {
             const stateCtrl = this.formGroup().get('billingState');
             if (!stateCtrl) return;
