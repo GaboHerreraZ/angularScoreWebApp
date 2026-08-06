@@ -5,7 +5,7 @@ import { ReactiveFormsModule, FormGroup, FormControl, Validators, AbstractContro
 import { firstValueFrom, finalize } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
+import { AuthLayout } from '@/app/shared/components/auth-layout/auth-layout';
 import { MessageModule } from 'primeng/message';
 import { SkeletonModule } from 'primeng/skeleton';
 import { InputTextModule } from 'primeng/inputtext';
@@ -16,7 +16,6 @@ import { NotificationService } from '@/app/shared/components/notification/notifi
 import { Notification } from '@/app/shared/components/notification/notification';
 import { SupabaseService } from '@/app/core/services/supabase.service';
 import { AuthService } from '@/app/core/services/auth.service';
-import { LayoutService } from '@/app/layout/service/layout.service';
 import { Invitation } from '@/app/types/invitation';
 
 type LoadState = 'loading' | 'ready' | 'accepted' | 'expired' | 'invalid';
@@ -28,7 +27,7 @@ type LoadState = 'loading' | 'ready' | 'accepted' | 'expired' | 'invalid';
         RouterModule,
         ReactiveFormsModule,
         ButtonModule,
-        CardModule,
+        AuthLayout,
         MessageModule,
         SkeletonModule,
         InputTextModule,
@@ -36,7 +35,30 @@ type LoadState = 'loading' | 'ready' | 'accepted' | 'expired' | 'invalid';
         FloatLabelModule,
         Notification
     ],
-    templateUrl: './invitation.html'
+    templateUrl: './invitation.html',
+    styles: [
+        `
+            i.pi.text-5xl {
+                font-size: 3rem;
+            }
+
+            i.pi.text-4xl {
+                font-size: 2.25rem;
+            }
+
+            i.pi.text-3xl {
+                font-size: 1.875rem;
+            }
+
+            i.pi.text-xl {
+                font-size: 1.25rem;
+            }
+
+            i.pi.text-lg {
+                font-size: 1.125rem;
+            }
+        `
+    ]
 })
 export class InvitationComponent {
     private route = inject(ActivatedRoute);
@@ -46,11 +68,6 @@ export class InvitationComponent {
     private notificationService = inject(NotificationService);
     private supabaseService = inject(SupabaseService);
     private authService = inject(AuthService);
-    private layoutService = inject(LayoutService);
-
-    isDark = computed(() => this.layoutService.isDarkTheme());
-    logo = computed(() => this.isDark() ? '/logo/creditia-logo-dark.svg' : '/logo/creditia-logo.svg');
-    readonly year = new Date().getFullYear();
 
     invitationId = this.route.snapshot.queryParamMap.get('invitationId');
     email = this.route.snapshot.queryParamMap.get('email');
@@ -59,7 +76,7 @@ export class InvitationComponent {
     loadState = signal<LoadState>('loading');
     invitation = signal<Invitation | null>(null);
 
-    /** account_onboarding = owner/admin de Creditia · collaboration = colaborador invitado a una empresa. */
+    /** account_onboarding = owner/admin de Credit-ia · collaboration = colaborador invitado a una empresa. */
     isOnboarding = computed(() => this.invitation()?.type === 'account_onboarding');
 
     /** true = el invitado ya tiene cuenta y prefiere iniciar sesión en vez de crear una nueva. */

@@ -5,8 +5,7 @@ import { firstValueFrom } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { MessageModule } from 'primeng/message';
-import { CardModule } from 'primeng/card';
-import { Configurator } from '@/app/layout/components/configurator/configurator';
+import { AuthLayout } from '@/app/shared/components/auth-layout/auth-layout';
 import { SupabaseService } from '@/app/core/services/supabase.service';
 import { CompanyService } from '@/app/features/administration/components/company/company.service';
 import { FloatLabelModule } from 'primeng/floatlabel';
@@ -21,8 +20,7 @@ import { PasswordModule } from 'primeng/password';
         ButtonModule,
         InputTextModule,
         MessageModule,
-        CardModule,
-        Configurator,
+        AuthLayout,
         FloatLabelModule,
         PasswordModule
     ],

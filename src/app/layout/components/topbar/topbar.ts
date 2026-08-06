@@ -48,7 +48,7 @@ export class Topbar {
         return initials || 'U';
     });
 
-    logo = computed(() => '/logo/creditia-isotype.svg');
+    readonly logo = '/logo/logo-creditia-isologo.svg';
 
     onMenuButtonClick() {
         this.layoutService.toggleMenu();

@@ -12,7 +12,7 @@ import { FooterWidget } from '@/app/features/landing/components/footer-widget/fo
 import { BlogService } from '../blog.service';
 import { BlogPost } from '@/app/types/blog';
 
-const BRAND = 'Creditia';
+const BRAND = 'Credit-ia';
 
 /**
  * Detalle de un artículo del blog (público, SEO). Renderiza el HTML del

@@ -52,6 +52,10 @@
         padding: 1rem 1rem 0 1rem;
 
         .app-logo {
+            img {
+                height: 2.25rem;
+            }
+
             span {
                 display: none;
             }

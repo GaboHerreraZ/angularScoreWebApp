@@ -1,6 +1,6 @@
-# Plan de Pruebas - Creditia
+# Plan de Pruebas - Credit-ia
 
-> **Proyecto:** Creditia - Plataforma de Análisis Crediticio
+> **Proyecto:** Credit-ia - Plataforma de Análisis Crediticio
 > **Fecha:** 2026-04-13
 > **Versión:** 1.0
 > **Locale:** es-CO

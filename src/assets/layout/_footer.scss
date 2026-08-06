@@ -15,15 +15,11 @@ app-footer {
     .footer-start {
         display: flex;
         align-items: center;
+        gap: .75rem;
 
         img {
-            width: 1.75rem;
-        }
-
-        .app-name {
-            font-size: 1.05rem;
-            font-weight: 700;
-            margin-left: .75rem;
+            height: 1.5rem;
+            width: auto;
         }
     }
 

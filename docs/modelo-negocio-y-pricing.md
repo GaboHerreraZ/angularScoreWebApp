@@ -1,4 +1,4 @@
-# CREDITIA — Modelo de Negocio y Pricing
+# CREDIT-IA — Modelo de Negocio y Pricing
 
 > Documento de trabajo interno. Define la estructura de costos, el precio por consulta, la
 > proyección de ventas y la repartición entre socios. Cifras en pesos colombianos (COP),
@@ -8,18 +8,18 @@
 
 ## 1. Contexto
 
-CREDITIA es una plataforma SaaS de análisis crediticio enfocada en **PYMES colombianas** que
+CREDIT-IA es una plataforma SaaS de análisis crediticio enfocada en **PYMES colombianas** que
 venden a crédito y necesitan decidir a quién aprobar cupo, pero **no pueden acceder
 directamente a Datacrédito ni a plataformas de análisis costosas**.
 
-El valor central: por cada cliente que una PYME quiere evaluar, CREDITIA:
+El valor central: por cada cliente que una PYME quiere evaluar, CREDIT-IA:
 
 1. Analiza sus estados financieros (extracción PDF + 10ible+ indicadores: EBITDA, Z-Score, etc.).
 2. **Contrasta la información con el historial crediticio real en Datacrédito** (centrales de riesgo).
 3. Genera un score 0–100 y un análisis con IA.
 
 > **Referencia de mercado:** un análisis crediticio equivalente, contratando a un asesor externo,
-> le cuesta a una PYME **más de $200.000** por estudio. CREDITIA lo entrega en minutos por una
+> le cuesta a una PYME **más de $200.000** por estudio. CREDIT-IA lo entrega en minutos por una
 > fracción de ese valor — ese es el ancla de precio.
 
 La unidad de negocio es **la consulta** (un estudio de crédito que toca Datacrédito). El cliente
@@ -165,7 +165,7 @@ Usando precio PN $25.000 y costo $4.500 → margen bruto $20.500:
 $15.564.000 ÷ $20.500 ≈ 760 consultas/año ≈ 64 consultas/mes
 ```
 
-A partir de **~64 consultas vendidas al mes** (todas PN), CREDITIA cubre todos sus costos fijos.
+A partir de **~64 consultas vendidas al mes** (todas PN), CREDIT-IA cubre todos sus costos fijos.
 Cada consulta adicional es casi pura utilidad ($20.500 c/u, menos comisión ePayco ~3%).
 
 > Si la mezcla incluye PJ (margen mayor), el equilibrio baja. 760 consultas/año es **muy

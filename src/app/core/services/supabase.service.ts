@@ -14,10 +14,7 @@ export class SupabaseService implements OnDestroy {
     currentUser = computed(() => {
         const user = this.session()?.user ?? null;
 
-        return {
-            ...user,
-            phoneFormatted:  Number(user?.phone?.toString().slice(2))
-        }
+        return { ...user };
     });
 
     /** True si el usuario tiene credenciales de correo/contraseña (puede cambiar contraseña). False si solo entró por OAuth (ej. Google). */
@@ -56,23 +53,6 @@ export class SupabaseService implements OnDestroy {
         } finally {
             this.loading.set(false);
         }
-    }
-
-    async signInWithOtp(phone: string): Promise<{ error: Error | null }> {
-        const { error } = await this.supabase.auth.signInWithOtp({ phone });
-        return { error: error as Error | null };
-    }
-
-    async verifyOtp(phone: string, token: string): Promise<{ error: Error | null }> {
-        const { data, error } = await this.supabase.auth.verifyOtp({
-            phone,
-            token,
-            type: 'sms'
-        });
-        if (data.session) {
-            this.session.set(data.session);
-        }
-        return { error: error as Error | null };
     }
 
     async signUp(email: string, password: string): Promise<{ data: { id: string; emailConfirmed: boolean; hasSession: boolean } | null; error: Error | null }> {

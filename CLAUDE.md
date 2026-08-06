@@ -71,7 +71,6 @@ src/
 |   |   |       |-- login.html
 |   |   |       |-- login.ts
 |   |   |       |-- newpassword.ts
-|   |   |       |-- otp-input.ts
 |   |   |       |-- register.ts
 |   |   |       +-- verification.ts
 |   |   |

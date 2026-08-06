@@ -5,7 +5,7 @@ import { ContactSalesRequest, ContactSalesResponse } from '@/app/types/contact-s
 
 /**
  * Envío de mensajes al área comercial desde el landing público.
- * No requiere autenticación: lo usa un visitante interesado en CREDITIA.
+ * No requiere autenticación: lo usa un visitante interesado en CREDIT-IA.
  */
 @Injectable({ providedIn: 'root' })
 export class ContactSalesService {

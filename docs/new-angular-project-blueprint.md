@@ -281,7 +281,6 @@ Cliente Supabase central. Expone la sesión y los métodos de auth como **signal
   - `signInWithPassword(email, password)`
   - `signUp(email, password)`
   - `signInWithGoogle(invitationId?, token?, customRedirectTo?)` — OAuth Google, `redirectTo` por defecto `window.location.origin + '/auth/callback'`.
-  - `signInWithOtp(phone)` / `verifyOtp(phone, token)` — SMS OTP (presente pero comentado en el login; mantener disponible).
   - `resetPasswordForEmail(email)` — `redirectTo: '${origin}/auth/nueva-contrasena'`.
   - `updatePassword(password)` — sirve para recuperación y para cambio desde perfil.
   - `getToken()` — devuelve el `access_token` de la sesión actual.
@@ -330,7 +329,6 @@ El `login.ts` del fuente es la plantilla de cómo se escribe un componente en es
 - `loginForm = new FormGroup({ email, password })` con validadores.
 - `signIn()` → `supabaseService.signInWithPassword()`, maneja errores (`email_not_confirmed`, credenciales inválidas), carga el perfil y navega a `/app`.
 - `signInWithGoogle()` → OAuth.
-- El bloque de **SMS OTP** está presente comentado para uso futuro — conservarlo.
 
 ---
 
@@ -773,7 +771,7 @@ export interface ConfirmOptions {
 - [ ] Mismo `SupabaseService`, `AuthService`, `ApiService`.
 - [ ] Mismos `auth.interceptor` y `error.interceptor` registrados en `app.config.ts`.
 - [ ] Mismos guards (`authGuard`, `noAuthGuard`, `emailProviderGuard`).
-- [ ] Mismo flujo de login (email/password + Google OAuth, SMS OTP comentado).
+- [ ] Mismo flujo de login (email/password + Google OAuth).
 - [ ] Mismo `LOCALE_ID = 'es-CO'` + traducción PrimeNG.
 - [ ] Mismo tema Aura + dark mode `.app-dark`.
 - [ ] Mismo alias `@/*`, mismas convenciones de nombres (sin `.component.ts`).

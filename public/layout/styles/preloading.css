@@ -1,18 +1,36 @@
+/*
+  El fondo se declara sobre .splash-screen y no sobre body a proposito: esta
+  hoja es global y queda cargada durante toda la sesion, asi que un fondo en
+  body se filtraria al dashboard y al landing. Colgado del splash, desaparece
+  solo cuando Angular reemplaza el contenido de <app-root>.
+
+  Los colores van literales porque esto se pinta antes de que cargue el tema
+  de PrimeNG: las variables --p-primary-* todavia no existen. Replican el
+  lavado verde del marco de autenticacion sobre el fondo oscuro por defecto.
+*/
 .splash-screen {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  position: fixed;
+  inset: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 1rem;
+  background-color: #09090b;
+  background-image:
+    radial-gradient(58rem 38rem at 50% -10%, rgba(52, 211, 153, 0.22), transparent 70%),
+    radial-gradient(42rem 32rem at 110% 110%, rgba(5, 150, 105, 0.18), transparent 70%);
+  background-repeat: no-repeat;
 }
 
+/*
+  El isologo no es cuadrado (219.87 x 193.22), asi que la altura se deja en
+  auto: fijar 72x72 como el isotipo anterior lo deformaria.
+*/
 .splash-screen .splash-logo {
   display: block;
-  width: 72px;
-  height: 72px;
+  width: 96px;
+  height: auto;
   animation: splash-logo-pulse 1.4s ease-in-out infinite;
 }
 
@@ -22,7 +40,7 @@
   font-size: 0.875rem;
   font-weight: 500;
   letter-spacing: 0.02em;
-  color: #6b7280;
+  color: #a1a1aa;
 }
 
 .splash-screen .splash-dots span {
@@ -41,7 +59,7 @@
 @keyframes splash-logo-pulse {
   0%, 100% {
     transform: scale(0.92);
-    opacity: 0.65;
+    opacity: 0.8;
   }
   50% {
     transform: scale(1);
