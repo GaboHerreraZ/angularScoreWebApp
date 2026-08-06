@@ -64,7 +64,7 @@ export const DASHBOARD_OVERVIEW_TOUR: TourDefinition = {
         },
         {
             title: '¿Y el menú y la barra superior?',
-            description: 'Eso lo cubre el recorrido <b>Primeros pasos en Creditia</b>, que también está en este mismo botón de guías.'
+            description: 'Eso lo cubre el recorrido <b>Primeros pasos en Credit-ia</b>, que también está en este mismo botón de guías.'
         }
     ]
 };

@@ -2,7 +2,7 @@ import { TourDefinition } from '@/app/types/tour';
 
 export const WELCOME_TOUR: TourDefinition = {
     id: 'welcome',
-    title: 'Primeros pasos en Creditia',
+    title: 'Primeros pasos en Credit-ia',
     description: 'Conoce las zonas principales de la plataforma en un minuto.',
     kind: 'welcome',
     icon: 'pi pi-sparkles',
@@ -11,7 +11,7 @@ export const WELCOME_TOUR: TourDefinition = {
     minutes: 1,
     steps: [
         {
-            title: '¡Bienvenido a Creditia!',
+            title: '¡Bienvenido a Credit-ia!',
             description: 'Te mostramos en 30 segundos dónde está cada cosa. Puedes salir cuando quieras y retomar la guía desde el botón de guías, en la esquina inferior derecha.'
         },
         {

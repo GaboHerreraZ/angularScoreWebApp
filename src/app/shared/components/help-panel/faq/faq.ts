@@ -17,8 +17,8 @@ const FAQ_DATA: FaqItem[] = [
     // General
     {
         category: 'General',
-        question: '¿Qué es Creditia?',
-        answer: 'Creditia es una plataforma de análisis de crédito para empresas que otorgan crédito a sus clientes. A partir de la información financiera de tu cliente, calcula indicadores de viabilidad, capacidad de pago y riesgo que apoyan tu decisión de otorgamiento, y te permite formalizar el crédito mediante un pagaré con firma electrónica.'
+        question: '¿Qué es Credit-ia?',
+        answer: 'Credit-ia es una plataforma de análisis de crédito para empresas que otorgan crédito a sus clientes. A partir de la información financiera de tu cliente, calcula indicadores de viabilidad, capacidad de pago y riesgo que apoyan tu decisión de otorgamiento, y te permite formalizar el crédito mediante un pagaré con firma electrónica.'
     },
     {
         category: 'General',

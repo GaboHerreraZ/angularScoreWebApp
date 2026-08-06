@@ -68,7 +68,7 @@ export class ContractSignatureGuard {
         try {
             const profile = await this.authService.refreshProfile();
             if (profile?.contract?.isSigned) {
-                this.notification.success('¡Gracias! Tu contrato quedó firmado. Ya puedes usar Creditia.');
+                this.notification.success('¡Gracias! Tu contrato quedó firmado. Ya puedes usar Credit-ia.');
                 return;
             }
             this.notification.info('Aún no detectamos tu firma. Si acabas de firmar, espera unos segundos e inténtalo de nuevo.');

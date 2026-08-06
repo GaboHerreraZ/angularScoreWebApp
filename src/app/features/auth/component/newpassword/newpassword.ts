@@ -3,7 +3,7 @@ import { ReactiveFormsModule, FormGroup, FormControl, Validators, AbstractContro
 import { Router, RouterModule } from '@angular/router';
 import { Password } from 'primeng/password';
 import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
+import { AuthLayout } from '@/app/shared/components/auth-layout/auth-layout';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { SupabaseService } from '@/app/core/services/supabase.service';
 import { NotificationService } from '@/app/shared/components/notification/notification.service';
@@ -18,7 +18,7 @@ function passwordsMatch(group: AbstractControl): ValidationErrors | null {
 @Component({
     selector: 'app-new-password',
     standalone: true,
-    imports: [ReactiveFormsModule, Password, ButtonModule, CardModule, FloatLabelModule, RouterModule, Notification],
+    imports: [ReactiveFormsModule, Password, ButtonModule, AuthLayout, FloatLabelModule, RouterModule, Notification],
     templateUrl: './newpassword.html'
 })
 export class NewPassword {

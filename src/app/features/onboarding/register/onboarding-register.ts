@@ -2,7 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
+import { AuthLayout } from '@/app/shared/components/auth-layout/auth-layout';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
 import { FloatLabelModule } from 'primeng/floatlabel';
@@ -26,7 +26,7 @@ const ONBOARDING_NEXT = '/onboarding/registrar-empresa';
         ReactiveFormsModule,
         RouterModule,
         ButtonModule,
-        CardModule,
+        AuthLayout,
         InputTextModule,
         PasswordModule,
         FloatLabelModule,
@@ -39,8 +39,6 @@ export class OnboardingRegister {
     private router = inject(Router);
     private supabaseService = inject(SupabaseService);
     private authService = inject(AuthService);
-
-    readonly year = new Date().getFullYear();
 
     /** Beneficios clave que se muestran en el panel de marca (sin cifras, para no afirmar datos falsos). */
     readonly trustPoints = [

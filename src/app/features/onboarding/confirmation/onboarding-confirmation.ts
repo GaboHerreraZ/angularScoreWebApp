@@ -37,7 +37,7 @@ export class OnboardingConfirmation {
 
     title = computed(() => {
         switch (this.state()) {
-            case 'success': return '¡Bienvenido a Creditia!';
+            case 'success': return '¡Bienvenido a Credit-ia!';
             case 'pending': return 'Tu pago está en proceso';
             case 'declined': return 'No se pudo procesar el pago';
             case 'error': return 'No pudimos confirmar tu pago';

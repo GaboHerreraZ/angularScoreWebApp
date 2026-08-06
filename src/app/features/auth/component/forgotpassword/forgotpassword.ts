@@ -4,7 +4,7 @@ import { RouterModule } from '@angular/router';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { MessageModule } from 'primeng/message';
-import { CardModule } from 'primeng/card';
+import { AuthLayout } from '@/app/shared/components/auth-layout/auth-layout';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { SupabaseService } from '@/app/core/services/supabase.service';
 import { NotificationService } from '@/app/shared/components/notification/notification.service';
@@ -13,7 +13,7 @@ import { Notification } from '@/app/shared/components/notification/notification'
 @Component({
     standalone: true,
     selector: 'app-forgot-password',
-    imports: [ReactiveFormsModule, InputTextModule, ButtonModule, MessageModule, CardModule, FloatLabelModule, RouterModule, Notification],
+    imports: [ReactiveFormsModule, InputTextModule, ButtonModule, MessageModule, AuthLayout, FloatLabelModule, RouterModule, Notification],
     templateUrl: './forgotpassword.html'
 })
 export class ForgotPassword {

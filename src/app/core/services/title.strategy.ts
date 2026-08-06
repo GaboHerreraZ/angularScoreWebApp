@@ -3,7 +3,7 @@ import { Title } from '@angular/platform-browser';
 import { RouterStateSnapshot, TitleStrategy } from '@angular/router';
 
 /** Nombre de marca que se antepone/pospone al título de cada página. */
-const BRAND = 'Creditia';
+const BRAND = 'Credit-ia';
 
 /**
  * Estrategia de título por ruta: toma el `title` de la ruta (o, como respaldo,

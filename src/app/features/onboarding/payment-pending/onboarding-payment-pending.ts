@@ -130,7 +130,7 @@ export class OnboardingPaymentPending {
             const profile = await this.authService.refreshProfile();
             if (profile?.onboardingStatus === 'ready') {
                 if (this.timer) clearInterval(this.timer);
-                this.notification.success('¡Tu pago fue confirmado! Bienvenido a Creditia.');
+                this.notification.success('¡Tu pago fue confirmado! Bienvenido a Credit-ia.');
                 this.router.navigateByUrl('/app');
                 return;
             }
