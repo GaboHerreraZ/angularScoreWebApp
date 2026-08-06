@@ -373,16 +373,21 @@
                         <span class="text-emerald-600 dark:text-emerald-400 tabular-nums">-{{ formatCurrency(promoDiscountAmount(), pack.currency) }}</span>
                     </div>
                     }
-                    <!-- Desglose fiscal: base gravable + IVA. La base se despeja del
-                         valor comercial cuando el catálogo ya trae el impuesto dentro. -->
+                    <!-- Desglose fiscal. La base solo se lista cuando hay que despejarla
+                         del precio (IVA incluido); si el impuesto se suma aparte, la base
+                         es el valor que ya viene sumándose en las líneas de arriba. -->
                     @if (price.taxRate > 0) {
-                    <div class="flex items-center justify-between text-m pt-2 border-t border-primary/10">
-                        <span class="text-muted-color">Base gravable</span>
-                        <span class="text-color tabular-nums">{{ formatCurrency(price.taxBase, pack.currency) }}</span>
-                    </div>
-                    <div class="flex items-center justify-between text-m">
-                        <span class="text-muted-color">IVA ({{ price.taxRate }}%)</span>
-                        <span class="text-color tabular-nums">{{ formatCurrency(price.taxAmount, pack.currency) }}</span>
+                    <div class="flex flex-col gap-2 pt-2 border-t border-primary/10">
+                        @if (price.taxIncluded) {
+                        <div class="flex items-center justify-between text-m">
+                            <span class="text-muted-color">Base gravable</span>
+                            <span class="text-color tabular-nums">{{ formatCurrency(price.taxBase, pack.currency) }}</span>
+                        </div>
+                        }
+                        <div class="flex items-center justify-between text-m">
+                            <span class="text-muted-color">IVA ({{ price.taxRate }}%)</span>
+                            <span class="text-color tabular-nums">{{ formatCurrency(price.taxAmount, pack.currency) }}</span>
+                        </div>
                     </div>
                     }
                     <div class="flex items-end justify-between gap-3 pt-3 mt-1 border-t border-primary/20">

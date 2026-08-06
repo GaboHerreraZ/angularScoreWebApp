@@ -75,14 +75,20 @@
         <span class="text-m leading-none" [class.text-muted-color]="hasDiscount()" [class.line-through]="hasDiscount()" [class.invisible]="!hasDiscount()">
             {{ formatCurrency(p.subtotal, p.currency) }}
         </span>
-        <span class="text-4xl font-extrabold text-color leading-tight">{{ formatCurrency(p.total, p.currency) }}</span>
-        <!-- Solo se anuncia el impuesto; el monto va desglosado en el resumen de compra. -->
-        @if (taxNote()) {
-            <span class="text-sm text-muted-color leading-none mt-1">{{ taxNote() }}</span>
-        }
-        <span class="inline-flex items-center whitespace-nowrap rounded-full bg-primary/10 text-primary text-m font-semibold px-3 py-1 mt-2">
-            {{ formatCurrency(effectiveUnitPrice(), p.currency) }} / análisis
+        <!-- El "+ IVA" acompaña a cada precio para que no quede duda de que el
+             impuesto se suma aparte; el monto va desglosado en el resumen de compra. -->
+        <span class="text-4xl font-extrabold text-color leading-tight">
+            {{ formatCurrency(p.total, p.currency) }}
+            @if (taxSuffix()) {
+                <span class="text-xl font-semibold text-muted-color">{{ taxSuffix() }}</span>
+            }
         </span>
+        <span class="inline-flex items-center whitespace-nowrap rounded-full bg-primary/10 text-primary text-m font-semibold px-3 py-1 mt-2">
+            {{ formatCurrency(effectiveUnitPrice(), p.currency) }} {{ taxSuffix() }} / análisis
+        </span>
+        @if (taxDisclaimer()) {
+            <span class="text-sm text-muted-color leading-none mt-2">{{ taxDisclaimer() }}</span>
+        }
     </div>
 
     <!-- Vigencia (mt-auto empuja todo lo de abajo para alinear el CTA entre tarjetas) -->

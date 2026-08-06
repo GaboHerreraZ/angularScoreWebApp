@@ -95,15 +95,17 @@ export function packPricing(pack: PackOffering | null | undefined, discountPerce
     };
 }
 
-/**
- * Nota fiscal corta para las tarjetas del catálogo, donde solo se anuncia si el
- * precio lleva IVA sin desglosar el valor. Cadena vacía cuando no hay impuesto.
- *
- * @example
- * packTaxNote(pack)  // 'IVA incluido'  (catálogo con precios IVA incluido)
- */
-export function packTaxNote(pack: PackOffering | null | undefined): string {
+export function packTaxSuffix(pack: PackOffering | null | undefined): string {
+    const tax = pack?.tax;
+    if (!tax || tax.rate <= 0 || tax.included) return '';
+    return '+ IVA';
+}
+
+
+export function packTaxDisclaimer(pack: PackOffering | null | undefined): string {
     const tax = pack?.tax;
     if (!tax || tax.rate <= 0) return '';
-    return tax.included ? 'IVA incluido' : `+ IVA (${tax.rate}%)`;
+    return tax.included
+        ? `Los precios ya incluyen IVA (${tax.rate}%)`
+        : `Los precios no incluyen IVA (${tax.rate}%): se suma al pagar`;
 }
