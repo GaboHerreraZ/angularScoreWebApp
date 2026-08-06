@@ -53,6 +53,11 @@ export class CustomTable {
     exportButton = computed(() => this.tableSettings().exportButton ?? null);
     hasActions = computed(() => this.actions().length > 0);
     totalColumns = computed(() => this.columns().length + (this.hasActions() ? 1 : 0));
+
+    /** Encabeza la tarjeta de móvil; el resto de columnas van como etiqueta/valor. */
+    primaryColumn = computed<TableColumn | null>(() => this.columns()[0] ?? null);
+    secondaryColumns = computed(() => this.columns().slice(1));
+
     globalFilterFields = computed(() => this.columns().map((col) => col.textField ?? col.field));
 
     resolveField(row: any, field: string): any {

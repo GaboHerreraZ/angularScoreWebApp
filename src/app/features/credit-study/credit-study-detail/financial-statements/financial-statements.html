@@ -7,7 +7,7 @@
             <i class="pi pi-info-circle text-primary-600 dark:text-primary-400 mt-0.5 shrink-0"></i>
             <span class="text-m">
                 Selecciona la fuente de información con la que se realizará el estudio de crédito.
-                La columna resaltada es la que se usará en el análisis.
+                La fuente resaltada es la que se usará en el análisis.
             </span>
         </div>
         } @else if (selectedSource()) {
@@ -20,7 +20,7 @@
         }
 
         <!-- Tabla combinada: conceptos a la izquierda, un grupo de columnas por fuente -->
-        <div class="rounded-lg border border-surface overflow-x-auto">
+        <div class="hidden lg:block rounded-lg border border-surface overflow-x-auto">
             <table class="w-full text-m border-collapse">
                 <thead>
                     <!-- Fila de fuentes: cada una agrupa sus periodos -->
@@ -137,6 +137,118 @@
                 </tbody>
             </table>
         </div>
+
+        <!-- Móvil/tablet: una fuente y un periodo a la vez, como lista concepto/valor -->
+        @if (mobileSource(); as view) {
+        <div class="lg:hidden flex flex-col gap-4">
+            @if (sources().length > 1) {
+            <div class="flex gap-1 p-1 rounded-lg bg-surface-100 dark:bg-surface-800">
+                @for (v of sources(); track v.source.source) {
+                <button type="button" (click)="mobileSourceKey.set(v.source.source)"
+                        class="flex-1 min-w-0 inline-flex items-center justify-center gap-1.5 px-2 py-2 rounded-md text-sm font-medium transition-colors cursor-pointer"
+                        [ngClass]="v.source.source === view.source.source
+                            ? 'bg-surface-0 dark:bg-surface-900 shadow-sm'
+                            : 'text-muted-color'">
+                    <i class="{{ v.icon }} shrink-0"></i>
+                    <span class="truncate">{{ v.label }}</span>
+                </button>
+                }
+            </div>
+            }
+
+            <div class="flex flex-col gap-2 p-3 rounded-lg border"
+                 [ngClass]="view.selected ? 'border-primary-500 bg-primary-50/40 dark:bg-primary-500/5' : 'border-surface'">
+                <div class="flex items-center gap-2">
+                    <i class="{{ view.icon }} text-primary-500 shrink-0"></i>
+                    <span class="text-m font-semibold min-w-0 wrap-break-word">{{ view.label }}</span>
+                </div>
+                <span class="text-sm text-muted-color">
+                    {{ view.hasData ? view.source.periods.length + ' periodo(s) reportado(s)' : 'Sin datos reportados' }}
+                </span>
+                @if (!readOnly()) {
+                <button type="button" (click)="selectSource(view.source.source)"
+                        class="inline-flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-full text-sm font-semibold border transition-colors cursor-pointer"
+                        [ngClass]="view.selected
+                            ? 'bg-primary border-primary text-primary-contrast'
+                            : 'border-surface text-muted-color'">
+                    <i class="pi" [ngClass]="view.selected ? 'pi-check-circle' : 'pi-circle'"></i>
+                    {{ view.selected ? 'Seleccionada para el estudio' : 'Usar esta fuente' }}
+                </button>
+                } @else if (view.selected) {
+                <span class="inline-flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-full text-sm font-semibold bg-primary border border-primary text-primary-contrast">
+                    <i class="pi pi-check-circle"></i>Utilizada en el estudio
+                </span>
+                }
+            </div>
+
+            @if (view.hasData) {
+                @if (view.source.periods.length > 1) {
+                <div class="flex flex-col gap-1.5">
+                    <span class="text-sm font-semibold uppercase tracking-wide text-muted-color">Periodo</span>
+                    <div class="flex flex-wrap gap-2">
+                        @for (period of view.source.periods; track period.id) {
+                        <button type="button" (click)="mobilePeriodId.set(period.id)"
+                                class="px-3 py-1.5 rounded-full text-sm font-semibold border transition-colors cursor-pointer"
+                                [ngClass]="period.id === mobilePeriodId()
+                                    ? 'bg-primary border-primary text-primary-contrast'
+                                    : 'border-surface text-muted-color'">
+                            {{ period.fiscalYear }}
+                        </button>
+                        }
+                    </div>
+                </div>
+                }
+
+                @if (mobilePeriod(); as period) {
+                    @if (period.balanceSheetDate) {
+                    <span class="text-sm text-muted-color -mt-2">Corte al {{ period.balanceSheetDate | date:'dd/MM/yyyy' }}</span>
+                    }
+                    @for (group of periodGroups; track group.title) {
+                    <div class="flex flex-col gap-1.5">
+                        <span class="text-sm font-semibold uppercase tracking-wide text-muted-color">{{ group.title }}</span>
+                        <div class="flex flex-col divide-y divide-surface rounded-lg border border-surface">
+                            @for (row of group.rows; track row.key) {
+                            <div class="flex items-start justify-between gap-3 px-3 py-2">
+                                <span class="text-m text-muted-color min-w-0">{{ row.label }}</span>
+                                <span class="text-m font-medium text-right whitespace-nowrap">{{ formatValue(getValue($any(period), row.key), row.format) }}</span>
+                            </div>
+                            }
+                        </div>
+                    </div>
+                    }
+                }
+
+                <!-- Indicadores y ratios: se calculan por fuente, no por periodo -->
+                <div class="flex flex-col gap-1.5">
+                    <span class="text-sm font-semibold uppercase tracking-wide text-muted-color">
+                        <i class="pi pi-gauge mr-1.5 text-primary-500"></i>Indicadores
+                    </span>
+                    <div class="flex flex-col divide-y divide-surface rounded-lg border border-surface">
+                        @for (row of indicatorRows; track row.key) {
+                        <div class="flex items-start justify-between gap-3 px-3 py-2">
+                            <span class="text-m text-muted-color min-w-0">{{ row.label }}</span>
+                            <span class="text-m font-medium text-right whitespace-nowrap">{{ formatValue(getValue($any(view.source.indicators), row.key), row.format) }}</span>
+                        </div>
+                        }
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-1.5">
+                    <span class="text-sm font-semibold uppercase tracking-wide text-muted-color">
+                        <i class="pi pi-percentage mr-1.5 text-primary-500"></i>Ratios
+                    </span>
+                    <div class="flex flex-col divide-y divide-surface rounded-lg border border-surface">
+                        @for (row of ratioRows; track row.key) {
+                        <div class="flex items-start justify-between gap-3 px-3 py-2">
+                            <span class="text-m text-muted-color min-w-0">{{ row.label }}</span>
+                            <span class="text-m font-medium text-right whitespace-nowrap">{{ formatValue(getValue($any(view.source.ratios), row.key), row.format) }}</span>
+                        </div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+        }
     </div>
     } @else {
     <div class="flex flex-col items-center justify-center gap-2 py-12 text-muted-color">

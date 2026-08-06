@@ -12,7 +12,7 @@ import { AuthService } from '@/app/core/services/auth.service';
         @if (hasPermissions()) {
             <a
                 routerLink="/app/administracion/analisis-credito"
-                class="credits-indicator inline-flex items-center gap-2.5 pl-3 pr-1.5 py-1 rounded-full border transition-colors select-none cursor-pointer no-underline"
+                class="credits-indicator inline-flex items-center gap-1.5 sm:gap-2.5 shrink-0 pl-2 sm:pl-3 pr-1.5 py-1 rounded-full border transition-colors select-none cursor-pointer no-underline"
                 [ngClass]="hasCredits()
                     ? 'bg-surface-50 dark:bg-surface-800/60 border-surface-200 dark:border-surface-700'
                     : 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800/60'"
@@ -23,7 +23,7 @@ import { AuthService } from '@/app/core/services/auth.service';
                     class="pi pi-bolt text-m"
                     [ngClass]="hasCredits() ? 'text-primary' : 'text-red-500'"
                 ></i>
-                <div class="flex flex-col leading-none">
+                <div class="hidden sm:flex flex-col leading-none">
                     <span class="text-[10px] uppercase tracking-wide text-surface-400 dark:text-surface-500">Análisis restantes</span>
                 </div>
                 <span

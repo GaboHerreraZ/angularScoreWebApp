@@ -32,7 +32,7 @@
     <button
         type="button"
         data-tour="topbar-search"
-        class="topbar-search-trigger hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-100 dark:bg-surface-800 hover:bg-surface-200 dark:hover:bg-surface-700 text-m text-surface-500 transition-colors cursor-pointer w-72 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10"
+        class="topbar-search-trigger hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-100 dark:bg-surface-800 hover:bg-surface-200 dark:hover:bg-surface-700 text-m text-surface-500 transition-colors cursor-pointer w-72 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10"
         (click)="searchService.open()"
         pTooltip="Buscar (Ctrl+K)"
         tooltipPosition="bottom"
@@ -43,6 +43,7 @@
     </button>
 
     <div class="topbar-actions">
+        <p-button class="lg:hidden" icon="pi pi-search" rounded severity="secondary" [text]="true" (onClick)="searchService.open()" pTooltip="Buscar" tooltipPosition="bottom" size="small" styleClass="!text-base"></p-button>
         <app-credits-indicator data-tour="topbar-credits"></app-credits-indicator>
         <p-button data-tour="topbar-help" icon="pi pi-question-circle" rounded severity="help" (onClick)="onHelpButtonClick()" pTooltip="Centro de Ayuda" tooltipPosition="bottom" size="small" styleClass="!text-base"></p-button>
         <p-button data-tour="topbar-appearance" icon="pi pi-palette" rounded severity="secondary" (onClick)="onConfigButtonClick()" pTooltip="Apariencia" tooltipPosition="bottom" size="small" styleClass="!text-base"></p-button>

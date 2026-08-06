@@ -29,18 +29,21 @@ export const CREDIT_STUDY_OVERVIEW_TOUR: TourDefinition = {
         },
         {
             element: '[data-tour="table-col-status.label"]',
+            desktopOnly: true,
             title: 'Estado del estudio',
             description: '<b>En revisión</b> significa que aún se está procesando. <b>Estudio realizado</b> es que ya tiene resultado consultable.',
             side: 'bottom'
         },
         {
             element: '[data-tour="table-col-result.score"]',
+            desktopOnly: true,
             title: 'Score',
             description: 'Puntaje de riesgo del cliente según la central de riesgo. A mayor puntaje, mejor comportamiento crediticio.',
             side: 'bottom'
         },
         {
             element: '[data-tour="table-col-result.statusLabel"]',
+            desktopOnly: true,
             title: 'Viabilidad',
             description: 'La recomendación final: <b>Viable</b>, <b>Viable con condiciones</b> o <b>No viable</b>, calculada con los parámetros de análisis de tu empresa.',
             side: 'bottom',
@@ -48,6 +51,7 @@ export const CREDIT_STUDY_OVERVIEW_TOUR: TourDefinition = {
         },
         {
             element: '[data-tour="table-actions-cell"]',
+            desktopOnly: true,
             title: 'Abrir el estudio',
             description: 'El botón del ojo lleva al detalle completo: información financiera, central de riesgo y las sugerencias del análisis.',
             side: 'left'
@@ -165,18 +169,21 @@ export const CREDIT_STUDY_RESULTS_TOUR: TourDefinition = {
     steps: [
         {
             element: '[data-tour="table-col-status.label"]',
+            desktopOnly: true,
             title: 'Estado ≠ resultado',
             description: 'El <b>estado</b> solo dice si el análisis terminó de procesarse. No es una recomendación.',
             side: 'bottom'
         },
         {
             element: '[data-tour="table-col-result.score"]',
+            desktopOnly: true,
             title: 'El score es del cliente',
             description: 'Viene de la central de riesgo y describe su comportamiento de pago histórico. No depende del monto que te pidió.',
             side: 'bottom'
         },
         {
             element: '[data-tour="table-col-result.statusLabel"]',
+            desktopOnly: true,
             title: 'La viabilidad sí es del negocio',
             description: 'Cruza el score con el cupo y plazo solicitados y con los <b>parámetros de análisis</b> que configuraste en Administración. Cambiar esos parámetros cambia esta columna en estudios futuros.',
             side: 'bottom',
@@ -184,6 +191,7 @@ export const CREDIT_STUDY_RESULTS_TOUR: TourDefinition = {
         },
         {
             element: '[data-tour="table-actions-cell"]',
+            desktopOnly: true,
             title: 'El porqué está en el detalle',
             description: 'Abre el estudio para ver las obligaciones reportadas, el desglose del score y las sugerencias concretas del análisis.',
             side: 'left'

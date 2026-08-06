@@ -28,6 +28,7 @@ export const CUSTOMERS_OVERVIEW_TOUR: TourDefinition = {
         },
         {
             element: '[data-tour="table-filters"]',
+            desktopOnly: true,
             title: 'Filtros por columna',
             description: 'El ícono de cada encabezado abre un filtro específico de esa columna. Puedes combinar varios a la vez.',
             side: 'bottom',
@@ -35,6 +36,7 @@ export const CUSTOMERS_OVERVIEW_TOUR: TourDefinition = {
         },
         {
             element: '[data-tour="table-actions-cell"]',
+            desktopOnly: true,
             title: 'Ver el detalle',
             description: 'El botón del ojo abre la ficha del cliente: su información, sus estudios de crédito y sus estadísticas.',
             side: 'left'
@@ -68,6 +70,7 @@ export const CUSTOMERS_FIND_TOUR: TourDefinition = {
         },
         {
             element: '[data-tour="table-filters"]',
+            desktopOnly: true,
             title: '2. Afina por columna',
             description: 'Si la búsqueda devuelve demasiado, usa el filtro del encabezado de la columna que te interese.',
             side: 'bottom',

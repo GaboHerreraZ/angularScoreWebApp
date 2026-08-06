@@ -213,7 +213,7 @@
     }
 </p-dialog>
 
-<div class="flex flex-col gap-6">
+<div class="study-detail flex flex-col gap-4 sm:gap-6">
     <!-- ═══════════ Header ═══════════ -->
     @if (loading()) {
     <p-card>
@@ -251,9 +251,9 @@
                 </div>
             </div>
 
-            <div class="flex flex-wrap gap-2 shrink-0 items-center">
+            <div class="flex flex-col sm:flex-row sm:flex-wrap gap-2 shrink-0 sm:items-center">
                 @if (isDetailMode() && studyStatusConfig(); as st) {
-                <div class="inline-flex items-center gap-2 pl-3 pr-3.5 py-1.5 rounded-full border text-base font-medium" [ngClass]="st.classes">
+                <div class="inline-flex items-center gap-2 pl-3 pr-3.5 py-1.5 rounded-full border text-base font-medium self-start sm:self-auto" [ngClass]="st.classes">
                     <span class="relative flex items-center justify-center">
                         <span class="absolute inline-flex h-2.5 w-2.5 rounded-full opacity-60 animate-ping" [ngClass]="st.dot"></span>
                         <span class="relative inline-flex h-2.5 w-2.5 rounded-full" [ngClass]="st.dot"></span>
@@ -264,12 +264,12 @@
                 }
                 @if (isDetailMode() && studyCompleted()) {
                     @if (canSignPromissoryNote()) {
-                    <p-button label="Firmar Pagaré" icon="pi pi-pen-to-square" severity="success" (onClick)="promissoryNoteVisible.set(true)" />
+                    <p-button label="Firmar Pagaré" icon="pi pi-pen-to-square" severity="success" (onClick)="promissoryNoteVisible.set(true)" styleClass="w-full sm:w-auto" />
                     }
-                <p-button label="Descargar PDF" icon="pi pi-file-pdf" severity="info" [outlined]="true" (onClick)="onDownloadPdf()" [loading]="downloadingPdf()" [disabled]="downloadingPdf()" />
+                <p-button label="Descargar PDF" icon="pi pi-file-pdf" severity="info" [outlined]="true" (onClick)="onDownloadPdf()" [loading]="downloadingPdf()" [disabled]="downloadingPdf()" styleClass="w-full sm:w-auto" />
                 }
                 @if (!isDetailMode()) {
-                <p-button label="Crear Estudio" icon="pi pi-check" severity="success" (onClick)="onCreateStudy()" [loading]="creatingStudy()" [disabled]="creatingStudy()" />
+                <p-button label="Crear Estudio" icon="pi pi-check" severity="success" (onClick)="onCreateStudy()" [loading]="creatingStudy()" [disabled]="creatingStudy()" styleClass="w-full sm:w-auto" />
                 }
             </div>
         </div>
@@ -333,9 +333,9 @@
 
             <div class="flex gap-2 shrink-0">
                 @if (note.hasSignedDocument && note.documentUrl) {
-                <p-button label="Descargar Pagaré" icon="pi pi-download" severity="success" (onClick)="openPromissoryNoteDocument()" />
+                <p-button label="Descargar Pagaré" icon="pi pi-download" severity="success" (onClick)="openPromissoryNoteDocument()" styleClass="w-full lg:w-auto" />
                 } @else if (note.signingUrl) {
-                <p-button label="Enlace de firma" icon="pi pi-external-link" severity="info" [outlined]="true" (onClick)="openPromissoryNoteSigningUrl()" />
+                <p-button label="Enlace de firma" icon="pi pi-external-link" severity="info" [outlined]="true" (onClick)="openPromissoryNoteSigningUrl()" styleClass="w-full lg:w-auto" />
                 }
             </div>
         </div>
@@ -500,7 +500,7 @@
                         </div>
                         }
 
-                        <div class="flex py-6 gap-2 mt-2">
+                        <div class="flex flex-wrap py-6 gap-2 mt-2">
                             <p-button label="Volver" icon="pi pi-arrow-left" severity="secondary" (onClick)="activateCallback(1)" />
                             @if (hasFinancialData()) {
                             <p-button label="Siguiente" icon="pi pi-arrow-right" iconPos="right" (onClick)="activateCallback(3)" />
@@ -554,7 +554,7 @@
                             [centralRisk]="step1Data()?.centralRisk ?? null"
                             [readOnly]="isStudyClosed()"
                         />
-                        <div class="flex py-6 gap-2 mt-2">
+                        <div class="flex flex-wrap py-6 gap-2 mt-2">
                             <p-button label="Volver" icon="pi pi-arrow-left" severity="secondary" (onClick)="activateCallback(2)" />
                         </div>
                         } @else {
@@ -567,7 +567,7 @@
                             </span>
                         </p-message>
 
-                        <div class="rounded-xl border border-surface p-5 mt-4">
+                        <div class="rounded-xl border border-surface p-4 sm:p-5 mt-4">
                             <div class="flex items-center gap-2 mb-4">
                                 <i class="pi pi-file-check text-primary-500"></i>
                                 <h4 class="text-m font-semibold m-0">Resumen de la Solicitud</h4>
@@ -596,7 +596,7 @@
                             </div>
                         </div>
 
-                        <div class="flex py-6 gap-2 mt-2">
+                        <div class="flex flex-wrap py-6 gap-2 mt-2">
                             <p-button label="Volver" icon="pi pi-arrow-left" severity="secondary" (onClick)="activateCallback(2)" />
                             <p-button label="Realizar Estudio" icon="pi pi-bolt" severity="success" (onClick)="onPerformStudy(activateCallback)" [loading]="performingStudy()" [disabled]="performingStudy()" />
                         </div>

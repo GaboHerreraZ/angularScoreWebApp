@@ -1,6 +1,6 @@
-import { Component, computed, input, model } from '@angular/core';
+import { Component, computed, input, linkedSignal, model } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { CreditStudyStep2, FinancialSource } from '@/app/types/credit-study';
+import { CreditStudyStep2, FinancialPeriod, FinancialSource } from '@/app/types/credit-study';
 
 /** Formato de valor para una fila (moneda por defecto, o número/porcentaje/días). */
 type RowFormat = 'currency' | 'number' | 'percent' | 'days' | 'ratio';
@@ -69,6 +69,42 @@ export class FinancialStatements {
 
     /** Total de columnas de la tabla combinada (concepto + periodos de cada fuente). */
     totalCols = computed(() => 1 + this.sources().reduce((acc, v) => acc + v.cols, 0));
+
+    // La matriz combinada no cabe en un teléfono: en móvil se ve una fuente y un periodo a la vez.
+
+    /** Fuente que se está viendo en móvil; conserva la elección del usuario. */
+    mobileSourceKey = linkedSignal<SourceView[], string | null>({
+        source: () => this.sources(),
+        computation: (views, previous) => {
+            if (previous?.value && views.some(v => v.source.source === previous.value)) {
+                return previous.value;
+            }
+            const fallback = views.find(v => v.selected && v.hasData) ?? views.find(v => v.hasData) ?? views[0];
+            return fallback?.source.source ?? null;
+        }
+    });
+
+    mobileSource = computed<SourceView | null>(() => {
+        const views = this.sources();
+        return views.find(v => v.source.source === this.mobileSourceKey()) ?? views[0] ?? null;
+    });
+
+    /** Periodo visible dentro de la fuente activa; se reinicia al cambiar de fuente. */
+    mobilePeriodId = linkedSignal<SourceView | null, string | null>({
+        source: () => this.mobileSource(),
+        computation: (view, previous) => {
+            const periods = view?.source.periods ?? [];
+            if (previous?.value && periods.some(p => p.id === previous.value)) {
+                return previous.value;
+            }
+            return periods[0]?.id ?? null;
+        }
+    });
+
+    mobilePeriod = computed<FinancialPeriod | null>(() => {
+        const periods = this.mobileSource()?.source.periods ?? [];
+        return periods.find(p => p.id === this.mobilePeriodId()) ?? periods[0] ?? null;
+    });
 
     /** Grupos de filas del balance / estado de resultados (mapean a FinancialPeriod). */
     readonly periodGroups: RowGroup[] = [
