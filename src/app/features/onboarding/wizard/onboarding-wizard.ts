@@ -1,5 +1,6 @@
 import { Component, computed, DestroyRef, effect, inject, resource, signal, viewChild } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { finalize, firstValueFrom } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -18,6 +19,7 @@ import { PackDisplayCard } from '@/app/shared/components/pack-card/pack-display-
 import { PackIncludedFeatures } from '@/app/shared/components/pack-card/pack-included-features';
 import { CardCarousel } from '@/app/shared/components/card-carousel/card-carousel';
 import { formatCurrency } from '@/app/shared/utils/format.util';
+import { PackPricing, packPricing } from '@/app/shared/utils/pack-pricing.util';
 import { BillingForm } from '@/app/shared/components/billing-form/billing-form';
 import { buildBillingForm } from '@/app/shared/components/billing-form/billing-form.builder';
 import { EpaycoCheckout } from '@/app/shared/components/epayco-checkout/epayco-checkout';
@@ -59,6 +61,7 @@ type StateCity = { id: number; name: string };
 })
 export class OnboardingWizard {
     private destroyRef = inject(DestroyRef);
+    private router = inject(Router);
     private onboardingService = inject(OnboardingService);
     private packOfferingsService = inject(PackOfferingsService);
     private analysisPacksService = inject(AnalysisPacksService);
@@ -158,16 +161,19 @@ export class OnboardingWizard {
     promoDiscountPercent = computed<number>(() => this.appliedPromo()?.discountPercent ?? 0);
 
     /**
-     * Total con el descuento del código aplicado sobre el total del pack (que ya
-     * incluye el descuento por volumen), igual que recalcula el backend.
+     * Desglose del cobro del pack elegido (descuentos + IVA), recalculado con el
+     * código promocional aplicado igual que lo hace el backend.
      */
-    totalWithPromo = computed<number>(() => {
-        const total = this.selectedPack()?.total ?? 0;
-        return Math.round(total * (1 - this.promoDiscountPercent() / 100));
-    });
+    pricing = computed<PackPricing>(() => packPricing(this.selectedPack(), this.promoDiscountPercent()));
 
     /** Pesos que descuenta el código, para mostrarlo como línea del desglose. */
-    promoDiscountAmount = computed<number>(() => (this.selectedPack()?.total ?? 0) - this.totalWithPromo());
+    promoDiscountAmount = computed<number>(() => this.pricing().promoDiscount);
+
+    /**
+     * El código cubre el 100%: no habrá pasarela de pago. El backend entrega la
+     * bolsa activa de una y no se factura nada.
+     */
+    isFreePurchase = computed<boolean>(() => !!this.appliedPromo() && this.pricing().totalToCharge <= 0);
 
     // ── Catálogos ─────────────────────────────────────────────────────
     identificationTypesResource = resource<Parameter[], {}>({
@@ -380,6 +386,13 @@ export class OnboardingWizard {
             takeUntilDestroyed(this.destroyRef)
         ).subscribe({
             next: (res) => {
+                // Compra sin costo (código del 100%): no hay pasarela que abrir,
+                // la bolsa ya quedó activa. Vamos a la misma pantalla de resultado
+                // que usa el pago, que refresca el perfil y da entrada al panel.
+                if (!res.requiresPayment || !res.sessionId) {
+                    this.router.navigate(['/pago/resultado'], { queryParams: { ref: res.analysisPackId } });
+                    return;
+                }
                 this.sessionId.set(res.sessionId);
                 // Pasamos el id directo: el input aún no se propagó en este tick.
                 this.checkout().open(res.sessionId);
@@ -387,6 +400,10 @@ export class OnboardingWizard {
             error: (error: HttpErrorResponse) => {
                 if (error.status === 404) {
                     this.notification.error('El paquete seleccionado ya no está disponible.');
+                } else if (error.status === 400) {
+                    // Motivo de negocio del backend (código agotado, monto por
+                    // debajo del mínimo de la pasarela...): se muestra tal cual.
+                    this.notification.error(error.error?.message ?? 'No se pudo iniciar el pago.');
                 } else {
                     this.notification.error('No se pudo iniciar el pago. Inténtalo de nuevo en unos minutos.');
                 }

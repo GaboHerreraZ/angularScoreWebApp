@@ -44,10 +44,13 @@
                 <span class="text-muted-color"><i class="pi pi-building mr-2 text-primary"></i>Empresa</span>
                 <span class="font-semibold text-color">{{ p.company.name }}</span>
             </li>
+            <!-- Sin factura cuando la bolsa se entregó sin costo: no hubo cobro. -->
+            @if (p.invoice) {
             <li class="flex items-center justify-between">
                 <span class="text-muted-color"><i class="pi pi-file mr-2 text-primary"></i>Factura</span>
                 <span class="font-semibold text-color">{{ p.invoice }}</span>
             </li>
+            }
         </ul>
 
         <p-divider />
@@ -62,9 +65,24 @@
             <span class="text-emerald-600 dark:text-emerald-400">- {{ formatCurrency(p.payment.discountAmount, p.payment.currency) }}</span>
         </div>
         }
+        <!-- Desglose fiscal congelado al comprar: base + IVA = total pagado. -->
+        @if (!p.payment.isFree && p.payment.tax.rate > 0) {
+        <div class="flex items-center justify-between text-m mb-1">
+            <span class="text-muted-color">Base gravable</span>
+            <span class="text-color">{{ formatCurrency(p.payment.tax.base, p.payment.currency) }}</span>
+        </div>
+        <div class="flex items-center justify-between text-m mb-2">
+            <span class="text-muted-color">IVA ({{ p.payment.tax.rate }}%)</span>
+            <span class="text-color">{{ formatCurrency(p.payment.tax.amount, p.payment.currency) }}</span>
+        </div>
+        }
         <div class="flex items-end justify-between">
-            <span class="text-muted-color font-semibold">Total pagado</span>
+            <span class="text-muted-color font-semibold">{{ p.payment.isFree ? 'Total' : 'Total pagado' }}</span>
+            @if (p.payment.isFree) {
+            <span class="text-2xl font-extrabold text-emerald-600 dark:text-emerald-400">Sin costo</span>
+            } @else {
             <span class="text-2xl font-extrabold text-color">{{ formatCurrency(p.payment.total, p.payment.currency) }}</span>
+            }
         </div>
 
         <a routerLink="/app/panel" class="no-underline block mt-7">
