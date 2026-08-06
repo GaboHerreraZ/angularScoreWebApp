@@ -46,10 +46,11 @@
         overflow: hidden;
     }
 
+    /* Una sola fila: logo a la izquierda, acciones a la derecha. */
     .layout-topbar {
-        height: 9rem;
-        flex-wrap: wrap;
-        padding: 1rem 1rem 0 1rem;
+        height: 5rem;
+        flex-wrap: nowrap;
+        padding: 0 1rem;
 
         .app-logo {
             img {
@@ -58,6 +59,23 @@
 
             span {
                 display: none;
+            }
+        }
+
+        .topbar-actions {
+            gap: 0.375rem;
+            min-width: 0;
+        }
+
+        .topbar-profile {
+            margin-left: 0.5rem;
+            padding-left: 0.5rem;
+
+            .topbar-profile-button .p-avatar {
+                width: 2.25rem;
+                height: 2.25rem;
+                font-size: 1rem;
+                margin-right: 0;
             }
         }
 
@@ -94,10 +112,9 @@
             }
         }
 
+        /* Las pestañas se abren con ctrl+clic; en móvil la lista siempre está vacía. */
         .topbar-menu {
-            order: 1;
-            width: 100%;
-            margin: 0;
+            display: none;
         }
 
         .topbar-search {
@@ -121,12 +138,12 @@
 
     .layout-content-wrapper {
         margin-left: 0;
-        padding-top: 9rem;
-        height: calc(100% - 9rem);
+        padding-top: 5rem;
+        height: calc(100% - 5rem);
 
         .layout-content {
             border-top-right-radius: 30px;
-            height: calc(100vh - 9rem);
+            height: calc(100vh - 5rem);
         }
     }
 
@@ -134,8 +151,8 @@
         box-shadow: 0 0 1rem rgba(0, 0, 0, 0.15);
         transform: translateY(100%);
         width: 100%;
-        top: 9rem;
-        height: calc(100% - 9rem);
+        top: 5rem;
+        height: calc(100% - 5rem);
         mix-blend-mode: normal;
         backdrop-filter: blur(200px);
         border-radius: 0;

@@ -3,14 +3,14 @@
     <p-accordion [value]="[]" expandIcon="pi pi-chevron-down" collapseIcon="pi pi-chevron-up">
         <p-accordion-panel value="centralRiskBehavior">
             <p-accordion-header>
-                <div class="flex items-center gap-3 w-full">
+                <div class="flex flex-wrap items-center gap-x-3 gap-y-2 w-full">
                     <div class="w-8 h-8 rounded-lg bg-linear-to-br from-primary-500 to-primary-600 flex items-center justify-center shrink-0">
                         <i class="pi pi-shield text-white text-m"></i>
                     </div>
-                    <div class="flex flex-col min-w-0">
+                    <div class="flex flex-col min-w-0 flex-1">
                         <span class="font-bold text-base">Comportamiento en Centrales de Riesgo</span>
                     </div>
-                    <div class="ml-auto flex items-center gap-2 shrink-0">
+                    <div class="flex flex-wrap items-center gap-2 basis-full sm:basis-auto sm:ml-auto">
                         @if (scoreConfig(); as sc) {
                         <span class="text-sm font-bold px-2.5 py-1 rounded-full inline-flex items-center gap-1.5" [ngClass]="sc.chip">
                             <i class="pi pi-gauge"></i>Score {{ cr.score }}
@@ -203,7 +203,7 @@
                     @if (cr.creditPortfolio?.length) {
                     <div class="flex flex-col gap-2">
                         <span class="text-sm font-semibold text-muted-color uppercase tracking-wide">Portafolio por tipo de crédito</span>
-                        <div class="rounded-lg border border-surface overflow-hidden">
+                        <div class="hidden lg:block rounded-lg border border-surface overflow-x-auto">
                             <p-table [value]="cr.creditPortfolio!" styleClass="p-datatable-sm" [tableStyle]="{ 'min-width': '28rem' }">
                                 <ng-template #header>
                                     <tr>
@@ -220,6 +220,17 @@
                                     </tr>
                                 </ng-template>
                             </p-table>
+                        </div>
+                        <div class="lg:hidden flex flex-col divide-y divide-surface rounded-lg border border-surface">
+                            @for (p of cr.creditPortfolio!; track $index) {
+                            <div class="flex flex-col gap-1 p-3">
+                                <span class="text-m font-medium wrap-break-word">{{ p.tipoCreditoLabel || p.tipoCredito || '—' }}</span>
+                                <div class="flex items-center justify-between gap-3">
+                                    <span class="text-m font-semibold">{{ toNumber(p.saldo) != null ? (toNumber(p.saldo) | currency:'COP':'symbol-narrow':'1.0-0':'es-CO') : '—' }}</span>
+                                    <span class="text-sm text-muted-color">{{ toNumber(p.porcentajePart) != null ? (toNumber(p.porcentajePart) | number:'1.0-1':'es-CO') + '% del total' : '—' }}</span>
+                                </div>
+                            </div>
+                            }
                         </div>
                     </div>
                     }
@@ -245,7 +256,7 @@
                     @if (cr.creditSectors?.length) {
                     <div class="flex flex-col gap-2">
                         <span class="text-sm font-semibold text-muted-color uppercase tracking-wide">Sectores de crédito</span>
-                        <div class="rounded-lg border border-surface overflow-hidden">
+                        <div class="hidden lg:block rounded-lg border border-surface overflow-x-auto">
                             <p-table [value]="cr.creditSectors!" styleClass="p-datatable-sm" [tableStyle]="{ 'min-width': '40rem' }">
                                 <ng-template #header>
                                     <tr>
@@ -268,6 +279,31 @@
                                     </tr>
                                 </ng-template>
                             </p-table>
+                        </div>
+                        <div class="lg:hidden flex flex-col divide-y divide-surface rounded-lg border border-surface">
+                            @for (s of cr.creditSectors!; track $index) {
+                            <div class="flex flex-col gap-2 p-3">
+                                <span class="text-m font-medium wrap-break-word">{{ s.sectorLabel || s.sector || '—' }}</span>
+                                <div class="grid grid-cols-2 gap-x-4 gap-y-2">
+                                    <div class="flex flex-col gap-0.5">
+                                        <span class="text-sm text-muted-color">Saldo actual</span>
+                                        <span class="text-m font-semibold">{{ toNumber(s.saldoActual) != null ? (toNumber(s.saldoActual) | currency:'COP':'symbol-narrow':'1.0-0':'es-CO') : '—' }}</span>
+                                    </div>
+                                    <div class="flex flex-col gap-0.5">
+                                        <span class="text-sm text-muted-color">Saldo en mora</span>
+                                        <span class="text-m font-semibold" [ngClass]="{ 'text-red-600 dark:text-red-400': toNumber(s.saldoMora) }">{{ toNumber(s.saldoMora) != null ? (toNumber(s.saldoMora) | currency:'COP':'symbol-narrow':'1.0-0':'es-CO') : '—' }}</span>
+                                    </div>
+                                    <div class="flex flex-col gap-0.5">
+                                        <span class="text-sm text-muted-color">Créditos</span>
+                                        <span class="text-m font-semibold">{{ s.creditosVigentes || 0 }} vigentes · {{ s.creditosCerrados || 0 }} cerrados</span>
+                                    </div>
+                                    <div class="flex flex-col gap-0.5">
+                                        <span class="text-sm text-muted-color">% deuda</span>
+                                        <span class="text-m font-semibold">{{ toNumber(s.porcentajeDeuda) != null ? (toNumber(s.porcentajeDeuda) | number:'1.0-1':'es-CO') + '%' : '—' }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            }
                         </div>
                     </div>
                     }

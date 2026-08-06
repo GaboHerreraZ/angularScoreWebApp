@@ -319,6 +319,54 @@
 }
 
 /* ─────────────────────────────────────────────────────────────
+   Detalle del estudio de crédito en móvil: el stepper vertical de
+   PrimeNG indenta el panel casi 3rem (separador + margen + padding del
+   último paso), que en una pantalla de 360px no sobran.
+   ───────────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+    .study-detail {
+        .p-card-body {
+            padding: 1rem;
+        }
+
+        .p-steppanels {
+            padding-left: 0;
+            padding-right: 0;
+        }
+
+        .p-step {
+            padding-left: 0;
+            padding-right: 0;
+        }
+
+        .p-step-title {
+            white-space: normal;
+            line-height: 1.3;
+        }
+
+        .p-stepitem .p-stepper-separator {
+            display: none;
+        }
+
+        .p-stepitem .p-steppanel-content {
+            margin-inline-start: 0;
+            padding-left: 0;
+            padding-right: 0;
+        }
+
+        .p-stepitem:last-of-type .p-steppanel {
+            padding-inline-start: 0;
+        }
+
+        .p-accordionheader,
+        .p-accordioncontent-content {
+            padding-left: 0.75rem;
+            padding-right: 0.75rem;
+        }
+    }
+}
+
+/* ─────────────────────────────────────────────────────────────
    Tours guiados (driver.js). El popover se pinta con tokens de
    PrimeNG en vez de colores fijos, así sigue el tema y el modo
    claro/oscuro sin duplicar la paleta.

@@ -1,19 +1,19 @@
 <div class="card">
-    <div class="flex items-center mb-4">
+    <div class="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">
         @if (title()) {
-        <div class="flex items-center gap-2 font-semibold text-xl" data-tour="table-title">
+        <div class="flex items-center gap-2 font-semibold text-xl min-w-0" data-tour="table-title">
             @if (titleIcon()) {
             <i [class]="titleIcon()! + ' text-primary'"></i>
             }
             <span>{{ title() }}</span>
         </div>
         }
-        <div class="ml-auto flex items-center gap-2">
+        <div class="flex items-center gap-2 sm:ml-auto shrink-0">
             @if (exportButton()) {
-            <button pButton data-tour="table-export" [label]="exportButton()!.label" [icon]="exportButton()!.icon" [severity]="exportButton()!.severity ?? 'success'" [disabled]="exportButton()!.disabled ?? false" [loading]="exportButton()!.loading ?? false" (click)="onExportClick()"></button>
+            <button pButton class="flex-1 sm:flex-none" data-tour="table-export" [label]="exportButton()!.label" [icon]="exportButton()!.icon" [severity]="exportButton()!.severity ?? 'success'" [disabled]="exportButton()!.disabled ?? false" [loading]="exportButton()!.loading ?? false" (click)="onExportClick()"></button>
             }
             @if (addButton()) {
-            <button pButton data-tour="table-add" [label]="addButton()!.label" [icon]="addButton()!.icon" [severity]="addButton()!.severity ?? 'success'" [disabled]="addButton()!.disabled ?? false" (click)="onAddClick()"></button>
+            <button pButton class="flex-1 sm:flex-none" data-tour="table-add" [label]="addButton()!.label" [icon]="addButton()!.icon" [severity]="addButton()!.severity ?? 'success'" [disabled]="addButton()!.disabled ?? false" (click)="onAddClick()"></button>
             }
         </div>
     </div>
@@ -34,20 +34,21 @@
     >
         @if (showSearch()) {
         <ng-template #caption>
-            <div class="flex justify-between items-center flex-col sm:flex-row">
-                <button pButton label="Limpiar" data-tour="table-clear" class="p-button-outlined mb-2" icon="pi pi-filter-slash" (click)="clearSearch(dt)"></button>
-                <p-iconfield iconPosition="left" class="ml-auto" data-tour="table-search">
+            <!-- `flex-col-reverse`: en móvil el buscador queda arriba y "Limpiar" debajo -->
+            <div class="flex flex-col-reverse sm:flex-row sm:justify-between sm:items-center gap-2">
+                <button pButton label="Limpiar" data-tour="table-clear" class="p-button-outlined w-full sm:w-auto" icon="pi pi-filter-slash" (click)="clearSearch(dt)"></button>
+                <p-iconfield iconPosition="left" class="w-full sm:w-auto sm:ml-auto" data-tour="table-search">
                     <p-inputicon>
                         <i class="pi pi-search"></i>
                     </p-inputicon>
-                    <input pInputText type="text" [value]="searchValue()" (input)="onGlobalFilter(dt, $event)" [placeholder]="searchPlaceholder()" />
+                    <input pInputText type="text" class="w-full" [value]="searchValue()" (input)="onGlobalFilter(dt, $event)" [placeholder]="searchPlaceholder()" />
                 </p-iconfield>
             </div>
         </ng-template>
         }
 
         <ng-template #header>
-            <tr data-tour="table-filters">
+            <tr data-tour="table-filters" class="hidden lg:table-row">
                 @for (col of columns(); track col.field) {
                 <th [style.min-width]="col.minWidth ?? 'auto'" [attr.data-tour]="'table-col-' + col.field">
                     <div class="flex justify-between items-center">
@@ -89,55 +90,12 @@
         <ng-template #body let-row let-rowIndex="rowIndex">
             <tr>
                 @for (col of columns(); track col.field) {
-                <td>
-                    @switch (col.type) { @case ('text') { {{ resolveField(row, col.field) }} } @case ('number') { {{ resolveField(row, col.field) }} } @case ('currency') { {{ resolveField(row, col.field) | currency: (col.currencyCode ?? 'USD') :
-                    'symbol' }} } @case ('date') { {{ resolveField(row, col.field) | date: (col.dateFormat ?? 'MM/dd/yyyy') }} } @case ('avatar') {
-                    <div class="flex items-center gap-2">
-                        <img [alt]="getImageText(row, col)" [src]="getImageSrc(row, col)" [width]="col.imageWidth ?? 32" style="vertical-align: middle" />
-                        <span>{{ getImageText(row, col) }}</span>
-                    </div>
-                    } @case ('image') {
-                    <div class="flex items-center gap-2">
-                        <img [src]="getImageSrc(row, col)" [class]="getImageClass(row, col)" [width]="col.imageWidth ?? 30" />
-                        <span>{{ getImageText(row, col) }}</span>
-                    </div>
-                    } @case ('status') {
-                    <p-tag [value]="resolveField(row, col.field)" [severity]="getSeverity(resolveField(row, col.field), col)" />
-                    } @case ('score') {
-                    <div class="flex items-center gap-2.5">
-                        <div class="relative shrink-0" style="width: 2.5rem; height: 2.5rem;">
-                            <svg viewBox="0 0 36 36" class="w-full h-full -rotate-90">
-                                <circle cx="18" cy="18" r="16" fill="none" stroke-width="3.5" class="stroke-surface-200 dark:stroke-surface-700" />
-                                <circle
-                                    cx="18" cy="18" r="16" fill="none" stroke-width="3.5" stroke-linecap="round"
-                                    pathLength="100"
-                                    [attr.stroke-dasharray]="getScorePercent(row, col) + ' 100'"
-                                    [class]="getScoreClasses(row, col).ring + ' transition-all duration-300'"
-                                />
-                            </svg>
-                            <span class="absolute inset-0 flex items-center justify-center text-sm font-bold tabular-nums" [class]="getScoreClasses(row, col).text">
-                                {{ getScoreValue(row, col) ?? '—' }}
-                            </span>
-                        </div>
-                        @if (getScoreLabel(row, col); as scoreLabel) {
-                        <span class="text-m font-medium" [class]="getScoreClasses(row, col).text">{{ scoreLabel }}</span>
-                        }
-                    </div>
-                    } @case ('boolean') {
-                    <span class="flex items-center">
-                        <i
-                            class="pi"
-                            [class.text-green-500]="resolveField(row, col.field)"
-                            [class.pi-check-circle]="resolveField(row, col.field)"
-                            [class.text-red-500]="!resolveField(row, col.field)"
-                            [class.pi-times-circle]="!resolveField(row, col.field)"
-                        ></i>
-                    </span>
-                    } }
+                <td class="hidden lg:table-cell">
+                    <ng-container *ngTemplateOutlet="cellContent; context: { row: row, col: col }" />
                 </td>
                 } @if (hasActions()) {
                 <!-- Solo la primera fila se ancla: las guías resaltan un ejemplo, no toda la columna. -->
-                <td [attr.data-tour]="rowIndex === 0 ? 'table-actions-cell' : null">
+                <td class="hidden lg:table-cell" [attr.data-tour]="rowIndex === 0 ? 'table-actions-cell' : null">
                     <div class="flex items-center gap-1">
                         @for (action of actions(); track action.id) { @if (!action.visibleField || resolveField(row, action.visibleField)) {
                         <button pButton [rounded]="true" [text]="true" [icon]="action.icon" [severity]="action.severity ?? 'secondary'" [pTooltip]="action.tooltip ?? ''" (click)="onAction(action, row)"></button>
@@ -145,6 +103,39 @@
                     </div>
                 </td>
                 }
+
+                <!-- Móvil: la fila completa como tarjeta, sin scroll horizontal -->
+                <td class="lg:hidden p-0!" [attr.colspan]="totalColumns()">
+                    <div class="flex flex-col gap-3 px-4 py-4">
+                        <div class="flex items-start justify-between gap-3">
+                            @if (primaryColumn(); as primary) {
+                            <div class="font-semibold text-base min-w-0 wrap-break-word">
+                                <ng-container *ngTemplateOutlet="cellContent; context: { row: row, col: primary }" />
+                            </div>
+                            }
+                            @if (hasActions()) {
+                            <div class="flex items-center gap-1 shrink-0 -my-2 -mr-2">
+                                @for (action of actions(); track action.id) { @if (!action.visibleField || resolveField(row, action.visibleField)) {
+                                <button pButton [rounded]="true" [text]="true" [icon]="action.icon" [severity]="action.severity ?? 'secondary'" [attr.aria-label]="action.tooltip ?? action.id" (click)="onAction(action, row)"></button>
+                                } }
+                            </div>
+                            }
+                        </div>
+
+                        @if (secondaryColumns().length) {
+                        <div class="flex flex-col gap-2">
+                            @for (col of secondaryColumns(); track col.field) {
+                            <div class="flex items-center justify-between gap-3">
+                                <span class="text-sm text-muted-color shrink-0">{{ col.header }}</span>
+                                <div class="text-m font-medium min-w-0 flex justify-end items-center text-right wrap-break-word">
+                                    <ng-container *ngTemplateOutlet="cellContent; context: { row: row, col: col }" />
+                                </div>
+                            </div>
+                            }
+                        </div>
+                        }
+                    </div>
+                </td>
             </tr>
         </ng-template>
 
@@ -177,3 +168,51 @@
         </ng-template>
     </p-table>
 </div>
+
+<!-- Render de una celda según su tipo, compartido por la fila de escritorio y la tarjeta de móvil -->
+<ng-template #cellContent let-row="row" let-col="col">
+    @switch (col.type) { @case ('text') { {{ resolveField(row, col.field) }} } @case ('number') { {{ resolveField(row, col.field) }} } @case ('currency') { {{ resolveField(row, col.field) | currency: (col.currencyCode ?? 'USD') :
+    'symbol' }} } @case ('date') { {{ resolveField(row, col.field) | date: (col.dateFormat ?? 'MM/dd/yyyy') }} } @case ('avatar') {
+    <div class="flex items-center gap-2">
+        <img [alt]="getImageText(row, col)" [src]="getImageSrc(row, col)" [width]="col.imageWidth ?? 32" style="vertical-align: middle" />
+        <span>{{ getImageText(row, col) }}</span>
+    </div>
+    } @case ('image') {
+    <div class="flex items-center gap-2">
+        <img [src]="getImageSrc(row, col)" [class]="getImageClass(row, col)" [width]="col.imageWidth ?? 30" />
+        <span>{{ getImageText(row, col) }}</span>
+    </div>
+    } @case ('status') {
+    <p-tag [value]="resolveField(row, col.field)" [severity]="getSeverity(resolveField(row, col.field), col)" />
+    } @case ('score') {
+    <div class="flex items-center gap-2.5">
+        <div class="relative shrink-0" style="width: 2.5rem; height: 2.5rem;">
+            <svg viewBox="0 0 36 36" class="w-full h-full -rotate-90">
+                <circle cx="18" cy="18" r="16" fill="none" stroke-width="3.5" class="stroke-surface-200 dark:stroke-surface-700" />
+                <circle
+                    cx="18" cy="18" r="16" fill="none" stroke-width="3.5" stroke-linecap="round"
+                    pathLength="100"
+                    [attr.stroke-dasharray]="getScorePercent(row, col) + ' 100'"
+                    [class]="getScoreClasses(row, col).ring + ' transition-all duration-300'"
+                />
+            </svg>
+            <span class="absolute inset-0 flex items-center justify-center text-sm font-bold tabular-nums" [class]="getScoreClasses(row, col).text">
+                {{ getScoreValue(row, col) ?? '—' }}
+            </span>
+        </div>
+        @if (getScoreLabel(row, col); as scoreLabel) {
+        <span class="text-m font-medium" [class]="getScoreClasses(row, col).text">{{ scoreLabel }}</span>
+        }
+    </div>
+    } @case ('boolean') {
+    <span class="flex items-center">
+        <i
+            class="pi"
+            [class.text-green-500]="resolveField(row, col.field)"
+            [class.pi-check-circle]="resolveField(row, col.field)"
+            [class.text-red-500]="!resolveField(row, col.field)"
+            [class.pi-times-circle]="!resolveField(row, col.field)"
+        ></i>
+    </span>
+    } }
+</ng-template>

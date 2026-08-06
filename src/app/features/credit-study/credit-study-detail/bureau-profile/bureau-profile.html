@@ -1,13 +1,13 @@
 <div class="flex flex-col gap-6">
     <!-- Encabezado del cliente -->
-    <div class="flex flex-col sm:flex-row sm:items-center gap-4 p-5 rounded-xl bg-linear-to-r from-surface-50 to-surface-100 dark:from-surface-800 dark:to-surface-900 border border-surface">
+    <div class="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 p-4 sm:p-5 rounded-xl bg-linear-to-r from-surface-50 to-surface-100 dark:from-surface-800 dark:to-surface-900 border border-surface">
         <div class="flex items-center justify-center rounded-full shrink-0 bg-primary-50 text-primary-500 dark:bg-primary-500/10 dark:text-primary-400"
              style="width: 3.25rem; height: 3.25rem;">
             <i class="pi text-xl" [ngClass]="isLegalEntity() ? 'pi-building' : 'pi-user'"></i>
         </div>
         <div class="flex flex-col min-w-0 flex-1">
             <div class="flex items-center gap-2 flex-wrap">
-                <h3 class="text-lg font-semibold m-0 truncate">{{ (isLegalEntity() ? customer().businessName : fullName()) || 'Cliente sin nombre' }}</h3>
+                <h3 class="text-lg font-semibold m-0 min-w-0 wrap-break-word sm:truncate">{{ (isLegalEntity() ? customer().businessName : fullName()) || 'Cliente sin nombre' }}</h3>
                 @if (customer().personType?.label) {
                 <p-tag [value]="customer().personType!.label" severity="info" />
                 }
@@ -37,7 +37,7 @@
                     <i class="pi pi-briefcase text-primary-500"></i>
                     <h4 class="text-m font-semibold m-0">Perfil General</h4>
                 </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4 p-4 rounded-lg border border-surface">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4 p-3 sm:p-4 rounded-lg border border-surface">
                     <div class="flex flex-col gap-0.5">
                         <span class="text-sm text-muted-color">Organización Jurídica</span>
                         <span class="text-m font-medium">{{ g.legalOrganizationLabel || g.legalOrganization || 'No disponible' }}</span>
@@ -92,7 +92,7 @@
                     <i class="pi pi-book text-primary-500"></i>
                     <h4 class="text-m font-semibold m-0">Registro Mercantil</h4>
                 </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4 p-4 rounded-lg border border-surface">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4 p-3 sm:p-4 rounded-lg border border-surface">
                     <div class="flex flex-col gap-0.5">
                         <span class="text-sm text-muted-color">Matrícula</span>
                         <span class="text-m font-medium">{{ r.number || 'No disponible' }}</span>
@@ -124,7 +124,7 @@
                     <i class="{{ section.icon }} text-primary-500"></i>
                     <h4 class="text-m font-semibold m-0">{{ section.title }}</h4>
                 </div>
-                <div class="rounded-lg border border-surface overflow-hidden">
+                <div class="hidden lg:block rounded-lg border border-surface overflow-x-auto">
                     <p-table [value]="section.people" styleClass="p-datatable-sm" [tableStyle]="{ 'min-width': '40rem' }">
                         <ng-template #header>
                             <tr>
@@ -150,6 +150,27 @@
                         </ng-template>
                     </p-table>
                 </div>
+                <div class="lg:hidden flex flex-col divide-y divide-surface rounded-lg border border-surface">
+                    @for (person of section.people; track $index) {
+                    <div class="flex flex-col gap-1.5 p-3">
+                        <div class="flex items-start justify-between gap-2">
+                            <span class="text-m font-semibold min-w-0 wrap-break-word">{{ person.name || '—' }} {{ person.lastName || '' }}</span>
+                            @if (person.status) {
+                            <p-tag [value]="person.status" [severity]="statusSeverity(person.status)" class="shrink-0" />
+                            }
+                        </div>
+                        @if (person.role) {
+                        <span class="text-m text-muted-color">{{ person.role }}</span>
+                        }
+                        <div class="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-color">
+                            <span>{{ person.documentType || 'Doc.' }} {{ person.documentNumber || '—' }}</span>
+                            @if (person.appointmentDate) {
+                            <span>Nombrado: {{ person.appointmentDate | date:'dd/MM/yyyy' }}</span>
+                            }
+                        </div>
+                    </div>
+                    }
+                </div>
             </div>
             }
 
@@ -167,7 +188,7 @@
                     </span>
                     }
                 </div>
-                <div class="rounded-lg border border-surface overflow-hidden">
+                <div class="hidden lg:block rounded-lg border border-surface overflow-x-auto">
                     <p-table [value]="partners()!.list" styleClass="p-datatable-sm" [tableStyle]="{ 'min-width': '30rem' }">
                         <ng-template #header>
                             <tr>
@@ -191,6 +212,22 @@
                         </ng-template>
                     </p-table>
                 </div>
+                <div class="lg:hidden flex flex-col divide-y divide-surface rounded-lg border border-surface">
+                    @for (partner of partners()!.list; track $index) {
+                    <div class="flex flex-col gap-1.5 p-3">
+                        <div class="flex items-start justify-between gap-2">
+                            <span class="text-m font-semibold min-w-0 wrap-break-word">{{ partner.name || '—' }} {{ partner.lastName || '' }}</span>
+                            <span class="text-m font-semibold shrink-0">{{ partner.participation ? partner.participation + '%' : '—' }}</span>
+                        </div>
+                        <div class="flex items-center justify-between gap-2 flex-wrap">
+                            <span class="text-sm text-muted-color">{{ partner.documentType || 'Doc.' }} {{ partner.documentNumber || '—' }}</span>
+                            @if (partner.status) {
+                            <p-tag [value]="partner.status" [severity]="statusSeverity(partner.status)" />
+                            }
+                        </div>
+                    </div>
+                    }
+                </div>
             </div>
             }
 
@@ -201,7 +238,7 @@
                     <i class="pi pi-map-marker text-primary-500"></i>
                     <h4 class="text-m font-semibold m-0">Información de Contacto</h4>
                 </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 p-4 rounded-lg border border-surface">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 p-3 sm:p-4 rounded-lg border border-surface">
                     <div class="flex flex-col gap-0.5">
                         <span class="text-sm text-muted-color">Dirección</span>
                         <span class="text-m font-medium">{{ ct.address || 'No disponible' }}</span>
@@ -235,7 +272,7 @@
             <i class="pi pi-user text-primary-500"></i>
             <h4 class="text-m font-semibold m-0">Datos Personales</h4>
         </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4 p-4 rounded-lg border border-surface">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4 p-3 sm:p-4 rounded-lg border border-surface">
             <div class="flex flex-col gap-0.5">
                 <span class="text-sm text-muted-color">Nombre Completo</span>
                 <span class="text-m font-medium">{{ fullName() || 'No disponible' }}</span>
@@ -270,7 +307,7 @@
             <i class="pi pi-map-marker text-primary-500"></i>
             <h4 class="text-m font-semibold m-0">Información de Contacto</h4>
         </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 p-4 rounded-lg border border-surface">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 p-3 sm:p-4 rounded-lg border border-surface">
             <div class="flex flex-col gap-0.5">
                 <span class="text-sm text-muted-color">Dirección</span>
                 <span class="text-m font-medium">{{ customer().address || 'No disponible' }}</span>
