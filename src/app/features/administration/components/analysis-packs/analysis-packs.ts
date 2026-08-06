@@ -22,6 +22,7 @@ import { AuthService } from '@/app/core/services/auth.service';
 import { NotificationService } from '@/app/shared/components/notification/notification.service';
 import { AnalysisPack, AnalysisPackConsumption } from '@/app/types/analysis-pack';
 import { PackOffering, PromoCodeValidation } from '@/app/types/onboarding';
+import { PackPricing, packPricing } from '@/app/shared/utils/pack-pricing.util';
 import { TagSeverity } from '@/app/types/table';
 
 /** Ruta a la que ePayco debe volver tras el pago iniciado desde esta pantalla. */
@@ -74,13 +75,16 @@ export class AnalysisPacks {
     promoDiscountPercent = computed<number>(() => this.appliedPromo()?.discountPercent ?? 0);
 
     /**
-     * Total con el descuento del código aplicado sobre el total del pack (que ya
-     * incluye el descuento por volumen), igual que recalcula el backend.
+     * Desglose del cobro del pack elegido (descuentos + IVA), recalculado con el
+     * código promocional aplicado igual que lo hace el backend.
      */
-    totalWithPromo = computed<number>(() => {
-        const total = this.selectedPack()?.total ?? 0;
-        return Math.round(total * (1 - this.promoDiscountPercent() / 100));
-    });
+    pricing = computed<PackPricing>(() => packPricing(this.selectedPack(), this.promoDiscountPercent()));
+
+    /**
+     * El código cubre el 100%: no habrá pasarela de pago. El backend entrega la
+     * bolsa activa de una y no se factura nada.
+     */
+    isFreePurchase = computed<boolean>(() => !!this.appliedPromo() && this.pricing().totalToCharge <= 0);
 
     // ── Catálogo de packs disponibles para compra ─────────────────────
     packsCatalogResource = resource<PackOffering[], {}>({
@@ -231,6 +235,14 @@ export class AnalysisPacks {
         ).subscribe({
             next: (res) => {
                 this.summaryVisible.set(false);
+                // Compra sin costo (código del 100%): no hay pasarela que abrir,
+                // la bolsa ya quedó activa. Refrescamos saldo y listado en sitio.
+                if (!res.requiresPayment || !res.sessionId) {
+                    this.notification.success(`¡Listo! Se agregaron ${res.pricing.quantity} análisis a tu cuenta sin costo.`);
+                    void this.authService.refreshProfile();
+                    this.loadPacks(1);
+                    return;
+                }
                 this.sessionId.set(res.sessionId);
                 // Pasamos el id directo: el input aún no se propagó en este tick.
                 this.checkout().open(res.sessionId);
@@ -238,6 +250,10 @@ export class AnalysisPacks {
             error: (error: HttpErrorResponse) => {
                 if (error.status === 404) {
                     this.notification.error('El paquete seleccionado ya no está disponible.');
+                } else if (error.status === 400) {
+                    // Motivo de negocio del backend (código agotado, monto por
+                    // debajo del mínimo de la pasarela...): se muestra tal cual.
+                    this.notification.error(error.error?.message ?? 'No se pudo iniciar el pago.');
                 } else {
                     this.notification.error('No se pudo iniciar el pago. Inténtalo de nuevo en unos minutos.');
                 }

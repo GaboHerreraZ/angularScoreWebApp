@@ -76,6 +76,10 @@
             {{ formatCurrency(p.subtotal, p.currency) }}
         </span>
         <span class="text-4xl font-extrabold text-color leading-tight">{{ formatCurrency(p.total, p.currency) }}</span>
+        <!-- Solo se anuncia el impuesto; el monto va desglosado en el resumen de compra. -->
+        @if (taxNote()) {
+            <span class="text-sm text-muted-color leading-none mt-1">{{ taxNote() }}</span>
+        }
         <span class="inline-flex items-center whitespace-nowrap rounded-full bg-primary/10 text-primary text-m font-semibold px-3 py-1 mt-2">
             {{ formatCurrency(effectiveUnitPrice(), p.currency) }} / análisis
         </span>

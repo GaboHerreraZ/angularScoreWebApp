@@ -112,6 +112,12 @@ export class OnboardingPaymentPending {
             const res = await firstValueFrom(
                 this.analysisPacksService.purchasePack({ packOfferingId: pack.packOfferingId })
             );
+            // Si la compra quedó sin costo (código del 100%), no hay pasarela que
+            // reabrir: la bolsa ya está activa, basta con verificar el estado.
+            if (!res.requiresPayment || !res.sessionId) {
+                await this.checkStatus();
+                return;
+            }
             this.sessionId.set(res.sessionId);
             // Pasamos el id directo: el input aún no se propagó en este tick.
             await this.checkout().open(res.sessionId);

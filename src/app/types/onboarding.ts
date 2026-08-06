@@ -71,7 +71,27 @@ export interface PackOffering {
     unitPrice: number;
     subtotal: number;
     discountAmount: number;
+    /** Valor comercial del pack (con descuento por volumen, sin IVA sumado). */
     total: number;
+    /**
+     * Desglose de IVA con la tarifa vigente: base + amount = totalToCharge.
+     * null si no hay precio de consulta activo (catálogo no cotizable).
+     */
+    tax: {
+        /** Tarifa aplicada (19 = 19%). */
+        rate: number;
+        /** true = `total` YA incluye el IVA. */
+        included: boolean;
+        base: number;
+        amount: number;
+    } | null;
+    /**
+     * Lo que se le cobrará al cliente: igual a `total` si el IVA va incluido,
+     * o total + IVA si no. Es el número a mostrar como "total a pagar".
+     * Si el usuario aplica un código promocional, el desglose definitivo lo
+     * devuelve /purchase (el descuento entra antes del impuesto).
+     */
+    totalToCharge: number;
 }
 
 /**
@@ -98,17 +118,46 @@ export interface PurchasePackRequest {
     promoCode?: string;
 }
 
-/** Respuesta de la compra: trae el sessionId para abrir el checkout de ePayco. */
+/**
+ * Respuesta de la compra. Normalmente trae el sessionId para abrir el checkout
+ * de ePayco; si un código promocional cubre el 100%, la compra es SIN COSTO:
+ * `requiresPayment` viene en false, la bolsa ya queda activa y no hay checkout
+ * ni factura que abrir (`sessionId` e `invoice` en null).
+ */
 export interface PurchasePackResponse {
     analysisPackId: string;
-    invoice: string;
-    sessionId: string;
+    /** Referencia de cobro; null en compras sin costo (no se factura nada). */
+    invoice: string | null;
+    /** Sesión del checkout de ePayco; null en compras sin costo. */
+    sessionId: string | null;
+    /** False = la bolsa ya quedó activa, no hay que abrir la pasarela. */
+    requiresPayment: boolean;
+    /** Estado en que quedó la bolsa: 'pending_payment' o 'active' (sin costo). */
+    status: AnalysisPackStatus;
     pricing: {
         quantity: number;
         unitPrice: number;
         subtotal: number;
         discountAmount: number;
+        /** Total con descuento por volumen, ANTES del código promocional. */
         total: number;
+        /** Código promocional aplicado; null si no se envió ninguno. */
+        promoCode: {
+            code: string;
+            discountPercent: number;
+            discountAmount: number;
+        } | null;
+        /** Desglose de IVA de lo cobrado: base + amount = totalToCharge. */
+        tax: {
+            /** Tarifa aplicada (19 = 19%). */
+            rate: number;
+            /** true = el precio del catálogo ya incluía el IVA. */
+            included: boolean;
+            base: number;
+            amount: number;
+        };
+        /** Lo que realmente se cobra (0 en una compra sin costo). */
+        totalToCharge: number;
         currency: string;
     };
     validity: {
@@ -125,7 +174,8 @@ export interface AnalysisPackByReference {
     analysisPackId: string;
     status: AnalysisPackStatus;
     statusLabel: string;
-    invoice: string;
+    /** Referencia de cobro; null si la bolsa se entregó sin costo. */
+    invoice: string | null;
     company: {
         id: string;
         name: string;
@@ -143,6 +193,14 @@ export interface AnalysisPackByReference {
         subtotal: number;
         discountAmount: number;
         total: number;
+        /** True = bolsa entregada sin cobro (código del 100%): no hay factura. */
+        isFree: boolean;
+        /** Desglose fiscal congelado al comprar: base + amount = total. */
+        tax: {
+            rate: number;
+            base: number;
+            amount: number;
+        };
         currency: string;
         providerReference: string;
         providerTransactionId: string;

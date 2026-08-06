@@ -356,6 +356,7 @@
                 </div>
 
                 <div class="p-5 flex flex-col gap-2">
+                    @let price = pricing();
                     <div class="flex items-center justify-between text-m">
                         <span class="text-muted-color">Subtotal</span>
                         <span class="text-color tabular-nums">{{ formatCurrency(pack.subtotal, pack.currency) }}</span>
@@ -372,21 +373,42 @@
                         <span class="text-emerald-600 dark:text-emerald-400 tabular-nums">-{{ formatCurrency(promoDiscountAmount(), pack.currency) }}</span>
                     </div>
                     }
+                    <!-- Desglose fiscal: base gravable + IVA. La base se despeja del
+                         valor comercial cuando el catálogo ya trae el impuesto dentro. -->
+                    @if (price.taxRate > 0) {
+                    <div class="flex items-center justify-between text-m pt-2 border-t border-primary/10">
+                        <span class="text-muted-color">Base gravable</span>
+                        <span class="text-color tabular-nums">{{ formatCurrency(price.taxBase, pack.currency) }}</span>
+                    </div>
+                    <div class="flex items-center justify-between text-m">
+                        <span class="text-muted-color">IVA ({{ price.taxRate }}%)</span>
+                        <span class="text-color tabular-nums">{{ formatCurrency(price.taxAmount, pack.currency) }}</span>
+                    </div>
+                    }
                     <div class="flex items-end justify-between gap-3 pt-3 mt-1 border-t border-primary/20">
-                        <span class="text-color font-semibold">Total a pagar</span>
+                        <span class="text-color font-semibold">{{ isFreePurchase() ? 'Total' : 'Total a pagar' }}</span>
                         <div class="text-right">
                             @if (appliedPromo()) {
-                            <span class="block text-m text-muted-color line-through leading-none mb-1 tabular-nums">{{ formatCurrency(pack.total, pack.currency) }}</span>
+                            <span class="block text-m text-muted-color line-through leading-none mb-1 tabular-nums">{{ formatCurrency(pack.totalToCharge, pack.currency) }}</span>
                             }
-                            <span class="block text-3xl font-extrabold text-color leading-none tabular-nums">{{ formatCurrency(totalWithPromo(), pack.currency) }}</span>
+                            @if (isFreePurchase()) {
+                            <span class="block text-3xl font-extrabold text-emerald-600 dark:text-emerald-400 leading-none">Sin costo</span>
+                            } @else {
+                            <span class="block text-3xl font-extrabold text-color leading-none tabular-nums">{{ formatCurrency(price.totalToCharge, pack.currency) }}</span>
+                            }
                         </div>
                     </div>
                 </div>
             </div>
 
             <p class="flex items-center justify-center gap-2 text-m text-muted-color m-0">
+                @if (isFreePurchase()) {
+                <i class="pi pi-gift text-primary"></i>
+                Tu código cubre el 100%: activaremos tu cuenta sin ningún cobro.
+                } @else {
                 <i class="pi pi-lock text-primary"></i>
                 Pago seguro. Serás redirigido a la pasarela para completar la compra.
+                }
             </p>
             }
         </div>
@@ -411,8 +433,8 @@
         />
         } @else {
         <p-button
-            [label]="purchasing() ? 'Procesando…' : 'Ir a pagar'"
-            icon="pi pi-lock"
+            [label]="purchasing() ? 'Procesando…' : (isFreePurchase() ? 'Activar mi cuenta' : 'Ir a pagar')"
+            [icon]="isFreePurchase() ? 'pi pi-gift' : 'pi pi-lock'"
             [loading]="purchasing()"
             (onClick)="goToPayment()"
         />

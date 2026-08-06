@@ -2,6 +2,7 @@ import { Component, computed, input, output } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { PackOffering } from '@/app/types/onboarding';
 import { formatCurrency } from '@/app/shared/utils/format.util';
+import { packTaxNote } from '@/app/shared/utils/pack-pricing.util';
 
 /**
  * Tarjeta de un pack de análisis de crédito. Es la única tarjeta de packs de la
@@ -63,6 +64,12 @@ export class PackDisplayCard {
         const p = this.pack();
         return p.quantity > 0 ? p.total / p.quantity : p.total;
     });
+
+    /**
+     * Nota fiscal junto al precio ("IVA incluido"). En la tarjeta solo se anuncia
+     * el impuesto: el valor desglosado se muestra en el resumen de compra.
+     */
+    taxNote = computed(() => packTaxNote(this.pack()));
 
     /** El borde resaltado lo activa tanto la tarjeta destacada como la elegida. */
     highlighted = computed(() => this.featured() || this.selected());
