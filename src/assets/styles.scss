@@ -467,6 +467,68 @@
     border-bottom-color: var(--p-content-background);
 }
 
+/* Pastilla "hazlo tú" en los pasos accionables de las tareas guiadas. */
+.driver-popover.creditia-flow .flow-action {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin-top: 0.8rem;
+    padding: 0.45rem 0.65rem;
+    border-radius: 0.5rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--p-primary-color);
+    background-color: color-mix(in srgb, var(--p-primary-color) 12%, transparent);
+}
+
+/* Con una tarea guiada activa, los paneles flotantes de PrimeNG (selects,
+   calendarios, diálogos, toasts) deben quedar por encima del velo de driver.js
+   (z-index 10000); si no, el usuario no podría ejecutar la acción del paso. */
+body.creditia-flow-active .p-select-overlay,
+body.creditia-flow-active .p-multiselect-overlay,
+body.creditia-flow-active .p-autocomplete-overlay,
+body.creditia-flow-active .p-datepicker-panel,
+body.creditia-flow-active .p-overlay,
+body.creditia-flow-active .p-dialog-mask {
+    z-index: 10500 !important;
+}
+
+body.creditia-flow-active .p-toast {
+    z-index: 10600 !important;
+}
+
+/* driver.js además pone pointer-events: none en todo lo que no sea el elemento
+   resaltado o su popover (regla `.driver-active *`). Esos mismos paneles cuelgan
+   del body, no del elemento resaltado, así que hay que devolverles el click. */
+body.creditia-flow-active .p-select-overlay,
+body.creditia-flow-active .p-select-overlay *,
+body.creditia-flow-active .p-multiselect-overlay,
+body.creditia-flow-active .p-multiselect-overlay *,
+body.creditia-flow-active .p-autocomplete-overlay,
+body.creditia-flow-active .p-autocomplete-overlay *,
+body.creditia-flow-active .p-datepicker-panel,
+body.creditia-flow-active .p-datepicker-panel *,
+body.creditia-flow-active .p-overlay,
+body.creditia-flow-active .p-overlay *,
+body.creditia-flow-active .p-dialog-mask,
+body.creditia-flow-active .p-dialog-mask *,
+body.creditia-flow-active .p-toast,
+body.creditia-flow-active .p-toast * {
+    pointer-events: auto !important;
+}
+
+/* El scroll de la app vive en .layout-content, no en la ventana. Para que la
+   rueda del mouse funcione durante una tarea guiada: el velo deja pasar el
+   puntero y el contenedor de scroll vuelve a ser objetivo del evento (sus hijos
+   siguen inertes por el CSS de driver.js, así que los clicks no hacen nada). */
+body.creditia-flow-active .driver-overlay {
+    pointer-events: none !important;
+}
+
+body.creditia-flow-active .layout-content {
+    pointer-events: auto !important;
+}
+
 /* Card de sección con separación visual clara: borde definido, sombra sutil
    y encabezado con divisor inferior. Usar via styleClass="section-card". */
 .section-card.p-card {
