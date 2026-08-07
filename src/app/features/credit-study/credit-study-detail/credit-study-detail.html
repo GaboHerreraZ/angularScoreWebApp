@@ -125,7 +125,7 @@
     <ng-template #footer>
         <div class="flex justify-end gap-2">
             <p-button label="Cancelar" severity="secondary" [text]="true" (onClick)="summaryVisible.set(false)" />
-            <p-button label="Confirmar y crear" icon="pi pi-check" (onClick)="onConfirmCreateStudy()" />
+            <p-button data-tour="study-confirm" label="Confirmar y crear" icon="pi pi-check" (onClick)="onConfirmCreateStudy()" />
         </div>
     </ng-template>
     }
@@ -495,7 +495,7 @@
                                 <p class="text-m text-muted-color m-0 mt-1">Cargue el documento PDF para continuar con el estudio.</p>
                             </div>
                             @if (canExtractPdf()) {
-                            <p-button label="Cargar Estados Financieros" icon="pi pi-file-pdf" (onClick)="onUploadFinancialStatements()" [loading]="extractingPdf()" [disabled]="extractingPdf()" />
+                            <p-button data-tour="study-upload" label="Cargar Estados Financieros" icon="pi pi-file-pdf" (onClick)="onUploadFinancialStatements()" [loading]="extractingPdf()" [disabled]="extractingPdf()" />
                             }
                         </div>
                         }
@@ -503,7 +503,7 @@
                         <div class="flex flex-wrap py-6 gap-2 mt-2">
                             <p-button label="Volver" icon="pi pi-arrow-left" severity="secondary" (onClick)="activateCallback(1)" />
                             @if (hasFinancialData()) {
-                            <p-button label="Siguiente" icon="pi pi-arrow-right" iconPos="right" (onClick)="activateCallback(3)" />
+                            <p-button data-tour="study-next-2" label="Siguiente" icon="pi pi-arrow-right" iconPos="right" (onClick)="activateCallback(3)" />
                             }
                         </div>
                     </ng-template>
@@ -534,7 +534,7 @@
                         </div>
                         } @else if (studyCompleted() && studyResult()) {
                         <!-- Encabezado del resultado: título + descarga del PDF -->
-                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6" data-tour="study-result">
                             <div class="flex flex-col gap-1">
                                 <h3 class="text-base font-semibold m-0">Resultado del Estudio de Crédito</h3>
                                 <span class="text-m text-muted-color">
@@ -598,7 +598,7 @@
 
                         <div class="flex flex-wrap py-6 gap-2 mt-2">
                             <p-button label="Volver" icon="pi pi-arrow-left" severity="secondary" (onClick)="activateCallback(2)" />
-                            <p-button label="Realizar Estudio" icon="pi pi-bolt" severity="success" (onClick)="onPerformStudy(activateCallback)" [loading]="performingStudy()" [disabled]="performingStudy()" />
+                            <p-button data-tour="study-perform" label="Realizar Estudio" icon="pi pi-bolt" severity="success" (onClick)="onPerformStudy(activateCallback)" [loading]="performingStudy()" [disabled]="performingStudy()" />
                         </div>
                         }
                     </ng-template>
