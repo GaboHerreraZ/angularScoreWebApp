@@ -5,6 +5,7 @@ import {
     EpaycoCheckoutType,
     EpaycoResponse
 } from '@/app/types/epayco';
+import { environment } from '@/environments/environment';
 
 /**
  * Componente reutilizable que orquesta el Smart Checkout v2 de ePayco.
@@ -36,8 +37,8 @@ export class EpaycoCheckout {
     sessionId = input.required<string>();
     /** Modo de presentación: 'onpage' (modal embebido) o 'standard' (redirección). */
     type = input<EpaycoCheckoutType>('onpage');
-    /** Ambiente de pruebas. Hardcodeado a true por ahora. */
-    test = input<boolean>(true);
+    /** Ambiente de pruebas. Por defecto lo decide el environment. */
+    test = input<boolean>(environment.epaycoTest);
     /** Cómo abrir el checkout: 'modal' usa open(); 'newWindow' usa openNew(). */
     display = input<'modal' | 'newWindow'>('modal');
 
