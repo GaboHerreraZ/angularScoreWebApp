@@ -18,11 +18,20 @@ if (missing.length === 0) {
     process.exit(0);
 }
 
-const { SUPABASE_URL, SUPABASE_KEY, API_URL } = process.env;
+const { SUPABASE_URL, SUPABASE_KEY, API_URL, EPAYCO_TEST } = process.env;
 if (!SUPABASE_URL || !SUPABASE_KEY || !API_URL) {
     console.error('[generate-env] Missing env vars. Required: SUPABASE_URL, SUPABASE_KEY, API_URL');
     process.exit(1);
 }
+
+// Modo pruebas de ePayco: por defecto activo, solo el literal "false" lo apaga.
+// Así un ambiente al que se le olvidó la variable nunca cobra de verdad.
+const epaycoTest = EPAYCO_TEST !== 'false';
+console.log(
+    epaycoTest
+        ? '[generate-env] EPAYCO_TEST=true -> checkout en modo PRUEBAS (no cobra)'
+        : '[generate-env] EPAYCO_TEST=false -> checkout en modo PRODUCCION (cobra de verdad)'
+);
 
 mkdirSync(envDir, { recursive: true });
 for (const t of missing) {
@@ -31,6 +40,7 @@ for (const t of missing) {
     supabaseUrl: '${SUPABASE_URL}',
     supabaseKey: '${SUPABASE_KEY}',
     apiUrl: '${API_URL}',
+    epaycoTest: ${epaycoTest},
 };
 `;
     writeFileSync(resolve(envDir, t.file), content);
