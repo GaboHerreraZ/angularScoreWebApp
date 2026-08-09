@@ -58,6 +58,14 @@ export class CustomerView {
                 this.loadCustomer(id);
             }
         });
+
+        // Mantiene el header sincronizado cuando la pestaña de información guarda cambios (PATCH).
+        effect(() => {
+            const updated = this.customersService.customerUpdated();
+            if (updated && updated.id === this.customerId()) {
+                this.customer.set(updated);
+            }
+        });
     }
 
     loadCustomer(id: string): void {
