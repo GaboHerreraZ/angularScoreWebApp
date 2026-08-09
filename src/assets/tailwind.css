@@ -31,7 +31,7 @@
   */
   --text-m: 1rem;
   --text-m--line-height: 1.5;
-  --text-m--letter-spacing: 0em;
+  --text-m--letter-spacing: 0.01em;
 
   /*
     Alturas de linea de la escala de Vercel para los escalones de titulo.
@@ -44,23 +44,30 @@
   --text-5xl--line-height: 1.1;
 
   /*
-    Escala de tracking al estilo Vercel: el interletrado se cierra a medida que
-    crece el texto y queda neutro en tamanos de lectura/UI. Al declararlo aqui,
-    cada utilidad text-* existente en la app lo hereda sin tocar componentes.
+    ESTE ES EL CONTROL DEL INTERLETRADO DE TODA LA APP.
+    Cada utilidad text-* toma su valor de aqui, asi que se ajusta el conjunto
+    sin tocar un solo componente. Mas negativo = mas junto; positivo = mas
+    separado. El criterio sigue siendo el de Vercel —el interletrado se cierra
+    a medida que crece el texto— pero a la mitad de intensidad: su escala esta
+    pensada para titulares de marketing y en pantallas con mucho texto de
+    interfaz se leia apretada.
+
+    Los tamanos chicos van con un pelo de tracking positivo: Geist es una
+    grotesca estrecha y a 12-14px sus letras se tocan.
   */
-  --text-xs--letter-spacing: 0em;
-  --text-sm--letter-spacing: 0em;
-  --text-base--letter-spacing: 0em;
-  --text-lg--letter-spacing: -0.01em;
-  --text-xl--letter-spacing: -0.02em;
-  --text-2xl--letter-spacing: -0.04em;
-  --text-3xl--letter-spacing: -0.04em;
-  --text-4xl--letter-spacing: -0.045em;
-  --text-5xl--letter-spacing: -0.05em;
-  --text-6xl--letter-spacing: -0.055em;
-  --text-7xl--letter-spacing: -0.06em;
-  --text-8xl--letter-spacing: -0.06em;
-  --text-9xl--letter-spacing: -0.06em;
+  --text-xs--letter-spacing: 0.015em;
+  --text-sm--letter-spacing: 0.01em;
+  --text-base--letter-spacing: 0.01em;
+  --text-lg--letter-spacing: 0.005em;
+  --text-xl--letter-spacing: -0.005em;
+  --text-2xl--letter-spacing: -0.012em;
+  --text-3xl--letter-spacing: -0.015em;
+  --text-4xl--letter-spacing: -0.018em;
+  --text-5xl--letter-spacing: -0.02em;
+  --text-6xl--letter-spacing: -0.022em;
+  --text-7xl--letter-spacing: -0.025em;
+  --text-8xl--letter-spacing: -0.025em;
+  --text-9xl--letter-spacing: -0.025em;
 }
 
 /*
@@ -72,14 +79,14 @@
 @layer base {
   h1,
   h2 {
-    letter-spacing: -0.04em;
+    letter-spacing: -0.012em;
   }
 
   h3,
   h4,
   h5,
   h6 {
-    letter-spacing: -0.02em;
+    letter-spacing: -0.005em;
   }
 }
 
