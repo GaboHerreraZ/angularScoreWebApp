@@ -52,7 +52,7 @@ export const DASHBOARD_OVERVIEW_TOUR: TourDefinition = {
         {
             element: '[data-tour="dashboard-advanced"]',
             title: 'Análisis del periodo',
-            description: 'A partir de aquí el detalle profundo: tasa de aprobación, distribución de veredictos, riesgo de buró y tus clientes con mayor cupo. Esta sección aparece cuando ya tienes suficientes estudios para comparar.',
+            description: 'A partir de aquí el detalle profundo: tasa de aprobación, distribución de veredictos, riesgo de Datacredito y tus clientes con mayor cupo. Esta sección aparece cuando ya tienes suficientes estudios para comparar.',
             side: 'bottom',
             align: 'start'
         },
