@@ -100,7 +100,7 @@
                 <span class="text-m font-medium text-right">{{ summary().businessName }}</span>
             </div>
             <div class="flex justify-between items-center gap-4 px-4 py-2.5">
-                <span class="text-m text-muted-color">Correo del titular</span>
+                <span class="text-m text-muted-color">{{ titularEmailLabel() }}</span>
                 <span class="text-m font-medium text-right">{{ summary().titularEmail }}</span>
             </div>
             <div class="flex justify-between items-center gap-4 px-4 py-2.5">
@@ -386,6 +386,9 @@
                         } @else {
                             <!-- Modo creación: formulario de solicitud -->
                             <p-message severity="info" text="Ingrese los datos de la solicitud. Con esta información se consultará al cliente en las centrales de riesgo y se creará el estudio de crédito." styleClass="mb-4" />
+                            @if (isNitSelected()) {
+                            <p-message severity="warn" text="Al ser una persona jurídica, el correo debe ser el del representante legal autorizado para firmar en nombre de la empresa: a ese correo se enviará la autorización de tratamiento de datos y los documentos que requieren su firma." styleClass="mb-4" />
+                            }
                             <form [formGroup]="step1Form">
                                 <p-fluid>
                                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-5 mt-2" data-tour="study-form">
@@ -422,7 +425,7 @@
                                         <div class="flex flex-col gap-1">
                                             <p-floatlabel variant="on">
                                                 <input pInputText id="titularEmail" type="email" formControlName="titularEmail" [invalid]="isInvalid('titularEmail')" class="w-full" />
-                                                <label for="titularEmail">Correo del Titular *</label>
+                                                <label for="titularEmail">{{ titularEmailLabel() }} *</label>
                                             </p-floatlabel>
                                             @if (isInvalid('titularEmail')) {
                                             <small class="text-red-500">{{ getErrorMessage('titularEmail') }}</small>
