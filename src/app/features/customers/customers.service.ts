@@ -2,7 +2,7 @@ import { computed, inject, Injectable, signal } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { BehaviorSubject, Observable, switchMap, tap, catchError, of } from 'rxjs';
 import { ApiService } from '@/app/core/services/api.service';
-import { Customer, CustomerDetail } from '@/app/types/customer';
+import { Customer, CustomerDetail, UpdateCustomerPayload } from '@/app/types/customer';
 import { CustomerStats } from '@/app/types/customer-stats';
 import { CustomerCreditStudyResponse } from '@/app/types/credit-study';
 import { AuthService } from '@/app/core/services/auth.service';
@@ -23,6 +23,9 @@ export class CustomersService {
     customers = signal<Customer[]>([]);
     loading = signal<boolean>(false);
     totalRecords = signal<number>(0);
+
+    /** Último detalle actualizado vía PATCH; permite a otras vistas (p. ej. el header del cliente) refrescarse sin recargar. */
+    customerUpdated = signal<CustomerDetail | null>(null);
 
     authSerive = inject(AuthService);
 
@@ -67,6 +70,11 @@ export class CustomersService {
 
     getCustomerById(id: string): Observable<CustomerDetail> {
         return this.apiService.get<CustomerDetail>(`${this.basePath}/${id}`);
+    }
+
+    /** Actualiza los datos de contacto y la actividad económica; responde el mismo shape del GET de detalle. */
+    updateCustomer(id: string, payload: UpdateCustomerPayload): Observable<CustomerDetail> {
+        return this.apiService.patch<CustomerDetail>(`${this.basePath}/${id}`, payload);
     }
 
     exportToExcel(): Observable<HttpResponse<Blob>> {

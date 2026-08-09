@@ -112,6 +112,15 @@ export interface BureauProfile {
     contact: BureauContact | null;
 }
 
+/** Representante legal registrado por la empresa (solo persona jurídica). */
+export interface CustomerLegalRep {
+    name: string | null;
+    identificationType: CustomerParameter | null;
+    identificationNumber: string | null;
+    email: string | null;
+    phone: string | null;
+}
+
 /** Detalle completo de un cliente (GET /customers/:id). */
 export interface CustomerDetail {
     id: string;
@@ -128,10 +137,28 @@ export interface CustomerDetail {
     city: string | null;
     state: string | null;
     address: string | null;
+    legalRep?: CustomerLegalRep | null;
     demographics: CustomerDemographics | null;
     bureauProfile: BureauProfile | null;
     bureauCreated: boolean;
     lastConsultedAt: string | null;
     createdAt: string;
     updatedAt: string;
+    updatedBy?: string | null;
+}
+
+/** Campos editables del cliente (PATCH /companies/:companyId/customers/:id). */
+export interface UpdateCustomerPayload {
+    email: string | null;
+    phone: string | null;
+    city: string | null;
+    state: string | null;
+    address: string | null;
+    economicActivityId: number | null;
+    /** Representante legal: solo viaja para persona jurídica. */
+    legalRepName?: string | null;
+    legalRepIdentificationTypeId?: number | null;
+    legalRepIdentificationNumber?: string | null;
+    legalRepEmail?: string | null;
+    legalRepPhone?: string | null;
 }
