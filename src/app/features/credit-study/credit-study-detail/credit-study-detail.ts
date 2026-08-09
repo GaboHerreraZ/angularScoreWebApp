@@ -29,6 +29,7 @@ import { Parameter } from '@/app/types/parameter';
 import { AuthService } from '@/app/core/services/auth.service';
 import { RecentItemsService } from '@/app/shared/services/recent-items.service';
 import { ConfirmService, provideConfirm } from '@/app/shared/services/confirm.service';
+import { isBusinessDocType } from '@/app/shared/components/billing-form/billing-form.builder';
 import { BureauProfile } from './bureau-profile/bureau-profile';
 import { FinancialStatements } from './financial-statements/financial-statements';
 import { StudyResult } from './study-result/study-result';
@@ -322,6 +323,18 @@ export class CreditStudyDetail {
         requestedTerm: new FormControl<number | null>(null, { validators: [Validators.required] }),
         requestedCreditLine: new FormControl<number | null>(null, { validators: [Validators.required] })
     });
+
+    private selectedIdentificationType = toSignal(this.step1Form.controls.identificationTypeId.valueChanges, {
+        initialValue: this.step1Form.controls.identificationTypeId.value
+    });
+
+    /** true cuando el tipo de identificación seleccionado es NIT (persona jurídica). */
+    isNitSelected = computed(() => isBusinessDocType(this.selectedIdentificationType()));
+
+    /** Con NIT (persona jurídica) el correo pertenece al representante legal, no al titular. */
+    titularEmailLabel = computed(() =>
+        this.isNitSelected() ? 'Correo del Representante Legal' : 'Correo del Titular'
+    );
 
     /**
      * Snapshot de los datos de la solicitud para el modal de resumen.
