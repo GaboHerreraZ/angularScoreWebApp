@@ -195,6 +195,19 @@ export class FinancialStatements {
     }
 
     /**
+     * Nota aclaratoria para indicadores/ratios cuando la fuente tiene varios
+     * periodos: son un único cálculo consolidado, no un valor de un periodo.
+     */
+    consolidatedLabel(view: SourceView): string {
+        const years = (view.source.periods ?? []).map(p => p.fiscalYear).filter(y => y != null);
+        if (years.length < 2) return '';
+        const list = years.length === 2
+            ? years.join(' y ')
+            : `${years.slice(0, -1).join(', ')} y ${years[years.length - 1]}`;
+        return `Cálculo consolidado con los periodos ${list}`;
+    }
+
+    /**
      * Clases del marco de la columna de la fuente seleccionada: bordes primary
      * en los costados del grupo (y arriba/abajo en los extremos de la tabla)
      * más un tinte de fondo. Para fuentes no seleccionadas conserva el

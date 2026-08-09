@@ -99,38 +99,38 @@
                     }
                     }
 
-                    <!-- Indicadores: un valor por fuente, bajo su grupo de columnas -->
+                    <!-- Indicadores: un valor por fuente (consolidado de todos sus periodos), bajo su grupo de columnas -->
                     <tr class="bg-surface-100/60 dark:bg-surface-800/60 border-t border-surface">
                         <td class="px-4 py-1.5 text-sm font-semibold uppercase tracking-wide text-muted-color">
                             <i class="pi pi-gauge mr-1.5 text-primary-500"></i>Indicadores
                         </td>
                         @for (view of sources(); track view.source.source) {
-                        <td [attr.colspan]="view.cols" [ngClass]="sourceCellClasses(view, { first: true, last: true })"></td>
+                        <td class="px-4 py-1.5 text-center text-sm italic text-muted-color" [attr.colspan]="view.cols" [ngClass]="sourceCellClasses(view, { first: true, last: true })">{{ consolidatedLabel(view) }}</td>
                         }
                     </tr>
                     @for (row of indicatorRows; track row.key) {
                     <tr class="border-t border-surface">
                         <td class="px-4 py-2 text-muted-color">{{ row.label }}</td>
                         @for (view of sources(); track view.source.source) {
-                        <td class="px-4 py-2 text-right font-medium whitespace-nowrap" [attr.colspan]="view.cols" [ngClass]="sourceCellClasses(view, { first: true, last: true })">{{ formatValue(getValue($any(view.source.indicators), row.key), row.format) }}</td>
+                        <td class="px-4 py-2 font-medium whitespace-nowrap" [attr.colspan]="view.cols" [ngClass]="[view.cols > 1 ? 'text-center' : 'text-right', sourceCellClasses(view, { first: true, last: true })]">{{ formatValue(getValue($any(view.source.indicators), row.key), row.format) }}</td>
                         }
                     </tr>
                     }
 
-                    <!-- Ratios: un valor por fuente, bajo su grupo de columnas -->
+                    <!-- Ratios: un valor por fuente (consolidado de todos sus periodos), bajo su grupo de columnas -->
                     <tr class="bg-surface-100/60 dark:bg-surface-800/60 border-t border-surface">
                         <td class="px-4 py-1.5 text-sm font-semibold uppercase tracking-wide text-muted-color">
                             <i class="pi pi-percentage mr-1.5 text-primary-500"></i>Ratios
                         </td>
                         @for (view of sources(); track view.source.source) {
-                        <td [attr.colspan]="view.cols" [ngClass]="sourceCellClasses(view, { first: true, last: true })"></td>
+                        <td class="px-4 py-1.5 text-center text-sm italic text-muted-color" [attr.colspan]="view.cols" [ngClass]="sourceCellClasses(view, { first: true, last: true })">{{ consolidatedLabel(view) }}</td>
                         }
                     </tr>
                     @for (row of ratioRows; track row.key; let lastRow = $last) {
                     <tr class="border-t border-surface">
                         <td class="px-4 py-2 text-muted-color">{{ row.label }}</td>
                         @for (view of sources(); track view.source.source) {
-                        <td class="px-4 py-2 text-right font-medium whitespace-nowrap" [attr.colspan]="view.cols" [ngClass]="sourceCellClasses(view, { first: true, last: true, bottom: lastRow })">{{ formatValue(getValue($any(view.source.ratios), row.key), row.format) }}</td>
+                        <td class="px-4 py-2 font-medium whitespace-nowrap" [attr.colspan]="view.cols" [ngClass]="[view.cols > 1 ? 'text-center' : 'text-right', sourceCellClasses(view, { first: true, last: true, bottom: lastRow })]">{{ formatValue(getValue($any(view.source.ratios), row.key), row.format) }}</td>
                         }
                     </tr>
                     }
@@ -223,6 +223,9 @@
                     <span class="text-sm font-semibold uppercase tracking-wide text-muted-color">
                         <i class="pi pi-gauge mr-1.5 text-primary-500"></i>Indicadores
                     </span>
+                    @if (consolidatedLabel(view); as note) {
+                    <span class="text-sm italic text-muted-color">{{ note }}</span>
+                    }
                     <div class="flex flex-col divide-y divide-surface rounded-lg border border-surface">
                         @for (row of indicatorRows; track row.key) {
                         <div class="flex items-start justify-between gap-3 px-3 py-2">
@@ -237,6 +240,9 @@
                     <span class="text-sm font-semibold uppercase tracking-wide text-muted-color">
                         <i class="pi pi-percentage mr-1.5 text-primary-500"></i>Ratios
                     </span>
+                    @if (consolidatedLabel(view); as note) {
+                    <span class="text-sm italic text-muted-color">{{ note }}</span>
+                    }
                     <div class="flex flex-col divide-y divide-surface rounded-lg border border-surface">
                         @for (row of ratioRows; track row.key) {
                         <div class="flex items-start justify-between gap-3 px-3 py-2">
