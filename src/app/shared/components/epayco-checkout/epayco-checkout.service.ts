@@ -21,17 +21,10 @@ export class EpaycoCheckoutLoader {
         }
 
         this.loadPromise = new Promise<void>((resolve, reject) => {
-            const existing = document.querySelector<HTMLScriptElement>(
-                `script[src="${EPAYCO_CHECKOUT_SCRIPT}"]`
-            );
-
-            if (existing) {
-                existing.addEventListener('load', () => resolve(), { once: true });
-                existing.addEventListener('error', () => reject(new Error('No se pudo cargar el checkout de ePayco.')), { once: true });
-                // Si ya estaba cargado, ePayco existe y resolvemos de inmediato.
-                if (window.ePayco) resolve();
-                return;
-            }
+            // Un script previo sin window.ePayco es un intento fallido: sus eventos
+            // load/error ya dispararon, así que escucharlo de nuevo dejaría esta
+            // promesa colgada para siempre. Se elimina y se reintenta desde cero.
+            document.querySelector<HTMLScriptElement>(`script[src="${EPAYCO_CHECKOUT_SCRIPT}"]`)?.remove();
 
             const script = document.createElement('script');
             script.src = EPAYCO_CHECKOUT_SCRIPT;
@@ -40,6 +33,7 @@ export class EpaycoCheckoutLoader {
             script.onerror = () => {
                 // Permitimos reintentar en una próxima llamada.
                 this.loadPromise = null;
+                script.remove();
                 reject(new Error('No se pudo cargar el checkout de ePayco.'));
             };
             document.head.appendChild(script);
