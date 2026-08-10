@@ -5,7 +5,12 @@
         <p-message severity="error" [text]="errorMessage()!" styleClass="mb-4 w-full" />
     }
     @if (infoMessage()) {
-        <p-message severity="info" [text]="infoMessage()!" styleClass="mb-4 w-full" />
+        <p-message severity="info" styleClass="mb-4 w-full">
+            <span>
+                {{ infoMessage() }}
+                <a routerLink="/auth/iniciar-sesion" class="font-semibold underline cursor-pointer">Iniciar sesión</a>
+            </span>
+        </p-message>
     }
 
     <!-- Botón Google -->

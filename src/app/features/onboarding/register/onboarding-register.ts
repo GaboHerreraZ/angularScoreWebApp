@@ -75,10 +75,13 @@ export class OnboardingRegister {
         this.infoMessage.set(null);
 
         const { email, password } = this.form.getRawValue();
+        this.form.disable();
+
         const { data, error } = await this.supabaseService.signUp(email, password);
 
         if (error) {
             this.loading.set(false);
+            this.form.enable();
             this.errorMessage.set(this.mapError(error));
             return;
         }
@@ -86,6 +89,8 @@ export class OnboardingRegister {
         // Si el proyecto exige confirmar el correo, no hay sesión todavía.
         if (!data?.hasSession) {
             this.loading.set(false);
+            this.form.reset();
+            this.form.enable();
             this.infoMessage.set(
                 'Te enviamos un correo para confirmar tu cuenta. Confírmalo e inicia sesión para continuar con el registro de tu empresa.'
             );
