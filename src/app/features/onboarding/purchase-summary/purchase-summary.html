@@ -1,0 +1,202 @@
+<section class="bg-surface-0 dark:bg-surface-900 rounded-2xl border border-surface overflow-hidden">
+    <!-- Encabezado con acento, igual que en los pasos del wizard -->
+    <div class="flex items-start gap-4 p-6 sm:p-8 border-b border-surface bg-linear-to-r from-primary/5 to-transparent">
+        <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+            <i class="pi pi-verified text-primary text-xl"></i>
+        </div>
+        <div>
+            <h2 class="text-xl font-bold m-0 text-color">Revisa y confirma</h2>
+            <p class="text-muted-color text-m mt-1 mb-0">Verifica que todo esté correcto antes de pagar.</p>
+        </div>
+    </div>
+
+    <div class="p-6 sm:p-8 flex flex-col gap-6">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+            <!-- Perfil -->
+            <div class="rounded-xl border border-surface bg-surface-50/50 dark:bg-surface-950/40 p-5">
+                <div class="flex items-center justify-between gap-3 mb-4">
+                    <span class="inline-flex items-center gap-2 text-sm font-bold text-muted-color uppercase tracking-widest">
+                        <i class="pi pi-user text-primary"></i> Perfil
+                    </span>
+                    @if (canEdit()) {
+                    <button type="button" class="text-sm font-semibold text-primary hover:underline cursor-pointer bg-transparent border-0 p-0" (click)="edit.emit(0)">Editar</button>
+                    }
+                </div>
+                <p class="m-0 mb-3 font-semibold text-color">{{ profileSummary().name }}</p>
+                <dl class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 m-0 text-m">
+                    <dt class="text-muted-color">Cargo</dt>
+                    <dd class="m-0 text-color">{{ profileSummary().position }}</dd>
+                    <dt class="text-muted-color">Documento</dt>
+                    <dd class="m-0 text-color">{{ profileSummary().docNumber }}</dd>
+                    <dt class="text-muted-color">Teléfono</dt>
+                    <dd class="m-0 text-color">{{ profileSummary().phone }}</dd>
+                    <dt class="text-muted-color">Correo</dt>
+                    <dd class="m-0 text-color break-all">{{ userEmail() }}</dd>
+                </dl>
+            </div>
+
+            <!-- Empresa -->
+            <div class="rounded-xl border border-surface bg-surface-50/50 dark:bg-surface-950/40 p-5">
+                <div class="flex items-center justify-between gap-3 mb-4">
+                    <span class="inline-flex items-center gap-2 text-sm font-bold text-muted-color uppercase tracking-widest">
+                        <i class="pi pi-building text-primary"></i> Empresa
+                    </span>
+                    @if (canEdit()) {
+                    <button type="button" class="text-sm font-semibold text-primary hover:underline cursor-pointer bg-transparent border-0 p-0" (click)="edit.emit(1)">Editar</button>
+                    }
+                </div>
+                <p class="m-0 mb-3 font-semibold text-color">{{ companySummary().name }}</p>
+                <dl class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 m-0 text-m">
+                    <dt class="text-muted-color">NIT</dt>
+                    <dd class="m-0 text-color">{{ companySummary().nit }}</dd>
+                    <dt class="text-muted-color">Dirección</dt>
+                    <dd class="m-0 text-color">{{ companySummary().address }}</dd>
+                    <dt class="text-muted-color">Ubicación</dt>
+                    <dd class="m-0 text-color">{{ companySummary().location }}</dd>
+                </dl>
+            </div>
+
+            <!-- Facturación -->
+            <div class="rounded-xl border border-surface bg-surface-50/50 dark:bg-surface-950/40 p-5 lg:col-span-2">
+                <div class="flex items-center justify-between gap-3 mb-4">
+                    <span class="inline-flex items-center gap-2 text-sm font-bold text-muted-color uppercase tracking-widest">
+                        <i class="pi pi-receipt text-primary"></i> Facturación
+                    </span>
+                    @if (canEdit()) {
+                    <button type="button" class="text-sm font-semibold text-primary hover:underline cursor-pointer bg-transparent border-0 p-0" (click)="edit.emit(1)">Editar</button>
+                    }
+                </div>
+                <p class="m-0 mb-3 font-semibold text-color">{{ billingSummary().name }}</p>
+                <dl class="grid grid-cols-[auto_1fr] sm:grid-cols-[auto_1fr_auto_1fr] gap-x-4 gap-y-1.5 m-0 text-m">
+                    <dt class="text-muted-color">Documento</dt>
+                    <dd class="m-0 text-color">{{ billingSummary().docNumber }}</dd>
+                    <dt class="text-muted-color">Teléfono</dt>
+                    <dd class="m-0 text-color">{{ billingSummary().phone }}</dd>
+                    <dt class="text-muted-color">Correo</dt>
+                    <dd class="m-0 text-color break-all">{{ billingSummary().email }}</dd>
+                    <dt class="text-muted-color">Dirección</dt>
+                    <dd class="m-0 text-color">{{ billingSummary().address }}</dd>
+                    <dt class="text-muted-color">Ubicación</dt>
+                    <dd class="m-0 text-color">{{ billingSummary().location }}</dd>
+                </dl>
+            </div>
+        </div>
+
+        <!-- Resumen de compra: el pack elegido y el desglose del cobro -->
+        @if (pack(); as pack) {
+        <div class="rounded-xl border border-primary/30 bg-primary/5 overflow-hidden">
+            <div class="flex flex-wrap items-center justify-between gap-3 p-5 border-b border-primary/20">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-primary/15 flex items-center justify-center shrink-0">
+                        <i class="pi pi-box text-primary"></i>
+                    </div>
+                    <div>
+                        <p class="m-0 font-bold text-color">{{ pack.quantity }} Análisis de Crédito</p>
+                        <p class="m-0 text-m text-muted-color">{{ pack.description || pack.name }} · Vigencia {{ pack.validityDays }} días</p>
+                    </div>
+                </div>
+                @if (pack.discountAmount > 0) {
+                <span class="inline-flex items-center gap-1 text-sm font-bold px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                    <i class="pi pi-tag text-[10px]"></i>
+                    Ahorras {{ formatCurrency(pack.discountAmount, pack.currency) }}
+                </span>
+                }
+            </div>
+
+            <!-- Código promocional. Solo previsualiza el descuento: el canje
+                 ocurre en el backend al confirmarse el pago. -->
+            <div class="p-5 flex flex-col gap-2 border-b border-primary/20">
+                <div class="flex items-start gap-2">
+                    <input
+                        pInputText
+                        type="text"
+                        class="flex-1 w-full"
+                        placeholder="Código promocional"
+                        [ngModel]="promoCode()"
+                        (ngModelChange)="promoCode.set($event); promoError.set(null)"
+                        (keydown.enter)="validatePromoCode()"
+                        [disabled]="!!appliedPromo()"
+                    />
+                    @if (appliedPromo()) {
+                    <p-button label="Quitar" severity="secondary" [outlined]="true" (onClick)="clearPromo()" />
+                    } @else {
+                    <p-button label="Validar" [loading]="validatingPromo()" [disabled]="!promoCode().trim()" (onClick)="validatePromoCode()" />
+                    }
+                </div>
+
+                @if (promoError()) {
+                <span class="text-m text-red-500 flex items-center gap-1">
+                    <i class="pi pi-times-circle"></i>
+                    {{ promoError() }}
+                </span>
+                } @else if (appliedPromo(); as promo) {
+                <span class="text-m text-green-600 dark:text-green-400 flex items-center gap-1">
+                    <i class="pi pi-check-circle"></i>
+                    Código {{ promo.code }} aplicado: {{ promo.discountPercent }}% de descuento.
+                </span>
+                }
+            </div>
+
+            <div class="p-5 flex flex-col gap-2">
+                @let price = pricing();
+                <div class="flex items-center justify-between text-m">
+                    <span class="text-muted-color">Subtotal</span>
+                    <span class="text-color tabular-nums">{{ formatCurrency(pack.subtotal, pack.currency) }}</span>
+                </div>
+                @if (pack.discountAmount > 0) {
+                <div class="flex items-center justify-between text-m">
+                    <span class="text-muted-color">Descuento por volumen</span>
+                    <span class="text-emerald-600 dark:text-emerald-400 tabular-nums">-{{ formatCurrency(pack.discountAmount, pack.currency) }}</span>
+                </div>
+                }
+                @if (appliedPromo(); as promo) {
+                <div class="flex items-center justify-between text-m">
+                    <span class="text-muted-color">Código {{ promo.code }} ({{ promo.discountPercent }}%)</span>
+                    <span class="text-emerald-600 dark:text-emerald-400 tabular-nums">-{{ formatCurrency(promoDiscountAmount(), pack.currency) }}</span>
+                </div>
+                }
+                <!-- Desglose fiscal. La base solo se lista cuando hay que despejarla
+                     del precio (IVA incluido); si el impuesto se suma aparte, la base
+                     es el valor que ya viene sumándose en las líneas de arriba. -->
+                @if (price.taxRate > 0) {
+                <div class="flex flex-col gap-2 pt-2 border-t border-primary/10">
+                    @if (price.taxIncluded) {
+                    <div class="flex items-center justify-between text-m">
+                        <span class="text-muted-color">Base gravable</span>
+                        <span class="text-color tabular-nums">{{ formatCurrency(price.taxBase, pack.currency) }}</span>
+                    </div>
+                    }
+                    <div class="flex items-center justify-between text-m">
+                        <span class="text-muted-color">IVA ({{ price.taxRate }}%)</span>
+                        <span class="text-color tabular-nums">{{ formatCurrency(price.taxAmount, pack.currency) }}</span>
+                    </div>
+                </div>
+                }
+                <div class="flex items-end justify-between gap-3 pt-3 mt-1 border-t border-primary/20">
+                    <span class="text-color font-semibold">{{ isFreePurchase() ? 'Total' : 'Total a pagar' }}</span>
+                    <div class="text-right">
+                        @if (appliedPromo()) {
+                        <span class="block text-m text-muted-color line-through leading-none mb-1 tabular-nums">{{ formatCurrency(pack.totalToCharge, pack.currency) }}</span>
+                        }
+                        @if (isFreePurchase()) {
+                        <span class="block text-3xl font-extrabold text-emerald-600 dark:text-emerald-400 leading-none">Sin costo</span>
+                        } @else {
+                        <span class="block text-3xl font-extrabold text-color leading-none tabular-nums">{{ formatCurrency(price.totalToCharge, pack.currency) }}</span>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <p class="flex items-center justify-center gap-2 text-m text-muted-color m-0">
+            @if (isFreePurchase()) {
+            <i class="pi pi-gift text-primary"></i>
+            Tu código cubre el 100%: activaremos tu cuenta sin ningún cobro.
+            } @else {
+            <i class="pi pi-lock text-primary"></i>
+            Pago seguro. Serás redirigido a la pasarela para completar la compra.
+            }
+        </p>
+        }
+    </div>
+</section>

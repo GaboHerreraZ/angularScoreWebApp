@@ -1,17 +1,22 @@
 import { Component, DestroyRef, computed, inject, signal, viewChild } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { firstValueFrom } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
+import { finalize, firstValueFrom, forkJoin, map } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 import { DividerModule } from 'primeng/divider';
 import { SkeletonModule } from 'primeng/skeleton';
 import { AuthService } from '@/app/core/services/auth.service';
 import { NotificationService } from '@/app/shared/components/notification/notification.service';
 import { AnalysisPacksService } from '@/app/shared/services/analysis-packs.service';
+import { PackOfferingsService } from '@/app/shared/services/pack-offerings.service';
 import { EpaycoCheckout } from '@/app/shared/components/epayco-checkout/epayco-checkout';
 import { EpaycoCheckoutLoader } from '@/app/shared/components/epayco-checkout/epayco-checkout.service';
 import { AnalysisPack } from '@/app/types/analysis-pack';
+import { OnboardingByProfile, PackOffering } from '@/app/types/onboarding';
 import { formatCurrency } from '@/app/shared/utils/format.util';
+import { OnboardingService } from '../onboarding.service';
+import { PurchaseSummary, onboardingSummaries } from '../purchase-summary/purchase-summary';
 
 /** Auto-verificación: cada 10s consultamos si el pago ya se confirmó. */
 const POLL_INTERVAL_MS = 10_000;
@@ -20,14 +25,15 @@ const SUPPORT_EMAIL = 'soporte@creditia.co';
 /**
  * Pantalla para usuarios cuyo pago quedó en `payment_pending`: ya compraron un
  * paquete pero el pago aún no se confirma. Cubre el caso en que el usuario
- * abandonó el checkout (refresh/cierre): muestra el resumen del pack que estaba
- * comprando y permite reintentar el pago (reabrir ePayco) sin volver al paso 3.
+ * abandonó el checkout (refresh/cierre): al reintentar mostramos el mismo
+ * resumen "Revisa y confirma" del wizard (con código promocional incluido)
+ * antes de volver a llamar a purchase y reabrir ePayco.
  * También hace polling del perfil por si el webhook confirma el pago en background.
  */
 @Component({
     selector: 'app-onboarding-payment-pending',
     standalone: true,
-    imports: [RouterModule, ButtonModule, DividerModule, SkeletonModule, EpaycoCheckout],
+    imports: [RouterModule, ButtonModule, DividerModule, SkeletonModule, PurchaseSummary, EpaycoCheckout],
     templateUrl: './onboarding-payment-pending.html'
 })
 export class OnboardingPaymentPending {
@@ -35,10 +41,14 @@ export class OnboardingPaymentPending {
     private authService = inject(AuthService);
     private notification = inject(NotificationService);
     private analysisPacksService = inject(AnalysisPacksService);
+    private packOfferingsService = inject(PackOfferingsService);
+    private onboardingService = inject(OnboardingService);
     private checkoutLoader = inject(EpaycoCheckoutLoader);
     private destroyRef = inject(DestroyRef);
 
     checkout = viewChild.required<EpaycoCheckout>('checkout');
+    /** Resumen de compra (visible solo al reintentar); dueño del código promocional. */
+    summaryCmp = viewChild<PurchaseSummary>('summary');
 
     /** Pack pendiente de pago (lo que el usuario intentaba comprar). */
     pendingPack = signal<AnalysisPack | null>(null);
@@ -46,14 +56,31 @@ export class OnboardingPaymentPending {
     loadingPack = signal(true);
     /** True mientras se consulta el estado del pago (deshabilita "verificar"). */
     checking = signal(false);
-    /** True mientras se reabre el checkout. */
+    /** True mientras cargamos los datos del resumen para reintentar. */
     retrying = signal(false);
+    /** True mientras se vuelve a llamar a purchase desde el resumen. */
+    purchasing = signal(false);
     /** sessionId de ePayco devuelto al reintentar; alimenta el checkout. */
     sessionId = signal<string>('');
+
+    /** True cuando se muestra el resumen "Revisa y confirma" en lugar de la pantalla de espera. */
+    showSummary = signal(false);
+    /** Onboarding registrado (perfil/empresa/billing) para las tarjetas del resumen. */
+    onboarding = signal<OnboardingByProfile | null>(null);
+    /** Oferta del catálogo correspondiente al pack pendiente; alimenta el desglose. */
+    offering = signal<PackOffering | null>(null);
 
     private timer: ReturnType<typeof setInterval> | null = null;
 
     private profile = computed(() => this.authService.currentProfile());
+
+    /** Resúmenes aplanados para las tarjetas del resumen de compra. */
+    summaries = computed(() => {
+        const o = this.onboarding();
+        return o ? onboardingSummaries(o) : null;
+    });
+
+    userEmail = computed(() => this.profile()?.email ?? '');
 
     /** mailto prellenado con el contexto del usuario para agilizar el soporte. */
     supportMailto = computed(() => {
@@ -102,15 +129,60 @@ export class OnboardingPaymentPending {
         });
     }
 
-    /** Vuelve a llamar a purchase para el mismo pack y reabre el checkout de ePayco. */
-    async retryPayment(): Promise<void> {
+    /**
+     * Carga los datos del resumen (onboarding registrado + oferta del catálogo)
+     * y muestra la pantalla "Revisa y confirma" del paso 4 del wizard, para que
+     * el usuario pueda aplicar un código promocional antes de reintentar el pago.
+     */
+    retryPayment(): void {
         const pack = this.pendingPack();
-        if (!pack || this.retrying()) return;
+        const profileId = this.profile()?.id;
+        if (!pack || !profileId || this.retrying()) return;
 
         this.retrying.set(true);
+        forkJoin({
+            onboarding: this.onboardingService.getOnboardingByProfile(profileId),
+            offering: this.packOfferingsService.getPackCatalog().pipe(
+                map((catalog) => catalog.find((o) => o.id === pack.packOfferingId) ?? null)
+            )
+        }).pipe(
+            finalize(() => this.retrying.set(false)),
+            takeUntilDestroyed(this.destroyRef)
+        ).subscribe({
+            next: ({ onboarding, offering }) => {
+                if (!offering) {
+                    this.notification.error('El paquete que estabas comprando ya no está disponible. Contacta a soporte.');
+                    return;
+                }
+                this.onboarding.set(onboarding);
+                this.offering.set(offering);
+                this.showSummary.set(true);
+            },
+            error: () => {
+                this.notification.error('No se pudo cargar el resumen de tu compra. Inténtalo de nuevo o contacta a soporte.');
+            }
+        });
+    }
+
+    /** Vuelve de "Revisa y confirma" a la pantalla de espera del pago. */
+    backToPending(): void {
+        this.showSummary.set(false);
+    }
+
+    /**
+     * Vuelve a llamar a purchase para el mismo pack (con el código promocional
+     * aplicado en el resumen, si hay) y reabre el checkout de ePayco.
+     */
+    async goToPayment(): Promise<void> {
+        const offering = this.offering();
+        if (!offering || this.purchasing()) return;
+
+        this.purchasing.set(true);
         try {
+            // El backend revalida y canjea el código al confirmarse el pago.
+            const promoCode = this.summaryCmp()?.appliedPromo()?.code;
             const res = await firstValueFrom(
-                this.analysisPacksService.purchasePack({ packOfferingId: pack.packOfferingId })
+                this.analysisPacksService.purchasePack({ packOfferingId: offering.id, ...(promoCode && { promoCode }) })
             );
             // Si la compra quedó sin costo (código del 100%), no hay pasarela que
             // reabrir: la bolsa ya está activa, basta con verificar el estado.
@@ -121,10 +193,16 @@ export class OnboardingPaymentPending {
             this.sessionId.set(res.sessionId);
             // Pasamos el id directo: el input aún no se propagó en este tick.
             await this.checkout().open(res.sessionId);
-        } catch {
-            this.notification.error('No se pudo reabrir el pago. Inténtalo de nuevo o contacta a soporte.');
+        } catch (error) {
+            if (error instanceof HttpErrorResponse && error.status === 400) {
+                // Motivo de negocio del backend (código agotado, monto por
+                // debajo del mínimo de la pasarela...): se muestra tal cual.
+                this.notification.error(error.error?.message ?? 'No se pudo reabrir el pago.');
+            } else {
+                this.notification.error('No se pudo reabrir el pago. Inténtalo de nuevo o contacta a soporte.');
+            }
         } finally {
-            this.retrying.set(false);
+            this.purchasing.set(false);
         }
     }
 

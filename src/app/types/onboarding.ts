@@ -59,6 +59,30 @@ export interface OnboardingByProfile {
     billing: OnboardingBilling;
 }
 
+/** Datos ya aplanados que muestran las tarjetas del resumen de compra. */
+export interface PurchaseProfileSummary {
+    name: string;
+    position: string;
+    docNumber: string;
+    phone: string;
+}
+
+export interface PurchaseCompanySummary {
+    name: string;
+    nit: string;
+    address: string;
+    location: string;
+}
+
+export interface PurchaseBillingSummary {
+    name: string;
+    docNumber: string;
+    email: string;
+    phone: string;
+    address: string;
+    location: string;
+}
+
 /** Pack de consultas disponible. GET /api/pack-offerings/catalog. */
 export interface PackOffering {
     id: string;

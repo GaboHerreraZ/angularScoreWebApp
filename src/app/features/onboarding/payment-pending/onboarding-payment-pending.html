@@ -1,4 +1,29 @@
-<div class="max-w-lg mx-auto px-6 py-12 lg:py-16">
+<!-- El resumen "Revisa y confirma" necesita más ancho que la tarjeta de espera. -->
+<div class="mx-auto px-6 py-12 lg:py-16 transition-[max-width] duration-300" [class.max-w-lg]="!showSummary()" [class.max-w-4xl]="showSummary()">
+    @if (showSummary()) {
+    <!-- ── Reintento de pago: mismo resumen del paso 4 del wizard ── -->
+    @if (summaries(); as s) {
+    <app-purchase-summary
+        #summary
+        [pack]="offering()"
+        [profileSummary]="s.profile"
+        [companySummary]="s.company"
+        [billingSummary]="s.billing"
+        [userEmail]="userEmail()"
+    />
+
+    <div class="flex items-center justify-between mt-8">
+        <p-button label="Atrás" icon="pi pi-arrow-left" severity="secondary" [text]="true" [disabled]="purchasing()" (onClick)="backToPending()" />
+        <p-button
+            [label]="purchasing() ? 'Procesando…' : (summary.isFreePurchase() ? 'Activar mi cuenta' : 'Ir a pagar')"
+            [icon]="summary.isFreePurchase() ? 'pi pi-gift' : 'pi pi-lock'"
+            [loading]="purchasing()"
+            (onClick)="goToPayment()"
+        />
+    </div>
+    }
+    } @else {
+    <!-- ── Pantalla de espera del pago pendiente ── -->
     <div class="text-center mb-8">
         <span class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-amber-500/10 mb-5">
             <i class="pi pi-clock text-amber-500 text-4xl"></i>
@@ -66,6 +91,7 @@
             <a [href]="supportMailto()" class="text-primary hover:underline">{{ supportEmail }}</a>
         </p>
     </div>
+    }
 </div>
 
 <!-- Checkout de ePayco: se reabre en ventana nueva al reintentar -->
