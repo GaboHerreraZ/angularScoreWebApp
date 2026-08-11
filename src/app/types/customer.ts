@@ -147,6 +147,29 @@ export interface CustomerDetail {
     updatedBy?: string | null;
 }
 
+
+export interface CustomerSigner {
+    customerId: string;
+    personType: CustomerParameter;
+
+    // Persona jurídica
+    legalRepName?: string | null;
+    legalRepIdentificationTypeId?: number | null;
+    legalRepIdentificationNumber?: string | null;
+    legalRepEmail?: string | null;
+    legalRepPhone?: string | null;
+
+    // Persona natural
+    identificationTypeId?: number | null;
+    identificationNumber?: string | null;
+    firstName?: string | null;
+    secondName?: string | null;
+    firstLastName?: string | null;
+    secondLastName?: string | null;
+    email?: string | null;
+    phone?: string | null;
+}
+
 /** Campos editables del cliente (PATCH /companies/:companyId/customers/:id). */
 export interface UpdateCustomerPayload {
     email: string | null;

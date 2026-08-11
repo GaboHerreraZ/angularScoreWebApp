@@ -4,7 +4,7 @@
     [draggable]="false"
     [dismissableMask]="false"
     [closable]="!previewing() && !generating()"
-    [style]="{ width: '95vw', maxWidth: preview() && !note() ? '900px' : '520px' }"
+    [style]="{ width: '95vw', maxWidth: preview() && !note() ? '900px' : '620px' }"
     (onHide)="onHide()">
 
     <ng-template #header>
@@ -97,6 +97,95 @@
                     styleClass="w-full" />
                 <label for="pnTerm">Plazo solicitado</label>
             </p-floatlabel>
+        </div>
+
+        <!-- ─── Datos del firmante ─── -->
+        <div class="flex flex-col gap-3 pt-1">
+            <div class="flex items-center gap-2">
+                <i class="pi pi-user-edit text-primary-500"></i>
+                <span class="text-m font-semibold">Datos del firmante</span>
+            </div>
+
+            @if (loadingSigner()) {
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                @for (i of [1, 2, 3, 4]; track i) {
+                <p-skeleton width="100%" height="2.75rem" borderRadius="6px" />
+                }
+            </div>
+            } @else if (signerError()) {
+            <p-message severity="warn" styleClass="w-full">
+                <span class="text-m">No fue posible cargar los datos del firmante. Verifíquelos en el perfil del cliente antes de generar el pagaré.</span>
+            </p-message>
+            } @else if (signer()) {
+
+            @if (missingSignerFields().length) {
+            <p-message severity="info" styleClass="w-full">
+                <span class="text-m">
+                    Falta información del firmante ({{ missingSignerFields().join(', ') }}). Complétela aquí para este pagaré, o
+                    actualícela de forma permanente en el
+                    @if (customerId(); as id) {
+                    <a [routerLink]="['/app/clientes/detalle-cliente', id, 'informacion']" target="_blank" rel="noopener" class="font-semibold underline">perfil del cliente</a>.
+                    } @else {
+                    <span class="font-semibold">perfil del cliente</span>.
+                    }
+                </span>
+            </p-message>
+            }
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" [formGroup]="signerForm">
+                @if (isLegalEntity()) {
+                <div class="sm:col-span-2">
+                    <p-floatlabel variant="on">
+                        <input pInputText id="pnLegalRepName" formControlName="legalRepName" class="w-full" />
+                        <label for="pnLegalRepName">Nombre del representante legal</label>
+                    </p-floatlabel>
+                </div>
+                } @else {
+                <p-floatlabel variant="on">
+                    <input pInputText id="pnFirstName" formControlName="firstName" class="w-full" />
+                    <label for="pnFirstName">Primer nombre</label>
+                </p-floatlabel>
+                <p-floatlabel variant="on">
+                    <input pInputText id="pnSecondName" formControlName="secondName" class="w-full" />
+                    <label for="pnSecondName">Segundo nombre</label>
+                </p-floatlabel>
+                <p-floatlabel variant="on">
+                    <input pInputText id="pnFirstLastName" formControlName="firstLastName" class="w-full" />
+                    <label for="pnFirstLastName">Primer apellido</label>
+                </p-floatlabel>
+                <p-floatlabel variant="on">
+                    <input pInputText id="pnSecondLastName" formControlName="secondLastName" class="w-full" />
+                    <label for="pnSecondLastName">Segundo apellido</label>
+                </p-floatlabel>
+                }
+
+                <p-floatlabel variant="on">
+                    <p-select
+                        inputId="pnIdType"
+                        formControlName="identificationTypeId"
+                        [options]="identificationTypes() ?? []"
+                        optionLabel="label"
+                        optionValue="id"
+                        class="w-full" />
+                    <label for="pnIdType">Tipo de identificación</label>
+                </p-floatlabel>
+                <p-floatlabel variant="on">
+                    <input pInputText id="pnIdNumber" formControlName="identificationNumber" class="w-full" />
+                    <label for="pnIdNumber">Número de identificación</label>
+                </p-floatlabel>
+
+                <div class="flex flex-col gap-1">
+                    <p-floatlabel variant="on">
+                        <input pInputText id="pnSignerEmail" type="email" formControlName="email" class="w-full" />
+                        <label for="pnSignerEmail">Correo electrónico</label>
+                    </p-floatlabel>
+                    @if (signerForm.controls.email.invalid && signerForm.controls.email.touched) {
+                    <small class="text-red-500">Ingrese un correo electrónico válido</small>
+                    }
+                </div>
+                <app-phone-input inputId="pnSignerPhone" label="Teléfono" variant="on" formControlName="phone" styleClass="w-full" />
+            </div>
+            }
         </div>
 
         @if (preview(); as p) {
