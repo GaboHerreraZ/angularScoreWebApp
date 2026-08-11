@@ -1,14 +1,15 @@
 import { afterNextRender, Component, computed, ElementRef, OnDestroy, signal, viewChild } from '@angular/core';
+import { RouterModule } from '@angular/router';
 import { ScrollAnimateDirective } from '@/app/shared/directives/scroll-animate.directive';
 
 @Component({
     standalone: true,
-    selector: 'features-widget',
-    imports: [ScrollAnimateDirective],
-    templateUrl: './features-widget.html'
+    selector: 'benefits-widget',
+    imports: [RouterModule, ScrollAnimateDirective],
+    templateUrl: './benefits-widget.html'
 })
-export class FeaturesWidget implements OnDestroy {
-    /** Valor final del score que muestra el medidor del showcase. */
+export class BenefitsWidget implements OnDestroy {
+    /** Valor final del score que muestra el medidor. */
     private static readonly TARGET_SCORE = 87;
 
     /** Radio del anillo SVG; se usa para calcular la circunferencia. */
@@ -27,6 +28,14 @@ export class FeaturesWidget implements OnDestroy {
         { label: 'Adecuación del monto', value: 17, color: 'bg-orange-500' }
     ];
 
+    /** Resultados y garantías que el recorrido del producto no cuenta. */
+    readonly extras = [
+        { icon: 'pi-verified', color: 'text-emerald-500', bg: 'bg-emerald-500/10', title: 'Respaldo legal', description: 'Cada aprobación cierra con un pagaré con validez jurídica.' },
+        { icon: 'pi-chart-bar', color: 'text-amber-500', bg: 'bg-amber-500/10', title: 'Dashboard de cartera', description: 'Distribución de riesgo en un solo lugar.' },
+        { icon: 'pi-file-excel', color: 'text-pink-500', bg: 'bg-pink-500/10', title: 'Exportes en Excel', description: 'Clientes y estudios listos para auditoría.' },
+        { icon: 'pi-lock', color: 'text-blue-500', bg: 'bg-blue-500/10', title: 'Seguridad y Habeas Data', description: 'Cifrado AES-256 y Ley 1581 de 2012.' }
+    ];
+
     showcaseRef = viewChild<ElementRef<HTMLElement>>('showcase');
 
     /** Enciende el medidor y las barras al entrar al viewport. */
@@ -34,7 +43,7 @@ export class FeaturesWidget implements OnDestroy {
     /** Score que se va contando de 0 al valor final. */
     score = signal(0);
 
-    /** Trazo del anillo: 0 cuando aún no anima, proporcional al score si anima. */
+    /** Trazo del anillo: proporcional al score mientras cuenta. */
     dashOffset = computed(() => {
         const progress = this.score() / 100;
         return this.circumference * (1 - progress);
@@ -54,7 +63,7 @@ export class FeaturesWidget implements OnDestroy {
 
         // Sin movimiento o sin elemento (p. ej. SSR): mostramos el estado final.
         if (this.reduceMotion || !element) {
-            this.score.set(FeaturesWidget.TARGET_SCORE);
+            this.score.set(BenefitsWidget.TARGET_SCORE);
             this.animate.set(true);
             return;
         }
@@ -73,7 +82,7 @@ export class FeaturesWidget implements OnDestroy {
     }
 
     private countUpScore(): void {
-        const target = FeaturesWidget.TARGET_SCORE;
+        const target = BenefitsWidget.TARGET_SCORE;
         const duration = 1100;
         let start: number | null = null;
 

@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { Component, inject } from '@angular/core';
+import { NavigationEnd, Router, RouterModule } from '@angular/router';
+import { filter, take } from 'rxjs';
 
 @Component({
     standalone: true,
@@ -21,13 +22,30 @@ import { RouterModule } from '@angular/router';
     ]
 })
 export class FooterWidget {
+    private router = inject(Router);
 
     readonly logo = '/logo/logo-creditia-vertical.svg';
 
     scrollTo(id: string) {
-        const element = document.getElementById(id);
-        if (element) {
-            element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        // Si ya estamos en el home, la sección existe en el DOM: scrolleamos directo.
+        if (this.router.url.split('#')[0].split('?')[0] === '/') {
+            this.scrollToElement(id);
+            return;
         }
+
+        // Desde otra página (precios, demo, blog…), navegamos al home y esperamos
+        // a que termine la navegación antes de scrollear a la sección.
+        this.router.events.pipe(
+            filter((e) => e instanceof NavigationEnd),
+            take(1)
+        ).subscribe(() => this.scrollToElement(id));
+        this.router.navigateByUrl('/');
+    }
+
+    private scrollToElement(id: string) {
+        // Pequeño defer para asegurar que la sección esté en el DOM tras renderizar.
+        setTimeout(() => {
+            document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 200);
     }
 }

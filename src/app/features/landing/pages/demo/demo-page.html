@@ -1,0 +1,85 @@
+<div class="bg-surface-0 dark:bg-surface-950 min-h-screen w-screen overflow-x-hidden">
+    <header-widget />
+    <main class="bg-surface-0 dark:bg-surface-950">
+        <section class="landing-spotlight landing-grid px-6 sm:px-12 lg:px-20 pt-20 lg:pt-28 pb-16 lg:pb-24">
+            <div class="max-w-screen-xl mx-auto grid lg:grid-cols-2 gap-12 lg:gap-16 items-start">
+                <!-- Invitación -->
+                <div>
+                    <div appScrollAnimate="fade-up">
+                        <span class="bg-primary/10 text-primary font-bold text-m uppercase tracking-widest px-4 py-1.5 rounded-full">Demo gratis</span>
+                        <h1 class="font-extrabold text-4xl sm:text-5xl text-color mt-6 mb-4 leading-tight">
+                            Mira cómo se aprueba un crédito <span class="text-primary">en 15 minutos</span>
+                        </h1>
+                        <p class="text-lg text-muted-color mb-6 m-0">
+                            Te mostramos la plataforma en vivo, con un caso real de tu industria. Tú pones el caso, nosotros el análisis.
+                        </p>
+                    </div>
+
+                    <!-- Expectativas: corta, remota, sin compromiso -->
+                    <div class="flex flex-wrap items-center gap-x-6 gap-y-2 mb-8 text-m text-muted-color" appScrollAnimate="fade-up" [animateDelay]="120">
+                        @for (item of logistics; track item.text) {
+                            <span class="inline-flex items-center gap-2">
+                                <i class="pi {{ item.icon }} text-primary"></i>
+                                {{ item.text }}
+                            </span>
+                        }
+                    </div>
+
+                    <p class="text-color font-semibold mb-4" appScrollAnimate="fade-up" [animateDelay]="180">En la demo verás:</p>
+                    <ul class="list-none p-0 m-0 flex flex-col gap-4">
+                        @for (item of demoHighlights; track item.text) {
+                            <li class="flex items-center gap-3" appScrollAnimate="fade-up" [animateDelay]="220 + $index * 120">
+                                <span class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-primary/10 shrink-0">
+                                    <i class="pi {{ item.icon }} text-primary"></i>
+                                </span>
+                                <span class="text-muted-color">{{ item.text }}</span>
+                            </li>
+                        }
+                    </ul>
+
+                    <!-- El resultado que revisaremos juntos, flotando como notificación -->
+                    <div class="mt-10 max-w-sm" appScrollAnimate="fade-up" [animateDelay]="500">
+                        <div class="float-card landing-card rounded-2xl border border-surface bg-surface-0 dark:bg-surface-900 shadow-2xl p-4">
+                            <div class="flex items-center gap-3">
+                                <span class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-emerald-500/10 shrink-0">
+                                    <i class="pi pi-check-circle text-emerald-500"></i>
+                                </span>
+                                <div class="flex-1 min-w-0">
+                                    <div class="font-bold text-color text-m">Estudio de crédito listo</div>
+                                    <div class="text-sm text-muted-color">Cliente viable · Riesgo bajo</div>
+                                </div>
+                                <div class="text-2xl font-extrabold text-green-600 dark:text-green-400 tabular-nums">87<span class="text-xs text-muted-color">/100</span></div>
+                            </div>
+                        </div>
+                        <p class="text-sm text-muted-color mt-3 mb-0">Así se ve el resultado que revisaremos contigo, en vivo.</p>
+                    </div>
+
+                    <a
+                        [href]="'mailto:' + salesEmail"
+                        class="inline-flex items-center gap-2 text-muted-color hover:text-primary text-m font-semibold transition-colors no-underline mt-8"
+                        appScrollAnimate="fade-up"
+                        [animateDelay]="600"
+                    >
+                        <i class="pi pi-envelope text-primary"></i>
+                        {{ salesEmail }}
+                    </a>
+                </div>
+
+                <!-- Formulario con el asunto prefijado en "demo" -->
+                <div appScrollAnimate="fade-up" [animateDelay]="150">
+                    <contact-sales-widget
+                        initialSubject="demo"
+                        heading="Agenda tu demo"
+                        subheading="Completa el formulario y coordinamos la hora contigo."
+                        [showIntro]="false"
+                    />
+                    <p class="text-sm text-muted-color text-center mt-4 mb-0">
+                        <i class="pi pi-lock text-primary mr-1"></i>
+                        Tus datos solo se usan para coordinar la demo. Habeas Data · Ley 1581 de 2012.
+                    </p>
+                </div>
+            </div>
+        </section>
+    </main>
+    <footer-widget />
+</div>

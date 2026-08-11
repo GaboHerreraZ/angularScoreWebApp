@@ -1,0 +1,114 @@
+<div class="bg-surface-0 dark:bg-surface-950 min-h-screen w-screen overflow-x-hidden">
+    <header-widget />
+    <main class="bg-surface-0 dark:bg-surface-950">
+        <!-- Hero de precios -->
+        <section class="landing-spotlight pt-20 lg:pt-28 px-6 sm:px-10 lg:px-20">
+            <div class="max-w-4xl mx-auto text-center" appScrollAnimate="fade-up">
+                <span class="bg-primary/10 text-primary font-bold text-m uppercase tracking-widest px-4 py-1.5 rounded-full">Precios</span>
+                <h1 class="font-extrabold text-4xl sm:text-5xl text-color mt-6 mb-4">
+                    Pagas por lo que <span class="text-primary">consumes</span>
+                </h1>
+                <p class="text-lg text-muted-color max-w-2xl mx-auto m-0">
+                    Sin suscripciones ni mensualidades. Compra un paquete y úsalo cuando quieras.
+                </p>
+            </div>
+        </section>
+
+        <!-- Overview rápido: la misma venta, sin y con Credit-ia (sin cajas) -->
+        <section class="px-6 sm:px-12 lg:px-20 pt-14 lg:pt-16">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-center font-bold text-xl sm:text-2xl text-color mt-0 mb-10" appScrollAnimate="fade-up">
+                    Más que un análisis: <span class="text-primary">ventas que se cierran</span>
+                </h2>
+
+                <div class="relative grid sm:grid-cols-2 gap-10 sm:gap-0" appScrollAnimate="fade-in">
+                    <!-- Divisor central que se dibuja al entrar la sección -->
+                    <div class="hidden sm:block absolute left-1/2 top-0 bottom-0 w-px -translate-x-1/2 bg-surface-200/60 dark:bg-surface-700/60 overflow-hidden" aria-hidden="true">
+                        <div class="vs-line w-full bg-linear-to-b from-primary/70 to-emerald-400/40"></div>
+                    </div>
+
+                    <!-- Sin Credit-ia -->
+                    <div class="sm:pr-12">
+                        <p class="text-sm font-bold uppercase tracking-widest text-muted-color/80 mt-0 mb-6" appScrollAnimate="fade-right">Sin Credit-ia</p>
+                        <ul class="list-none p-0 m-0 flex flex-col gap-5">
+                            @for (item of withoutCreditia; track item) {
+                                <li class="flex items-start gap-3 text-muted-color" appScrollAnimate="fade-right" [animateDelay]="120 + $index * 150">
+                                    <i class="pi pi-times text-sm mt-1 opacity-60 shrink-0"></i>
+                                    <span class="leading-relaxed">{{ item }}</span>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+
+                    <!-- Con Credit-ia -->
+                    <div class="sm:pl-12">
+                        <p class="text-sm font-bold uppercase tracking-widest text-primary mt-0 mb-6" appScrollAnimate="fade-left">Con Credit-ia</p>
+                        <ul class="list-none p-0 m-0 flex flex-col gap-5">
+                            @for (item of withCreditia; track item) {
+                                <li class="flex items-start gap-3 text-color font-medium" appScrollAnimate="fade-left" [animateDelay]="190 + $index * 150">
+                                    <i class="pi pi-check text-emerald-500 text-sm mt-1 shrink-0"></i>
+                                    <span class="leading-relaxed">{{ item }}</span>
+                                </li>
+                            }
+                            <!-- El remate, con barrido de luz -->
+                            <li class="flex items-start gap-3 font-medium" appScrollAnimate="fade-left" [animateDelay]="640">
+                                <i class="pi pi-check-circle text-emerald-500 text-sm mt-1 shrink-0"></i>
+                                <span class="leading-relaxed">
+                                    <span class="win-text font-extrabold">Venta cerrada</span><span class="text-color">, antes de que el café se enfríe</span>
+                                </span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Remate de ROI antes de los precios -->
+                <p class="text-center text-m text-muted-color mt-10 mb-0" appScrollAnimate="fade-up" [animateDelay]="200">
+                    <i class="pi pi-wallet text-primary mr-1"></i>
+                    Y además: un solo impago evitado vale más que el paquete completo.
+                </p>
+            </div>
+        </section>
+
+        <!-- Packs del catálogo -->
+        <pricing-packs-widget />
+
+        <!-- FAQ de precios -->
+        <faq-widget [items]="faq" subtitle="Todo sobre paquetes y pagos" />
+
+        <!-- CTA de alto volumen -->
+        <section class="landing-cta-glow relative overflow-hidden px-6 sm:px-12 lg:px-20 py-20 lg:py-28 bg-surface-0 dark:bg-surface-950">
+            <div class="max-w-3xl mx-auto text-center">
+                <div appScrollAnimate="fade-up">
+                    <span class="inline-flex items-center gap-2 bg-primary/10 text-primary font-bold text-m uppercase tracking-widest px-4 py-1.5 rounded-full">
+                        <i class="pi pi-briefcase"></i>
+                        Planes por volumen
+                    </span>
+                    <h2 class="font-extrabold text-3xl sm:text-4xl lg:text-5xl mt-6 mb-4 text-color">
+                        ¿Alto volumen de análisis? <span class="text-primary">Hablemos.</span>
+                    </h2>
+                    <p class="text-lg text-muted-color mb-10 max-w-xl mx-auto">
+                        Armamos un paquete a la medida de tu operación, con mejor precio por análisis.
+                    </p>
+                </div>
+
+                <!-- Qué incluye hablar con nosotros -->
+                <div class="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 mb-10 text-m text-muted-color" appScrollAnimate="fade-up" [animateDelay]="150">
+                    <span class="inline-flex items-center gap-2"><i class="pi pi-check-circle text-emerald-500"></i> Mejor precio por análisis</span>
+                    <span class="inline-flex items-center gap-2"><i class="pi pi-check-circle text-emerald-500"></i> Acompañamiento en la puesta en marcha</span>
+                    <span class="inline-flex items-center gap-2"><i class="pi pi-check-circle text-emerald-500"></i> Atención comercial directa</span>
+                </div>
+
+                <div appScrollAnimate="scale-in" [animateDelay]="250">
+                    <a routerLink="/agendar-demo" class="no-underline">
+                        <button pButton pRipple label="Agendar demo gratis" icon="pi pi-arrow-right" iconPos="right" rounded class="text-lg px-8 py-3 font-bold"></button>
+                    </a>
+                    <p class="text-m text-muted-color mt-5 mb-0">
+                        o escríbenos a
+                        <a href="mailto:ventas&#64;creditia.co" class="text-primary font-semibold no-underline hover:underline">ventas&#64;creditia.co</a>
+                    </p>
+                </div>
+            </div>
+        </section>
+    </main>
+    <footer-widget />
+</div>
