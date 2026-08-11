@@ -4,6 +4,7 @@
 <app-promissory-note-modal
     [(visible)]="promissoryNoteVisible"
     [creditStudyId]="creditStudyId()"
+    [customerId]="studyCustomerId()"
     [defaultAmount]="promissoryNoteAmount()"
     [defaultTermDays]="promissoryNoteTermDays()"
     (generated)="onPromissoryNoteGenerated()" />

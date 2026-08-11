@@ -1,10 +1,15 @@
 // ─── Pagaré (documents/promissory-notes) ─────────────────────────────────────
 
+import { CustomerSigner } from './customer';
+
+export type PromissoryNoteSigner = Omit<CustomerSigner, 'customerId' | 'personType'>;
+
 /** Cuerpo compartido del preview y de la creación del pagaré. */
 export interface PromissoryNotePayload {
     creditStudyId: string;
     amount: number;
     termDays: number;
+    signer?: PromissoryNoteSigner;
 }
 
 export interface PromissoryNotePreviewResponse {

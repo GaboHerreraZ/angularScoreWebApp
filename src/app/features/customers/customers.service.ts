@@ -2,7 +2,7 @@ import { computed, inject, Injectable, signal } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { BehaviorSubject, Observable, switchMap, tap, catchError, of } from 'rxjs';
 import { ApiService } from '@/app/core/services/api.service';
-import { Customer, CustomerDetail, UpdateCustomerPayload } from '@/app/types/customer';
+import { Customer, CustomerDetail, CustomerSigner, UpdateCustomerPayload } from '@/app/types/customer';
 import { CustomerStats } from '@/app/types/customer-stats';
 import { CustomerCreditStudyResponse } from '@/app/types/credit-study';
 import { AuthService } from '@/app/core/services/auth.service';
@@ -75,6 +75,10 @@ export class CustomersService {
     /** Actualiza los datos de contacto y la actividad económica; responde el mismo shape del GET de detalle. */
     updateCustomer(id: string, payload: UpdateCustomerPayload): Observable<CustomerDetail> {
         return this.apiService.patch<CustomerDetail>(`${this.basePath}/${id}`, payload);
+    }
+
+    getLegalRepresentative(customerId: string): Observable<CustomerSigner> {
+        return this.apiService.get<CustomerSigner>(`${this.basePath}/${customerId}/legal-representative`);
     }
 
     exportToExcel(): Observable<HttpResponse<Blob>> {

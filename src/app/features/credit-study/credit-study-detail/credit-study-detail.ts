@@ -199,6 +199,11 @@ export class CreditStudyDetail {
         return { ...config, label: note.statusLabel };
     });
 
+    /** Cliente del estudio; el modal del pagaré lo usa para traer al firmante. */
+    studyCustomerId = computed(() =>
+        this.step1Data()?.customer?.id ?? this.studyResult()?.customer?.id ?? undefined
+    );
+
     /** Cupo viable del resultado (con fallback al recomendado) para prellenar el pagaré. */
     promissoryNoteAmount = computed(() => {
         const result = this.studyResult();
