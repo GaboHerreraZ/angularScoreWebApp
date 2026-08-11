@@ -17,10 +17,10 @@
             <div>
                 <h4 class="text-color font-semibold text-sm uppercase tracking-widest mb-5 mt-0">Producto</h4>
                 <ul class="list-none p-0 m-0 flex flex-col gap-3">
-                    <li><a class="cursor-pointer text-muted-color hover:text-primary transition-colors duration-300" (click)="scrollTo('features')">Características</a></li>
-                    <li><a class="cursor-pointer text-muted-color hover:text-primary transition-colors duration-300" (click)="scrollTo('how-it-works')">Cómo Funciona</a></li>
-                    <li><a class="cursor-pointer text-muted-color hover:text-primary transition-colors duration-300" (click)="scrollTo('como-empezar')">Cómo empezar</a></li>
-                    <li><a class="cursor-pointer text-muted-color hover:text-primary transition-colors duration-300" (click)="scrollTo('faq')">Preguntas Frecuentes</a></li>
+                    <li><a class="cursor-pointer text-muted-color hover:text-primary transition-colors duration-300" (click)="scrollTo('como-funciona')">Cómo funciona</a></li>
+                    <li><a [routerLink]="['/precios']" class="cursor-pointer text-muted-color hover:text-primary transition-colors duration-300">Precios</a></li>
+                    <li><a [routerLink]="['/agendar-demo']" class="cursor-pointer text-muted-color hover:text-primary transition-colors duration-300">Agendar demo</a></li>
+                    <li><a [routerLink]="['/blog']" class="cursor-pointer text-muted-color hover:text-primary transition-colors duration-300">Blog</a></li>
                 </ul>
             </div>
 
@@ -38,6 +38,14 @@
             <div>
                 <h4 class="text-color font-semibold text-sm uppercase tracking-widest mb-5 mt-0">Contacto</h4>
                 <ul class="list-none p-0 m-0 flex flex-col gap-3">
+                    <li class="flex items-center gap-2">
+                        <i class="pi pi-comments text-primary/70"></i>
+                        <a [routerLink]="['/agendar-demo']" class="cursor-pointer text-muted-color hover:text-primary transition-colors duration-300">Contacto comercial</a>
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <i class="pi pi-envelope text-primary/70"></i>
+                        <a href="mailto:ventas&#64;creditia.co" class="text-muted-color hover:text-primary transition-colors duration-300 no-underline">ventas&#64;creditia.co</a>
+                    </li>
                     <li class="flex items-center gap-2">
                         <i class="pi pi-envelope text-primary/70"></i>
                         <span class="text-muted-color">soporte&#64;creditia.co</span>

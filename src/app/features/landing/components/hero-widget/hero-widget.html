@@ -10,17 +10,16 @@
                 Decide a quién darle crédito, <span class="text-primary">sin adivinar</span>
             </h1>
             <p class="text-lg sm:text-xl mb-8 leading-relaxed text-muted-color max-w-2xl">
-                Si tu empresa vende a crédito, Credit-ia analiza los estados financieros de tu cliente y los contrasta con su historial
-                real en <span class="font-semibold text-color">Datacrédito Experian</span> para decirte si la solicitud es viable, en menos de 15 minutos.
-                <span class="font-semibold text-color">No prestamos dinero</span>: te damos los datos para que tú decidas con criterio.
+                Score de riesgo de tu cliente con IA y <span class="font-semibold text-color">Datacrédito Experian</span>, en 15 minutos.
+                <span class="font-semibold text-color">No prestamos dinero</span>: tú decides.
             </p>
             <div class="flex flex-col sm:flex-row gap-4 mb-12">
                 @if (isAuthenticated()) {
                     <button pButton pRipple label="Ir al Dashboard" icon="pi pi-arrow-right" iconPos="right" rounded class="text-lg px-8 py-3 w-full sm:w-auto" (click)="goToDashboard()"></button>
                 } @else {
-                    <button pButton pRipple label="Registrarme" icon="pi pi-arrow-right" iconPos="right" rounded class="text-lg px-8 py-3 w-full sm:w-auto" (click)="goToRegister()"></button>
+                    <button pButton pRipple label="Ver precios" icon="pi pi-arrow-right" iconPos="right" rounded class="text-lg px-8 py-3 w-full sm:w-auto" (click)="goToPricing()"></button>
                 }
-                <button pButton pRipple label="Ver cómo funciona" icon="pi pi-arrow-down" rounded outlined class="text-lg px-8 py-3" (click)="scrollTo('how-it-works')"></button>
+                <button pButton pRipple label="Agendar demo gratis" icon="pi pi-calendar" rounded outlined class="text-lg px-8 py-3" (click)="goToDemo()"></button>
             </div>
             <!-- Trust badges -->
             <div class="flex flex-wrap gap-8">
@@ -38,8 +37,8 @@
                         <i class="pi pi-chart-line text-blue-500 text-lg"></i>
                     </div>
                     <div>
-                        <div class="font-bold text-color">10+ indicadores</div>
-                        <div class="text-m text-muted-color">Z-Score, EBITDA, rotación</div>
+                        <div class="font-bold text-color">Datacrédito Experian</div>
+                        <div class="text-m text-muted-color">Historial real, no promesas</div>
                     </div>
                 </div>
                 <div class="flex items-center gap-3">

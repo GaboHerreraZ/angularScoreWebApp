@@ -1,0 +1,275 @@
+<section id="como-funciona" class="landing-grid px-6 sm:px-12 lg:px-20 py-16 lg:py-24 bg-surface-0 dark:bg-surface-950">
+    <div class="max-w-screen-xl mx-auto">
+        <!-- Header -->
+        <div class="text-center mb-12 lg:mb-14" appScrollAnimate="fade-up">
+            <span class="bg-primary/10 text-primary font-bold text-m uppercase tracking-widest px-4 py-1.5 rounded-full">Cómo funciona</span>
+            <h2 class="font-extrabold text-3xl sm:text-4xl lg:text-5xl mt-5 mb-0 text-color">
+                De la solicitud a la decisión <span class="text-primary">en 5 pasos</span>
+            </h2>
+        </div>
+
+        <div #demo class="relative max-w-6xl mx-auto" appScrollAnimate="fade-up">
+            <!-- Tarjetas flotantes: rasgos del proceso (lo QUE ofrece va en "Por qué CREDIT-IA") -->
+            <div class="hidden lg:block absolute left-0 top-6 -rotate-3 float-card" aria-hidden="true">
+                <div class="landing-card w-60 rounded-xl border border-surface bg-surface-50 dark:bg-surface-900 px-4 py-3 shadow-lg flex items-center gap-3">
+                    <span class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-emerald-500/10 shrink-0"><i class="pi pi-clock text-emerald-500"></i></span>
+                    <div class="min-w-0">
+                        <div class="font-bold text-m text-color">15 min promedio</div>
+                        <div class="text-sm text-muted-color">De solicitud a decisión</div>
+                    </div>
+                </div>
+            </div>
+            <div class="hidden lg:block absolute left-6 bottom-10 rotate-2 float-card float-card-alt" aria-hidden="true">
+                <div class="landing-card w-60 rounded-xl border border-surface bg-surface-50 dark:bg-surface-900 px-4 py-3 shadow-lg flex items-center gap-3">
+                    <span class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-blue-500/10 shrink-0"><i class="pi pi-globe text-blue-500"></i></span>
+                    <div class="min-w-0">
+                        <div class="font-bold text-m text-color">100% en línea</div>
+                        <div class="text-sm text-muted-color">Sin papeleo ni visitas</div>
+                    </div>
+                    <i class="pi pi-check-circle text-emerald-500 ml-auto"></i>
+                </div>
+            </div>
+            <div class="hidden lg:block absolute right-0 top-10 rotate-3 float-card float-card-alt" aria-hidden="true">
+                <div class="landing-card w-60 rounded-xl border border-surface bg-surface-50 dark:bg-surface-900 px-4 py-3 shadow-lg flex items-center gap-3">
+                    <span class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-purple-500/10 shrink-0"><i class="pi pi-desktop text-purple-500"></i></span>
+                    <div class="min-w-0">
+                        <div class="font-bold text-m text-color">Sin instalar nada</div>
+                        <div class="text-sm text-muted-color">Funciona en tu navegador</div>
+                    </div>
+                </div>
+            </div>
+            <div class="hidden lg:block absolute right-6 bottom-6 -rotate-2 float-card" aria-hidden="true">
+                <div class="landing-card w-60 rounded-xl border border-surface bg-surface-50 dark:bg-surface-900 px-4 py-3 shadow-lg flex items-center gap-3">
+                    <span class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-primary/10 shrink-0"><i class="pi pi-users text-primary"></i></span>
+                    <div class="min-w-0">
+                        <div class="font-bold text-m text-color">Trabaja en equipo</div>
+                        <div class="text-sm text-muted-color">Usuarios y roles por empresa</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Marco del producto -->
+            <div class="max-w-xl mx-auto">
+                <div class="landing-card bg-surface-0 dark:bg-surface-900 rounded-2xl shadow-2xl border border-surface overflow-hidden">
+                    <!-- Barra del navegador -->
+                    <div class="flex items-center justify-between px-5 py-3.5 border-b border-surface">
+                        <div class="flex items-center gap-2">
+                            <div class="w-3 h-3 rounded-full bg-red-400"></div>
+                            <div class="w-3 h-3 rounded-full bg-yellow-400"></div>
+                            <div class="w-3 h-3 rounded-full bg-green-400"></div>
+                        </div>
+                        <span class="text-sm text-muted-color font-mono">creditia.co/estudio</span>
+                    </div>
+
+                    @if (reduceMotion) {
+                        <!-- Sin movimiento: los 5 pasos apilados, sin ciclo -->
+                        <div class="flex flex-col gap-10 p-5 sm:p-7">
+                            @for (step of steps; track step.title) {
+                                <ng-container [ngTemplateOutlet]="stepShell" [ngTemplateOutletContext]="{ $implicit: $index }" />
+                            }
+                        </div>
+                    } @else {
+                        <!-- Slider automático: el paso activo entra con fundido; el
+                             track del @for recrea el contenido y replay de la animación -->
+                        @for (i of [activeStep()]; track i) {
+                            <div class="step-enter flex flex-col justify-center min-h-96 p-5 sm:p-7">
+                                <ng-container [ngTemplateOutlet]="stepShell" [ngTemplateOutletContext]="{ $implicit: i }" />
+                            </div>
+                        }
+                    }
+                </div>
+
+                @if (!reduceMotion) {
+                    <!-- Dots de progreso: el activo se llena solo (avance automático) -->
+                    <div class="flex justify-center items-center gap-2.5 mt-6">
+                        @for (step of steps; track step.title) {
+                            <button
+                                type="button"
+                                (click)="goToStep($index)"
+                                [attr.aria-label]="'Paso ' + ($index + 1) + ': ' + step.title"
+                                class="cursor-pointer h-2 rounded-full overflow-hidden bg-surface-200 dark:bg-surface-700 transition-all duration-300 border-0 p-0"
+                                [class]="activeStep() === $index ? 'w-9' : 'w-2 hover:bg-surface-300 dark:hover:bg-surface-600'"
+                            >
+                                @if (activeStep() === $index) {
+                                    <div class="h-full bg-primary rounded-full" [style.width.%]="progress() * 100"></div>
+                                }
+                            </button>
+                        }
+                    </div>
+                }
+
+                <!-- Empuje discreto al siguiente paso del embudo -->
+                <div class="text-center mt-7">
+                    <a routerLink="/precios" class="inline-flex items-center gap-2 text-primary font-semibold no-underline hover:underline">
+                        Ver precios <i class="pi pi-arrow-right text-sm"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Cascarón de un paso: encabezado (número + título + descripción) y su mockup -->
+<ng-template #stepShell let-i>
+    <div class="text-center mb-6">
+        <span class="inline-flex items-center gap-2 bg-primary/10 text-primary text-sm font-bold uppercase tracking-wider rounded-full px-3 py-1">
+            <i class="pi {{ steps[i].icon }} text-sm"></i>
+            Paso {{ i + 1 }} de {{ steps.length }}
+        </span>
+        <h3 class="font-bold text-xl sm:text-2xl mt-4 mb-2 text-color">{{ steps[i].title }}</h3>
+        <p class="text-muted-color m-0 max-w-md mx-auto">{{ steps[i].description }}</p>
+    </div>
+    <div class="max-w-md mx-auto w-full">
+        @switch (i) {
+            @case (0) { <ng-container [ngTemplateOutlet]="stepNit" /> }
+            @case (1) { <ng-container [ngTemplateOutlet]="stepPdf" /> }
+            @case (2) { <ng-container [ngTemplateOutlet]="stepCross" /> }
+            @case (3) { <ng-container [ngTemplateOutlet]="stepScore" /> }
+            @case (4) { <ng-container [ngTemplateOutlet]="stepPromissory" /> }
+        }
+    </div>
+</ng-template>
+
+<!-- Paso 1: tipo de documento + número (se diligencia solo) -->
+<ng-template #stepNit>
+    <div class="rounded-xl border border-surface bg-surface-50 dark:bg-surface-800 p-5">
+        <!-- Tipo de documento -->
+        <div class="relative mb-4">
+            <label class="text-sm font-semibold text-muted-color block mb-2">Tipo de documento</label>
+            <div
+                class="flex items-center justify-between rounded-lg border bg-surface-0 dark:bg-surface-900 px-3 py-2.5 transition-colors duration-300"
+                [class]="docDropdownOpen() ? 'border-primary' : 'border-surface'"
+            >
+                @if (docSelected()) {
+                    <span class="font-medium text-color">NIT</span>
+                } @else {
+                    <span class="text-muted-color">Selecciona…</span>
+                }
+                <i class="pi pi-chevron-down text-muted-color text-sm transition-transform duration-300" [class.rotate-180]="docDropdownOpen()"></i>
+            </div>
+
+            @if (docDropdownOpen()) {
+                <!-- Dropdown simulado: aquí se ve que sirve para empresas y personas -->
+                <div class="pop-in absolute left-0 right-0 top-full mt-1 rounded-lg border border-surface bg-surface-0 dark:bg-surface-900 shadow-xl z-10 overflow-hidden">
+                    <div class="px-3 py-2 text-m transition-colors duration-200" [class]="docOptionActive() ? 'bg-primary/10 text-primary font-semibold' : 'text-color'">NIT</div>
+                    <div class="px-3 py-2 text-m text-color">Cédula de ciudadanía</div>
+                    <div class="px-3 py-2 text-m text-color">Cédula de extranjería</div>
+                </div>
+            }
+        </div>
+
+        <!-- Número de documento: se teclea carácter a carácter -->
+        <label class="text-sm font-semibold text-muted-color block mb-2">Número de documento</label>
+        <div class="flex items-center gap-3">
+            <div class="flex-1 flex items-center rounded-lg border border-surface bg-surface-0 dark:bg-surface-900 px-3 py-2.5 font-mono text-color">
+                {{ docTyped() }}<span class="ml-0.5 w-px h-5 bg-primary animate-pulse" [class.invisible]="!docSelected()"></span>
+            </div>
+            <span
+                class="inline-flex items-center gap-2 rounded-lg bg-primary text-primary-contrast font-semibold text-m px-4 py-2.5 transition-transform duration-200"
+                [class.scale-90]="searchPressed()"
+            >
+                <i class="pi pi-search text-sm"></i> Buscar
+            </span>
+        </div>
+    </div>
+</ng-template>
+
+<!-- Paso 2: estados financieros en PDF (el archivo "cae" a la zona de carga) -->
+<ng-template #stepPdf>
+    <div class="pdf-zone rounded-xl border-2 border-dashed border-surface bg-surface-50 dark:bg-surface-800 p-5 text-center">
+        <i class="pi pi-cloud-upload text-3xl text-muted-color mb-1"></i>
+        <p class="text-m text-muted-color mt-0 mb-4">Arrastra los estados financieros</p>
+
+        <!-- El archivo cae desde arriba y aterriza en la zona -->
+        <div class="pdf-drop inline-flex items-center gap-2 rounded-lg bg-surface-0 dark:bg-surface-900 border border-surface shadow-md px-3.5 py-2 text-sm font-medium text-color">
+            <i class="pi pi-file-pdf text-red-400"></i>
+            estados-financieros-2025.pdf
+            @if (pdfDone()) {
+                <i class="pop-in pi pi-check-circle text-emerald-500"></i>
+            }
+        </div>
+
+        <!-- Carga: arranca al aterrizar el archivo -->
+        <div class="w-full bg-surface-200 dark:bg-surface-700 rounded-full h-1.5 overflow-hidden mt-4">
+            <div class="bg-linear-to-r from-primary to-emerald-400 h-1.5 rounded-full" [style.width.%]="pdfUpload()"></div>
+        </div>
+        <div class="flex items-center justify-between mt-2 text-sm">
+            @if (pdfDone()) {
+                <span class="pop-in inline-flex items-center gap-1.5 font-semibold text-emerald-500">
+                    <i class="pi pi-sparkles"></i> La IA extrajo las cifras
+                </span>
+            } @else {
+                <span class="text-muted-color">{{ pdfUpload() > 0 ? 'Subiendo…' : 'Soltando archivo…' }}</span>
+            }
+            <span class="text-muted-color font-semibold tabular-nums">{{ pdfUpload() }}%</span>
+        </div>
+    </div>
+</ng-template>
+
+<!-- Paso 3: cruce Datacrédito + IA -->
+<ng-template #stepCross>
+    <div class="rounded-xl border border-surface bg-surface-50 dark:bg-surface-800 p-5">
+        <div class="flex items-center justify-center gap-3 sm:gap-4">
+            <div class="flex flex-col items-center gap-2 text-center">
+                <span class="inline-flex items-center justify-center w-11 h-11 rounded-xl bg-emerald-500/10">
+                    <i class="pi pi-shield text-emerald-500 text-lg"></i>
+                </span>
+                <span class="text-sm font-semibold text-color">Datacrédito<br />Experian</span>
+            </div>
+            <div class="flex-1 border-t-2 border-dashed border-primary/40 mx-1"></div>
+            @if (!reduceMotion && activeStep() === 2 && progress() < 0.8) {
+                <i class="pi pi-spinner pi-spin text-primary text-xl"></i>
+            } @else {
+                <i class="pi pi-check-circle text-emerald-500 text-xl"></i>
+            }
+            <div class="flex-1 border-t-2 border-dashed border-primary/40 mx-1"></div>
+            <div class="flex flex-col items-center gap-2 text-center">
+                <span class="inline-flex items-center justify-center w-11 h-11 rounded-xl bg-purple-500/10">
+                    <i class="pi pi-sparkles text-purple-500 text-lg"></i>
+                </span>
+                <span class="text-sm font-semibold text-color">Análisis<br />con IA</span>
+            </div>
+        </div>
+    </div>
+</ng-template>
+
+<!-- Paso 4: score de riesgo (el desglose profundo vive en "Por qué CREDIT-IA") -->
+<ng-template #stepScore>
+    <div class="rounded-xl bg-linear-to-r from-green-500/10 to-emerald-500/10 dark:from-green-500/20 dark:to-emerald-500/20 p-5">
+        <div class="flex items-center justify-between mb-2">
+            <span class="text-m font-semibold text-muted-color">Score del cliente</span>
+            <span class="bg-green-500/20 text-green-600 dark:text-green-400 text-sm font-bold px-2 py-1 rounded-full">Riesgo bajo</span>
+        </div>
+        <div class="text-4xl font-extrabold text-green-600 dark:text-green-400 mb-3 tabular-nums">{{ scoreFill() }}<span class="text-lg text-muted-color">/100</span></div>
+        <div class="w-full bg-surface-200 dark:bg-surface-700 rounded-full h-2 overflow-hidden">
+            <div class="bg-linear-to-r from-green-500 to-emerald-400 h-2 rounded-full" [style.width.%]="scoreFill()"></div>
+        </div>
+        <p class="text-sm text-muted-color mt-3 mb-0">Apruebas, niegas o ajustas condiciones con criterio.</p>
+    </div>
+</ng-template>
+
+<!-- Paso 5: pagaré digital -->
+<ng-template #stepPromissory>
+    <div class="rounded-xl border border-surface bg-surface-50 dark:bg-surface-800 p-5">
+        <div class="flex items-center justify-between mb-4">
+            <span class="inline-flex items-center gap-2 font-semibold text-color">
+                <i class="pi pi-file text-primary"></i> Pagaré No. CR-2026-0147
+            </span>
+            <span class="bg-green-500/20 text-green-600 dark:text-green-400 text-sm font-bold px-2 py-1 rounded-full">Generado</span>
+        </div>
+        <!-- Renglones del documento -->
+        <div class="flex flex-col gap-2 mb-4" aria-hidden="true">
+            <div class="h-2 rounded bg-surface-200 dark:bg-surface-700 w-full"></div>
+            <div class="h-2 rounded bg-surface-200 dark:bg-surface-700 w-4/5"></div>
+            <div class="h-2 rounded bg-surface-200 dark:bg-surface-700 w-3/5"></div>
+        </div>
+        <div class="flex items-center justify-between rounded-lg bg-surface-0 dark:bg-surface-900 border border-surface px-4 py-3">
+            <span class="inline-flex items-center gap-2 text-m text-color font-semibold">
+                <i class="pi pi-pen-to-square text-primary"></i> Firma electrónica
+            </span>
+            <span class="inline-flex items-center gap-1.5 text-sm font-bold text-green-600 dark:text-green-400">
+                <i class="pi pi-check"></i> Listo para firma
+            </span>
+        </div>
+    </div>
+</ng-template>

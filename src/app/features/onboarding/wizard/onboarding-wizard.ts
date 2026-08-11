@@ -31,6 +31,7 @@ import { PurchaseSummary, onboardingSummaries } from '../purchase-summary/purcha
 import { PackOfferingsService } from '@/app/shared/services/pack-offerings.service';
 import { AnalysisPacksService } from '@/app/shared/services/analysis-packs.service';
 import { OnboardingByProfile, OnboardingRequest, PackOffering } from '@/app/types/onboarding';
+import { PRESELECTED_PACK_KEY } from '@/app/core/constants/storage-keys';
 
 type StateCity = { id: number; name: string };
 
@@ -84,6 +85,19 @@ export class OnboardingWizard {
 
         // queueMicrotask: corre tras inicializar todas las propiedades de la clase.
         queueMicrotask(() => this.loadExistingOnboarding());
+
+        // Pack elegido en la página de precios (viaja en sessionStorage): al
+        // cargar el catálogo lo preseleccionamos en el paso "Paquete". La clave
+        // se borra siempre, incluso si el id ya no existe en el catálogo.
+        effect(() => {
+            const packs = this.packsResource.value();
+            if (!packs) return;
+            const packId = sessionStorage.getItem(PRESELECTED_PACK_KEY);
+            if (!packId) return;
+            sessionStorage.removeItem(PRESELECTED_PACK_KEY);
+            const pack = packs.find((p) => p.id === packId);
+            if (pack) this.selectedPack.set(pack);
+        });
     }
 
     /**

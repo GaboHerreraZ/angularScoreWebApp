@@ -1,5 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import { Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { AuthLayout } from '@/app/shared/components/auth-layout/auth-layout';
@@ -10,6 +10,7 @@ import { MessageModule } from 'primeng/message';
 import { Notification } from '@/app/shared/components/notification/notification';
 import { SupabaseService } from '@/app/core/services/supabase.service';
 import { AuthService } from '@/app/core/services/auth.service';
+import { PRESELECTED_PACK_KEY } from '@/app/core/constants/storage-keys';
 
 /** Ruta a la que continúa el usuario una vez autenticado. */
 const ONBOARDING_NEXT = '/onboarding/registrar-empresa';
@@ -51,6 +52,13 @@ export class OnboardingRegister {
     googleLoading = signal(false);
     errorMessage = signal<string | null>(null);
     infoMessage = signal<string | null>(null);
+
+    constructor() {
+        const packId = inject(ActivatedRoute).snapshot.queryParamMap.get('pack');
+        if (packId) {
+            sessionStorage.setItem(PRESELECTED_PACK_KEY, packId);
+        }
+    }
 
     form = new FormGroup({
         email: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.email] }),

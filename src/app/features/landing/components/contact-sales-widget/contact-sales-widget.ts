@@ -1,5 +1,5 @@
-import { Component, DestroyRef, inject, signal } from '@angular/core';
-import { NgClass } from '@angular/common';
+import { Component, DestroyRef, effect, inject, input, signal } from '@angular/core';
+import { NgClass, NgTemplateOutlet } from '@angular/common';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -22,6 +22,7 @@ import { ContactSalesRequest, ContactSalesSubject } from '@/app/types/contact-sa
     selector: 'contact-sales-widget',
     imports: [
         NgClass,
+        NgTemplateOutlet,
         ReactiveFormsModule,
         ButtonModule,
         InputTextModule,
@@ -40,11 +41,33 @@ export class ContactSalesWidget {
     private contactSalesService = inject(ContactSalesService);
     private notification = inject(NotificationService);
 
+    /** Asunto preseleccionado en el formulario (p. ej. 'demo' en /agendar-demo). */
+    initialSubject = input<ContactSalesSubject | null>(null);
+    /** Título de la card del formulario. */
+    heading = input('Contacta con el área comercial');
+    /** Texto bajo el título de la card del formulario. */
+    subheading = input('Completa el formulario y te responderemos a la brevedad.');
+    /**
+     * Muestra la intro con copy comercial junto al formulario. Se apaga cuando
+     * la página que monta el widget ya trae su propio copy (p. ej. /agendar-demo).
+     */
+    showIntro = input(true);
+
     /** Correo del área comercial, también visible como alternativa al form. */
     readonly salesEmail = 'ventas@creditia.co';
 
     sending = signal(false);
     sent = signal(false);
+
+    constructor() {
+        effect(() => this.applyInitialSubject());
+    }
+
+    /** Deja el asunto inicial puesto en el select (si la página lo definió). */
+    private applyInitialSubject(): void {
+        const subject = this.initialSubject();
+        if (subject) this.form.controls.subject.setValue(subject);
+    }
 
     /** Opciones de asunto del formulario de contacto. */
     readonly subjectOptions: { label: string; value: ContactSalesSubject }[] = [
@@ -89,6 +112,7 @@ export class ContactSalesWidget {
             next: () => {
                 this.sent.set(true);
                 this.form.reset();
+                this.applyInitialSubject();
                 this.notification.success('Tu mensaje fue enviado. El área comercial te contactará pronto.');
             },
             error: (error: HttpErrorResponse) => {

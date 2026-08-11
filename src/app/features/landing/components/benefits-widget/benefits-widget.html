@@ -1,0 +1,170 @@
+<section class="landing-band px-6 sm:px-12 lg:px-20 py-16 lg:py-24">
+    <div class="max-w-screen-xl mx-auto">
+        <!-- Header -->
+        <div class="text-center mb-14" appScrollAnimate="fade-up">
+            <span class="bg-primary/10 text-primary font-bold text-m uppercase tracking-widest px-4 py-1.5 rounded-full">Por qué CREDIT-IA</span>
+            <h2 class="font-extrabold text-3xl sm:text-4xl lg:text-5xl mt-5 mb-0 text-color">
+                Menos cartera vencida. <span class="text-primary">Más ventas seguras.</span>
+            </h2>
+        </div>
+
+        <!-- Bento grid -->
+        <div class="grid lg:grid-cols-3 gap-6">
+            <!-- Protagonista: score explicable -->
+            <div
+                #showcase
+                class="landing-card lg:col-span-2 lg:row-span-2 relative overflow-hidden rounded-3xl border border-surface bg-surface-0 dark:bg-surface-900 p-7 sm:p-9 shadow-xl"
+                appScrollAnimate="fade-up"
+            >
+                <!-- Glow decorativo -->
+                <div class="pointer-events-none absolute -top-20 -right-20 w-64 h-64 rounded-full bg-emerald-500/10 blur-3xl"></div>
+
+                <div class="relative">
+                    <h3 class="font-bold text-xl sm:text-2xl mt-0 mb-1 text-color">Un score que puedes explicar</h3>
+                    <p class="text-m text-muted-color mt-0 mb-8">Cinco dimensiones se combinan en un puntaje de 0 a 100.</p>
+
+                    <div class="flex flex-col sm:flex-row items-center gap-8">
+                        <!-- Medidor radial -->
+                        <div class="relative shrink-0">
+                            <svg width="140" height="140" viewBox="0 0 140 140" class="-rotate-90">
+                                <circle cx="70" cy="70" [attr.r]="radius" fill="none" stroke="currentColor" stroke-width="12" class="text-surface-200 dark:text-surface-700" />
+                                <circle
+                                    cx="70"
+                                    cy="70"
+                                    [attr.r]="radius"
+                                    fill="none"
+                                    stroke="url(#scoreGradient)"
+                                    stroke-width="12"
+                                    stroke-linecap="round"
+                                    [attr.stroke-dasharray]="circumference"
+                                    [attr.stroke-dashoffset]="dashOffset()"
+                                    style="transition: stroke-dashoffset 1100ms ease-out"
+                                />
+                                <defs>
+                                    <linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stop-color="#22c55e" />
+                                        <stop offset="100%" stop-color="#10b981" />
+                                    </linearGradient>
+                                </defs>
+                            </svg>
+                            <div class="absolute inset-0 flex flex-col items-center justify-center">
+                                <span class="text-4xl font-extrabold text-color tabular-nums leading-none">{{ score() }}</span>
+                                <span class="text-sm text-muted-color font-medium">/ 100</span>
+                            </div>
+                        </div>
+
+                        <!-- Desglose por dimensiones -->
+                        <div class="flex-1 w-full space-y-4">
+                            <div class="flex items-center justify-between">
+                                <span class="text-m font-semibold text-color">Desglose del score</span>
+                                <span class="text-sm font-bold px-2 py-0.5 rounded-full bg-green-500/15 text-green-600 dark:text-green-400">Riesgo bajo</span>
+                            </div>
+                            @for (dim of dimensions; track dim.label; let i = $index) {
+                                <div>
+                                    <div class="flex items-center justify-between text-sm mb-1">
+                                        <span class="text-muted-color">{{ dim.label }}</span>
+                                        <span class="font-semibold text-color tabular-nums">{{ dim.value }}/{{ dimensionMax }}</span>
+                                    </div>
+                                    <div class="w-full h-1.5 rounded-full bg-surface-200 dark:bg-surface-700 overflow-hidden">
+                                        <div
+                                            class="h-1.5 rounded-full {{ dim.color }} transition-[width] duration-700 ease-out"
+                                            [style.width]="animate() ? (dim.value / dimensionMax) * 100 + '%' : '0%'"
+                                            [style.transition-delay]="300 + i * 120 + 'ms'"
+                                        ></div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Narrativa de IA -->
+                    <div
+                        class="relative mt-8 flex items-start gap-3 rounded-2xl bg-linear-to-r from-purple-500/10 to-indigo-500/10 dark:from-purple-500/15 dark:to-indigo-500/15 p-4 transition-all duration-500 ease-out"
+                        [class.opacity-0]="!animate()"
+                        [class.translate-y-2]="!animate()"
+                        style="transition-delay: 900ms"
+                    >
+                        <div class="w-9 h-9 rounded-lg bg-linear-to-br from-purple-500 to-indigo-500 flex items-center justify-center shrink-0 shadow-lg">
+                            <i class="pi pi-sparkles text-white text-m"></i>
+                        </div>
+                        <p class="text-m text-muted-color leading-snug m-0">
+                            <strong class="text-color">Análisis con IA:</strong> cliente viable. Capacidad de pago sólida y buen historial en centrales de riesgo; se sugiere aprobar la solicitud.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Decide en 15 minutos -->
+            <div class="landing-card rounded-3xl border border-surface bg-surface-0 dark:bg-surface-900 p-7 shadow-xl" appScrollAnimate="fade-up" [animateDelay]="120">
+                <div class="w-11 h-11 rounded-xl bg-violet-500/10 flex items-center justify-center mb-4">
+                    <i class="pi pi-bolt text-violet-500 text-lg"></i>
+                </div>
+                <h3 class="font-bold text-lg mt-0 mb-1 text-color">Decide en 15 minutos</h3>
+                <p class="text-m text-muted-color mt-0 mb-5">Lo que a un analista le toma 2 días.</p>
+                <div class="space-y-3">
+                    <div>
+                        <div class="flex items-center justify-between text-sm mb-1">
+                            <span class="text-muted-color">Con CREDIT-IA</span>
+                            <span class="font-bold text-emerald-500">15 min</span>
+                        </div>
+                        <div class="h-2 rounded-full bg-surface-200 dark:bg-surface-700 overflow-hidden">
+                            <div class="h-2 w-1/12 rounded-full bg-linear-to-r from-primary to-emerald-400"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex items-center justify-between text-sm mb-1">
+                            <span class="text-muted-color">Análisis manual</span>
+                            <span class="font-semibold text-muted-color">2 días</span>
+                        </div>
+                        <div class="h-2 rounded-full bg-surface-200 dark:bg-surface-700 overflow-hidden">
+                            <div class="h-2 w-full rounded-full bg-surface-400 dark:bg-surface-600"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cuesta una fracción -->
+            <div class="landing-card rounded-3xl border border-surface bg-surface-0 dark:bg-surface-900 p-7 shadow-xl" appScrollAnimate="fade-up" [animateDelay]="240">
+                <div class="w-11 h-11 rounded-xl bg-emerald-500/10 flex items-center justify-center mb-4">
+                    <i class="pi pi-wallet text-emerald-500 text-lg"></i>
+                </div>
+                <h3 class="font-bold text-lg mt-0 mb-1 text-color">Cuesta una fracción</h3>
+                <p class="text-m text-muted-color mt-0 mb-5">Sin analista externo ni horas de Excel.</p>
+                <div class="space-y-2.5">
+                    <div class="flex items-center justify-between rounded-xl bg-surface-50 dark:bg-surface-800 border border-surface px-4 py-2.5">
+                        <span class="text-m text-muted-color">Estudio con asesor externo</span>
+                        <span class="text-m font-bold text-muted-color line-through decoration-red-400/70">~$200.000</span>
+                    </div>
+                    <div class="flex items-center justify-between rounded-xl bg-surface-50 dark:bg-surface-800 border border-emerald-500/30 px-4 py-2.5">
+                        <span class="text-m font-semibold text-color">Con CREDIT-IA</span>
+                        <a routerLink="/precios" class="text-m font-bold text-primary no-underline hover:underline">Ver precios <i class="pi pi-arrow-right text-xs"></i></a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Franja de capacidades complementarias -->
+            <div class="landing-card lg:col-span-3 rounded-3xl border border-surface bg-surface-0 dark:bg-surface-900 p-7 shadow-xl" appScrollAnimate="fade-up" [animateDelay]="150">
+                <ul class="list-none p-0 m-0 grid sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-6">
+                    @for (extra of extras; track extra.title) {
+                        <li class="flex items-start gap-3">
+                            <div class="shrink-0 w-11 h-11 rounded-xl {{ extra.bg }} flex items-center justify-center">
+                                <i class="pi {{ extra.icon }} {{ extra.color }} text-lg"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-base mb-1 mt-0 text-color">{{ extra.title }}</h4>
+                                <p class="text-m text-muted-color leading-snug m-0">{{ extra.description }}</p>
+                            </div>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+
+        <!-- Nota diferenciadora -->
+        <p class="text-m text-muted-color mt-10 text-center max-w-3xl mx-auto" appScrollAnimate="fade-up">
+            <i class="pi pi-info-circle text-primary mr-1"></i>
+            CREDIT-IA nunca recomienda un monto mayor al solicitado. Si la capacidad alcanza, la solicitud es viable;
+            si no, resulta viable con condiciones y sugiere monto y plazo alternativos.
+        </p>
+    </div>
+</section>

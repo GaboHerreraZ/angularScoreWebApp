@@ -18,8 +18,12 @@ export class HeroWidget implements OnDestroy {
     /** True si el usuario ya tiene sesión: el CTA principal pasa a "Ir al Dashboard". */
     isAuthenticated = computed(() => this.supabaseService.isAuthenticated());
 
-    goToRegister(): void {
-        this.router.navigateByUrl('/onboarding/registro');
+    goToPricing(): void {
+        this.router.navigateByUrl('/precios');
+    }
+
+    goToDemo(): void {
+        this.router.navigateByUrl('/agendar-demo');
     }
 
     goToDashboard(): void {
@@ -86,13 +90,6 @@ export class HeroWidget implements OnDestroy {
             }
         };
         this.rafId = requestAnimationFrame(step);
-    }
-
-    scrollTo(id: string) {
-        const element = document.getElementById(id);
-        if (element) {
-            element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
     }
 
     ngOnDestroy(): void {

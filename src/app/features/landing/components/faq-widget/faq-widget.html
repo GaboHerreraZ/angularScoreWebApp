@@ -1,81 +1,20 @@
-<section id="faq" class="px-6 sm:px-12 lg:px-20 py-16 lg:py-24 bg-surface-0 dark:bg-surface-950">
+<section id="faq" class="landing-band px-6 sm:px-12 lg:px-20 py-16 lg:py-24">
     <div class="max-w-3xl mx-auto">
         <div class="text-center mb-16" appScrollAnimate="fade-up">
             <span class="text-primary font-bold text-m uppercase tracking-widest">FAQ</span>
             <h2 class="font-extrabold text-3xl sm:text-4xl lg:text-5xl mt-3 mb-4 text-color">Preguntas frecuentes</h2>
-            <p class="text-lg text-muted-color max-w-2xl mx-auto">Resuelve tus dudas sobre la plataforma</p>
+            <p class="text-lg text-muted-color max-w-2xl mx-auto">{{ subtitle() }}</p>
         </div>
 
         <p-accordion appScrollAnimate="fade-up" [animateDelay]="100" [multiple]="true" expandIcon="pi pi-plus" collapseIcon="pi pi-minus">
-            <p-accordion-panel value="0">
-                <p-accordion-header>¿Qué es Credit-ia y para quién está diseñado?</p-accordion-header>
-                <p-accordion-content>
-                    <p class="text-muted-color leading-relaxed m-0">
-                        Credit-ia es una plataforma de análisis crediticio diseñada para empresas colombianas que otorgan crédito a sus clientes.
-                        Está pensada para directores financieros, analistas de crédito y gerentes que necesitan evaluar el riesgo financiero
-                        de forma rápida y objetiva con más de 10 indicadores calculados automáticamente.
-                    </p>
-                </p-accordion-content>
-            </p-accordion-panel>
-
-            <p-accordion-panel value="1">
-                <p-accordion-header>¿Cómo funciona el scoring de riesgo?</p-accordion-header>
-                <p-accordion-content>
-                    <p class="text-muted-color leading-relaxed m-0">
-                        Nuestro sistema analiza los estados financieros del cliente (balance general, estado de resultados y capital de trabajo)
-                        y calcula automáticamente indicadores como EBITDA, capacidad de pago, rotación de cartera, nivel de endeudamiento y más.
-                        Además, contrasta la información con el historial crediticio real del cliente en las centrales de riesgo a través de
-                        <strong>Datacrédito Experian</strong>, para validar lo declarado con datos oficiales. Con todo esto genera un score de 0 a 100
-                        que clasifica el riesgo como bajo, moderado o alto.
-                    </p>
-                </p-accordion-content>
-            </p-accordion-panel>
-
-            <p-accordion-panel value="2">
-                <p-accordion-header>¿Mis datos financieros están seguros?</p-accordion-header>
-                <p-accordion-content>
-                    <p class="text-muted-color leading-relaxed m-0">
-                        Absolutamente. Utilizamos cifrado AES-256, infraestructura cloud con respaldos automáticos diarios y cumplimos
-                        con la Ley 1581 de 2012 (Habeas Data) de Colombia. Además, cada empresa tiene control de acceso por roles
-                        para que solo las personas autorizadas vean la información.
-                    </p>
-                </p-accordion-content>
-            </p-accordion-panel>
-
-            <p-accordion-panel value="3">
-                <p-accordion-header>¿Puedo usar Credit-ia gratis?</p-accordion-header>
-                <p-accordion-content>
-                    <p class="text-muted-color leading-relaxed m-0">
-                        Credit-ia no cuenta con una versión gratuita. Es una solución empresarial que funciona por paquetes de
-                        Análisis de Crédito: compras la cantidad que necesitas y la usas cuando quieras, sin suscripciones ni
-                        permanencia. Si deseas conocerla antes de decidir, nuestro equipo comercial agenda una demostración
-                        personalizada donde verás la plataforma en acción, operando con un caso real de la industria, para que
-                        evalúes su valor con total claridad.
-                    </p>
-                </p-accordion-content>
-            </p-accordion-panel>
-
-            <p-accordion-panel value="4">
-                <p-accordion-header>¿Qué tipo de reportes puedo generar?</p-accordion-header>
-                <p-accordion-content>
-                    <p class="text-muted-color leading-relaxed m-0">
-                        Puedes exportar estudios de crédito completos a Excel con todos los indicadores financieros, la calificación de riesgo
-                        y la decisión crediticia. Además, el dashboard muestra métricas en tiempo real como distribución de riesgo,
-                        tendencias de capacidad de pago, estructura de deuda y más.
-                    </p>
-                </p-accordion-content>
-            </p-accordion-panel>
-
-            <p-accordion-panel value="5">
-                <p-accordion-header>¿Qué pasa cuando se me acaban los análisis?</p-accordion-header>
-                <p-accordion-content>
-                    <p class="text-muted-color leading-relaxed m-0">
-                        Simplemente compras otro paquete cuando lo necesites, del tamaño que quieras. No hay ciclos de facturación
-                        ni cobros automáticos: solo pagas por los Análisis de Crédito que vas a usar. Cada paquete tiene una
-                        vigencia, así que verás los días disponibles antes de comprar.
-                    </p>
-                </p-accordion-content>
-            </p-accordion-panel>
+            @for (item of items(); track item.question) {
+                <p-accordion-panel [value]="$index">
+                    <p-accordion-header>{{ item.question }}</p-accordion-header>
+                    <p-accordion-content>
+                        <p class="text-muted-color leading-relaxed m-0" [innerHTML]="item.answer"></p>
+                    </p-accordion-content>
+                </p-accordion-panel>
+            }
         </p-accordion>
     </div>
 </section>

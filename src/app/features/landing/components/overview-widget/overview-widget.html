@@ -1,95 +1,52 @@
-<section class="px-6 sm:px-12 lg:px-20 py-16 lg:py-20 bg-surface-0 dark:bg-surface-950">
-    <div class="max-w-screen-2xl mx-auto">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-            <!-- Left: copy -->
-            <div appScrollAnimate="fade-up">
-                <span class="text-primary font-bold text-m uppercase tracking-widest">Qué es Credit-ia</span>
-                <h2 class="font-extrabold text-3xl sm:text-4xl lg:text-5xl mt-3 mb-6 leading-tight text-color">
-                    No somos un banco. <span class="text-primary">Somos tu analista de crédito</span>
-                </h2>
-                <p class="text-lg text-muted-color leading-relaxed mb-5">
-                    Si vendes a crédito —productos, materia prima, servicios— corres el riesgo de que tu cliente no pague.
-                    Credit-ia es la plataforma que evalúa la salud financiera de tus clientes para que sepas
-                    <span class="text-color font-semibold">a quién darle plazo, cuánto y por cuánto tiempo</span>.
-                </p>
-                <p class="text-lg text-muted-color leading-relaxed mb-6">
-                    Sin hojas de Excel armadas a mano, sin esperar 2 días al analista financiero.
-                    Subes el estado financiero del cliente, Credit-ia lo lee, audita y calcula los indicadores que la banca usa
-                    y te entrega una recomendación clara para tu cartera.
-                </p>
-                <div class="inline-flex items-center gap-3 bg-primary/5 border border-primary/20 rounded-xl px-5 py-3">
-                    <i class="pi pi-bolt text-primary text-lg"></i>
-                    <span class="text-color font-semibold">De un PDF a una decisión de crédito en 15 minutos.</span>
+<section class="landing-aurora px-6 sm:px-12 lg:px-20 py-16 lg:py-24 bg-surface-0 dark:bg-surface-950">
+    <div class="max-w-screen-xl mx-auto grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+        <!-- Titular -->
+        <div appScrollAnimate="fade-right">
+            <span class="bg-primary/10 text-primary font-bold text-m uppercase tracking-widest px-4 py-1.5 rounded-full">Qué es Credit-ia</span>
+            <h2 class="font-extrabold text-3xl sm:text-4xl lg:text-5xl mt-6 mb-5 text-color leading-tight">
+                No somos un banco.<br />
+                <span class="text-primary">Somos tu analista de crédito</span>
+            </h2>
+            <p class="text-lg text-muted-color m-0 max-w-xl leading-relaxed">
+                Evaluamos la salud financiera de tus clientes para que sepas
+                <span class="font-semibold text-color">a quién darle plazo, cuánto y por cuánto tiempo</span>.
+            </p>
+        </div>
+
+        <!-- Checklist protagonista + filtro discreto -->
+        <div class="flex flex-col gap-4">
+            <div class="landing-card rounded-2xl border border-emerald-500/25 bg-surface-50 dark:bg-surface-900 p-6 sm:p-7" appScrollAnimate="fade-left">
+                <div class="flex items-center gap-3 mb-6">
+                    <span class="inline-flex items-center justify-center w-9 h-9 rounded-full bg-emerald-500/15">
+                        <i class="pi pi-check text-emerald-500"></i>
+                    </span>
+                    <h3 class="font-bold text-lg m-0 text-color">Es para ti si…</h3>
                 </div>
+                <ul class="list-none p-0 m-0 flex flex-col gap-4">
+                    @for (item of forYou; track item.text) {
+                        <li
+                            class="flex items-center gap-4 rounded-xl bg-surface-0 dark:bg-surface-800 border border-surface px-4 py-3.5 transition-colors duration-300 hover:border-emerald-500/40"
+                            appScrollAnimate="fade-left"
+                            [animateDelay]="150 + $index * 120"
+                        >
+                            <span class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-emerald-500/10 shrink-0">
+                                <i class="pi {{ item.icon }} text-emerald-500"></i>
+                            </span>
+                            <span class="text-color font-semibold">{{ item.text }}</span>
+                        </li>
+                    }
+                </ul>
             </div>
 
-            <!-- Right: side-by-side -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-5" appScrollAnimate="fade-left" [animateDelay]="200">
-                <!-- For -->
-                <article class="landing-card flex flex-col rounded-2xl border border-emerald-500/30 bg-emerald-500/5 p-6 sm:p-7">
-                    <header class="flex items-center gap-3 pb-4 mb-5 border-b border-emerald-500/20">
-                        <div class="w-10 h-10 rounded-full bg-emerald-500/15 flex items-center justify-center shrink-0">
-                            <i class="pi pi-check text-emerald-500 text-base"></i>
-                        </div>
-                        <h3 class="font-bold text-base sm:text-lg text-color m-0">Es para ti</h3>
-                    </header>
-                    <ul class="flex flex-col gap-4 text-m sm:text-[15px] text-color m-0 p-0 list-none">
-                        <li class="flex items-start gap-3">
-                            <span class="flex w-5 h-5 rounded-full bg-emerald-500/15 items-center justify-center shrink-0 mt-0.5">
-                                <i class="pi pi-check text-emerald-500 text-[10px]"></i>
-                            </span>
-                            <span class="leading-relaxed">Vendes productos o servicios con plazos de pago</span>
-                        </li>
-                        <li class="flex items-start gap-3">
-                            <span class="flex w-5 h-5 rounded-full bg-emerald-500/15 items-center justify-center shrink-0 mt-0.5">
-                                <i class="pi pi-check text-emerald-500 text-[10px]"></i>
-                            </span>
-                            <span class="leading-relaxed">Necesitas evaluar la viabilidad de crédito de clientes nuevos o existentes</span>
-                        </li>
-                        <li class="flex items-start gap-3">
-                            <span class="flex w-5 h-5 rounded-full bg-emerald-500/15 items-center justify-center shrink-0 mt-0.5">
-                                <i class="pi pi-check text-emerald-500 text-[10px]"></i>
-                            </span>
-                            <span class="leading-relaxed">Quieres reducir cartera vencida con datos, no con intuición</span>
-                        </li>
-                        <li class="flex items-start gap-3">
-                            <span class="flex w-5 h-5 rounded-full bg-emerald-500/15 items-center justify-center shrink-0 mt-0.5">
-                                <i class="pi pi-check text-emerald-500 text-[10px]"></i>
-                            </span>
-                            <span class="leading-relaxed">Tu equipo gasta horas analizando balances en Excel</span>
-                        </li>
-                    </ul>
-                </article>
-
-                <!-- Not for -->
-                <article class="landing-card flex flex-col rounded-2xl border border-surface bg-surface-50 dark:bg-surface-900 p-6 sm:p-7">
-                    <header class="flex items-center gap-3 pb-4 mb-5 border-b border-surface">
-                        <div class="w-10 h-10 rounded-full bg-surface-200/60 dark:bg-surface-800 flex items-center justify-center shrink-0">
-                            <i class="pi pi-times text-muted-color text-base"></i>
-                        </div>
-                        <h3 class="font-bold text-base sm:text-lg text-color m-0">No es para ti</h3>
-                    </header>
-                    <ul class="flex flex-col gap-4 text-m sm:text-[15px] text-muted-color m-0 p-0 list-none">
-                        <li class="flex items-start gap-3">
-                            <span class="flex w-5 h-5 rounded-full bg-surface-200/60 dark:bg-surface-800 items-center justify-center shrink-0 mt-0.5">
-                                <i class="pi pi-times text-muted-color text-[10px]"></i>
-                            </span>
-                            <span class="leading-relaxed">Buscas un préstamo personal o empresarial</span>
-                        </li>
-                        <li class="flex items-start gap-3">
-                            <span class="flex w-5 h-5 rounded-full bg-surface-200/60 dark:bg-surface-800 items-center justify-center shrink-0 mt-0.5">
-                                <i class="pi pi-times text-muted-color text-[10px]"></i>
-                            </span>
-                            <span class="leading-relaxed">Necesitas reportar a centrales de riesgo</span>
-                        </li>
-                        <li class="flex items-start gap-3">
-                            <span class="flex w-5 h-5 rounded-full bg-surface-200/60 dark:bg-surface-800 items-center justify-center shrink-0 mt-0.5">
-                                <i class="pi pi-times text-muted-color text-[10px]"></i>
-                            </span>
-                            <span class="leading-relaxed">Quieres consultar tu propio score crediticio</span>
-                        </li>
-                    </ul>
-                </article>
+            <!-- Filtro: a quién no le servimos, en una sola línea de chips -->
+            <div class="flex items-center gap-x-3 gap-y-2 flex-wrap px-1" appScrollAnimate="fade-left" [animateDelay]="500">
+                <span class="text-m font-semibold text-muted-color">No es para ti si buscas:</span>
+                @for (item of notForYou; track item) {
+                    <span class="inline-flex items-center gap-2 rounded-full border border-surface bg-surface-50/60 dark:bg-surface-900/60 px-3 py-1.5 text-m text-muted-color">
+                        <i class="pi pi-times text-xs opacity-70"></i>
+                        {{ item }}
+                    </span>
+                }
             </div>
         </div>
     </div>

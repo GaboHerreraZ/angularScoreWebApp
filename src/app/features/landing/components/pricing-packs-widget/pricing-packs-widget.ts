@@ -8,41 +8,23 @@ import { PackDisplayCard } from '@/app/shared/components/pack-card/pack-display-
 import { PackIncludedFeatures } from '@/app/shared/components/pack-card/pack-included-features';
 import { CardCarousel } from '@/app/shared/components/card-carousel/card-carousel';
 import { PackOfferingsService } from '@/app/shared/services/pack-offerings.service';
+import { SupabaseService } from '@/app/core/services/supabase.service';
+import { PRESELECTED_PACK_KEY } from '@/app/core/constants/storage-keys';
 import { PackOffering } from '@/app/types/onboarding';
+
 
 @Component({
     standalone: true,
-    selector: 'how-to-start-widget',
+    selector: 'pricing-packs-widget',
     imports: [ButtonModule, SkeletonModule, ScrollAnimateDirective, PackDisplayCard, PackIncludedFeatures, CardCarousel],
-    templateUrl: './how-to-start-widget.html'
+    templateUrl: './pricing-packs-widget.html'
 })
-export class HowToStartWidget {
+export class PricingPacksWidget {
     private router = inject(Router);
     private packOfferingsService = inject(PackOfferingsService);
+    private supabaseService = inject(SupabaseService);
 
-    /** Lo que incluye cada análisis de crédito, sin importar el pack elegido. */
-    readonly features = [
-        {
-            icon: 'pi-sparkles',
-            gradient: 'bg-linear-to-br from-violet-500 to-violet-600',
-            title: 'Análisis con IA',
-            description: 'Modelos que calculan el score de riesgo combinando los indicadores financieros con el comportamiento crediticio.'
-        },
-        {
-            icon: 'pi-file-pdf',
-            gradient: 'bg-linear-to-br from-blue-500 to-blue-600',
-            title: 'Lectura de estados financieros',
-            description: 'Sube el balance y el P&L en PDF y extraemos las cifras automáticamente, sin digitarlas a mano.'
-        },
-        {
-            icon: 'pi-shield',
-            gradient: 'bg-linear-to-br from-emerald-500 to-emerald-600',
-            title: 'Validación con Datacrédito Experian',
-            description: 'Contrastamos la información del cliente contra su historial real en las centrales de riesgo.'
-        }
-    ];
-
-    /** Catálogo de packs de análisis de crédito que se ofrecen en el landing. */
+    /** Catálogo de packs de análisis de crédito que se ofrecen en la página. */
     packsResource = resource<PackOffering[], {}>({
         params: () => ({}),
         loader: () => firstValueFrom(this.packOfferingsService.getPackCatalog())
@@ -59,6 +41,12 @@ export class HowToStartWidget {
         if (!list.length) return null;
         return list[Math.floor((list.length - 1) / 2)].id;
     });
+
+    buyPack(pack: PackOffering): void {
+        sessionStorage.setItem(PRESELECTED_PACK_KEY, pack.id);
+        const target = this.supabaseService.isAuthenticated() ? '/onboarding/registrar-empresa' : '/onboarding/registro';
+        this.router.navigateByUrl(target);
+    }
 
     goToRegister(): void {
         this.router.navigateByUrl('/onboarding/registro');
