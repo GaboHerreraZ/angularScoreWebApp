@@ -74,4 +74,9 @@ export class AnalyticsService {
     calculatorInteract(): void {
         this.trackEvent('calculator_interact');
     }
+
+    /** Clic en el botón flotante de WhatsApp. */
+    whatsappClick(): void {
+        this.trackEvent('whatsapp_click');
+    }
 }
