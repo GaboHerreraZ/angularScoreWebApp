@@ -30,6 +30,8 @@ import { AuthService } from '@/app/core/services/auth.service';
 import { RecentItemsService } from '@/app/shared/services/recent-items.service';
 import { ConfirmService, provideConfirm } from '@/app/shared/services/confirm.service';
 import { isBusinessDocType } from '@/app/shared/components/billing-form/billing-form.builder';
+import { StateControl } from '@/app/shared/components/state-control/state-control';
+import { CityControl } from '@/app/shared/components/city-control/city-control';
 import { BureauProfile } from './bureau-profile/bureau-profile';
 import { FinancialStatements } from './financial-statements/financial-statements';
 import { StudyResult } from './study-result/study-result';
@@ -55,6 +57,8 @@ import { SupportFab } from '@/app/shared/components/support-fab/support-fab';
         SkeletonModule,
         ConfirmDialogModule,
         DialogModule,
+        StateControl,
+        CityControl,
         BureauProfile,
         FinancialStatements,
         StudyResult,
@@ -325,6 +329,12 @@ export class CreditStudyDetail {
         identificationNumber: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
         businessName: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
         titularEmail: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.email] }),
+        titularState: new FormControl<{ id: number; name: string } | null>(null, { validators: [Validators.required] }),
+        titularCity: new FormControl<{ id: number; name: string } | null>(null, { validators: [Validators.required] }),
+        // Representante legal: obligatorios solo con NIT (ver syncLegalRepValidators).
+        legalRepName: new FormControl('', { nonNullable: true }),
+        legalRepIdentificationTypeId: new FormControl<Parameter | null>(null),
+        legalRepIdentificationNumber: new FormControl('', { nonNullable: true }),
         requestedTerm: new FormControl<number | null>(null, { validators: [Validators.required] }),
         requestedCreditLine: new FormControl<number | null>(null, { validators: [Validators.required] })
     });
@@ -341,6 +351,17 @@ export class CreditStudyDetail {
         this.isNitSelected() ? 'Correo del Representante Legal' : 'Correo del Titular'
     );
 
+    /** El mismo campo guarda apellidos (persona natural) o razón social (jurídica). */
+    businessNameLabel = computed(() => this.isNitSelected() ? 'Razón Social' : 'Apellidos');
+
+    /** El representante legal es una persona natural: se excluye el NIT de sus tipos de documento. */
+    legalRepIdentificationTypes = computed(() =>
+        (this.identificationTypes() ?? []).filter(t => !isBusinessDocType(t))
+    );
+
+    /** Departamento seleccionado del titular; la lista de ciudades depende de él. */
+    titularDepartmentId = signal<number | null>(null);
+
     /**
      * Snapshot de los datos de la solicitud para el modal de resumen.
      * Se captura al abrir el modal: los FormControl no son señales, por lo que
@@ -351,6 +372,10 @@ export class CreditStudyDetail {
         identificationNumber: string;
         businessName: string;
         titularEmail: string;
+        titularCity: string;
+        isLegalEntity: boolean;
+        legalRepName: string;
+        legalRepIdentification: string;
         requestedTerm: number | null;
         requestedCreditLine: number | null;
     }>({
@@ -358,6 +383,10 @@ export class CreditStudyDetail {
         identificationNumber: '—',
         businessName: '—',
         titularEmail: '—',
+        titularCity: '—',
+        isLegalEntity: false,
+        legalRepName: '—',
+        legalRepIdentification: '—',
         requestedTerm: null,
         requestedCreditLine: null
     });
@@ -403,7 +432,49 @@ export class CreditStudyDetail {
             });
         });
 
+        // La ciudad depende del departamento: al cambiarlo se recargan las opciones.
+        this.step1Form.controls.titularState.valueChanges.pipe(
+            takeUntilDestroyed(this.destroyRef)
+        ).subscribe(state => {
+            this.titularDepartmentId.set(state?.id ?? null);
+            this.step1Form.controls.titularCity.reset();
+        });
+
+        // Los datos del representante legal solo aplican a persona jurídica.
+        let wasNit = this.isNitSelected();
+        this.step1Form.controls.identificationTypeId.valueChanges.pipe(
+            takeUntilDestroyed(this.destroyRef)
+        ).subscribe(idType => {
+            const isNit = isBusinessDocType(idType);
+            if (isNit === wasNit) return;
+            wasNit = isNit;
+            this.syncLegalRepValidators(isNit);
+        });
+
         this.destroyRef.onDestroy(() => this.stopLoaderMessages());
+    }
+
+    /**
+     * Con NIT los campos del representante legal son obligatorios; para persona
+     * natural se ocultan, así que se limpian valores y validadores para que no
+     * bloqueen el envío.
+     */
+    private syncLegalRepValidators(isNit: boolean): void {
+        const controls = [
+            this.step1Form.controls.legalRepName,
+            this.step1Form.controls.legalRepIdentificationTypeId,
+            this.step1Form.controls.legalRepIdentificationNumber
+        ];
+
+        for (const control of controls) {
+            if (isNit) {
+                control.setValidators([Validators.required]);
+            } else {
+                control.clearValidators();
+                control.reset(undefined, { emitEvent: false });
+            }
+            control.updateValueAndValidity({ emitEvent: false });
+        }
     }
 
     /** Inicia la rotación de mensajes del loader animado. */
@@ -515,6 +586,12 @@ export class CreditStudyDetail {
             identificationNumber: v.identificationNumber || '—',
             businessName: v.businessName || '—',
             titularEmail: v.titularEmail || '—',
+            titularCity: v.titularCity?.name ?? '—',
+            isLegalEntity: this.isNitSelected(),
+            legalRepName: v.legalRepName || '—',
+            legalRepIdentification: v.legalRepIdentificationTypeId
+                ? `${v.legalRepIdentificationTypeId.label} ${v.legalRepIdentificationNumber}`.trim()
+                : v.legalRepIdentificationNumber || '—',
             requestedTerm: v.requestedTerm,
             requestedCreditLine: v.requestedCreditLine
         });
@@ -531,9 +608,17 @@ export class CreditStudyDetail {
             numeroIdentificacion: v.identificationNumber,
             apellidoRazonSocial: v.businessName,
             titularEmail: v.titularEmail,
+            titularCity: v.titularCity?.name ?? '',
             requestedTerm: v.requestedTerm ?? 0,
             requestedCreditLine: v.requestedCreditLine ?? 0
         };
+
+        // Persona jurídica: el objeto incluye además al representante legal.
+        if (this.isNitSelected()) {
+            payload.legalRepName = v.legalRepName;
+            payload.legalRepIdentificationTypeCode = v.legalRepIdentificationTypeId?.code ?? '';
+            payload.legalRepIdentificationNumber = v.legalRepIdentificationNumber;
+        }
         this.lastBureauPayload = payload;
 
         this.creatingStudy.set(true);

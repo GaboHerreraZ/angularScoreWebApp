@@ -86,31 +86,54 @@
     </ng-template>
 
     <div class="flex flex-col gap-4">
-        <!-- Resumen de los datos ingresados -->
-        <div class="flex flex-col divide-y divide-surface rounded-lg border border-surface">
-            <div class="flex justify-between items-center gap-4 px-4 py-2.5">
-                <span class="text-m text-muted-color">Tipo de identificación</span>
-                <span class="text-m font-medium text-right">{{ summary().identificationType }}</span>
+        <!-- Resumen de los datos ingresados: titular y crédito por separado -->
+        <div class="flex flex-col gap-2">
+            <span class="text-xs font-semibold uppercase tracking-wide text-muted-color">Datos del Titular</span>
+            <div class="flex flex-col divide-y divide-surface rounded-lg border border-surface">
+                <div class="flex justify-between items-center gap-4 px-4 py-2.5">
+                    <span class="text-m text-muted-color">Tipo de identificación</span>
+                    <span class="text-m font-medium text-right">{{ summary().identificationType }}</span>
+                </div>
+                <div class="flex justify-between items-center gap-4 px-4 py-2.5">
+                    <span class="text-m text-muted-color">Número de identificación</span>
+                    <span class="text-m font-medium text-right">{{ summary().identificationNumber }}</span>
+                </div>
+                <div class="flex justify-between items-center gap-4 px-4 py-2.5">
+                    <span class="text-m text-muted-color">{{ summary().isLegalEntity ? 'Razón social' : 'Apellidos' }}</span>
+                    <span class="text-m font-medium text-right">{{ summary().businessName }}</span>
+                </div>
+                <div class="flex justify-between items-center gap-4 px-4 py-2.5">
+                    <span class="text-m text-muted-color">{{ summary().isLegalEntity ? 'Correo del Representante Legal' : 'Correo del Titular' }}</span>
+                    <span class="text-m font-medium text-right">{{ summary().titularEmail }}</span>
+                </div>
+                <div class="flex justify-between items-center gap-4 px-4 py-2.5">
+                    <span class="text-m text-muted-color">Ciudad</span>
+                    <span class="text-m font-medium text-right">{{ summary().titularCity }}</span>
+                </div>
+                @if (summary().isLegalEntity) {
+                <div class="flex justify-between items-center gap-4 px-4 py-2.5">
+                    <span class="text-m text-muted-color">Representante legal</span>
+                    <span class="text-m font-medium text-right">{{ summary().legalRepName }}</span>
+                </div>
+                <div class="flex justify-between items-center gap-4 px-4 py-2.5">
+                    <span class="text-m text-muted-color">Documento del representante</span>
+                    <span class="text-m font-medium text-right">{{ summary().legalRepIdentification }}</span>
+                </div>
+                }
             </div>
-            <div class="flex justify-between items-center gap-4 px-4 py-2.5">
-                <span class="text-m text-muted-color">Número de identificación</span>
-                <span class="text-m font-medium text-right">{{ summary().identificationNumber }}</span>
-            </div>
-            <div class="flex justify-between items-center gap-4 px-4 py-2.5">
-                <span class="text-m text-muted-color">Razón social</span>
-                <span class="text-m font-medium text-right">{{ summary().businessName }}</span>
-            </div>
-            <div class="flex justify-between items-center gap-4 px-4 py-2.5">
-                <span class="text-m text-muted-color">{{ titularEmailLabel() }}</span>
-                <span class="text-m font-medium text-right">{{ summary().titularEmail }}</span>
-            </div>
-            <div class="flex justify-between items-center gap-4 px-4 py-2.5">
-                <span class="text-m text-muted-color">Plazo solicitado</span>
-                <span class="text-m font-medium text-right">{{ summary().requestedTerm ? summary().requestedTerm + ' días' : '—' }}</span>
-            </div>
-            <div class="flex justify-between items-center gap-4 px-4 py-2.5">
-                <span class="text-m text-muted-color">Cupo solicitado</span>
-                <span class="text-m font-medium text-right">{{ (summary().requestedCreditLine | currency:'COP':'symbol-narrow':'1.0-0':'es-CO') || '—' }}</span>
+        </div>
+
+        <div class="flex flex-col gap-2">
+            <span class="text-xs font-semibold uppercase tracking-wide text-muted-color">Datos del Crédito</span>
+            <div class="flex flex-col divide-y divide-surface rounded-lg border border-surface">
+                <div class="flex justify-between items-center gap-4 px-4 py-2.5">
+                    <span class="text-m text-muted-color">Plazo solicitado</span>
+                    <span class="text-m font-medium text-right">{{ summary().requestedTerm ? summary().requestedTerm + ' días' : '—' }}</span>
+                </div>
+                <div class="flex justify-between items-center gap-4 px-4 py-2.5">
+                    <span class="text-m text-muted-color">Cupo solicitado</span>
+                    <span class="text-m font-medium text-right">{{ (summary().requestedCreditLine | currency:'COP':'symbol-narrow':'1.0-0':'es-CO') || '—' }}</span>
+                </div>
             </div>
         </div>
 
@@ -392,74 +415,147 @@
                             }
                             <form [formGroup]="step1Form">
                                 <p-fluid>
-                                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-5 mt-2" data-tour="study-form">
-                                        <div class="flex flex-col gap-1">
-                                            <p-floatlabel variant="on">
-                                                <p-select id="identificationTypeId" [options]="identificationTypes()" optionLabel="label" formControlName="identificationTypeId" [invalid]="isInvalid('identificationTypeId')" styleClass="w-full" />
-                                                <label for="identificationTypeId">Tipo de Identificación *</label>
-                                            </p-floatlabel>
-                                            @if (isInvalid('identificationTypeId')) {
-                                            <small class="text-red-500">{{ getErrorMessage('identificationTypeId') }}</small>
-                                            }
+                                    <div class="flex flex-col gap-7 mt-2" data-tour="study-form">
+                                        <!-- ── Datos del Titular ── -->
+                                        <div class="flex flex-col gap-4">
+                                            <div class="flex items-center gap-2">
+                                                <i class="pi pi-user text-primary-500"></i>
+                                                <h4 class="text-base font-semibold m-0">Datos del Titular</h4>
+                                            </div>
+                                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-5">
+                                                <div class="flex flex-col gap-1">
+                                                    <p-floatlabel variant="on">
+                                                        <p-select id="identificationTypeId" [options]="identificationTypes()" optionLabel="label" formControlName="identificationTypeId" [invalid]="isInvalid('identificationTypeId')" styleClass="w-full" />
+                                                        <label for="identificationTypeId">Tipo de Identificación *</label>
+                                                    </p-floatlabel>
+                                                    @if (isInvalid('identificationTypeId')) {
+                                                    <small class="text-red-500">{{ getErrorMessage('identificationTypeId') }}</small>
+                                                    }
+                                                </div>
+
+                                                <div class="flex flex-col gap-1">
+                                                    <p-floatlabel variant="on">
+                                                        <input pInputText id="identificationNumber" formControlName="identificationNumber" [invalid]="isInvalid('identificationNumber')" class="w-full" />
+                                                        <label for="identificationNumber">Número de Identificación *</label>
+                                                    </p-floatlabel>
+                                                    @if (isInvalid('identificationNumber')) {
+                                                    <small class="text-red-500">{{ getErrorMessage('identificationNumber') }}</small>
+                                                    }
+                                                </div>
+
+                                                <div class="flex flex-col gap-1">
+                                                    <p-floatlabel variant="on">
+                                                        <input pInputText id="businessName" formControlName="businessName" [invalid]="isInvalid('businessName')" class="w-full" />
+                                                        <label for="businessName">{{ businessNameLabel() }} *</label>
+                                                    </p-floatlabel>
+                                                    @if (isInvalid('businessName')) {
+                                                    <small class="text-red-500">{{ getErrorMessage('businessName') }}</small>
+                                                    }
+                                                </div>
+
+                                                <div class="flex flex-col gap-1">
+                                                    <p-floatlabel variant="on">
+                                                        <input pInputText id="titularEmail" type="email" formControlName="titularEmail" [invalid]="isInvalid('titularEmail')" class="w-full" />
+                                                        <label for="titularEmail">{{ titularEmailLabel() }} *</label>
+                                                    </p-floatlabel>
+                                                    @if (isInvalid('titularEmail')) {
+                                                    <small class="text-red-500">{{ getErrorMessage('titularEmail') }}</small>
+                                                    }
+                                                </div>
+
+                                                <div class="flex flex-col gap-1">
+                                                    <app-state-control inputId="titularState" label="Departamento *" variant="on" formControlName="titularState" [invalid]="isInvalid('titularState')" />
+                                                    @if (isInvalid('titularState')) {
+                                                    <small class="text-red-500">{{ getErrorMessage('titularState') }}</small>
+                                                    }
+                                                </div>
+
+                                                <div class="flex flex-col gap-1">
+                                                    <app-city-control inputId="titularCity" label="Ciudad *" variant="on" [departmentId]="titularDepartmentId()" formControlName="titularCity" [invalid]="isInvalid('titularCity')" />
+                                                    @if (isInvalid('titularCity')) {
+                                                    <small class="text-red-500">{{ getErrorMessage('titularCity') }}</small>
+                                                    }
+                                                </div>
+                                            </div>
                                         </div>
 
-                                        <div class="flex flex-col gap-1">
-                                            <p-floatlabel variant="on">
-                                                <input pInputText id="identificationNumber" formControlName="identificationNumber" [invalid]="isInvalid('identificationNumber')" class="w-full" />
-                                                <label for="identificationNumber">Número de Identificación *</label>
-                                            </p-floatlabel>
-                                            @if (isInvalid('identificationNumber')) {
-                                            <small class="text-red-500">{{ getErrorMessage('identificationNumber') }}</small>
-                                            }
-                                        </div>
+                                        @if (isNitSelected()) {
+                                        <!-- ── Representante Legal (solo persona jurídica) ── -->
+                                        <div class="flex flex-col gap-4">
+                                            <div class="flex items-center gap-2">
+                                                <i class="pi pi-id-card text-primary-500"></i>
+                                                <h4 class="text-base font-semibold m-0">Representante Legal</h4>
+                                            </div>
+                                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-5">
+                                                <div class="flex flex-col gap-1">
+                                                    <p-floatlabel variant="on">
+                                                        <input pInputText id="legalRepName" formControlName="legalRepName" [invalid]="isInvalid('legalRepName')" class="w-full" />
+                                                        <label for="legalRepName">Nombre Completo *</label>
+                                                    </p-floatlabel>
+                                                    @if (isInvalid('legalRepName')) {
+                                                    <small class="text-red-500">{{ getErrorMessage('legalRepName') }}</small>
+                                                    }
+                                                </div>
 
-                                        <div class="flex flex-col gap-1">
-                                            <p-floatlabel variant="on">
-                                                <input pInputText id="businessName" formControlName="businessName" [invalid]="isInvalid('businessName')" class="w-full" />
-                                                <label for="businessName">Razón Social *</label>
-                                            </p-floatlabel>
-                                            @if (isInvalid('businessName')) {
-                                            <small class="text-red-500">{{ getErrorMessage('businessName') }}</small>
-                                            }
-                                        </div>
+                                                <div class="flex flex-col gap-1">
+                                                    <p-floatlabel variant="on">
+                                                        <p-select id="legalRepIdentificationTypeId" [options]="legalRepIdentificationTypes()" optionLabel="label" formControlName="legalRepIdentificationTypeId" [invalid]="isInvalid('legalRepIdentificationTypeId')" styleClass="w-full" />
+                                                        <label for="legalRepIdentificationTypeId">Tipo de Identificación *</label>
+                                                    </p-floatlabel>
+                                                    @if (isInvalid('legalRepIdentificationTypeId')) {
+                                                    <small class="text-red-500">{{ getErrorMessage('legalRepIdentificationTypeId') }}</small>
+                                                    }
+                                                </div>
 
-                                        <div class="flex flex-col gap-1">
-                                            <p-floatlabel variant="on">
-                                                <input pInputText id="titularEmail" type="email" formControlName="titularEmail" [invalid]="isInvalid('titularEmail')" class="w-full" />
-                                                <label for="titularEmail">{{ titularEmailLabel() }} *</label>
-                                            </p-floatlabel>
-                                            @if (isInvalid('titularEmail')) {
-                                            <small class="text-red-500">{{ getErrorMessage('titularEmail') }}</small>
-                                            }
+                                                <div class="flex flex-col gap-1">
+                                                    <p-floatlabel variant="on">
+                                                        <input pInputText id="legalRepIdentificationNumber" formControlName="legalRepIdentificationNumber" [invalid]="isInvalid('legalRepIdentificationNumber')" class="w-full" />
+                                                        <label for="legalRepIdentificationNumber">Número de Identificación *</label>
+                                                    </p-floatlabel>
+                                                    @if (isInvalid('legalRepIdentificationNumber')) {
+                                                    <small class="text-red-500">{{ getErrorMessage('legalRepIdentificationNumber') }}</small>
+                                                    }
+                                                </div>
+                                            </div>
                                         </div>
+                                        }
 
-                                        <div class="flex flex-col gap-1" data-tour="study-term">
-                                            <p-floatlabel variant="on">
-                                                <p-inputnumber id="requestedTerm" formControlName="requestedTerm" [invalid]="isInvalid('requestedTerm')" [useGrouping]="false" />
-                                                <label for="requestedTerm">Plazo Solicitado (Días) *</label>
-                                            </p-floatlabel>
-                                            @if (isInvalid('requestedTerm')) {
-                                            <small class="text-red-500">{{ getErrorMessage('requestedTerm') }}</small>
-                                            }
-                                        </div>
+                                        <!-- ── Datos del Crédito ── -->
+                                        <div class="flex flex-col gap-4">
+                                            <div class="flex items-center gap-2">
+                                                <i class="pi pi-wallet text-primary-500"></i>
+                                                <h4 class="text-base font-semibold m-0">Datos del Crédito</h4>
+                                            </div>
+                                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-5">
+                                                <div class="flex flex-col gap-1" data-tour="study-term">
+                                                    <p-floatlabel variant="on">
+                                                        <p-inputnumber id="requestedTerm" formControlName="requestedTerm" [invalid]="isInvalid('requestedTerm')" [useGrouping]="false" />
+                                                        <label for="requestedTerm">Plazo Solicitado (Días) *</label>
+                                                    </p-floatlabel>
+                                                    @if (isInvalid('requestedTerm')) {
+                                                    <small class="text-red-500">{{ getErrorMessage('requestedTerm') }}</small>
+                                                    }
+                                                </div>
 
-                                        <div class="flex flex-col gap-1" data-tour="study-amount">
-                                            <p-floatlabel variant="on">
-                                                <p-inputnumber
-                                                    id="requestedCreditLine"
-                                                    formControlName="requestedCreditLine"
-                                                    [invalid]="isInvalid('requestedCreditLine')"
-                                                    mode="currency"
-                                                    currency="COP"
-                                                    locale="es-CO"
-                                                    [minFractionDigits]="0"
-                                                    [maxFractionDigits]="0"
-                                                />
-                                                <label for="requestedCreditLine">Cupo de Crédito Solicitado *</label>
-                                            </p-floatlabel>
-                                            @if (isInvalid('requestedCreditLine')) {
-                                            <small class="text-red-500">{{ getErrorMessage('requestedCreditLine') }}</small>
-                                            }
+                                                <div class="flex flex-col gap-1" data-tour="study-amount">
+                                                    <p-floatlabel variant="on">
+                                                        <p-inputnumber
+                                                            id="requestedCreditLine"
+                                                            formControlName="requestedCreditLine"
+                                                            [invalid]="isInvalid('requestedCreditLine')"
+                                                            mode="currency"
+                                                            currency="COP"
+                                                            locale="es-CO"
+                                                            [minFractionDigits]="0"
+                                                            [maxFractionDigits]="0"
+                                                        />
+                                                        <label for="requestedCreditLine">Cupo de Crédito Solicitado *</label>
+                                                    </p-floatlabel>
+                                                    @if (isInvalid('requestedCreditLine')) {
+                                                    <small class="text-red-500">{{ getErrorMessage('requestedCreditLine') }}</small>
+                                                    }
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </p-fluid>
