@@ -233,8 +233,12 @@ export interface CreateFromBureauPayload {
     numeroIdentificacion: string;
     apellidoRazonSocial: string;
     titularEmail: string;
+    titularCity: string;
     requestedTerm: number;
     requestedCreditLine: number;
+    legalRepName?: string;
+    legalRepIdentificationTypeCode?: string;
+    legalRepIdentificationNumber?: string;
 }
 
 /**
