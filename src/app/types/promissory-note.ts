@@ -104,3 +104,87 @@ export interface PromissoryNote {
         studyDate: string;
     };
 }
+
+// ─── Listado y detalle de pagarés (pantalla Pagarés) ─────────────────────────
+
+export interface PromissoryNoteListMeta {
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+}
+
+/** Respuesta del GET /companies/{companyId}/documents/promissory-notes. */
+export interface PromissoryNoteListResponse {
+    data: PromissoryNote[];
+    meta: PromissoryNoteListMeta;
+}
+
+/** Catálogo simple {id, code, label} de las relaciones del detalle. */
+export interface PromissoryNoteCatalogItem {
+    id: number;
+    code: string;
+    label: string;
+}
+
+/** Cliente (deudor) enriquecido que devuelve el detalle del pagaré. */
+export interface PromissoryNoteDetailCustomer {
+    id: string;
+    businessName: string;
+    email: string | null;
+    phone: string | null;
+    city: string | null;
+    address: string | null;
+    identificationNumber: string;
+    verificationDigit: string | null;
+    identificationType: PromissoryNoteCatalogItem | null;
+    personType: PromissoryNoteCatalogItem | null;
+    legalRepName: string | null;
+    legalRepEmail: string | null;
+}
+
+/** Empresa acreedora que devuelve el detalle del pagaré. */
+export interface PromissoryNoteDetailCompany {
+    id: string;
+    name: string;
+    nit: string | null;
+    address: string | null;
+    city: string | null;
+    state: string | null;
+    logoUrl: string | null;
+}
+
+/** Resumen del estudio de crédito asociado al pagaré. */
+export interface PromissoryNoteDetailCreditStudy {
+    id: string;
+    studyDate: string | null;
+    resolutionDate: string | null;
+    requestedTerm: number | null;
+    requestedCreditLine: number | null;
+    recommendedTerm: number | null;
+    recommendedCreditLine: number | null;
+    viabilityScore: number | null;
+    viabilityStatus: string | null;
+    status?: PromissoryNoteCatalogItem | null;
+}
+
+/** Respuesta del GET de detalle: el pagaré más sus relaciones enriquecidas. */
+export interface PromissoryNoteDetail extends Omit<PromissoryNote, 'customer' | 'creditStudy'> {
+    customer?: PromissoryNoteDetailCustomer | null;
+    company?: PromissoryNoteDetailCompany | null;
+    creditStudy?: PromissoryNoteDetailCreditStudy | null;
+    createdByUser?: {
+        id: string;
+        name: string | null;
+        lastName: string | null;
+        email: string | null;
+    } | null;
+}
+
+/** Respuesta del POST /payment-reminder. */
+export interface PaymentReminderResponse {
+    message: string;
+    sentTo: string;
+    adminsNotified: number;
+    dueDate: string;
+}

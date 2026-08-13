@@ -36,6 +36,18 @@ export class Menu {
             ]
         },
         {
+            label: 'Pagarés',
+            icon: 'pi pi-file-edit',
+            path: '/app/pagares',
+            items: [
+                {
+                    label: 'Ver Pagarés',
+                    icon: 'pi pi-file-edit',
+                    routerLink: ['/app/pagares']
+                }
+            ]
+        },
+        {
             label: 'Clientes',
             icon: 'pi pi-address-book',
             path: '/app/clientes',

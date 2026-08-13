@@ -1,0 +1,8 @@
+<app-custom-table
+    [tableSettings]="tableSettings"
+    [data]="promissoryNotesService.promissoryNotes()"
+    [totalRecords]="promissoryNotesService.totalRecords()"
+    [loading]="promissoryNotesService.loading()"
+    (pageChange)="onPageChange($event)"
+    (actionClick)="onActionClick($event)"
+/>
