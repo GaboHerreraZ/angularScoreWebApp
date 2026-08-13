@@ -8,6 +8,7 @@ import { HeaderWidget } from './components/header-widget/header-widget';
 import { HeroWidget } from './components/hero-widget/hero-widget';
 import { OverviewWidget } from './components/overview-widget/overview-widget';
 import { ProductDemoWidget } from './components/product-demo-widget/product-demo-widget';
+import { StudyTeaserWidget } from './components/study-teaser-widget/study-teaser-widget';
 import { BenefitsWidget } from './components/benefits-widget/benefits-widget';
 import { JoinWidget } from './components/join-widget/join-widget';
 import { FooterWidget } from './components/footer-widget/footer-widget';
@@ -15,7 +16,7 @@ import { FooterWidget } from './components/footer-widget/footer-widget';
 @Component({
     selector: 'app-landing',
     standalone: true,
-    imports: [ButtonModule, DialogModule, HeaderWidget, HeroWidget, OverviewWidget, ProductDemoWidget, BenefitsWidget, JoinWidget, FooterWidget],
+    imports: [ButtonModule, DialogModule, HeaderWidget, HeroWidget, OverviewWidget, ProductDemoWidget, StudyTeaserWidget, BenefitsWidget, JoinWidget, FooterWidget],
     templateUrl: './landing.html'
 })
 export class Landing {

@@ -10,6 +10,7 @@ import { MessageModule } from 'primeng/message';
 import { Notification } from '@/app/shared/components/notification/notification';
 import { SupabaseService } from '@/app/core/services/supabase.service';
 import { AuthService } from '@/app/core/services/auth.service';
+import { AnalyticsService } from '@/app/core/services/analytics.service';
 import { PRESELECTED_PACK_KEY } from '@/app/core/constants/storage-keys';
 
 /** Ruta a la que continúa el usuario una vez autenticado. */
@@ -40,6 +41,7 @@ export class OnboardingRegister {
     private router = inject(Router);
     private supabaseService = inject(SupabaseService);
     private authService = inject(AuthService);
+    private analytics = inject(AnalyticsService);
 
     /** Beneficios clave que se muestran en el panel de marca (sin cifras, para no afirmar datos falsos). */
     readonly trustPoints = [
@@ -94,6 +96,8 @@ export class OnboardingRegister {
             return;
         }
 
+        this.analytics.signUp('email');
+
         // Si el proyecto exige confirmar el correo, no hay sesión todavía.
         if (!data?.hasSession) {
             this.loading.set(false);
@@ -115,6 +119,9 @@ export class OnboardingRegister {
     async registerWithGoogle(): Promise<void> {
         this.googleLoading.set(true);
         this.errorMessage.set(null);
+        // El registro con Google redirige fuera del sitio: se registra el intento
+        // (el éxito no se puede confirmar aquí).
+        this.analytics.signUp('google');
         // El callback de OAuth lee esta bandera para redirigir al onboarding.
         sessionStorage.setItem('pending_onboarding', 'true');
         const { error } = await this.supabaseService.signInWithGoogle();

@@ -1,0 +1,228 @@
+<div class="bg-surface-0 dark:bg-surface-950 min-h-screen w-screen overflow-x-hidden">
+    <header-widget />
+    <main class="bg-surface-0 dark:bg-surface-950">
+        <!-- Hero -->
+        <section class="landing-spotlight pt-20 lg:pt-24 px-6 sm:px-10 lg:px-20">
+            <div class="max-w-4xl mx-auto text-center" appScrollAnimate="fade-up">
+                <span class="bg-primary/10 text-primary font-bold text-m uppercase tracking-widest px-4 py-1.5 rounded-full">Estudio de ejemplo</span>
+                <h1 class="font-extrabold text-4xl sm:text-5xl text-color mt-6 mb-4">
+                    Así se ve un estudio de <span class="text-primary">CREDIT-IA</span>
+                </h1>
+                <p class="text-lg text-muted-color max-w-2xl mx-auto m-0">
+                    Dos casos: uno se aprueba con condiciones y otro conviene rechazarlo a tiempo.
+                </p>
+            </div>
+        </section>
+
+        <!-- Selector de caso -->
+        <section class="px-6 sm:px-10 lg:px-20 pt-10">
+            <div class="flex justify-center" appScrollAnimate="fade-up" [animateDelay]="120">
+                <div class="inline-flex rounded-full border border-surface bg-surface-50 dark:bg-surface-900 p-1 gap-1">
+                    @for (c of cases; track c.id) {
+                        <button
+                            type="button"
+                            (click)="selectCase(c.id)"
+                            class="inline-flex items-center gap-2 rounded-full px-4 sm:px-6 py-2 text-m font-bold border-0 cursor-pointer transition-colors duration-300"
+                            [class]="activeId() === c.id ? 'bg-primary text-white shadow-md' : 'bg-transparent text-muted-color hover:text-color'"
+                        >
+                            <span class="w-2 h-2 rounded-full shrink-0" [class]="c.tone === 'watch' ? 'bg-amber-400' : 'bg-red-400'"></span>
+                            {{ c.tabLabel }}
+                        </button>
+                    }
+                </div>
+            </div>
+        </section>
+
+        <!-- Reporte + anotaciones -->
+        <section class="landing-grid px-6 sm:px-10 lg:px-20 py-10 lg:py-14">
+            <div class="max-w-screen-lg mx-auto grid lg:grid-cols-[minmax(0,1fr)_270px] gap-8 items-start">
+                <!-- El reporte (se recrea al cambiar de caso para replay de animaciones) -->
+                @for (c of [activeCase()]; track c.id) {
+                    <article class="case-enter landing-card rounded-3xl border border-surface bg-surface-0 dark:bg-surface-900 shadow-xl overflow-hidden">
+                        <!-- Encabezado del estudio -->
+                        <div class="p-6 sm:p-8 border-b border-surface">
+                            <div class="flex flex-wrap items-start justify-between gap-4">
+                                <div>
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <span class="text-sm text-muted-color font-medium">Estudio de crédito · {{ c.studyNumber }}</span>
+                                        <span class="text-[0.65rem] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-surface-100 dark:bg-surface-800 text-muted-color">Datos ficticios</span>
+                                    </div>
+                                    <h2 class="font-bold text-xl sm:text-2xl text-color m-0">{{ c.clientName }}</h2>
+                                    <p class="text-sm text-muted-color mt-1 mb-0">{{ c.clientMeta }}</p>
+                                </div>
+                                <span
+                                    class="text-m font-bold px-4 py-1.5 rounded-full whitespace-nowrap"
+                                    [class]="c.tone === 'watch' ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400' : 'bg-red-500/15 text-red-600 dark:text-red-400'"
+                                >
+                                    {{ c.verdict }}
+                                </span>
+                            </div>
+
+                            <!-- Solicitud vs. recomendación -->
+                            <div class="grid grid-cols-3 gap-3 mt-6">
+                                <div class="rounded-xl bg-surface-50 dark:bg-surface-800/60 border border-surface px-4 py-3 text-center">
+                                    <span class="block text-sm text-muted-color mb-1">Cupo solicitado</span>
+                                    <span class="font-bold text-color text-m sm:text-base tabular-nums">{{ c.requestedAmount }}</span>
+                                </div>
+                                <div class="rounded-xl bg-surface-50 dark:bg-surface-800/60 border border-surface px-4 py-3 text-center">
+                                    <span class="block text-sm text-muted-color mb-1">Plazo</span>
+                                    <span class="font-bold text-color text-m sm:text-base tabular-nums">{{ c.requestedTerm }}</span>
+                                </div>
+                                <div
+                                    class="rounded-xl px-4 py-3 text-center border"
+                                    [class]="c.tone === 'watch' ? 'bg-amber-500/10 border-amber-500/30' : 'bg-red-500/10 border-red-500/30'"
+                                >
+                                    <span class="block text-sm text-muted-color mb-1">Cupo recomendado</span>
+                                    <span
+                                        class="font-bold text-m sm:text-base tabular-nums"
+                                        [class]="c.tone === 'watch' ? 'text-amber-600 dark:text-amber-400' : 'text-red-600 dark:text-red-400'"
+                                    >
+                                        {{ c.recommendedAmount }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Score + dimensiones -->
+                        <div class="p-6 sm:p-8 border-b border-surface">
+                            <div class="flex flex-col sm:flex-row gap-8">
+                                <div class="shrink-0 text-center sm:text-left">
+                                    <span class="text-sm font-bold uppercase tracking-widest text-muted-color">Score de riesgo</span>
+                                    <div class="flex items-baseline justify-center sm:justify-start gap-1 mt-2">
+                                        <span
+                                            class="text-5xl font-extrabold tabular-nums leading-none"
+                                            [class]="c.tone === 'watch' ? 'text-amber-500' : 'text-red-500'"
+                                        >{{ displayScore() }}</span>
+                                        <span class="text-lg text-muted-color font-semibold">/ 100</span>
+                                    </div>
+                                    <div class="w-40 h-2 rounded-full bg-surface-200 dark:bg-surface-700 overflow-hidden mt-4 mx-auto sm:mx-0">
+                                        <div
+                                            class="score-bar h-2 rounded-full bg-linear-to-r"
+                                            [class]="c.tone === 'watch' ? 'from-amber-500 to-orange-400' : 'from-red-500 to-rose-400'"
+                                            [style.width.%]="c.score"
+                                        ></div>
+                                    </div>
+                                </div>
+
+                                <ul class="list-none p-0 m-0 flex-1 flex flex-col gap-4">
+                                    @for (dim of c.dimensions; track dim.label) {
+                                        <li class="flex items-start gap-3">
+                                            <span
+                                                class="w-2.5 h-2.5 rounded-full mt-1.5 shrink-0"
+                                                [class]="dim.tone === 'good' ? 'bg-emerald-500' : dim.tone === 'watch' ? 'bg-amber-500' : 'bg-red-500'"
+                                            ></span>
+                                            <div class="flex-1 min-w-0">
+                                                <div class="flex flex-wrap items-baseline justify-between gap-x-4">
+                                                    <span class="text-m font-semibold text-color">{{ dim.label }}</span>
+                                                    <span
+                                                        class="text-sm font-bold"
+                                                        [class]="dim.tone === 'good' ? 'text-emerald-500' : dim.tone === 'watch' ? 'text-amber-500' : 'text-red-500'"
+                                                    >{{ dim.status }}</span>
+                                                </div>
+                                                <p class="text-sm text-muted-color mt-0.5 mb-0 leading-snug">{{ dim.note }}</p>
+                                            </div>
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Alertas -->
+                        <div class="p-6 sm:p-8 border-b border-surface">
+                            <h3 class="text-sm font-bold uppercase tracking-widest text-muted-color mt-0 mb-5">Lo que CREDIT-IA detectó</h3>
+                            <div class="flex flex-col gap-3">
+                                @for (alert of c.alerts; track alert.title) {
+                                    <div
+                                        class="flex items-start gap-3 rounded-xl border p-4"
+                                        [class]="alert.severity === 'danger' ? 'border-red-500/25 bg-red-500/5' : 'border-amber-500/25 bg-amber-500/5'"
+                                    >
+                                        <i
+                                            class="pi text-base mt-0.5 shrink-0"
+                                            [class]="alert.severity === 'danger' ? 'pi-times-circle text-red-500' : 'pi-exclamation-triangle text-amber-500'"
+                                        ></i>
+                                        <div class="flex-1 min-w-0">
+                                            <div class="flex flex-wrap items-center gap-2 mb-1">
+                                                <span class="text-m font-semibold text-color">{{ alert.title }}</span>
+                                                <span class="text-[0.65rem] font-medium px-2 py-0.5 rounded-full bg-surface-100 dark:bg-surface-800 text-muted-color">{{ alert.source }}</span>
+                                            </div>
+                                            <p class="text-m text-muted-color m-0 leading-snug">{{ alert.detail }}</p>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Recomendación de la IA -->
+                        <div class="p-6 sm:p-8">
+                            <div class="flex items-start gap-3 rounded-2xl bg-linear-to-r from-purple-500/10 to-indigo-500/10 dark:from-purple-500/15 dark:to-indigo-500/15 p-5">
+                                <div class="w-9 h-9 rounded-lg bg-linear-to-br from-purple-500 to-indigo-500 flex items-center justify-center shrink-0 shadow-lg">
+                                    <i class="pi pi-sparkles text-white text-m"></i>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <h3 class="text-m font-bold text-color mt-1 mb-2">Recomendación de la IA</h3>
+                                    @for (paragraph of c.aiAnalysis; track $index) {
+                                        <p class="text-m text-muted-color leading-relaxed mt-0 mb-2 last:mb-0">{{ paragraph }}</p>
+                                    }
+                                </div>
+                            </div>
+
+                            <!-- Cierre del caso -->
+                            <p class="flex items-start justify-center gap-2 text-m text-color font-medium mt-6 mb-0 text-center">
+                                <i class="pi {{ c.closingIcon }} text-primary mt-0.5"></i>
+                                {{ c.closingText }}
+                            </p>
+                        </div>
+                    </article>
+                }
+
+                <!-- Anotaciones al margen -->
+                <aside class="lg:sticky lg:top-24 flex flex-col gap-4">
+                    @for (note of annotations; track note.icon; let i = $index) {
+                        <div
+                            class="flex items-start gap-3 rounded-2xl border border-surface bg-surface-50/60 dark:bg-surface-900/60 p-4"
+                            appScrollAnimate="fade-left"
+                            [animateDelay]="150 + i * 120"
+                        >
+                            <div class="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                                <i class="pi {{ note.icon }} text-primary text-m"></i>
+                            </div>
+                            <p class="text-sm text-muted-color leading-snug m-0">{{ note.text }}</p>
+                        </div>
+                    }
+                </aside>
+            </div>
+        </section>
+
+        <!-- CTA de cierre -->
+        <section class="landing-cta-glow relative overflow-hidden px-6 sm:px-12 lg:px-20 py-16 lg:py-24 bg-surface-0 dark:bg-surface-950">
+            <div class="max-w-3xl mx-auto text-center">
+                <div appScrollAnimate="fade-up">
+                    <h2 class="font-extrabold text-3xl sm:text-4xl mt-0 mb-4 text-color">
+                        Lo que acabas de ver es <span class="text-primary">solo el resumen</span>
+                    </h2>
+                    <p class="text-lg text-muted-color mb-8 max-w-xl mx-auto">
+                        El estudio real profundiza mucho más en cada cliente — y lo tienes en unos 15 minutos.
+                    </p>
+                </div>
+
+                <!-- Lo que agrega el estudio real sobre este ejemplo -->
+                <div class="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 mb-10 text-m text-muted-color" appScrollAnimate="fade-up" [animateDelay]="120">
+                    <span class="inline-flex items-center gap-2"><i class="pi pi-check-circle text-emerald-500"></i> Comportamiento de pago mes a mes</span>
+                    <span class="inline-flex items-center gap-2"><i class="pi pi-check-circle text-emerald-500"></i> Más de 10 indicadores financieros</span>
+                    <span class="inline-flex items-center gap-2"><i class="pi pi-check-circle text-emerald-500"></i> Todas las alertas al detalle</span>
+                    <span class="inline-flex items-center gap-2"><i class="pi pi-check-circle text-emerald-500"></i> Pagaré digital listo para firmar</span>
+                </div>
+
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-4" appScrollAnimate="scale-in" [animateDelay]="200">
+                    <a routerLink="/precios" class="no-underline">
+                        <button pButton pRipple label="Ver precios" icon="pi pi-arrow-right" iconPos="right" rounded class="text-lg px-8 py-3 font-bold"></button>
+                    </a>
+                    <a routerLink="/agendar-demo" class="no-underline">
+                        <button pButton pRipple label="Agendar demo gratis" rounded outlined class="text-lg px-8 py-3 font-bold"></button>
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+    <footer-widget />
+</div>

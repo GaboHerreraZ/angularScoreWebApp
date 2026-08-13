@@ -15,7 +15,7 @@
         </section>
 
         <!-- Overview rápido: la misma venta, sin y con Credit-ia (sin cajas) -->
-        <section class="px-6 sm:px-12 lg:px-20 pt-14 lg:pt-16">
+        <section class="px-6 sm:px-12 lg:px-20 pt-14 lg:pt-16 pb-14 lg:pb-16">
             <div class="max-w-4xl mx-auto">
                 <h2 class="text-center font-bold text-xl sm:text-2xl text-color mt-0 mb-10" appScrollAnimate="fade-up">
                     Más que un análisis: <span class="text-primary">ventas que se cierran</span>
@@ -61,16 +61,14 @@
                     </div>
                 </div>
 
-                <!-- Remate de ROI antes de los precios -->
-                <p class="text-center text-m text-muted-color mt-10 mb-0" appScrollAnimate="fade-up" [animateDelay]="200">
-                    <i class="pi pi-wallet text-primary mr-1"></i>
-                    Y además: un solo impago evitado vale más que el paquete completo.
-                </p>
             </div>
         </section>
 
+        <!-- Calculadora de cartera vencida: convierte el dolor en cifras propias -->
+        <loss-calculator-widget />
+
         <!-- Packs del catálogo -->
-        <pricing-packs-widget />
+        <pricing-packs-widget id="packs" />
 
         <!-- FAQ de precios -->
         <faq-widget [items]="faq" subtitle="Todo sobre paquetes y pagos" />

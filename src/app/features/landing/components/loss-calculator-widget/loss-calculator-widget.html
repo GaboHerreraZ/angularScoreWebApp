@@ -1,0 +1,68 @@
+<section class="landing-band px-6 sm:px-12 lg:px-20 py-14 lg:py-20">
+    <div class="max-w-screen-lg mx-auto">
+        <!-- Encabezado -->
+        <div class="text-center mb-10" appScrollAnimate="fade-up">
+            <span class="bg-primary/10 text-primary font-bold text-m uppercase tracking-widest px-4 py-1.5 rounded-full">Calculadora</span>
+            <h2 class="font-extrabold text-3xl sm:text-4xl mt-6 mb-3 text-color">
+                ¿Cuánto te cuesta la <span class="text-red-500 dark:text-red-400">cartera vencida</span>?
+            </h2>
+            <p class="text-m text-muted-color m-0 max-w-xl mx-auto">Muévele a los números y míralo con tus propias cifras.</p>
+        </div>
+
+        <!-- Tarjeta: inputs a la izquierda, resultado a la derecha -->
+        <div
+            #calc
+            class="landing-card rounded-3xl border border-surface bg-surface-0 dark:bg-surface-900 shadow-xl overflow-hidden"
+            appScrollAnimate="fade-up"
+            [animateDelay]="120"
+        >
+            <div class="grid lg:grid-cols-2">
+                <!-- Inputs -->
+                <div class="p-7 sm:p-9 flex flex-col justify-center gap-10">
+                    <div>
+                        <div class="flex items-baseline justify-between gap-4 mb-5">
+                            <label class="text-m font-semibold text-color">Ventas a crédito al mes</label>
+                            <span class="text-m font-bold text-color tabular-nums whitespace-nowrap">
+                                {{ monthlySales() | currency: 'COP' : 'symbol-narrow' : '1.0-0' : 'es-CO' }}{{ monthlySales() === salesMax ? '+' : '' }}
+                            </span>
+                        </div>
+                        <p-slider [ngModel]="monthlySales()" (ngModelChange)="monthlySales.set($event); onInteract()" [min]="salesMin" [max]="salesMax" [step]="salesStep" ariaLabel="Ventas a crédito al mes" />
+                    </div>
+
+                    <div>
+                        <div class="flex items-baseline justify-between gap-4 mb-5">
+                            <label class="text-m font-semibold text-color">Cartera que no se recupera</label>
+                            <span class="text-m font-bold text-color tabular-nums whitespace-nowrap">{{ badDebtPercent() | number: '1.0-1' : 'es-CO' }}%</span>
+                        </div>
+                        <p-slider [ngModel]="badDebtPercent()" (ngModelChange)="badDebtPercent.set($event); onInteract()" [min]="1" [max]="10" [step]="0.5" ariaLabel="Porcentaje de cartera que no se recupera" />
+                        <p class="text-sm text-muted-color mt-4 mb-0">¿No tienes el dato exacto? Un 3% es un punto de partida razonable.</p>
+                    </div>
+                </div>
+
+                <!-- Resultado -->
+                <div class="relative p-7 sm:p-9 flex flex-col items-center justify-center text-center gap-2 bg-surface-50/60 dark:bg-surface-950/40 border-t lg:border-t-0 lg:border-l border-surface">
+                    <span class="text-sm font-bold uppercase tracking-widest text-muted-color">Pérdida estimada al año</span>
+                    <span class="text-4xl sm:text-5xl font-extrabold tabular-nums text-transparent bg-clip-text bg-linear-to-r from-red-500 to-amber-500">
+                        {{ displayedLoss() | currency: 'COP' : 'symbol-narrow' : '1.0-0' : 'es-CO' }}
+                    </span>
+                    <span class="text-m text-muted-color">≈ {{ monthlyLoss() | currency: 'COP' : 'symbol-narrow' : '1.0-0' : 'es-CO' }} cada mes que no vuelve</span>
+
+                    <p class="text-m text-color font-medium mt-5 mb-0 max-w-sm">
+                        Analizar a tu cliente antes de venderle cuesta <span class="text-primary font-bold">una fracción</span> de un solo impago.
+                    </p>
+                    <button
+                        type="button"
+                        (click)="scrollToPacks()"
+                        class="mt-2 inline-flex items-center gap-2 text-primary font-bold bg-transparent border-0 p-0 cursor-pointer hover:underline"
+                    >
+                        Ver paquetes <i class="pi pi-arrow-down text-sm"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <p class="text-sm text-muted-color text-center mt-6 mb-0" appScrollAnimate="fade-up" [animateDelay]="200">
+            Estimación ilustrativa a partir de los datos que ingresas.
+        </p>
+    </div>
+</section>

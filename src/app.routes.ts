@@ -5,6 +5,7 @@ import { authGuard } from '@/app/core/guards/auth.guard';
 export const appRoutes: Routes = [
     { path: '', title: 'Análisis de crédito con IA para empresas', loadComponent: () => import('@/app/features/landing/landing').then((c) => c.Landing) },
     { path: 'precios', title: 'Precios', loadComponent: () => import('@/app/features/landing/pages/pricing/pricing-page').then((c) => c.PricingPage) },
+    { path: 'estudio-ejemplo', title: 'Estudio de ejemplo', loadComponent: () => import('@/app/features/landing/pages/sample-study/sample-study-page').then((c) => c.SampleStudyPage) },
     { path: 'agendar-demo', title: 'Agendar demo', loadComponent: () => import('@/app/features/landing/pages/demo/demo-page').then((c) => c.DemoPage) },
     {
         path: 'app',

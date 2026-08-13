@@ -7,13 +7,14 @@ import { HeaderWidget } from '@/app/features/landing/components/header-widget/he
 import { FooterWidget } from '@/app/features/landing/components/footer-widget/footer-widget';
 import { PricingPacksWidget } from '@/app/features/landing/components/pricing-packs-widget/pricing-packs-widget';
 import { FaqItem, FaqWidget } from '@/app/features/landing/components/faq-widget/faq-widget';
+import { LossCalculatorWidget } from '@/app/features/landing/components/loss-calculator-widget/loss-calculator-widget';
 import { ScrollAnimateDirective } from '@/app/shared/directives/scroll-animate.directive';
 
 
 @Component({
     selector: 'app-pricing-page',
     standalone: true,
-    imports: [RouterModule, ButtonModule, Ripple, HeaderWidget, FooterWidget, PricingPacksWidget, FaqWidget, ScrollAnimateDirective],
+    imports: [RouterModule, ButtonModule, Ripple, HeaderWidget, FooterWidget, PricingPacksWidget, FaqWidget, LossCalculatorWidget, ScrollAnimateDirective],
     templateUrl: './pricing-page.html',
     styles: [
         `
