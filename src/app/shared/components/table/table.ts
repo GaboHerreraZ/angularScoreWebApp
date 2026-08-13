@@ -44,6 +44,8 @@ export class CustomTable {
     loadingMessage = computed(() => this.tableSettings().loadingMessage ?? 'Cargando datos. Por favor espere.');
     title = computed(() => this.tableSettings().title ?? null);
     titleIcon = computed(() => this.tableSettings().titleIcon ?? null);
+    subtitle = computed(() => this.tableSettings().subtitle ?? null);
+    usePageHeader = computed(() => this.tableSettings().headerVariant === 'page');
     showSearch = computed(() => this.tableSettings().showSearch ?? true);
     showColumnFilters = computed(() => this.tableSettings().showColumnFilters ?? true);
 

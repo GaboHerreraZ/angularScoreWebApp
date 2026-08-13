@@ -20,6 +20,9 @@ export class Customers implements OnInit {
 
     tableSettings = computed<TableSettings>(() => ({
         title: 'Gestión de Clientes',
+        titleIcon: 'pi pi-address-book',
+        subtitle: 'Consulta la información y el perfil crediticio de tus clientes.',
+        headerVariant: 'page',
         dataKey: 'id',
         rows: 10,
         rowsPerPageOptions: [10, 25, 50],

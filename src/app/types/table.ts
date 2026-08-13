@@ -73,6 +73,8 @@ export interface TableSettings {
     loadingMessage?: string;
     title?: string;
     titleIcon?: string;
+    subtitle?: string;
+    headerVariant?: 'inline' | 'page';
     showSearch?: boolean;
     showColumnFilters?: boolean;
     actions?: TableAction[];
