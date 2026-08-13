@@ -1,4 +1,34 @@
+<!-- ── Encabezado de página: tarjeta aparte con avatar y título grande ── -->
+@if (usePageHeader()) {
 <div class="card">
+    <div class="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+        <div class="flex items-center gap-3 sm:gap-4 min-w-0 flex-1" data-tour="table-title">
+            <div class="flex items-center justify-center rounded-full bg-primary text-primary-contrast shrink-0" style="width: 3.5rem; height: 3.5rem;">
+                <i [class]="(titleIcon() ?? 'pi pi-table') + ' text-xl'"></i>
+            </div>
+            <div class="flex flex-col gap-0.5 min-w-0">
+                <h2 class="text-2xl font-semibold m-0 truncate">{{ title() }}</h2>
+                @if (subtitle()) {
+                <span class="text-m text-muted-color">{{ subtitle() }}</span>
+                }
+            </div>
+        </div>
+        @if (exportButton() || addButton()) {
+        <div class="flex items-center gap-2 shrink-0">
+            @if (exportButton()) {
+            <button pButton class="flex-1 sm:flex-none" data-tour="table-export" [label]="exportButton()!.label" [icon]="exportButton()!.icon" [severity]="exportButton()!.severity ?? 'success'" [disabled]="exportButton()!.disabled ?? false" [loading]="exportButton()!.loading ?? false" (click)="onExportClick()"></button>
+            }
+            @if (addButton()) {
+            <button pButton class="flex-1 sm:flex-none" data-tour="table-add" [label]="addButton()!.label" [icon]="addButton()!.icon" [severity]="addButton()!.severity ?? 'success'" [disabled]="addButton()!.disabled ?? false" (click)="onAddClick()"></button>
+            }
+        </div>
+        }
+    </div>
+</div>
+}
+
+<div class="card">
+    @if (!usePageHeader() && (title() || exportButton() || addButton())) {
     <div class="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">
         @if (title()) {
         <div class="flex items-center gap-2 font-semibold text-xl min-w-0" data-tour="table-title">
@@ -17,6 +47,7 @@
             }
         </div>
     </div>
+    }
 
     <p-table
         #dt

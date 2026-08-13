@@ -27,6 +27,9 @@ export class CreditStudy implements OnInit {
 
     tableSettings = computed<TableSettings>(() => ({
         title: 'Gestión de Estudios de Crédito',
+        titleIcon: 'pi pi-credit-card',
+        subtitle: 'Crea y consulta los análisis de viabilidad crediticia de tus clientes.',
+        headerVariant: 'page',
         dataKey: 'customerId',
         rows: 10,
         rowsPerPageOptions: [10, 25, 50],
