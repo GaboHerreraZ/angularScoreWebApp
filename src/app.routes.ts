@@ -15,6 +15,7 @@ export const appRoutes: Routes = [
             { path: 'panel', title: 'Dashboard', data: { breadcrumb: 'Dashboard' }, loadComponent: () => import('@/app/features/dashboard/dashboard').then((c) => c.Dashboard) },
             { path: 'clientes', title: 'Clientes', data: { breadcrumb: 'Clientes' }, loadChildren: () => import('@/app/features/customers/customers.routes') },
             { path: 'estudio-credito', title: 'Estudios de Crédito', data: { breadcrumb: 'Estudio de Crédito' }, loadChildren: () => import('@/app/features/credit-study/credit-study.routes') },
+            { path: 'pagares', title: 'Pagarés', data: { breadcrumb: 'Pagarés' }, loadChildren: () => import('@/app/features/promissory-notes/promissory-notes.routes') },
             { path: 'administracion', title: 'Administración', data: { breadcrumb: 'Administración' }, loadChildren: () => import('@/app/features/administration/administration.routes') }
         ]
     },
