@@ -9,6 +9,7 @@ import { PackIncludedFeatures } from '@/app/shared/components/pack-card/pack-inc
 import { CardCarousel } from '@/app/shared/components/card-carousel/card-carousel';
 import { PackOfferingsService } from '@/app/shared/services/pack-offerings.service';
 import { SupabaseService } from '@/app/core/services/supabase.service';
+import { AnalyticsService } from '@/app/core/services/analytics.service';
 import { PRESELECTED_PACK_KEY } from '@/app/core/constants/storage-keys';
 import { PackOffering } from '@/app/types/onboarding';
 
@@ -23,6 +24,7 @@ export class PricingPacksWidget {
     private router = inject(Router);
     private packOfferingsService = inject(PackOfferingsService);
     private supabaseService = inject(SupabaseService);
+    private analytics = inject(AnalyticsService);
 
     /** Catálogo de packs de análisis de crédito que se ofrecen en la página. */
     packsResource = resource<PackOffering[], {}>({
@@ -43,6 +45,7 @@ export class PricingPacksWidget {
     });
 
     buyPack(pack: PackOffering): void {
+        this.analytics.buyPackClick(pack.id, pack.name);
         sessionStorage.setItem(PRESELECTED_PACK_KEY, pack.id);
         const target = this.supabaseService.isAuthenticated() ? '/onboarding/registrar-empresa' : '/onboarding/registro';
         this.router.navigateByUrl(target);

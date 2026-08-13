@@ -18,7 +18,7 @@ if (missing.length === 0) {
     process.exit(0);
 }
 
-const { SUPABASE_URL, SUPABASE_KEY, API_URL, EPAYCO_TEST } = process.env;
+const { SUPABASE_URL, SUPABASE_KEY, API_URL, EPAYCO_TEST, GA_MEASUREMENT_ID } = process.env;
 if (!SUPABASE_URL || !SUPABASE_KEY || !API_URL) {
     console.error('[generate-env] Missing env vars. Required: SUPABASE_URL, SUPABASE_KEY, API_URL');
     process.exit(1);
@@ -27,6 +27,15 @@ if (!SUPABASE_URL || !SUPABASE_KEY || !API_URL) {
 // Modo pruebas de ePayco: por defecto activo, solo el literal "false" lo apaga.
 // Así un ambiente al que se le olvidó la variable nunca cobra de verdad.
 const epaycoTest = EPAYCO_TEST !== 'false';
+
+// Google Analytics: apagado salvo que el ambiente defina el ID. Se configura
+// como variable de rama en Amplify (solo main), asi staging no contamina datos.
+const gaMeasurementId = GA_MEASUREMENT_ID ?? '';
+console.log(
+    gaMeasurementId
+        ? `[generate-env] GA_MEASUREMENT_ID=${gaMeasurementId} -> analytics ACTIVO`
+        : '[generate-env] GA_MEASUREMENT_ID vacio -> analytics apagado'
+);
 console.log(
     epaycoTest
         ? '[generate-env] EPAYCO_TEST=true -> checkout en modo PRUEBAS (no cobra)'
@@ -41,6 +50,7 @@ for (const t of missing) {
     supabaseKey: '${SUPABASE_KEY}',
     apiUrl: '${API_URL}',
     epaycoTest: ${epaycoTest},
+    gaMeasurementId: '${gaMeasurementId}',
 };
 `;
     writeFileSync(resolve(envDir, t.file), content);

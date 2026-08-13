@@ -1,0 +1,87 @@
+<section class="landing-aurora px-6 sm:px-12 lg:px-20 py-16 lg:py-24">
+    <div class="max-w-screen-xl mx-auto grid lg:grid-cols-2 gap-14 lg:gap-16 items-center">
+        <!-- Gancho -->
+        <div appScrollAnimate="fade-right">
+            <span class="bg-primary/10 text-primary font-bold text-m uppercase tracking-widest px-4 py-1.5 rounded-full">El resultado</span>
+            <h2 class="font-extrabold text-3xl sm:text-4xl lg:text-5xl mt-6 mb-4 text-color">
+                ¿Le venderías a crédito <span class="text-primary whitespace-nowrap">a este cliente?</span>
+            </h2>
+            <p class="text-lg text-muted-color mb-8 max-w-xl">
+                Míralo como lo ve CREDIT-IA: score de riesgo, alertas de Datacrédito y del documento, y la recomendación de la IA.
+                Dos casos de ejemplo — uno se aprueba con condiciones, otro se rechaza a tiempo.
+            </p>
+            <a routerLink="/estudio-ejemplo" class="no-underline">
+                <button pButton pRipple label="Ver el estudio completo" icon="pi pi-arrow-right" iconPos="right" rounded class="text-lg px-8 py-3 font-bold"></button>
+            </a>
+        </div>
+
+        <!-- Vista previa: el caso condicional al frente, el rechazado asoma detrás -->
+        <a
+            routerLink="/estudio-ejemplo"
+            class="relative block no-underline group"
+            appScrollAnimate="fade-left"
+            [animateDelay]="150"
+            aria-label="Ver el estudio de ejemplo completo"
+        >
+            <!-- Caso no viable (detrás) -->
+            <div
+                class="absolute -top-7 right-0 sm:right-2 w-56 sm:w-64 rotate-3 rounded-2xl border border-surface bg-surface-50 dark:bg-surface-800/90 p-4 shadow-xl transition-transform duration-500 group-hover:rotate-6 group-hover:-translate-y-1"
+                aria-hidden="true"
+            >
+                <div class="flex items-center justify-between gap-3 mb-2">
+                    <span class="font-bold text-m text-color truncate">Julián Restrepo</span>
+                    <span class="text-[0.65rem] font-bold px-2 py-0.5 rounded-full bg-red-500/15 text-red-500 whitespace-nowrap">No viable</span>
+                </div>
+                <div class="flex items-baseline gap-1">
+                    <span class="text-2xl font-extrabold text-red-500 tabular-nums">28</span>
+                    <span class="text-sm text-muted-color font-semibold">/ 100</span>
+                </div>
+            </div>
+
+            <!-- Caso viable con condiciones (al frente) -->
+            <div
+                class="landing-card relative mt-12 mr-4 sm:mr-16 rounded-2xl border border-surface bg-surface-0 dark:bg-surface-900 p-6 shadow-2xl -rotate-1 transition-transform duration-500 group-hover:rotate-0 group-hover:-translate-y-1"
+            >
+                <div class="flex flex-wrap items-center justify-between gap-2 mb-1">
+                    <span class="text-sm text-muted-color">EC-2026-0187 · Datos ficticios</span>
+                    <span class="text-sm font-bold px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-400 whitespace-nowrap">Viable con condiciones</span>
+                </div>
+                <span class="block font-bold text-lg text-color mb-4">Distribuciones Altavista S.A.S.</span>
+
+                <div class="flex items-center gap-4 mb-4">
+                    <div class="flex items-baseline gap-1 shrink-0">
+                        <span class="text-3xl font-extrabold text-amber-500 tabular-nums">64</span>
+                        <span class="text-sm text-muted-color font-semibold">/ 100</span>
+                    </div>
+                    <div class="flex-1 h-2 rounded-full bg-surface-200 dark:bg-surface-700 overflow-hidden">
+                        <div class="h-2 w-8/12 rounded-full bg-linear-to-r from-amber-500 to-orange-400"></div>
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap gap-2 mb-4">
+                    <span class="inline-flex items-center gap-1.5 text-sm font-medium px-2.5 py-1 rounded-full bg-red-500/10 text-red-500">
+                        <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span> Saldo en mora vigente
+                    </span>
+                    <span class="inline-flex items-center gap-1.5 text-sm font-medium px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400">
+                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Moras de 60 días
+                    </span>
+                </div>
+
+                <!-- Recomendación borrosa: el gancho para abrir el estudio -->
+                <div class="relative rounded-xl bg-linear-to-r from-purple-500/10 to-indigo-500/10 dark:from-purple-500/15 dark:to-indigo-500/15 p-4 overflow-hidden">
+                    <div class="flex items-start gap-2.5 blur-[5px] select-none" aria-hidden="true">
+                        <i class="pi pi-sparkles text-purple-400 mt-0.5"></i>
+                        <p class="text-sm text-muted-color leading-snug m-0">
+                            Se sugiere aprobar con condiciones: reducir el cupo a $18.000.000, exigir el pagaré firmado antes del primer despacho y revisar el comportamiento de pago…
+                        </p>
+                    </div>
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <span class="inline-flex items-center gap-2 text-m font-bold text-primary bg-surface-0/85 dark:bg-surface-900/85 px-4 py-1.5 rounded-full border border-primary/30 backdrop-blur-sm transition-transform duration-300 group-hover:scale-105">
+                            Leer la recomendación de la IA <i class="pi pi-arrow-right text-xs"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+</section>

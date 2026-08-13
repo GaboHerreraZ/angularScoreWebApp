@@ -7,6 +7,7 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { DividerModule } from 'primeng/divider';
 import { OnboardingService } from '../onboarding.service';
 import { AuthService } from '@/app/core/services/auth.service';
+import { AnalyticsService } from '@/app/core/services/analytics.service';
 import { AnalysisPackByReference } from '@/app/types/onboarding';
 import { formatCurrency, formatLongDate } from '@/app/shared/utils/format.util';
 
@@ -27,6 +28,7 @@ export class OnboardingConfirmation {
     private destroyRef = inject(DestroyRef);
     private onboardingService = inject(OnboardingService);
     private authService = inject(AuthService);
+    private analytics = inject(AnalyticsService);
 
     state = signal<ResultState>('polling');
     pack = signal<AnalysisPackByReference | null>(null);
@@ -79,6 +81,7 @@ export class OnboardingConfirmation {
             if (result.status === 'active') {
                 this.pack.set(result);
                 this.state.set('success');
+                this.analytics.purchase(result.invoice, result.plan.name, result.payment.total);
                 // El pago activó el onboarding: refrescamos el perfil para que
                 // onboardingStatus quede en 'ready' y el authGuard permita el dashboard.
                 await this.authService.refreshProfile();

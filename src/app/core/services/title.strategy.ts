@@ -1,9 +1,13 @@
-import { Injectable } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
+import { inject, Injectable } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { RouterStateSnapshot, TitleStrategy } from '@angular/router';
 
 /** Nombre de marca que se antepone/pospone al título de cada página. */
 const BRAND = 'Credit-ia';
+
+/** Origen canónico del sitio público (sin barra final). */
+const CANONICAL_ORIGIN = 'https://creditia.co';
 
 /**
  * Estrategia de título por ruta: toma el `title` de la ruta (o, como respaldo,
@@ -17,6 +21,8 @@ const BRAND = 'Credit-ia';
  */
 @Injectable({ providedIn: 'root' })
 export class AppTitleStrategy extends TitleStrategy {
+    private readonly document = inject(DOCUMENT);
+
     constructor(private readonly title: Title) {
         super();
     }
@@ -29,6 +35,23 @@ export class AppTitleStrategy extends TitleStrategy {
                 ? `${pageTitle} · ${BRAND}`
                 : `${BRAND} | Plataforma de Análisis Crediticio Inteligente`
         );
+
+        this.updateCanonical(snapshot.url);
+    }
+
+    /**
+     * Canonical por ruta: el estático de index.html apuntaba siempre a `/`,
+     * lo que le decía a Google que todas las páginas eran duplicados del home.
+     */
+    private updateCanonical(url: string): void {
+        const path = url.split('?')[0].split('#')[0];
+        let link = this.document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]');
+        if (!link) {
+            link = this.document.createElement('link');
+            link.rel = 'canonical';
+            this.document.head.appendChild(link);
+        }
+        link.href = `${CANONICAL_ORIGIN}${path === '/' ? '/' : path}`;
     }
 
     /** Busca el breadcrumb de la ruta activa más profunda cuando no hay `title`. */

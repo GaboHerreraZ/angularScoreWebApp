@@ -14,6 +14,7 @@ import { ScrollAnimateDirective } from '@/app/shared/directives/scroll-animate.d
 import { PhoneInput } from '@/app/shared/components/phone-input/phone-input';
 import { Notification } from '@/app/shared/components/notification/notification';
 import { ContactSalesService } from '@/app/shared/services/contact-sales.service';
+import { AnalyticsService } from '@/app/core/services/analytics.service';
 import { NotificationService } from '@/app/shared/components/notification/notification.service';
 import { ContactSalesRequest, ContactSalesSubject } from '@/app/types/contact-sales';
 
@@ -39,6 +40,7 @@ import { ContactSalesRequest, ContactSalesSubject } from '@/app/types/contact-sa
 export class ContactSalesWidget {
     private destroyRef = inject(DestroyRef);
     private contactSalesService = inject(ContactSalesService);
+    private analytics = inject(AnalyticsService);
     private notification = inject(NotificationService);
 
     /** Asunto preseleccionado en el formulario (p. ej. 'demo' en /agendar-demo). */
@@ -110,6 +112,7 @@ export class ContactSalesWidget {
             takeUntilDestroyed(this.destroyRef)
         ).subscribe({
             next: () => {
+                this.analytics.lead(payload.subject);
                 this.sent.set(true);
                 this.form.reset();
                 this.applyInitialSubject();

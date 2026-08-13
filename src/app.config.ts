@@ -3,7 +3,8 @@ import localeEsCo from '@angular/common/locales/es-CO';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { authInterceptor } from '@/app/core/interceptors/auth.interceptor';
 import { errorInterceptor } from '@/app/core/interceptors/error.interceptor';
-import { ApplicationConfig, LOCALE_ID, provideZonelessChangeDetection } from '@angular/core';
+import { ApplicationConfig, inject, LOCALE_ID, provideAppInitializer, provideZonelessChangeDetection } from '@angular/core';
+import { AnalyticsService } from '@/app/core/services/analytics.service';
 
 registerLocaleData(localeEsCo);
 import { provideRouter, TitleStrategy, withEnabledBlockingInitialNavigation, withInMemoryScrolling } from '@angular/router';
@@ -18,6 +19,7 @@ export const appConfig: ApplicationConfig = {
         MessageService,
         { provide: TitleStrategy, useClass: AppTitleStrategy },
         { provide: LOCALE_ID, useValue: 'es-CO' },
+        provideAppInitializer(() => inject(AnalyticsService).init()),
         provideRouter(appRoutes, withInMemoryScrolling({ anchorScrolling: 'enabled', scrollPositionRestoration: 'enabled' }), withEnabledBlockingInitialNavigation()),
         provideHttpClient(withFetch(), withInterceptors([authInterceptor, errorInterceptor])),
         provideZonelessChangeDetection(),
