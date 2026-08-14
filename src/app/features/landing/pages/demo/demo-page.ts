@@ -51,7 +51,8 @@ export class DemoPage {
     readonly demoHighlights = [
         { icon: 'pi-file-pdf', text: 'Un estudio de crédito completo, de PDF a score' },
         { icon: 'pi-shield', text: 'La consulta a Datacrédito Experian en vivo' },
-        { icon: 'pi-pen-to-square', text: 'El pagaré digital con firma electrónica' }
+        { icon: 'pi-pen-to-square', text: 'El pagaré digital con firma electrónica' },
+        { icon: 'pi-flag', text: 'Qué pasa si no te pagan: pagaré exigible y reporte a centrales de riesgo' }
     ];
 
     constructor() {
