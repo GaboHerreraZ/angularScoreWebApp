@@ -1,16 +1,12 @@
 import { Component, inject, forwardRef, input, resource } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR, ReactiveFormsModule, FormControl } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
-import { map } from 'rxjs/operators';
 import { SelectModule } from 'primeng/select';
 import { FloatLabelModule } from 'primeng/floatlabel';
+import { LocationsService, LocationOption } from '@/app/core/services/locations.service';
 
-interface CityOption {
-    id: number;
-    name: string;
-}
+type CityOption = LocationOption;
 
 @Component({
     selector: 'app-city-control',
@@ -26,9 +22,10 @@ interface CityOption {
     ]
 })
 export class CityControl implements ControlValueAccessor {
-    private http = inject(HttpClient);
+    private locations = inject(LocationsService);
 
-    departmentId = input<number | null>(null);
+    /** Código DANE del departamento (2 dígitos). Sin él no hay municipios. */
+    regionCode = input<string | null>(null);
     label = input<string>('Ciudad');
     inputId = input<string>('city-control');
     invalid = input<boolean>(false);
@@ -36,15 +33,11 @@ export class CityControl implements ControlValueAccessor {
 
     innerControl = new FormControl<CityOption | null>(null);
 
-    citiesResource = resource<CityOption[], { departmentId: number | null }>({
-        params: () => ({ departmentId: this.departmentId() }),
+    citiesResource = resource<CityOption[], { regionCode: string | null }>({
+        params: () => ({ regionCode: this.regionCode() }),
         loader: ({ params }) => {
-            if (!params.departmentId) return Promise.resolve([]);
-            return firstValueFrom(
-                this.http.get<{ id: number; name: string }[]>(`https://api-colombia.com/api/v1/Department/${params.departmentId}/cities`).pipe(
-                    map(cities => cities.map(c => ({ id: c.id, name: c.name })).sort((a, b) => a.name.localeCompare(b.name)))
-                )
-            );
+            if (!params.regionCode) return Promise.resolve([]);
+            return firstValueFrom(this.locations.getCities(params.regionCode));
         }
     });
 

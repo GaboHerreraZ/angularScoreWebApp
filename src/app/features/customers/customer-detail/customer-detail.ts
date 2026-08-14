@@ -24,6 +24,7 @@ import { CityControl } from '@/app/shared/components/city-control/city-control';
 import { NotificationService } from '@/app/shared/components/notification/notification.service';
 import { CustomerDetail as CustomerDetailModel, BureauPerson, CustomerParameter, UpdateCustomerPayload } from '@/app/types/customer';
 import { formatCurrency, formatShortDate } from '@/app/shared/utils/format.util';
+import { LocationOption } from '@/app/core/services/locations.service';
 
 interface InfoField {
     label: string;
@@ -32,10 +33,7 @@ interface InfoField {
     span?: boolean;
 }
 
-interface LocationOption {
-    id: number;
-    name: string;
-}
+
 
 @Component({
     selector: 'app-customer-detail',
@@ -105,7 +103,7 @@ export class CustomerDetail {
     stateRef = viewChild<StateControl>('stateRef');
     cityRef = viewChild<CityControl>('cityRef');
 
-    departmentId = signal<number | null>(null);
+    regionCode = signal<string | null>(null);
     /** Nombres guardados como texto (API) pendientes de resolver contra los catálogos de departamento/ciudad. */
     private pendingStateName = signal<string | null>(null);
     private pendingCityName = signal<string | null>(null);
@@ -232,7 +230,7 @@ export class CustomerDetail {
         this.editForm.controls.state.valueChanges.pipe(
             takeUntilDestroyed(this.destroyRef)
         ).subscribe(state => {
-            this.departmentId.set(state?.id ?? null);
+            this.regionCode.set(state?.code ?? null);
             if (this.resolvingState) {
                 this.resolvingState = false;
             } else {
@@ -283,7 +281,7 @@ export class CustomerDetail {
             legalRepEmail: c.legalRep?.email ?? '',
             legalRepPhone: c.legalRep?.phone ?? ''
         });
-        this.departmentId.set(null);
+        this.regionCode.set(null);
         this.pendingStateName.set(c.state);
         this.pendingCityName.set(c.city);
         this.editing.set(true);
@@ -307,8 +305,7 @@ export class CustomerDetail {
         const payload: UpdateCustomerPayload = {
             email: v.email.trim() || null,
             phone: v.phone.trim() || null,
-            city: v.city?.name ?? null,
-            state: v.state?.name ?? null,
+            cityCode: v.city?.code ?? null,
             address: v.address.trim() || null,
             economicActivityId: v.economicActivity?.id ?? null
         };

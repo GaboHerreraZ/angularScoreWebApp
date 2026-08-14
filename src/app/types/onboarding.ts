@@ -15,8 +15,7 @@ export interface OnboardingCompany {
     name: string;
     nit: string;
     sectorId: number;
-    state: string;
-    city: string;
+    cityCode: string;
     address: string;
 }
 
@@ -32,8 +31,10 @@ export interface OnboardingBilling {
     billingEmail: string;
     billingPhone: string;
     billingAddress: string;
-    billingState: string;
-    billingCity: string;
+    billingCityCode: string;
+    billingRegimeTypeId: number;
+    /** Codes de Parameter 'fiscal_responsibility' (son los codigos DIAN). */
+    billingFiscalResponsibilities: string[];
 }
 
 /** Cuerpo de POST /api/onboarding. */
@@ -50,13 +51,17 @@ export interface OnboardingResponse {
     userCompanyId: string;
 }
 
-/** Respuesta 200 de GET /api/onboarding/:profileId (onboarding ya existente). */
+/**
+ * Respuesta 200 de GET /api/onboarding/:profileId (onboarding ya existente).
+ * Sobre lo que se envía al crear, añade el municipio y el departamento ya
+ * resueltos: el resumen los pinta sin volver a consultar el catálogo.
+ */
 export interface OnboardingByProfile {
     profileId: string;
     companyId: string;
     profile: OnboardingProfile;
-    company: OnboardingCompany;
-    billing: OnboardingBilling;
+    company: OnboardingCompany & { city: string; state: string };
+    billing: OnboardingBilling & { billingCity: string | null; billingState: string | null };
 }
 
 /** Datos ya aplanados que muestran las tarjetas del resumen de compra. */

@@ -5,8 +5,10 @@ export interface Company {
     name: string;
     nit: string;
     sectorId: number;
-    state: string;
-    city: string;
+    /** Código DANE del municipio (domicilio). */
+    cityCode: string;
+    /** Municipio y departamento ya resueltos por el API (solo lectura). */
+    daneCity: { name: string; region: { name: string } };
     address: string;
     accountTypeId: number | null;
     accountBankId: number | null;
@@ -21,8 +23,11 @@ export interface Company {
     billingDocNumber: string | null;
     billingEmail: string | null;
     billingAddress: string | null;
-    billingState: string | null;
-    billingCity: string | null;
+    billingCityCode: string | null;
+    billingDaneCity: { name: string; region: { name: string } } | null;
+    billingRegimeTypeId: number | null;
+    /** Codes de Parameter 'fiscal_responsibility' (son los codigos DIAN). */
+    billingFiscalResponsibilities: string[];
     billingPhone: string | null;
     isActive: boolean;
     createdAt: string;

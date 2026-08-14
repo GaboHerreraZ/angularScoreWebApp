@@ -471,7 +471,7 @@
                                                 </div>
 
                                                 <div class="flex flex-col gap-1">
-                                                    <app-city-control inputId="titularCity" label="Ciudad *" variant="on" [departmentId]="titularDepartmentId()" formControlName="titularCity" [invalid]="isInvalid('titularCity')" />
+                                                    <app-city-control inputId="titularCity" label="Ciudad *" variant="on" [regionCode]="titularRegionCode()" formControlName="titularCity" [invalid]="isInvalid('titularCity')" />
                                                     @if (isInvalid('titularCity')) {
                                                     <small class="text-red-500">{{ getErrorMessage('titularCity') }}</small>
                                                     }
