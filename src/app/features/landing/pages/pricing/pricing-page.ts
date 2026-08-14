@@ -84,6 +84,10 @@ export class PricingPage {
             answer: 'Todos los packs incluyen lo mismo: consulta en <strong>Datacrédito Experian</strong>, lectura de los estados financieros en PDF, score de riesgo con IA, reporte del estudio y pagaré digital con firma electrónica. Solo cambia el precio por volumen.'
         },
         {
+            question: '¿Qué pasa si mi cliente no paga?',
+            answer: 'Cada aprobación queda respaldada por un <strong>pagaré firmado digitalmente</strong>, un título valor exigible legalmente. Y tienes un respaldo que pocas empresas pueden ofrecer: a través de CREDIT-IA y su integración con <strong>Datacrédito Experian</strong>, puedes reportar negativamente al deudor ante las centrales de riesgo, cumpliendo el proceso de notificación previa que exige la ley. La mayoría de los deudores prefiere ponerse al día antes que quedar reportado.'
+        },
+        {
             question: '¿Los paquetes vencen?',
             answer: 'Cada paquete tiene una vigencia que ves claramente antes de comprar. Dentro de ella, usas tus análisis cuando quieras: no hay ciclos de facturación ni cobros automáticos.'
         },

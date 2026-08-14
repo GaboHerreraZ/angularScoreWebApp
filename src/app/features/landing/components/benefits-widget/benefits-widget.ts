@@ -30,7 +30,7 @@ export class BenefitsWidget implements OnDestroy {
 
     /** Resultados y garantías que el recorrido del producto no cuenta. */
     readonly extras = [
-        { icon: 'pi-verified', color: 'text-emerald-500', bg: 'bg-emerald-500/10', title: 'Respaldo legal', description: 'Cada aprobación cierra con un pagaré con validez jurídica.' },
+        { icon: 'pi-verified', color: 'text-emerald-500', bg: 'bg-emerald-500/10', title: 'Respaldo legal', description: 'Pagaré con validez jurídica y reporte a centrales de riesgo en caso de incumplimiento.' },
         { icon: 'pi-chart-bar', color: 'text-amber-500', bg: 'bg-amber-500/10', title: 'Dashboard de cartera', description: 'Distribución de riesgo en un solo lugar.' },
         { icon: 'pi-file-excel', color: 'text-pink-500', bg: 'bg-pink-500/10', title: 'Exportes en Excel', description: 'Clientes y estudios listos para auditoría.' },
         { icon: 'pi-lock', color: 'text-blue-500', bg: 'bg-blue-500/10', title: 'Seguridad y Habeas Data', description: 'Cifrado AES-256 y Ley 1581 de 2012.' }

@@ -134,7 +134,7 @@ export class SampleStudyPage implements OnDestroy {
                 'Se sugiere aprobar con condiciones: reducir el cupo a $18.000.000, exigir el pagaré firmado antes del primer despacho y revisar el comportamiento de pago a los 90 días.'
             ],
             closingIcon: 'pi-verified',
-            closingText: 'Con la decisión tomada, el pagaré se generó y firmó en línea desde el mismo estudio.'
+            closingText: 'Con la decisión tomada, el pagaré se firmó en línea. Y si el cliente incumple, puedes reportarlo ante las centrales de riesgo.'
         },
         {
             id: 'rejected',
