@@ -134,6 +134,8 @@ export interface CustomerDetail {
     nameParts: CustomerNameParts | null;
     email: string | null;
     phone: string | null;
+    /** Código DANE del municipio; null si el cliente solo tiene el dato de la central. */
+    cityCode: string | null;
     city: string | null;
     state: string | null;
     address: string | null;
@@ -174,8 +176,7 @@ export interface CustomerSigner {
 export interface UpdateCustomerPayload {
     email: string | null;
     phone: string | null;
-    city: string | null;
-    state: string | null;
+    cityCode: string | null;
     address: string | null;
     economicActivityId: number | null;
     /** Representante legal: solo viaja para persona jurídica. */

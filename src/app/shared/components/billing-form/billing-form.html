@@ -89,9 +89,47 @@
         </div>
 
         <div class="flex flex-col gap-1">
-            <app-city-control #cityRef inputId="billingCity" label="Ciudad *" variant="on" [departmentId]="departmentId()" formControlName="billingCity" [invalid]="isInvalid('billingCity')" />
+            <app-city-control #cityRef inputId="billingCity" label="Ciudad *" variant="on" [regionCode]="regionCode()" formControlName="billingCity" [invalid]="isInvalid('billingCity')" />
             @if (isInvalid('billingCity')) {
                 <small class="text-red-500">{{ getErrorMessage('billingCity') }}</small>
+            }
+        </div>
+
+        <!-- Perfil fiscal: lo exige la DIAN para emitir la factura electrónica.
+             No se deduce del tipo de documento, hay que preguntarlo. -->
+        <div class="flex flex-col gap-1">
+            <p-floatlabel variant="on">
+                <p-select
+                    id="billingRegimeType"
+                    formControlName="billingRegimeType"
+                    [options]="taxRegimesResource.value() ?? []"
+                    optionLabel="label"
+                    [loading]="taxRegimesResource.isLoading()"
+                    [invalid]="isInvalid('billingRegimeType')"
+                />
+                <label for="billingRegimeType">Régimen de IVA *</label>
+            </p-floatlabel>
+            @if (isInvalid('billingRegimeType')) {
+                <small class="text-red-500">{{ getErrorMessage('billingRegimeType') }}</small>
+            }
+        </div>
+
+        <div class="flex flex-col gap-1">
+            <p-floatlabel variant="on">
+                <p-multiselect
+                    id="billingFiscalResponsibilities"
+                    formControlName="billingFiscalResponsibilities"
+                    [options]="fiscalResponsibilitiesResource.value() ?? []"
+                    optionLabel="label"
+                    [loading]="fiscalResponsibilitiesResource.isLoading()"
+                    [invalid]="isInvalid('billingFiscalResponsibilities')"
+                    display="chip"
+                />
+                <label for="billingFiscalResponsibilities">Responsabilidades fiscales *</label>
+            </p-floatlabel>
+            <small class="text-surface-500">Si no tienes ninguna especial, elige "No aplica - Otros".</small>
+            @if (isInvalid('billingFiscalResponsibilities')) {
+                <small class="text-red-500">{{ getErrorMessage('billingFiscalResponsibilities') }}</small>
             }
         </div>
     </div>

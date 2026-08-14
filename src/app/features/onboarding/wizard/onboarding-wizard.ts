@@ -33,7 +33,7 @@ import { AnalysisPacksService } from '@/app/shared/services/analysis-packs.servi
 import { OnboardingByProfile, OnboardingRequest, PackOffering } from '@/app/types/onboarding';
 import { PRESELECTED_PACK_KEY } from '@/app/core/constants/storage-keys';
 
-type StateCity = { id: number; name: string };
+import type { LocationOption as StateCity } from '@/app/core/services/locations.service';
 
 @Component({
     selector: 'app-onboarding-wizard',
@@ -213,7 +213,7 @@ export class OnboardingWizard {
     private companyState = toSignal(this.companyForm.controls.state.valueChanges, {
         initialValue: this.companyForm.controls.state.value
     });
-    departmentId = computed(() => this.companyState()?.id ?? null);
+    regionCode = computed(() => this.companyState()?.code ?? null);
 
     // ── Navegación entre pasos ────────────────────────────────────────
     next(): void {
@@ -307,8 +307,7 @@ export class OnboardingWizard {
                 name: c.name,
                 nit: c.nit,
                 sectorId: c.sector!.id,
-                state: c.state!.name,
-                city: c.city!.name,
+                cityCode: c.city!.code,
                 address: c.address
             },
             billing: {
@@ -320,8 +319,9 @@ export class OnboardingWizard {
                 billingEmail: b.billingEmail,
                 billingPhone: b.billingPhone,
                 billingAddress: b.billingAddress,
-                billingState: b.billingState?.name ?? '',
-                billingCity: b.billingCity?.name ?? ''
+                billingCityCode: b.billingCity?.code ?? '',
+                billingRegimeTypeId: b.billingRegimeType!.id,
+                billingFiscalResponsibilities: (b.billingFiscalResponsibilities ?? []).map((r: Parameter) => r.code)
             }
         };
     }

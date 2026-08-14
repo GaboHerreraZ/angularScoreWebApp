@@ -84,6 +84,18 @@ export class Company {
         loader: ({ params: type }) => firstValueFrom(this.parameterService.getByType(type))
     });
 
+    // Perfil fiscal: se resuelven aqui para mapear el id/los codes que devuelve
+    // el API a los objetos Parameter que espera el formulario.
+    taxRegimesResource = resource<Parameter[], string>({
+        params: () => 'tax_regime',
+        loader: ({ params: type }) => firstValueFrom(this.parameterService.getByType(type))
+    });
+
+    fiscalResponsibilitiesResource = resource<Parameter[], string>({
+        params: () => 'fiscal_responsibility',
+        loader: ({ params: type }) => firstValueFrom(this.parameterService.getByType(type))
+    });
+
     invitationsResource = resource<InvitationsResponse, string>({
         params: () => this.user!.id as string,
         loader: ({ params: userId }) => firstValueFrom(this.companyService.getInvitations(userId))
@@ -175,8 +187,8 @@ export class Company {
                 this.form.patchValue({
                     name: c.name,
                     nit: c.nit,
-                    city: c.city,
-                    state: c.state,
+                    city: c.daneCity.name,
+                    state: c.daneCity.region.name,
                     // SectorSelect resolves the full Parameter from the id once its list loads.
                     sectorId: c.sectorId != null ? ({ id: c.sectorId } as Parameter) : null,
                     accountTypeId: c.accountTypeId,
@@ -189,8 +201,13 @@ export class Company {
                 const idTypes = this.identificationTypesResource.value() ?? [];
                 const docType = idTypes.find(t => t.id === c.billingDocTypeId) ?? null;
 
-                this.pendingBillingStateName.set(c.billingState ?? null);
-                this.pendingBillingCityName.set(c.billingCity ?? null);
+                const regimes = this.taxRegimesResource.value() ?? [];
+                const regime = regimes.find(r => r.id === c.billingRegimeTypeId) ?? null;
+                const allResponsibilities = this.fiscalResponsibilitiesResource.value() ?? [];
+                const responsibilities = allResponsibilities.filter(r => (c.billingFiscalResponsibilities ?? []).includes(r.code));
+
+                this.pendingBillingStateName.set(c.billingDaneCity?.region.name ?? null);
+                this.pendingBillingCityName.set(c.billingDaneCity?.name ?? null);
 
                 // billingDocType va primero a proposito: es quien decide si se
                 // muestran nombres o razon social, y al cambiar limpia el par
@@ -203,7 +220,9 @@ export class Company {
                     billingDocNumber: c.billingDocNumber ?? '',
                     billingEmail: c.billingEmail ?? '',
                     billingAddress: c.billingAddress ?? '',
-                    billingPhone: c.billingPhone ?? ''
+                    billingPhone: c.billingPhone ?? '',
+                    billingRegimeType: regime,
+                    billingFiscalResponsibilities: responsibilities
                 });
 
                 this.form.markAsPristine();
@@ -274,7 +293,6 @@ export class Company {
         const billingData = this.billingForm.getRawValue();
         const payload = {
             name: formData.name,
-            city: formData.city,
             sectorId: formData.sectorId?.id ?? null,
             accountTypeId: formData.accountTypeId,
             accountBankId: formData.accountBankId,
@@ -286,8 +304,9 @@ export class Company {
             billingDocNumber: billingData.billingDocNumber,
             billingEmail: billingData.billingEmail,
             billingAddress: billingData.billingAddress,
-            billingState: billingData.billingState?.name ?? null,
-            billingCity: billingData.billingCity?.name ?? null,
+            billingCityCode: billingData.billingCity?.code ?? null,
+            billingRegimeTypeId: billingData.billingRegimeType?.id ?? null,
+            billingFiscalResponsibilities: (billingData.billingFiscalResponsibilities ?? []).map((r: Parameter) => r.code),
             billingPhone: billingData.billingPhone
         };
 

@@ -147,7 +147,7 @@
                             [invalid]="companyForm.controls.state.invalid && companyForm.controls.state.touched" />
                     </div>
                     <div class="flex flex-col gap-1">
-                        <app-city-control inputId="city" label="Ciudad *" variant="on" [departmentId]="departmentId()" formControlName="city"
+                        <app-city-control inputId="city" label="Ciudad *" variant="on" [regionCode]="regionCode()" formControlName="city"
                             [invalid]="companyForm.controls.city.invalid && companyForm.controls.city.touched" />
                     </div>
                     <div class="flex flex-col gap-1 md:col-span-2">

@@ -1,5 +1,6 @@
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Parameter } from '@/app/types/parameter';
+import { LocationOption } from '@/app/core/services/locations.service';
 
 /** Código del parámetro `identification_type` que identifica a una persona jurídica. */
 export const NIT_CODE = 'nit';
@@ -27,9 +28,17 @@ export function buildBillingForm(): FormGroup {
         billingDocNumber: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
         billingEmail: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.email] }),
         billingAddress: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-        billingState: new FormControl<{ id: number; name: string } | null>(null, { validators: [Validators.required] }),
-        billingCity: new FormControl<{ id: number; name: string } | null>(null, { validators: [Validators.required] }),
-        billingPhone: new FormControl('', { nonNullable: true, validators: [Validators.required] })
+        billingState: new FormControl<LocationOption | null>(null, { validators: [Validators.required] }),
+        billingCity: new FormControl<LocationOption | null>(null, { validators: [Validators.required] }),
+        billingPhone: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+        // Perfil fiscal: la DIAN lo exige para emitir la factura y no se puede
+        // derivar del tipo de documento (una persona natural puede ser
+        // responsable de IVA, y una jurídica estar en el régimen simple).
+        billingRegimeType: new FormControl<Parameter | null>(null, { validators: [Validators.required] }),
+        billingFiscalResponsibilities: new FormControl<Parameter[]>([], {
+            nonNullable: true,
+            validators: [Validators.required, Validators.minLength(1)]
+        })
     });
 }
 

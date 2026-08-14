@@ -5,6 +5,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { firstValueFrom } from 'rxjs';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
+import { MultiSelectModule } from 'primeng/multiselect';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { FluidModule } from 'primeng/fluid';
 import { PhoneInput } from '@/app/shared/components/phone-input/phone-input';
@@ -22,6 +23,7 @@ import { isBusinessDocType, syncBillingNameValidators } from './billing-form.bui
         ReactiveFormsModule,
         InputTextModule,
         SelectModule,
+        MultiSelectModule,
         FloatLabelModule,
         FluidModule,
         PhoneInput,
@@ -41,12 +43,24 @@ export class BillingForm {
     stateRef = viewChild<StateControl>('stateRef');
     cityRef = viewChild<CityControl>('cityRef');
 
-    departmentId = signal<number | null>(null);
+    regionCode = signal<string | null>(null);
     private resolvedStateName = signal<string | null>(null);
     private resolvedCityName = signal<string | null>(null);
 
     /** True cuando el documento es NIT: se factura a una razón social, no a una persona. */
     isBusiness = signal(false);
+
+    /** Régimen frente al IVA: '48' responsable, '49' no responsable. */
+    taxRegimesResource = resource<Parameter[], {}>({
+        params: () => ({}),
+        loader: () => firstValueFrom(this.parameterService.getByType('tax_regime'))
+    });
+
+    /** Responsabilidades fiscales DIAN (multiselección). */
+    fiscalResponsibilitiesResource = resource<Parameter[], {}>({
+        params: () => ({}),
+        loader: () => firstValueFrom(this.parameterService.getByType('fiscal_responsibility'))
+    });
 
     identificationTypesResource = resource<Parameter[], {}>({
         params: () => ({}),
@@ -81,11 +95,11 @@ export class BillingForm {
         effect((onCleanup) => {
             const stateCtrl = this.formGroup().get('billingState');
             if (!stateCtrl) return;
-            this.departmentId.set(stateCtrl.value?.id ?? null);
+            this.regionCode.set(stateCtrl.value?.code ?? null);
             const sub = stateCtrl.valueChanges.pipe(
                 takeUntilDestroyed(this.destroyRef)
             ).subscribe((state: any) => {
-                this.departmentId.set(state?.id ?? null);
+                this.regionCode.set(state?.code ?? null);
                 if (this.resolvedStateName()) {
                     this.formGroup().get('billingCity')?.reset();
                 }

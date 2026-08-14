@@ -25,6 +25,7 @@ import { CreateFromBureauPayload, CreditStudyRequest, CreditStudyStep1, CreditSt
 import { PromissoryNoteSummary } from '@/app/types/promissory-note';
 import { NotificationService } from '@/app/shared/components/notification/notification.service';
 import { ParameterService } from '@/app/core/services/parameter.service';
+import { LocationOption } from '@/app/core/services/locations.service';
 import { Parameter } from '@/app/types/parameter';
 import { AuthService } from '@/app/core/services/auth.service';
 import { RecentItemsService } from '@/app/shared/services/recent-items.service';
@@ -329,8 +330,8 @@ export class CreditStudyDetail {
         identificationNumber: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
         businessName: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
         titularEmail: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.email] }),
-        titularState: new FormControl<{ id: number; name: string } | null>(null, { validators: [Validators.required] }),
-        titularCity: new FormControl<{ id: number; name: string } | null>(null, { validators: [Validators.required] }),
+        titularState: new FormControl<LocationOption | null>(null, { validators: [Validators.required] }),
+        titularCity: new FormControl<LocationOption | null>(null, { validators: [Validators.required] }),
         // Representante legal: obligatorios solo con NIT (ver syncLegalRepValidators).
         legalRepName: new FormControl('', { nonNullable: true }),
         legalRepIdentificationTypeId: new FormControl<Parameter | null>(null),
@@ -360,7 +361,7 @@ export class CreditStudyDetail {
     );
 
     /** Departamento seleccionado del titular; la lista de ciudades depende de él. */
-    titularDepartmentId = signal<number | null>(null);
+    titularRegionCode = signal<string | null>(null);
 
     /**
      * Snapshot de los datos de la solicitud para el modal de resumen.
@@ -436,7 +437,7 @@ export class CreditStudyDetail {
         this.step1Form.controls.titularState.valueChanges.pipe(
             takeUntilDestroyed(this.destroyRef)
         ).subscribe(state => {
-            this.titularDepartmentId.set(state?.id ?? null);
+            this.titularRegionCode.set(state?.code ?? null);
             this.step1Form.controls.titularCity.reset();
         });
 

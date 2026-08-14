@@ -1,16 +1,12 @@
 import { Component, inject, forwardRef, input, resource } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR, ReactiveFormsModule, FormControl } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
-import { map } from 'rxjs/operators';
 import { SelectModule } from 'primeng/select';
 import { FloatLabelModule } from 'primeng/floatlabel';
+import { LocationsService, LocationOption } from '@/app/core/services/locations.service';
 
-interface DepartmentOption {
-    id: number;
-    name: string;
-}
+type DepartmentOption = LocationOption;
 
 @Component({
     selector: 'app-state-control',
@@ -26,7 +22,7 @@ interface DepartmentOption {
     ]
 })
 export class StateControl implements ControlValueAccessor {
-    private http = inject(HttpClient);
+    private locations = inject(LocationsService);
 
     label = input<string>('Departamento');
     inputId = input<string>('state-control');
@@ -35,13 +31,10 @@ export class StateControl implements ControlValueAccessor {
 
     innerControl = new FormControl<DepartmentOption | null>(null);
 
+    // La API ya devuelve el catálogo ordenado por nombre.
     departmentsResource = resource<DepartmentOption[], {}>({
         params: () => ({}),
-        loader: () => firstValueFrom(
-            this.http.get<{ id: number; name: string }[]>('https://api-colombia.com/api/v1/Department').pipe(
-                map(departments => departments.map(d => ({ id: d.id, name: d.name })).sort((a, b) => a.name.localeCompare(b.name)))
-            )
-        )
+        loader: () => firstValueFrom(this.locations.getRegions())
     });
 
     private onChange: (value: DepartmentOption | null) => void = () => {};
