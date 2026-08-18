@@ -219,13 +219,6 @@
             </span>
         </div>
         }
-
-        <!-- Enlace de firma -->
-        @if (authInfo()?.signUrl) {
-        <a [href]="authInfo()?.signUrl" target="_blank" rel="noopener noreferrer" class="no-underline">
-            <p-button label="Abrir documento de firma" icon="pi pi-external-link" severity="secondary" [outlined]="true" styleClass="w-full" />
-        </a>
-        }
     </div>
 
     <ng-template #footer>
