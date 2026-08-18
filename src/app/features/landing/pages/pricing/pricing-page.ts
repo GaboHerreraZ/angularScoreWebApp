@@ -81,7 +81,7 @@ export class PricingPage {
         },
         {
             question: '¿Qué incluye cada análisis?',
-            answer: 'Todos los packs incluyen lo mismo: consulta en <strong>Datacrédito Experian</strong>, lectura de los estados financieros en PDF, score de riesgo con IA, reporte del estudio y pagaré digital con firma electrónica. Solo cambia el precio por volumen.'
+            answer: 'Todos los packs incluyen lo mismo: consulta en <strong>Datacrédito Experian</strong>, verificación en <strong>listas restrictivas SARLAFT</strong>, lectura de los estados financieros en PDF, score de riesgo con IA, reporte del estudio y pagaré digital con firma electrónica. Solo cambia el precio por volumen.'
         },
         {
             question: '¿Qué pasa si mi cliente no paga?',
