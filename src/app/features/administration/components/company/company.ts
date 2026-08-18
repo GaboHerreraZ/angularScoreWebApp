@@ -96,8 +96,17 @@ export class Company {
         loader: ({ params: type }) => firstValueFrom(this.parameterService.getByType(type))
     });
 
-    invitationsResource = resource<InvitationsResponse, string>({
-        params: () => this.user!.id as string,
+    /**
+     * Invitar usuarios está apagado a propósito: todavía no ofrecemos ese
+     * servicio y la sección se va a rehacer. Ponlo en true para revivirla; la
+     * tabla, los diálogos y el paso del tour vuelven a aparecer tal cual.
+     */
+    invitedUsersEnabled = signal(false);
+
+    // Sin params no se dispara la petición: apagada la sección, tampoco pedimos
+    // las invitaciones al API.
+    invitationsResource = resource<InvitationsResponse, string | undefined>({
+        params: () => (this.invitedUsersEnabled() ? (this.user!.id as string) : undefined),
         loader: ({ params: userId }) => firstValueFrom(this.companyService.getInvitations(userId))
     });
 
@@ -160,8 +169,18 @@ export class Company {
         accountBankId: new FormControl<number | null>(null),
         accountNumber: new FormControl<string | null>(null, { validators: [Validators.maxLength(50)] }),
         isActive: new FormControl({ value: false, disabled: true }, { nonNullable: true }),
-        createdAt: new FormControl({ value: '', disabled: true }, { nonNullable: true })
+        createdAt: new FormControl({ value: '', disabled: true }, { nonNullable: true }),
+        // Representante legal: se registra en el onboarding y aquí solo se
+        // consulta, por eso van deshabilitados y fuera del payload de guardado.
+        legalRepName: new FormControl({ value: '', disabled: true }, { nonNullable: true }),
+        legalRepDocType: new FormControl({ value: '', disabled: true }, { nonNullable: true }),
+        legalRepIdentificationNumber: new FormControl({ value: '', disabled: true }, { nonNullable: true }),
+        legalRepEmail: new FormControl({ value: '', disabled: true }, { nonNullable: true }),
+        legalRepPhone: new FormControl({ value: '', disabled: true }, { nonNullable: true })
     });
+
+    /** Las empresas creadas antes de pedir el representante legal no lo tienen. */
+    hasLegalRep = computed(() => !!this.company()?.legalRepName);
 
     currentLogoUrl = computed(() => this.logoPreview() ?? this.company()?.logoSignedUrl ?? null);
 
@@ -184,6 +203,8 @@ export class Company {
                 this.company.set(c);
                 this.logoPreview.set(null);
 
+                const idTypes = this.identificationTypesResource.value() ?? [];
+
                 this.form.patchValue({
                     name: c.name,
                     nit: c.nit,
@@ -195,10 +216,15 @@ export class Company {
                     accountBankId: c.accountBankId,
                     accountNumber: c.accountNumber,
                     isActive: c.isActive,
-                    createdAt: new Date(c.createdAt).toLocaleDateString('es-CO')
+                    createdAt: new Date(c.createdAt).toLocaleDateString('es-CO'),
+                    legalRepName: c.legalRepName ?? '',
+                    // El API manda el id del tipo de documento; aquí se muestra su etiqueta.
+                    legalRepDocType: idTypes.find(t => t.id === c.legalRepIdentificationTypeId)?.label ?? '',
+                    legalRepIdentificationNumber: c.legalRepIdentificationNumber ?? '',
+                    legalRepEmail: c.legalRepEmail ?? '',
+                    legalRepPhone: c.legalRepPhone ?? ''
                 });
 
-                const idTypes = this.identificationTypesResource.value() ?? [];
                 const docType = idTypes.find(t => t.id === c.billingDocTypeId) ?? null;
 
                 const regimes = this.taxRegimesResource.value() ?? [];

@@ -30,6 +30,7 @@
     </p-card>
 
     <!-- Skeleton: Usuarios -->
+    @if (invitedUsersEnabled()) {
     <p-card>
         <div class="flex flex-col gap-4">
             <div class="flex items-center justify-between">
@@ -43,6 +44,7 @@
             </div>
         </div>
     </p-card>
+    }
     } @else {
     <p-fluid>
         <p-card>
@@ -166,6 +168,64 @@
             </div>
         </p-card>
 
+        <!-- Representante legal: solo consulta. Se registra en el onboarding y
+             cambiarlo implica papeleo, así que no se edita desde la app. -->
+        <p-card styleClass="mt-6">
+            <ng-template #title>
+                <div class="flex items-center gap-2">
+                    <i class="pi pi-user-edit text-primary"></i>
+                    <span>Representante Legal</span>
+                </div>
+            </ng-template>
+            <ng-template #subtitle>
+                <span class="text-muted-color text-m">Quien firma en nombre de tu empresa. Se registró al crear la cuenta y no puede modificarse desde aquí.</span>
+            </ng-template>
+
+            @if (hasLegalRep()) {
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+                <div class="flex flex-col gap-1 md:col-span-2">
+                    <p-floatlabel variant="on">
+                        <input pInputText id="legalRepName" [formControl]="form.controls.legalRepName" />
+                        <label for="legalRepName">Nombre completo</label>
+                    </p-floatlabel>
+                </div>
+
+                <div class="flex flex-col gap-1">
+                    <p-floatlabel variant="on">
+                        <input pInputText id="legalRepDocType" [formControl]="form.controls.legalRepDocType" />
+                        <label for="legalRepDocType">Tipo de documento</label>
+                    </p-floatlabel>
+                </div>
+
+                <div class="flex flex-col gap-1">
+                    <p-floatlabel variant="on">
+                        <input pInputText id="legalRepIdentificationNumber" [formControl]="form.controls.legalRepIdentificationNumber" />
+                        <label for="legalRepIdentificationNumber">Número de documento</label>
+                    </p-floatlabel>
+                </div>
+
+                <div class="flex flex-col gap-1">
+                    <p-floatlabel variant="on">
+                        <input pInputText id="legalRepEmail" [formControl]="form.controls.legalRepEmail" />
+                        <label for="legalRepEmail">Correo electrónico</label>
+                    </p-floatlabel>
+                </div>
+
+                <div class="flex flex-col gap-1">
+                    <p-floatlabel variant="on">
+                        <input pInputText id="legalRepPhone" [formControl]="form.controls.legalRepPhone" />
+                        <label for="legalRepPhone">Teléfono</label>
+                    </p-floatlabel>
+                </div>
+            </div>
+            } @else {
+            <div class="flex items-start gap-3 text-muted-color">
+                <i class="pi pi-info-circle mt-0.5"></i>
+                <span class="text-m">Esta empresa aún no tiene registrados los datos de su representante legal. Escríbenos a soporte para completarlos.</span>
+            </div>
+            }
+        </p-card>
+
         <p-card styleClass="mt-6">
             <ng-template #title>
                 <div class="flex items-center gap-2">
@@ -225,8 +285,11 @@
     </p-card>
     </p-fluid>
 
-    <!-- Sección de Usuarios Invitados -->
+    <!-- Sección de Usuarios Invitados: oculta hasta que ofrezcamos el servicio
+         (ver `invitedUsersEnabled` en el componente). -->
+    @if (invitedUsersEnabled()) {
     <app-custom-table data-tour="company-users" [tableSettings]="invitationsTableSettings()" [data]="invitationsData()" [totalRecords]="invitationsData().length" (actionClick)="onInvitationAction($event)" (addClick)="onInviteUser()" />
+    }
     }
 </div>
 

@@ -29,6 +29,11 @@ export interface Company {
     /** Codes de Parameter 'fiscal_responsibility' (son los codigos DIAN). */
     billingFiscalResponsibilities: string[];
     billingPhone: string | null;
+    legalRepName: string | null;
+    legalRepIdentificationTypeId: number | null;
+    legalRepIdentificationNumber: string | null;
+    legalRepEmail: string | null;
+    legalRepPhone: string | null;
     isActive: boolean;
     createdAt: string;
     updatedAt: string;
