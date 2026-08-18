@@ -352,8 +352,8 @@ export class CreditStudyDetail {
         this.isNitSelected() ? 'Correo del Representante Legal' : 'Correo del Titular'
     );
 
-    /** El mismo campo guarda apellidos (persona natural) o razón social (jurídica). */
-    businessNameLabel = computed(() => this.isNitSelected() ? 'Razón Social' : 'Apellidos');
+    /** El mismo campo guarda el nombre completo (persona natural) o la razón social (jurídica). */
+    businessNameLabel = computed(() => this.isNitSelected() ? 'Razón Social' : 'Nombre completo');
 
     /** El representante legal es una persona natural: se excluye el NIT de sus tipos de documento. */
     legalRepIdentificationTypes = computed(() =>
