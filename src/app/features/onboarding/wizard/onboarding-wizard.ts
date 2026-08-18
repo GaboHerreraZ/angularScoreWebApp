@@ -1,5 +1,5 @@
 import { Component, computed, DestroyRef, effect, inject, resource, signal, viewChild } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { finalize, firstValueFrom } from 'rxjs';
@@ -10,6 +10,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { SkeletonModule } from 'primeng/skeleton';
+import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { MenuItem } from 'primeng/api';
 import { PhoneInput } from '@/app/shared/components/phone-input/phone-input';
 import { SectorSelect } from '@/app/shared/components/sector-select/sector-select';
@@ -19,7 +20,7 @@ import { PackDisplayCard } from '@/app/shared/components/pack-card/pack-display-
 import { PackIncludedFeatures } from '@/app/shared/components/pack-card/pack-included-features';
 import { CardCarousel } from '@/app/shared/components/card-carousel/card-carousel';
 import { BillingForm } from '@/app/shared/components/billing-form/billing-form';
-import { buildBillingForm } from '@/app/shared/components/billing-form/billing-form.builder';
+import { buildBillingForm, isBusinessDocType } from '@/app/shared/components/billing-form/billing-form.builder';
 import { EpaycoCheckout } from '@/app/shared/components/epayco-checkout/epayco-checkout';
 import { EpaycoCheckoutLoader } from '@/app/shared/components/epayco-checkout/epayco-checkout.service';
 import { ParameterService } from '@/app/core/services/parameter.service';
@@ -40,12 +41,14 @@ import type { LocationOption as StateCity } from '@/app/core/services/locations.
     standalone: true,
     imports: [
         ReactiveFormsModule,
+        FormsModule,
         StepsModule,
         ButtonModule,
         InputTextModule,
         SelectModule,
         FloatLabelModule,
         SkeletonModule,
+        ToggleSwitchModule,
         PhoneInput,
         SectorSelect,
         StateControl,
@@ -97,6 +100,18 @@ export class OnboardingWizard {
             sessionStorage.removeItem(PRESELECTED_PACK_KEY);
             const pack = packs.find((p) => p.id === packId);
             if (pack) this.selectedPack.set(pack);
+        });
+
+
+        effect((onCleanup) => {
+            if (!this.sameBillingAsCompany()) {
+                this.lockMirroredBilling(false);
+                return;
+            }
+            this.copyCompanyIntoBilling();
+            this.lockMirroredBilling(true);
+            const sub = this.companyForm.valueChanges.subscribe(() => this.copyCompanyIntoBilling());
+            onCleanup(() => sub.unsubscribe());
         });
     }
 
@@ -202,8 +217,56 @@ export class OnboardingWizard {
         address: new FormControl('', { nonNullable: true, validators: [Validators.required] })
     });
 
+
+    legalRepForm = new FormGroup({
+        name: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+        identificationType: new FormControl<Parameter | null>(null, { validators: [Validators.required] }),
+        identificationNumber: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+        email: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.email] }),
+        phone: new FormControl('', { nonNullable: true, validators: [Validators.required] })
+    });
+
     /** Datos de facturación (los llena el usuario en el paso de Empresa). */
     billingForm = buildBillingForm();
+
+    sameBillingAsCompany = signal(false);
+
+    private readonly mirroredBillingControls = [
+        'billingDocType',
+        'billingDocNumber',
+        'billingBusinessName',
+        'billingAddress',
+        'billingState',
+        'billingCity'
+    ];
+
+    private nitDocType = computed(() => (this.identificationTypesResource.value() ?? []).find(isBusinessDocType) ?? null);
+
+    private copyCompanyIntoBilling(): void {
+        const c = this.companyForm.getRawValue();
+        const nit = this.nitDocType();
+        this.billingForm.patchValue({
+            ...(nit && { billingDocType: nit }),
+            billingDocNumber: c.nit,
+            billingBusinessName: c.name,
+            billingAddress: c.address,
+            billingState: c.state,
+            billingCity: c.city
+        });
+    }
+
+    private lockMirroredBilling(locked: boolean): void {
+        for (const name of this.mirroredBillingControls) {
+            const control = this.billingForm.get(name);
+            if (!control) continue;
+            if (locked && name === 'billingDocType' && !control.value) continue;
+            if (locked) {
+                control.disable({ emitEvent: false });
+            } else {
+                control.enable({ emitEvent: false });
+            }
+        }
+    }
 
     /**
      * Id del departamento seleccionado en la empresa. Un computed no basta:
@@ -222,8 +285,9 @@ export class OnboardingWizard {
             return;
         }
         if (this.step() === 1) {
-            if (this.companyForm.invalid || this.billingForm.invalid) {
+            if (this.companyForm.invalid || this.legalRepForm.invalid || this.billingForm.invalid) {
                 this.companyForm.markAllAsTouched();
+                this.legalRepForm.markAllAsTouched();
                 this.billingForm.markAllAsTouched();
                 return;
             }
@@ -288,10 +352,11 @@ export class OnboardingWizard {
         });
     }
 
-    /** Arma el payload de /onboarding con perfil, empresa y los datos de facturación del form. */
+    /** Arma el payload de /onboarding con perfil, empresa, representante legal y facturación. */
     private buildOnboardingPayload(): OnboardingRequest {
         const p = this.profileForm.getRawValue();
         const c = this.companyForm.getRawValue();
+        const l = this.legalRepForm.getRawValue();
         const b = this.billingForm.getRawValue();
 
         return {
@@ -309,6 +374,13 @@ export class OnboardingWizard {
                 sectorId: c.sector!.id,
                 cityCode: c.city!.code,
                 address: c.address
+            },
+            legalRep: {
+                legalRepName: l.name,
+                legalRepIdentificationTypeId: l.identificationType!.id,
+                legalRepIdentificationNumber: l.identificationNumber,
+                legalRepEmail: l.email,
+                legalRepPhone: l.phone
             },
             billing: {
                 billingName: b.billingName,

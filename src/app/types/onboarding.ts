@@ -19,6 +19,15 @@ export interface OnboardingCompany {
     address: string;
 }
 
+export interface OnboardingLegalRep {
+    /** Nombre completo, en un solo campo. */
+    legalRepName: string;
+    legalRepIdentificationTypeId: number;
+    legalRepIdentificationNumber: string;
+    legalRepEmail: string;
+    legalRepPhone: string;
+}
+
 /** Datos de facturación. Se derivan de perfil + empresa. POST /api/onboarding → billing. */
 export interface OnboardingBilling {
     /** Persona natural. Vacío cuando el documento es NIT. */
@@ -41,6 +50,7 @@ export interface OnboardingBilling {
 export interface OnboardingRequest {
     profile: OnboardingProfile;
     company: OnboardingCompany;
+    legalRep: OnboardingLegalRep;
     billing: OnboardingBilling;
 }
 

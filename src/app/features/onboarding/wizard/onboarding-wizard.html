@@ -158,6 +158,60 @@
                         </p-floatlabel>
                     </div>
                 </form>
+
+                <!-- Representante legal: quien firma por la empresa. Puede no ser
+                     el usuario que está abriendo la cuenta. -->
+                <p class="text-sm font-bold text-muted-color uppercase tracking-wide m-0 mt-7 mb-4 flex items-center gap-2">
+                    <i class="pi pi-user-edit text-primary"></i> Representante legal
+                </p>
+                <form [formGroup]="legalRepForm" class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+                    <div class="flex flex-col gap-1 md:col-span-2">
+                        <p-floatlabel variant="on">
+                            <input pInputText id="legalRepName" formControlName="name" class="w-full"
+                                [invalid]="legalRepForm.controls.name.invalid && legalRepForm.controls.name.touched" />
+                            <label for="legalRepName">Nombre completo *</label>
+                        </p-floatlabel>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <p-floatlabel variant="on">
+                            <p-select inputId="legalRepIdentificationType" formControlName="identificationType"
+                                [options]="identificationTypesResource.value() ?? []" optionLabel="label" styleClass="w-full"
+                                [invalid]="legalRepForm.controls.identificationType.invalid && legalRepForm.controls.identificationType.touched" />
+                            <label for="legalRepIdentificationType">Tipo de documento *</label>
+                        </p-floatlabel>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <p-floatlabel variant="on">
+                            <input pInputText id="legalRepIdentificationNumber" formControlName="identificationNumber" class="w-full"
+                                [invalid]="legalRepForm.controls.identificationNumber.invalid && legalRepForm.controls.identificationNumber.touched" />
+                            <label for="legalRepIdentificationNumber">Número de documento *</label>
+                        </p-floatlabel>
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <p-floatlabel variant="on">
+                            <input pInputText id="legalRepEmail" formControlName="email" class="w-full"
+                                [invalid]="legalRepForm.controls.email.invalid && legalRepForm.controls.email.touched" />
+                            <label for="legalRepEmail">Correo electrónico *</label>
+                        </p-floatlabel>
+                        @if (legalRepForm.controls.email.hasError('email') && legalRepForm.controls.email.touched) {
+                        <small class="text-red-500">Ingresa un correo válido</small>
+                        }
+                    </div>
+                    <div class="flex flex-col gap-1">
+                        <app-phone-input inputId="legalRepPhone" label="Teléfono *" variant="on" formControlName="phone" />
+                    </div>
+                </form>
+            </div>
+
+            <!-- Atajo: la mayoría factura a nombre de la empresa que acaba de
+                 registrar, así que copiamos los campos equivalentes y los
+                 bloqueamos mientras el interruptor esté activo. -->
+            <div class="flex items-start gap-3 rounded-xl border border-surface bg-surface-50 dark:bg-surface-800/40 p-4">
+                <p-toggleswitch inputId="sameBillingAsCompany" [(ngModel)]="sameBillingAsCompany" />
+                <label for="sameBillingAsCompany" class="flex-1 cursor-pointer select-none">
+                    <span class="block font-semibold text-color">Usar los mismos datos de la empresa en los datos de facturación</span>
+                    <span class="block text-muted-color text-m mt-1">Copiamos razón social, NIT, dirección y ciudad. Solo tendrás que completar correo, teléfono y perfil fiscal.</span>
+                </label>
             </div>
 
             <!-- Datos de facturación -->
