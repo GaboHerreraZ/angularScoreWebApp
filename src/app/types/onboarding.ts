@@ -52,6 +52,12 @@ export interface OnboardingRequest {
     company: OnboardingCompany;
     legalRep: OnboardingLegalRep;
     billing: OnboardingBilling;
+    /**
+     * Código de quien recomendó Creditia. Opcional; si se envía uno inexistente
+     * la API rechaza el registro (mejor que ignorarlo y que el cliente crea que
+     * le dio el crédito a su referido).
+     */
+    salesRepCode?: string;
 }
 
 /** Respuesta 201 de POST /api/onboarding. */

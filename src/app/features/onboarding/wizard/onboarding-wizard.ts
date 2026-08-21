@@ -226,6 +226,14 @@ export class OnboardingWizard {
         phone: new FormControl('', { nonNullable: true, validators: [Validators.required] })
     });
 
+    /**
+     * Código de quien recomendó Creditia. Opcional, pero es el único momento
+     * cómodo para capturarlo: después solo puede hacerlo un admin y por pocos días.
+     */
+    referralForm = new FormGroup({
+        salesRepCode: new FormControl('', { nonNullable: true, validators: [Validators.maxLength(30)] })
+    });
+
     /** Datos de facturación (los llena el usuario en el paso de Empresa). */
     billingForm = buildBillingForm();
 
@@ -358,8 +366,10 @@ export class OnboardingWizard {
         const c = this.companyForm.getRawValue();
         const l = this.legalRepForm.getRawValue();
         const b = this.billingForm.getRawValue();
+        const referralCode = this.referralForm.getRawValue().salesRepCode.trim();
 
         return {
+            ...(referralCode && { salesRepCode: referralCode.toUpperCase() }),
             profile: {
                 name: p.name,
                 lastName: p.lastName,
