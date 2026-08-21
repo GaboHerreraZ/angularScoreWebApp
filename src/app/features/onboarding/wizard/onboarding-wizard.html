@@ -201,6 +201,23 @@
                         <app-phone-input inputId="legalRepPhone" label="Teléfono *" variant="on" formControlName="phone" />
                     </div>
                 </form>
+
+                <!-- Referido: es el único momento cómodo para capturarlo. Después
+                     solo puede hacerlo un administrador y por pocos días. -->
+                <p class="text-sm font-bold text-muted-color uppercase tracking-wide m-0 mt-7 mb-4 flex items-center gap-2">
+                    <i class="pi pi-users text-primary"></i> ¿Alguien te recomendó Creditia?
+                </p>
+                <form [formGroup]="referralForm" class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2">
+                    <div class="flex flex-col gap-1">
+                        <p-floatlabel variant="on">
+                            <input pInputText id="salesRepCode" formControlName="salesRepCode" class="w-full uppercase" />
+                            <label for="salesRepCode">Código del asesor (opcional)</label>
+                        </p-floatlabel>
+                    </div>
+                    <div class="flex items-center">
+                        <small class="text-muted-color">Si llegaste por recomendación, escribe aquí el código que te dieron. Puedes dejarlo vacío.</small>
+                    </div>
+                </form>
             </div>
 
             <!-- Atajo: la mayoría factura a nombre de la empresa que acaba de
