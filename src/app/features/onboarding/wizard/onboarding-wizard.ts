@@ -2,7 +2,7 @@ import { Component, computed, DestroyRef, effect, inject, resource, signal, view
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { finalize, firstValueFrom } from 'rxjs';
+import { finalize, firstValueFrom, merge } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import { StepsModule } from 'primeng/steps';
 import { ButtonModule } from 'primeng/button';
@@ -110,7 +110,8 @@ export class OnboardingWizard {
             }
             this.copyCompanyIntoBilling();
             this.lockMirroredBilling(true);
-            const sub = this.companyForm.valueChanges.subscribe(() => this.copyCompanyIntoBilling());
+            const sub = merge(this.companyForm.valueChanges, this.legalRepForm.valueChanges)
+                .subscribe(() => this.copyCompanyIntoBilling());
             onCleanup(() => sub.unsubscribe());
         });
     }
@@ -245,13 +246,18 @@ export class OnboardingWizard {
         'billingBusinessName',
         'billingAddress',
         'billingState',
-        'billingCity'
+        'billingCity',
+        'billingEmail',
+        'billingPhone'
     ];
 
     private nitDocType = computed(() => (this.identificationTypesResource.value() ?? []).find(isBusinessDocType) ?? null);
 
     private copyCompanyIntoBilling(): void {
         const c = this.companyForm.getRawValue();
+        // El contacto de facturación sale del representante legal: es el único
+        // correo y teléfono que se piden en la sección de la empresa.
+        const l = this.legalRepForm.getRawValue();
         const nit = this.nitDocType();
         this.billingForm.patchValue({
             ...(nit && { billingDocType: nit }),
@@ -259,7 +265,9 @@ export class OnboardingWizard {
             billingBusinessName: c.name,
             billingAddress: c.address,
             billingState: c.state,
-            billingCity: c.city
+            billingCity: c.city,
+            billingEmail: l.email,
+            billingPhone: l.phone
         });
     }
 
