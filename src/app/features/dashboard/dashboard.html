@@ -147,7 +147,7 @@
                 <ng-template pTemplate="body" let-study>
                     <tr>
                         <td class="font-medium text-m">{{ study.customerName }}</td>
-                        <td class="text-m text-surface-500">{{ study.studyDate | date:'dd/MM/yyyy' }}</td>
+                        <td class="text-m text-surface-500">{{ study.studyDate | dateOnly }}</td>
                         <td>
                             <p-tag [value]="study.statusLabel" [severity]="getStatusSeverity(study.statusLabel)" />
                         </td>

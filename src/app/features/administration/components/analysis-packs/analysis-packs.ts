@@ -24,6 +24,7 @@ import { AnalysisPack, AnalysisPackConsumption } from '@/app/types/analysis-pack
 import { PackOffering, PromoCodeValidation } from '@/app/types/onboarding';
 import { PackPricing, packPricing } from '@/app/shared/utils/pack-pricing.util';
 import { TagSeverity } from '@/app/types/table';
+import { DateOnlyPipe } from '@/app/shared/pipes/date-only.pipe';
 
 /** Ruta a la que ePayco debe volver tras el pago iniciado desde esta pantalla. */
 const REDIRECT_PATH = '/app/administracion/analisis-credito';
@@ -31,7 +32,7 @@ const REDIRECT_PATH = '/app/administracion/analisis-credito';
 @Component({
     selector: 'app-analysis-packs',
     standalone: true,
-    imports: [CommonModule, FormsModule, TableModule, TagModule, ButtonModule, TooltipModule, SkeletonModule, DialogModule, InputTextModule, PackDisplayCard, PackIncludedFeatures, CardCarousel, EpaycoCheckout],
+    imports: [CommonModule, FormsModule, TableModule, TagModule, ButtonModule, TooltipModule, SkeletonModule, DialogModule, InputTextModule, PackDisplayCard, PackIncludedFeatures, CardCarousel, EpaycoCheckout, DateOnlyPipe],
     templateUrl: './analysis-packs.html'
 })
 export class AnalysisPacks {

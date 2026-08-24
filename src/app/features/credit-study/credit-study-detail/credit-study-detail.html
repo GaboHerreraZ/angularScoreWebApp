@@ -313,7 +313,7 @@
                     </div>
                     <span class="text-m text-muted-color">
                         {{ note.amount | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}
-                        ({{ note.amountInWords }} pesos) · {{ note.termDays }} días · vence el {{ note.dueDate | date:'dd/MM/yyyy' }}
+                        ({{ note.amountInWords }} pesos) · {{ note.termDays }} días · vence el {{ note.dueDate | dateOnly }}
                     </span>
                     @if (note.refusedReason) {
                     <span class="text-m text-red-600 dark:text-red-400">Motivo del rechazo: {{ note.refusedReason }}</span>
@@ -676,7 +676,7 @@
                                 </div>
                                 <div class="flex flex-col gap-0.5">
                                     <span class="text-sm text-muted-color">Fecha del Estudio</span>
-                                    <span class="text-m font-medium">{{ (studyRequestSummary().studyDate | date:'d \'de\' MMMM \'de\' yyyy':'':'es-CO') || '—' }}</span>
+                                    <span class="text-m font-medium">{{ (studyRequestSummary().studyDate | dateOnly:'d \'de\' MMMM \'de\' yyyy') || '—' }}</span>
                                 </div>
                                 <div class="flex flex-col gap-0.5">
                                     <span class="text-sm text-muted-color">Plazo Solicitado</span>

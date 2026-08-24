@@ -35,16 +35,6 @@ export class CompanyService {
         return this.api.get<InvitationsResponse>(`users/${userId}/invitations`);
     }
 
-    /**
-     * Obtiene una URL firmada (válida ~1 hora) para descargar el contrato macro
-     * firmado. Devuelve `{ url: null }` si el contrato no existe o aún no se firmó;
-     * el front se guía por `contract.hasSignedDocument` del perfil y esto es la red
-     * de seguridad.
-     */
-    getContractDownloadUrl(companyId: string): Observable<{ url: string | null }> {
-        return this.api.get<{ url: string | null }>(`companies/${companyId}/contract/download`);
-    }
-
     deleteInvitation(invitationId: string): Observable<void> {
         return this.api.delete<void>(`invitations/${invitationId}`);
     }

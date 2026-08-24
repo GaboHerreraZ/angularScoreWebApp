@@ -105,8 +105,8 @@
             <td class="text-sm font-mono">{{ pack.providerReference ?? '—' }}</td>
             <td>
                 <div class="flex flex-col text-sm">
-                    <span>{{ pack.startDate | date: 'dd/MM/yyyy' }}</span>
-                    <span class="text-surface-500">hasta {{ pack.endDate | date: 'dd/MM/yyyy' }}</span>
+                    <span>{{ pack.startDate | dateOnly }}</span>
+                    <span class="text-surface-500">hasta {{ pack.endDate | dateOnly }}</span>
                 </div>
             </td>
             <td class="text-center">
@@ -194,7 +194,7 @@
                                 <td class="text-center">
                                     <p-tag [value]="consumption.statusLabel" [severity]="consumptionStatusSeverity(consumption.statusLabel)" />
                                 </td>
-                                <td>{{ consumption.studyDate | date: 'dd/MM/yyyy' }}</td>
+                                <td>{{ consumption.studyDate | dateOnly }}</td>
                                 <td class="text-center">
                                     <div class="flex justify-center gap-1">
                                         <p-button

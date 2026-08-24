@@ -10,7 +10,6 @@ import { FloatLabelModule } from 'primeng/floatlabel';
 import { FluidModule } from 'primeng/fluid';
 import { TagModule } from 'primeng/tag';
 import { SkeletonModule } from 'primeng/skeleton';
-import { TooltipModule } from 'primeng/tooltip';
 import { DialogModule } from 'primeng/dialog';
 import { CustomTable } from '@/app/shared/components/table/table';
 import { SectorSelect } from '@/app/shared/components/sector-select/sector-select';
@@ -39,7 +38,6 @@ import { TableActionEvent, TableSettings } from '@/app/types/table';
         FluidModule,
         TagModule,
         SkeletonModule,
-        TooltipModule,
         DialogModule,
         CustomTable,
         BillingForm,
@@ -184,17 +182,6 @@ export class Company {
 
     currentLogoUrl = computed(() => this.logoPreview() ?? this.company()?.logoSignedUrl ?? null);
 
-    /** Contrato macro del usuario (viene en el perfil). */
-    contract = computed(() => this.authService.currentProfile()?.contract ?? null);
-    /** El documento firmado está disponible para descargar. */
-    contractDownloadable = computed(() => !!this.contract()?.hasSignedDocument);
-    /** Fecha de firma formateada para mostrar en la tarjeta. */
-    contractSignedDate = computed(() => {
-        const signedAt = this.contract()?.signedAt;
-        return signedAt ? new Date(signedAt).toLocaleDateString('es-CO', { day: '2-digit', month: 'long', year: 'numeric' }) : null;
-    });
-    downloadingContract = signal(false);
-
     constructor() {
         effect(() => {
             const companies = this.companyResource.value();
@@ -285,27 +272,6 @@ export class Company {
         };
 
         input.click();
-    }
-
-    /** Pide la URL firmada del contrato y la abre en una pestaña nueva. */
-    onDownloadContract(): void {
-        const companyId = this.company()?.id;
-        if (!companyId || this.downloadingContract()) return;
-
-        this.downloadingContract.set(true);
-        this.companyService.getContractDownloadUrl(companyId).pipe(
-            finalize(() => this.downloadingContract.set(false)),
-            takeUntilDestroyed(this.destroyRef)
-        ).subscribe({
-            next: ({ url }) => {
-                if (url) {
-                    window.open(url, '_blank', 'noopener,noreferrer');
-                } else {
-                    this.notificationService.info('El documento firmado aún no está disponible. Inténtalo de nuevo en unos minutos.');
-                }
-            },
-            error: () => this.notificationService.error('No se pudo obtener el contrato. Inténtalo de nuevo más tarde.')
-        });
     }
 
     onSave(): void {

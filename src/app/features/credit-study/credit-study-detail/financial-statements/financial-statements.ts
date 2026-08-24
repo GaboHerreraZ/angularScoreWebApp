@@ -1,6 +1,7 @@
 import { Component, computed, input, linkedSignal, model } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CreditStudyStep2, FinancialPeriod, FinancialSource } from '@/app/types/credit-study';
+import { DateOnlyPipe } from '@/app/shared/pipes/date-only.pipe';
 
 /** Formato de valor para una fila (moneda por defecto, o número/porcentaje/días). */
 type RowFormat = 'currency' | 'number' | 'percent' | 'days' | 'ratio';
@@ -30,7 +31,7 @@ interface SourceView {
 @Component({
     selector: 'app-financial-statements',
     standalone: true,
-    imports: [CommonModule],
+    imports: [CommonModule, DateOnlyPipe],
     templateUrl: './financial-statements.html'
 })
 export class FinancialStatements {

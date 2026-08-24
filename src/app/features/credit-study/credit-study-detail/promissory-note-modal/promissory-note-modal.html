@@ -51,7 +51,7 @@
             </div>
             <div class="flex justify-between items-center gap-4 px-4 py-2.5">
                 <span class="text-m text-muted-color">Vencimiento</span>
-                <span class="text-m font-medium text-right">{{ n.dueDate | date:'dd/MM/yyyy' }}</span>
+                <span class="text-m font-medium text-right">{{ n.dueDate | dateOnly }}</span>
             </div>
             @if (n.status; as status) {
             <div class="flex justify-between items-center gap-4 px-4 py-2.5">

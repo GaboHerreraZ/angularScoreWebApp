@@ -20,6 +20,7 @@ import { NotificationService } from '@/app/shared/components/notification/notifi
 import { PhoneInput } from '@/app/shared/components/phone-input/phone-input';
 import { CustomerSigner } from '@/app/types/customer';
 import { PromissoryNote, PromissoryNotePreviewResponse, PromissoryNoteSigner } from '@/app/types/promissory-note';
+import { DateOnlyPipe } from '@/app/shared/pipes/date-only.pipe';
 
 @Component({
     selector: 'app-promissory-note-modal',
@@ -37,7 +38,8 @@ import { PromissoryNote, PromissoryNotePreviewResponse, PromissoryNoteSigner } f
         SelectModule,
         MessageModule,
         SkeletonModule,
-        PhoneInput
+        PhoneInput,
+        DateOnlyPipe
     ],
     templateUrl: './promissory-note-modal.html'
 })
