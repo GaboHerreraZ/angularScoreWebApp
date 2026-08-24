@@ -27,13 +27,11 @@ export const authGuard: CanActivateFn = async (_route, state) => {
             return router.createUrlTree(['/onboarding/registrar-empresa']);
         }
 
-        // Ruteo según el estado del onboarding. 'ready' y 'pending_contract' entran
-        // a /app; este último con un modal bloqueante para firmar el contrato macro
-        // (ver ContractSignatureGuard en el layout).
+        // Ruteo según el estado del onboarding: solo 'ready' entra a /app.
         if (profile.onboardingStatus === 'payment_pending') {
             return router.createUrlTree(['/onboarding/pago-pendiente']);
         }
-        if (profile.onboardingStatus !== 'ready' && profile.onboardingStatus !== 'pending_contract') {
+        if (profile.onboardingStatus !== 'ready') {
             // 'no_pack': tiene empresa pero falta comprar el paquete → asistente (paso 3).
             return router.createUrlTree(['/onboarding/registrar-empresa']);
         }
@@ -82,7 +80,7 @@ export const onboardingGuard: CanActivateFn = async (_route, state) => {
     if (status === 'payment_pending') {
         return router.createUrlTree(['/onboarding/pago-pendiente']);
     }
-    if (status === 'ready' || status === 'pending_contract') {
+    if (status === 'ready') {
         return router.createUrlTree(['/app']);
     }
 
@@ -118,7 +116,7 @@ export const paymentPendingGuard: CanActivateFn = async (_route, state) => {
     if (status === 'payment_pending') {
         return true;
     }
-    if (status === 'ready' || status === 'pending_contract') {
+    if (status === 'ready') {
         return router.createUrlTree(['/app']);
     }
     // Sin perfil o 'no_pack': lo mandamos al asistente.
