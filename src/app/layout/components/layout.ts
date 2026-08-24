@@ -13,7 +13,8 @@ import { NotificationCenter } from './notification-center/notification-center';
 import { SearchPalette } from '@/app/shared/components/search-palette/search-palette';
 import { QuickActions } from './quick-actions/quick-actions';
 import { TourFab } from './tour-fab/tour-fab';
-import { ContractSignatureGuard } from '@/app/shared/components/contract-signature-guard/contract-signature-guard';
+import { WelcomeDialog } from '@/app/shared/components/welcome-dialog/welcome-dialog';
+import { WelcomeService } from '@/app/shared/components/welcome-dialog/welcome.service';
 import { AuthService } from '@/app/core/services/auth.service';
 import { TourService } from '@/app/shared/services/tour.service';
 
@@ -26,13 +27,14 @@ const WELCOME_TOUR_DELAY_MS = 800;
 @Component({
     selector: 'app-layout',
     standalone: true,
-    imports: [CommonModule, Topbar, Sidebar, RouterModule, Footer, Configurator, Breadcrumb, Notification, HelpPanel, NotificationCenter, SearchPalette, QuickActions, TourFab, ContractSignatureGuard],
+    imports: [CommonModule, Topbar, Sidebar, RouterModule, Footer, Configurator, Breadcrumb, Notification, HelpPanel, NotificationCenter, SearchPalette, QuickActions, TourFab, WelcomeDialog],
     templateUrl: './layout.html'
 })
 export class Layout {
     layoutService = inject(LayoutService);
     private authService = inject(AuthService);
     private tourService = inject(TourService);
+    private welcomeService = inject(WelcomeService);
 
     /** El recorrido de bienvenida se ofrece una sola vez por sesión de app. */
     private welcomeTourTriggered = false;
@@ -53,10 +55,12 @@ export class Layout {
     /**
      * Único tour con auto-inicio: solo tras completar el onboarding y solo si el
      * usuario nunca lo ha visto. Los demás se ofrecen desde el FAB, nunca solos.
+     * Espera a que se cierre el modal de bienvenida para no montarse encima.
      */
     private maybeStartWelcomeTour(): void {
         const profile = this.authService.currentProfile();
         if (this.welcomeTourTriggered || profile?.onboardingStatus !== 'ready') return;
+        if (this.welcomeService.visible()) return;
 
         const welcome = this.tourService.welcomeTour();
         if (!welcome || this.tourService.isDiscovered(welcome)) return;
