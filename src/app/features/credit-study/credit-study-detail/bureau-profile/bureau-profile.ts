@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { TagModule } from 'primeng/tag';
 import { TableModule } from 'primeng/table';
 import { CreditStudyStep1, BureauPerson } from '@/app/types/credit-study';
+import { DateOnlyPipe } from '@/app/shared/pipes/date-only.pipe';
 
 interface PeopleSection {
     title: string;
@@ -13,7 +14,7 @@ interface PeopleSection {
 @Component({
     selector: 'app-bureau-profile',
     standalone: true,
-    imports: [CommonModule, TagModule, TableModule],
+    imports: [CommonModule, TagModule, TableModule, DateOnlyPipe],
     templateUrl: './bureau-profile.html'
 })
 export class BureauProfile {

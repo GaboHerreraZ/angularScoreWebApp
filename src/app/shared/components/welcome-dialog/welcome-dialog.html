@@ -1,0 +1,81 @@
+<p-dialog
+    [visible]="visible()"
+    [modal]="true"
+    [closable]="true"
+    [closeOnEscape]="true"
+    [draggable]="false"
+    [resizable]="false"
+    [dismissableMask]="true"
+    [showHeader]="false"
+    [style]="{ width: '36rem' }"
+    styleClass="max-w-[94vw] overflow-hidden"
+    contentStyleClass="!p-0"
+    (visibleChange)="close()">
+
+    <div class="flex flex-col">
+        <!-- Cabecera de marca -->
+        <div class="flex flex-col items-center gap-4 px-8 pt-10 pb-7 bg-primary/5 dark:bg-primary/10 border-b border-surface">
+            <img [src]="logo" alt="Credit-ia" class="h-9 w-auto" />
+            <div class="flex flex-col gap-2 text-center">
+                <h2 class="text-2xl font-semibold text-color m-0">
+                    @if (firstName()) { ¡Bienvenido, {{ firstName() }}! } @else { ¡Bienvenido a Credit-ia! }
+                </h2>
+                <p class="text-muted-color text-m leading-relaxed m-0">
+                    @if (companyName()) {
+                        Tu cuenta de <span class="font-medium text-color">{{ companyName() }}</span> ya está activa.
+                    } @else {
+                        Tu cuenta ya está activa.
+                    }
+                    Gracias por confiar en nosotros para analizar el riesgo de tus clientes.
+                </p>
+            </div>
+        </div>
+
+        <!-- Qué puede hacer desde ya -->
+        <div class="flex flex-col gap-5 px-8 py-7">
+            <div class="flex items-start gap-3">
+                <div class="flex items-center justify-center w-10 h-10 rounded-xl bg-primary/10 shrink-0">
+                    <i class="pi pi-users text-primary"></i>
+                </div>
+                <div class="flex flex-col gap-0.5 min-w-0">
+                    <span class="font-medium text-color">Registra a tu cliente</span>
+                    <span class="text-muted-color text-m leading-relaxed">Persona natural o jurídica. Con su autorización consultamos las centrales de riesgo.</span>
+                </div>
+            </div>
+
+            <div class="flex items-start gap-3">
+                <div class="flex items-center justify-center w-10 h-10 rounded-xl bg-primary/10 shrink-0">
+                    <i class="pi pi-chart-line text-primary"></i>
+                </div>
+                <div class="flex flex-col gap-0.5 min-w-0">
+                    <span class="font-medium text-color">Crea el estudio de crédito</span>
+                    <span class="text-muted-color text-m leading-relaxed">Sube los estados financieros y obtén el análisis con la recomendación de cupo.</span>
+                </div>
+            </div>
+
+            <div class="flex items-start gap-3">
+                <div class="flex items-center justify-center w-10 h-10 rounded-xl bg-primary/10 shrink-0">
+                    <i class="pi pi-wallet text-primary"></i>
+                </div>
+                <div class="flex flex-col gap-0.5 min-w-0">
+                    <span class="font-medium text-color">
+                        @if (availableCredits() > 0) {
+                            Tienes {{ availableCredits() }} {{ availableCredits() === 1 ? 'consulta disponible' : 'consultas disponibles' }}
+                        } @else {
+                            Tus consultas disponibles
+                        }
+                    </span>
+                    <span class="text-muted-color text-m leading-relaxed">Cada estudio descuenta una. El saldo siempre está visible en la barra superior.</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Acción -->
+        <div class="flex flex-col gap-3 px-8 pb-8">
+            <p-button label="Comenzar" icon="pi pi-arrow-right" iconPos="right" styleClass="w-full" (onClick)="close()" />
+            <p class="text-muted-color text-sm text-center leading-relaxed m-0">
+                ¿Prefieres un recorrido guiado? Al cerrar te mostramos la app paso a paso.
+            </p>
+        </div>
+    </div>
+</p-dialog>

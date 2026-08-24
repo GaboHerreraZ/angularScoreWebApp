@@ -19,6 +19,7 @@ import { CreditStudyService } from '../../credit-study.service';
 import { NotificationService } from '@/app/shared/components/notification/notification.service';
 import { AuthService } from '@/app/core/services/auth.service';
 import { CentralRisk } from '../central-risk/central-risk';
+import { DateOnlyPipe } from '@/app/shared/pipes/date-only.pipe';
 
 interface DimensionView extends ScoringDimension {
     key: string;
@@ -29,7 +30,7 @@ interface DimensionView extends ScoringDimension {
 @Component({
     selector: 'app-study-result',
     standalone: true,
-    imports: [CommonModule, CurrencyPipe, DatePipe, CardModule, MessageModule, ButtonModule, AccordionModule, ConfirmDialogModule, CentralRisk],
+    imports: [CommonModule, CurrencyPipe, DatePipe, CardModule, MessageModule, ButtonModule, AccordionModule, ConfirmDialogModule, CentralRisk, DateOnlyPipe],
     providers: [ConfirmationService],
     templateUrl: './study-result.html'
 })

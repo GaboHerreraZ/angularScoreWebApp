@@ -64,7 +64,7 @@
                                 <th class="px-4 py-2 text-right font-semibold" [ngClass]="sourceCellClasses(view, { first, last })">
                                     <span>{{ period.fiscalYear }}</span>
                                     @if (period.balanceSheetDate) {
-                                    <span class="block text-sm font-normal text-muted-color">{{ period.balanceSheetDate | date:'dd/MM/yyyy' }}</span>
+                                    <span class="block text-sm font-normal text-muted-color">{{ period.balanceSheetDate | dateOnly }}</span>
                                     }
                                 </th>
                                 }
@@ -201,7 +201,7 @@
 
                 @if (mobilePeriod(); as period) {
                     @if (period.balanceSheetDate) {
-                    <span class="text-sm text-muted-color -mt-2">Corte al {{ period.balanceSheetDate | date:'dd/MM/yyyy' }}</span>
+                    <span class="text-sm text-muted-color -mt-2">Corte al {{ period.balanceSheetDate | dateOnly }}</span>
                     }
                     @for (group of periodGroups; track group.title) {
                     <div class="flex flex-col gap-1.5">

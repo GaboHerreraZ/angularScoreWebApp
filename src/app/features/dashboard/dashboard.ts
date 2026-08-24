@@ -15,6 +15,7 @@ import { HelpTooltip } from '@/app/shared/components/help-tooltip/help-tooltip';
 import { AuthService } from '@/app/core/services/auth.service';
 import { KpiCard } from '@/app/shared/components/kpi-card/kpi-card';
 import { formatCurrency, formatCompactCurrency } from '@/app/shared/utils/format.util';
+import { DateOnlyPipe } from '@/app/shared/pipes/date-only.pipe';
 
 @Component({
     selector: 'app-dashboard',
@@ -31,7 +32,8 @@ import { formatCurrency, formatCompactCurrency } from '@/app/shared/utils/format
         CurrencyPipe,
         DatePipe,
         HelpTooltip,
-        KpiCard
+        KpiCard,
+        DateOnlyPipe
     ],
     templateUrl: './dashboard.html'
 })

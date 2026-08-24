@@ -92,7 +92,7 @@ export const ADMIN_SECURITY_TOUR: TourDefinition = {
 export const ADMIN_COMPANY_TOUR: TourDefinition = {
     id: 'administration.company',
     title: 'Recorrido de Empresa',
-    description: 'Datos, contrato, facturación y el equipo con acceso.',
+    description: 'Datos, facturación y el equipo con acceso.',
     kind: 'overview',
     icon: 'pi pi-building',
     version: 1,
@@ -106,13 +106,6 @@ export const ADMIN_COMPANY_TOUR: TourDefinition = {
             description: 'Haz clic sobre la imagen o usa <b>Cambiar logo</b>. Acepta PNG, JPG o WebP de hasta <b>2 MB</b>.',
             side: 'bottom',
             align: 'start'
-        },
-        {
-            element: '[data-tour="company-contract"]',
-            title: 'Contrato de servicio',
-            description: 'Aquí ves si tu contrato ya está firmado y desde cuándo. <b>Descargar documento</b> se habilita cuando el archivo firmado está disponible.',
-            side: 'bottom',
-            align: 'end'
         },
         {
             element: '[data-tour="company-data"]',

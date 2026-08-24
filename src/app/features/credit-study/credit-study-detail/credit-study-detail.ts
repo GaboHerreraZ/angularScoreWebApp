@@ -38,6 +38,7 @@ import { FinancialStatements } from './financial-statements/financial-statements
 import { StudyResult } from './study-result/study-result';
 import { PromissoryNoteModal } from './promissory-note-modal/promissory-note-modal';
 import { SupportFab } from '@/app/shared/components/support-fab/support-fab';
+import { DateOnlyPipe } from '@/app/shared/pipes/date-only.pipe';
 
 @Component({
     selector: 'app-credit-study-detail',
@@ -64,7 +65,8 @@ import { SupportFab } from '@/app/shared/components/support-fab/support-fab';
         FinancialStatements,
         StudyResult,
         PromissoryNoteModal,
-        SupportFab
+        SupportFab,
+        DateOnlyPipe
     ],
     providers: [provideConfirm()],
     templateUrl: './credit-study-detail.html'
