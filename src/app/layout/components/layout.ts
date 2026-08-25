@@ -15,6 +15,8 @@ import { QuickActions } from './quick-actions/quick-actions';
 import { TourFab } from './tour-fab/tour-fab';
 import { WelcomeDialog } from '@/app/shared/components/welcome-dialog/welcome-dialog';
 import { WelcomeService } from '@/app/shared/components/welcome-dialog/welcome.service';
+import { SetupChecklist } from './setup-checklist/setup-checklist';
+import { CompanyDataDialog } from '@/app/shared/components/company-data-dialog/company-data-dialog';
 import { AuthService } from '@/app/core/services/auth.service';
 import { TourService } from '@/app/shared/services/tour.service';
 
@@ -27,7 +29,7 @@ const WELCOME_TOUR_DELAY_MS = 800;
 @Component({
     selector: 'app-layout',
     standalone: true,
-    imports: [CommonModule, Topbar, Sidebar, RouterModule, Footer, Configurator, Breadcrumb, Notification, HelpPanel, NotificationCenter, SearchPalette, QuickActions, TourFab, WelcomeDialog],
+    imports: [CommonModule, Topbar, Sidebar, RouterModule, Footer, Configurator, Breadcrumb, Notification, HelpPanel, NotificationCenter, SearchPalette, QuickActions, TourFab, WelcomeDialog, SetupChecklist, CompanyDataDialog],
     templateUrl: './layout.html'
 })
 export class Layout {

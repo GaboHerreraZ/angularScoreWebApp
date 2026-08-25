@@ -44,6 +44,7 @@
 
     <div class="topbar-actions">
         <p-button class="lg:hidden" icon="pi pi-search" rounded severity="secondary" [text]="true" (onClick)="searchService.open()" pTooltip="Buscar" tooltipPosition="bottom" size="small" styleClass="!text-base"></p-button>
+        <app-setup-pending-indicator></app-setup-pending-indicator>
         <app-credits-indicator data-tour="topbar-credits"></app-credits-indicator>
         <p-button data-tour="topbar-help" icon="pi pi-question-circle" rounded severity="help" (onClick)="onHelpButtonClick()" pTooltip="Centro de Ayuda" tooltipPosition="bottom" size="small" styleClass="!text-base"></p-button>
         <p-button data-tour="topbar-appearance" icon="pi pi-palette" rounded severity="secondary" (onClick)="onConfigButtonClick()" pTooltip="Apariencia" tooltipPosition="bottom" size="small" styleClass="!text-base"></p-button>

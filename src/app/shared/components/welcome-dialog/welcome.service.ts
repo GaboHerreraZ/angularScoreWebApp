@@ -24,6 +24,24 @@ export class WelcomeService {
         return !this.seen()[profile.id];
     });
 
+    /**
+     * Re-arma la bienvenida para un usuario. Se llama al completar un NUEVO
+     * onboarding: el mismo usuario de Supabase puede volver a registrarse (p.
+     * ej. tras una purga de empresa en staging) y el "ya la vio" anterior la
+     * dejaría muda para siempre.
+     */
+    reset(profileId: string): void {
+        if (!this.seen()[profileId]) return;
+        const next = { ...this.seen() };
+        delete next[profileId];
+        this.seen.set(next);
+        try {
+            localStorage.setItem(SEEN_KEY, JSON.stringify(next));
+        } catch {
+            // Sin localStorage: el estado en memoria basta para esta sesión.
+        }
+    }
+
     /** Cierra la bienvenida y la marca como vista para este usuario. */
     dismiss(): void {
         const id = this.authService.currentProfile()?.id;

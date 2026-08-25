@@ -32,15 +32,17 @@ export function onboardingSummaries(e: OnboardingByProfile): {
 } {
     return {
         profile: {
-            name: `${e.profile.name} ${e.profile.lastName}`.trim(),
-            position: e.profile.position,
-            docNumber: e.profile.identificationNumber,
-            phone: e.profile.phone
+            name: `${e.profile.name ?? ''} ${e.profile.lastName ?? ''}`.trim(),
+            position: e.profile.position ?? '',
+            docNumber: e.profile.identificationNumber ?? '',
+            phone: e.profile.phone ?? ''
         },
+        // Los campos diferidos (NIT, dirección, ciudad) van vacíos hasta que el
+        // cliente los complete dentro de la app; la tarjeta oculta esas filas.
         company: {
             name: e.company.name,
-            nit: e.company.nit,
-            address: e.company.address,
+            nit: e.company.nit ?? '',
+            address: e.company.address ?? '',
             location: [e.company.city, e.company.state].filter(Boolean).join(', ')
         },
         billing: {

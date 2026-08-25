@@ -24,12 +24,18 @@
                 </div>
                 <p class="m-0 mb-3 font-semibold text-color">{{ profileSummary().name }}</p>
                 <dl class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 m-0 text-m">
+                    @if (profileSummary().position) {
                     <dt class="text-muted-color">Cargo</dt>
                     <dd class="m-0 text-color">{{ profileSummary().position }}</dd>
+                    }
+                    @if (profileSummary().docNumber) {
                     <dt class="text-muted-color">Documento</dt>
                     <dd class="m-0 text-color">{{ profileSummary().docNumber }}</dd>
+                    }
+                    @if (profileSummary().phone) {
                     <dt class="text-muted-color">Teléfono</dt>
                     <dd class="m-0 text-color">{{ profileSummary().phone }}</dd>
+                    }
                     <dt class="text-muted-color">Correo</dt>
                     <dd class="m-0 text-color break-all">{{ userEmail() }}</dd>
                 </dl>
@@ -42,18 +48,28 @@
                         <i class="pi pi-building text-primary"></i> Empresa
                     </span>
                     @if (canEdit()) {
-                    <button type="button" class="text-sm font-semibold text-primary hover:underline cursor-pointer bg-transparent border-0 p-0" (click)="edit.emit(1)">Editar</button>
+                    <button type="button" class="text-sm font-semibold text-primary hover:underline cursor-pointer bg-transparent border-0 p-0" (click)="edit.emit(0)">Editar</button>
                     }
                 </div>
                 <p class="m-0 mb-3 font-semibold text-color">{{ companySummary().name }}</p>
+                @if (companySummary().nit || companySummary().address || companySummary().location) {
                 <dl class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 m-0 text-m">
+                    @if (companySummary().nit) {
                     <dt class="text-muted-color">NIT</dt>
                     <dd class="m-0 text-color">{{ companySummary().nit }}</dd>
+                    }
+                    @if (companySummary().address) {
                     <dt class="text-muted-color">Dirección</dt>
                     <dd class="m-0 text-color">{{ companySummary().address }}</dd>
+                    }
+                    @if (companySummary().location) {
                     <dt class="text-muted-color">Ubicación</dt>
                     <dd class="m-0 text-color">{{ companySummary().location }}</dd>
+                    }
                 </dl>
+                } @else {
+                <p class="m-0 text-m text-muted-color">El NIT y los demás datos los completarás dentro de la app.</p>
+                }
             </div>
 
             <!-- Facturación -->

@@ -27,6 +27,13 @@ import { Component, contentChild, effect, ElementRef, input, signal, TemplateRef
 export class CardCarousel {
     items = input.required<unknown[]>();
 
+    /**
+     * Clases de ancho de cada ítem (cuántas tarjetas caben por vista). El
+     * default muestra 3 en desktop; un contenedor angosto (p. ej. una columna
+     * de un layout a dos) puede pasar 'w-full sm:w-1/2' para mostrar 2.
+     */
+    itemClass = input<string>('w-full sm:w-1/2 lg:w-1/3');
+
     itemTemplate = contentChild.required<TemplateRef<any>>(TemplateRef);
     private viewportRef = viewChild<ElementRef<HTMLElement>>('viewport');
 

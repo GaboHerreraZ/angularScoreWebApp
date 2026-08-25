@@ -32,6 +32,16 @@ export interface Profile {
   companyName: string;
   companyCity: string;
   companyNit: string;
+  /**
+   * Campos operativos de la empresa aún sin completar (onboarding diferido):
+   * 'nit' | 'sectorId' | 'cityCode' | 'address'. Alimenta el checklist de
+   * pendientes; los estudios se bloquean mientras falte el NIT.
+   */
+  companyMissingFields: string[];
+  /** True si la empresa ya registró sus datos bancarios (los exige el pagaré). */
+  companyBankDataComplete: boolean;
+  /** True si la empresa ya registró a su representante legal. */
+  companyLegalRepComplete: boolean;
 }
 
 export interface Permissions {

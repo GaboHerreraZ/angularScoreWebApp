@@ -1,31 +1,31 @@
 /** Tipos del flujo de onboarding (registro de perfil + empresa + compra de pack). */
 
-/** Datos personales del usuario (paso 1). POST /api/onboarding → profile. */
+/** Perfil mínimo (paso 1). POST /api/onboarding → profile. */
 export interface OnboardingProfile {
     name: string;
     lastName: string;
-    phone: string;
-    identificationTypeId: number;
-    identificationNumber: string;
-    position: string;
+    position?: string;
 }
 
-/** Datos de la empresa (paso 2). POST /api/onboarding → company. */
+/**
+ * La empresa nace solo con el nombre (paso 1). El NIT, sector, ciudad y
+ * dirección se completan después en Administración → Empresa.
+ */
 export interface OnboardingCompany {
     name: string;
-    nit: string;
-    sectorId: number;
-    cityCode: string;
-    address: string;
 }
 
-export interface OnboardingLegalRep {
-    /** Nombre completo, en un solo campo. */
-    legalRepName: string;
-    legalRepIdentificationTypeId: number;
-    legalRepIdentificationNumber: string;
-    legalRepEmail: string;
-    legalRepPhone: string;
+/**
+ * Perfil como lo devuelve GET /api/onboarding/:profileId. Documento y teléfono
+ * pueden venir sembrados desde la facturación (persona natural) o nulos.
+ */
+export interface OnboardingProfileData {
+    name: string | null;
+    lastName: string | null;
+    phone: string | null;
+    identificationTypeId: number | null;
+    identificationNumber: string | null;
+    position: string | null;
 }
 
 /** Datos de facturación. Se derivan de perfil + empresa. POST /api/onboarding → billing. */
@@ -50,7 +50,6 @@ export interface OnboardingBilling {
 export interface OnboardingRequest {
     profile: OnboardingProfile;
     company: OnboardingCompany;
-    legalRep: OnboardingLegalRep;
     billing: OnboardingBilling;
     /**
      * Código de quien recomendó Creditia. Opcional; si se envía uno inexistente
@@ -75,8 +74,17 @@ export interface OnboardingResponse {
 export interface OnboardingByProfile {
     profileId: string;
     companyId: string;
-    profile: OnboardingProfile;
-    company: OnboardingCompany & { city: string; state: string };
+    profile: OnboardingProfileData;
+    company: {
+        name: string;
+        /** Nulos hasta que el cliente los complete dentro de la app. */
+        nit: string | null;
+        sectorId: number | null;
+        cityCode: string | null;
+        address: string | null;
+        city: string | null;
+        state: string | null;
+    };
     billing: OnboardingBilling & { billingCity: string | null; billingState: string | null };
 }
 

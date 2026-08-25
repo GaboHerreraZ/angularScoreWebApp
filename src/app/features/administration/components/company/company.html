@@ -54,11 +54,11 @@
                         <i class="pi pi-building text-primary"></i>
                         <span>Datos de la Empresa</span>
                     </div>
-                    <p-button data-tour="company-save" label="Guardar" icon="pi pi-check" severity="success" [loading]="saving()" [disabled]="form.invalid || billingForm.invalid || (form.pristine && billingForm.pristine)" (onClick)="onSave()" styleClass="w-full sm:w-auto" />
+                    <p-button data-tour="company-save" label="Guardar" icon="pi pi-check" severity="success" [loading]="saving()" [disabled]="form.invalid || billingForm.invalid || legalRepForm.invalid || (form.pristine && billingForm.pristine && legalRepForm.pristine)" (onClick)="onSave()" styleClass="w-full sm:w-auto" />
                 </div>
             </ng-template>
             <ng-template #subtitle>
-                <span class="text-muted-color text-m">Información general de tu empresa. Puedes actualizar el nombre, ciudad y sector.</span>
+                <span class="text-muted-color text-m">Información general de tu empresa. Completa aquí los datos que quedaron pendientes del registro (NIT, ciudad, dirección, sector).</span>
             </ng-template>
 
             <!-- Logo -->
@@ -103,21 +103,42 @@
                 <div class="flex flex-col gap-1">
                     <p-floatlabel variant="on">
                         <input pInputText id="nit" [formControl]="form.controls.nit" />
-                        <label for="nit">NIT</label>
+                        <label for="nit">{{ canEditNit() ? 'NIT *' : 'NIT' }}</label>
                     </p-floatlabel>
+                    @if (canEditNit()) {
+                    <small class="text-muted-color">Se registra una sola vez y no podrá modificarse. Necesario para crear estudios de crédito.</small>
+                    }
+                </div>
+
+                @if (needsCity()) {
+                <!-- Domicilio pendiente del registro: se elige aquí por única vez. -->
+                <div class="flex flex-col gap-1">
+                    <app-state-control inputId="newState" label="Departamento" variant="on" [formControl]="form.controls.newState" />
                 </div>
 
                 <div class="flex flex-col gap-1">
+                    <app-city-control inputId="newCity" label="Ciudad" variant="on" [regionCode]="regionCode()" [formControl]="form.controls.newCity" />
+                </div>
+                } @else {
+                <div class="flex flex-col gap-1">
                     <p-floatlabel variant="on">
-                        <input pInputText id="city" [formControl]="form.controls.state" />
-                        <label for="city">Departamento</label>
+                        <input pInputText id="state" [formControl]="form.controls.state" />
+                        <label for="state">Departamento</label>
                     </p-floatlabel>
                 </div>
 
                 <div class="flex flex-col gap-1">
                     <p-floatlabel variant="on">
                         <input pInputText id="city" [formControl]="form.controls.city" />
-                        <label for="city">Ciudad *</label>
+                        <label for="city">Ciudad</label>
+                    </p-floatlabel>
+                </div>
+                }
+
+                <div class="flex flex-col gap-1 md:col-span-2">
+                    <p-floatlabel variant="on">
+                        <input pInputText id="address" [formControl]="form.controls.address" />
+                        <label for="address">Dirección</label>
                     </p-floatlabel>
                 </div>
 
@@ -142,8 +163,8 @@
             </div>
         </p-card>
 
-        <!-- Representante legal: solo consulta. Se registra en el onboarding y
-             cambiarlo implica papeleo, así que no se edita desde la app. -->
+        <!-- Representante legal: se registra aquí UNA vez (el onboarding ya no
+             lo pide); después queda de solo consulta y cambiarlo pasa por soporte. -->
         <p-card styleClass="mt-6">
             <ng-template #title>
                 <div class="flex items-center gap-2">
@@ -152,7 +173,7 @@
                 </div>
             </ng-template>
             <ng-template #subtitle>
-                <span class="text-muted-color text-m">Quien firma en nombre de tu empresa. Se registró al crear la cuenta y no puede modificarse desde aquí.</span>
+                <span class="text-muted-color text-m">Quien firma en nombre de tu empresa. Una vez registrado no puede modificarse desde aquí.</span>
             </ng-template>
 
             @if (hasLegalRep()) {
@@ -193,9 +214,47 @@
                 </div>
             </div>
             } @else {
-            <div class="flex items-start gap-3 text-muted-color">
-                <i class="pi pi-info-circle mt-0.5"></i>
-                <span class="text-m">Esta empresa aún no tiene registrados los datos de su representante legal. Escríbenos a soporte para completarlos.</span>
+            <div class="flex flex-col gap-5">
+                <div class="flex items-start gap-3 text-muted-color">
+                    <i class="pi pi-info-circle mt-0.5"></i>
+                    <span class="text-m">Registra al representante legal de tu empresa: es quien la obliga en los documentos que emites. Verifica bien los datos antes de guardar.</span>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+                    <div class="flex flex-col gap-1 md:col-span-2">
+                        <p-floatlabel variant="on">
+                            <input pInputText id="newLegalRepName" [formControl]="legalRepForm.controls.name" />
+                            <label for="newLegalRepName">Nombre completo</label>
+                        </p-floatlabel>
+                    </div>
+
+                    <div class="flex flex-col gap-1">
+                        <p-floatlabel variant="on">
+                            <p-select inputId="newLegalRepDocType" [options]="identificationTypesResource.value() ?? []" optionLabel="label" [formControl]="legalRepForm.controls.identificationType" />
+                            <label for="newLegalRepDocType">Tipo de documento</label>
+                        </p-floatlabel>
+                    </div>
+
+                    <div class="flex flex-col gap-1">
+                        <p-floatlabel variant="on">
+                            <input pInputText id="newLegalRepIdentificationNumber" [formControl]="legalRepForm.controls.identificationNumber" />
+                            <label for="newLegalRepIdentificationNumber">Número de documento</label>
+                        </p-floatlabel>
+                    </div>
+
+                    <div class="flex flex-col gap-1">
+                        <p-floatlabel variant="on">
+                            <input pInputText id="newLegalRepEmail" [formControl]="legalRepForm.controls.email" [invalid]="isInvalid('email', legalRepForm)" />
+                            <label for="newLegalRepEmail">Correo electrónico</label>
+                        </p-floatlabel>
+                        @if (isInvalid('email', legalRepForm)) {
+                        <small class="text-red-500">{{ getErrorMessage('email', legalRepForm) }}</small>
+                        }
+                    </div>
+
+                    <div class="flex flex-col gap-1">
+                        <app-phone-input inputId="newLegalRepPhone" label="Teléfono" variant="on" [formControl]="legalRepForm.controls.phone" />
+                    </div>
+                </div>
             </div>
             }
         </p-card>

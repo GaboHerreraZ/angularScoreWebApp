@@ -1,6 +1,6 @@
-<!-- El paso de paquetes va mas ancho: el carrusel muestra tres tarjetas a la vez
+<!-- El paso de paquetes va más ancho: el carrusel muestra tres tarjetas a la vez
      y con el ancho de los formularios cada una queda demasiado angosta. -->
-<div class="mx-auto px-6 py-8 lg:py-12 transition-[max-width] duration-300" [class.max-w-4xl]="step() !== 2" [class.max-w-6xl]="step() === 2">
+<div class="mx-auto px-6 py-8 lg:py-12 transition-[max-width] duration-300" [class.max-w-4xl]="step() !== 1" [class.max-w-6xl]="step() === 1">
     @if (checkingExisting()) {
     <!-- Verificando si el usuario ya tiene perfil/empresa -->
     <div class="flex flex-col items-center justify-center text-center gap-4 py-20">
@@ -35,9 +35,9 @@
             </div>
         </div>
 
-        <form [formGroup]="profileForm" class="p-6 sm:p-8 flex flex-col gap-7">
+        <div class="p-6 sm:p-8 flex flex-col gap-7">
             <!-- Datos personales -->
-            <div>
+            <form [formGroup]="profileForm">
                 <p class="text-sm font-bold text-muted-color uppercase tracking-wide m-0 mb-4 flex items-center gap-2">
                     <i class="pi pi-id-card text-primary"></i> Datos personales
                 </p>
@@ -56,237 +56,136 @@
                             <label for="lastName">Apellidos *</label>
                         </p-floatlabel>
                     </div>
-                    <div class="flex flex-col gap-1">
+                    <div class="flex flex-col gap-1 md:col-span-2">
                         <p-floatlabel variant="on">
-                            <p-select inputId="identificationType" formControlName="identificationType"
-                                [options]="identificationTypesResource.value() ?? []" optionLabel="label" styleClass="w-full"
-                                [invalid]="profileForm.controls.identificationType.invalid && profileForm.controls.identificationType.touched" />
-                            <label for="identificationType">Tipo de documento *</label>
-                        </p-floatlabel>
-                    </div>
-                    <div class="flex flex-col gap-1">
-                        <p-floatlabel variant="on">
-                            <input pInputText id="identificationNumber" formControlName="identificationNumber" class="w-full"
-                                [invalid]="profileForm.controls.identificationNumber.invalid && profileForm.controls.identificationNumber.touched" />
-                            <label for="identificationNumber">Número de documento *</label>
+                            <input pInputText id="position" formControlName="position" class="w-full" />
+                            <label for="position">Cargo (opcional)</label>
                         </p-floatlabel>
                     </div>
                 </div>
-            </div>
+            </form>
 
-            <!-- Contacto y rol -->
-            <div>
+            <!-- Tu empresa: solo el nombre. El resto (NIT, sector, ciudad,
+                 dirección) se completa después dentro de la app. -->
+            <form [formGroup]="companyForm">
                 <p class="text-sm font-bold text-muted-color uppercase tracking-wide m-0 mb-4 flex items-center gap-2">
-                    <i class="pi pi-briefcase text-primary"></i> Contacto y rol
+                    <i class="pi pi-building text-primary"></i> Tu empresa
                 </p>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
-                    <div class="flex flex-col gap-1">
-                        <app-phone-input inputId="phone" label="Teléfono *" variant="on" formControlName="phone" />
-                    </div>
-                    <div class="flex flex-col gap-1">
-                        <p-floatlabel variant="on">
-                            <input pInputText id="position" formControlName="position" class="w-full"
-                                [invalid]="profileForm.controls.position.invalid && profileForm.controls.position.touched" />
-                            <label for="position">Cargo *</label>
-                        </p-floatlabel>
-                    </div>
-                </div>
-            </div>
-        </form>
-    </section>
-    }
-
-    <!-- ─────────────── Paso 2: Empresa + Facturación ─────────────── -->
-    @if (step() === 1) {
-    <section class="relative bg-surface-0 dark:bg-surface-900 rounded-2xl border border-surface overflow-hidden" [attr.aria-busy]="submittingOnboarding()">
-        <!-- Encabezado con acento -->
-        <div
-            class="flex items-start gap-4 p-6 sm:p-8 border-b border-surface bg-linear-to-r from-primary/5 to-transparent transition-opacity duration-200"
-            [class.opacity-40]="submittingOnboarding()"
-        >
-            <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                <i class="pi pi-building text-primary text-xl"></i>
-            </div>
-            <div>
-                <h2 class="text-xl font-bold m-0 text-color">Datos de tu empresa</h2>
-                <p class="text-muted-color text-m mt-1 mb-0">Con esto creamos tu cuenta y emitimos tus facturas.</p>
-            </div>
-        </div>
-
-        <div
-            class="p-6 sm:p-8 flex flex-col gap-7 transition-opacity duration-200"
-            [class.opacity-40]="submittingOnboarding()"
-            [class.pointer-events-none]="submittingOnboarding()"
-        >
-            <!-- Información de la empresa -->
-            <div>
-                <p class="text-sm font-bold text-muted-color uppercase tracking-wide m-0 mb-4 flex items-center gap-2">
-                    <i class="pi pi-briefcase text-primary"></i> Información de la empresa
-                </p>
-                <form [formGroup]="companyForm" class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+                <div class="grid grid-cols-1 gap-y-5">
                     <div class="flex flex-col gap-1">
                         <p-floatlabel variant="on">
                             <input pInputText id="companyName" formControlName="name" class="w-full"
                                 [invalid]="companyForm.controls.name.invalid && companyForm.controls.name.touched" />
-                            <label for="companyName">Razón social *</label>
+                            <label for="companyName">Nombre o razón social de tu empresa *</label>
                         </p-floatlabel>
+                        <small class="text-muted-color">Los demás datos (NIT, sector, dirección…) los podrás completar luego dentro de la app.</small>
                     </div>
-                    <div class="flex flex-col gap-1">
-                        <p-floatlabel variant="on">
-                            <input pInputText id="nit" formControlName="nit" class="w-full"
-                                [invalid]="companyForm.controls.nit.invalid && companyForm.controls.nit.touched" />
-                            <label for="nit">NIT *</label>
-                        </p-floatlabel>
-                    </div>
-                    <div class="flex flex-col gap-1 md:col-span-2">
-                        <app-sector-select inputId="sector" label="Sector *" variant="on" formControlName="sector"
-                            [invalid]="companyForm.controls.sector.invalid && companyForm.controls.sector.touched" />
-                    </div>
-                    <div class="flex flex-col gap-1">
-                        <app-state-control inputId="state" label="Departamento *" variant="on" formControlName="state"
-                            [invalid]="companyForm.controls.state.invalid && companyForm.controls.state.touched" />
-                    </div>
-                    <div class="flex flex-col gap-1">
-                        <app-city-control inputId="city" label="Ciudad *" variant="on" [regionCode]="regionCode()" formControlName="city"
-                            [invalid]="companyForm.controls.city.invalid && companyForm.controls.city.touched" />
-                    </div>
-                    <div class="flex flex-col gap-1 md:col-span-2">
-                        <p-floatlabel variant="on">
-                            <input pInputText id="address" formControlName="address" class="w-full"
-                                [invalid]="companyForm.controls.address.invalid && companyForm.controls.address.touched" />
-                            <label for="address">Dirección *</label>
-                        </p-floatlabel>
-                    </div>
-                </form>
+                </div>
+            </form>
+        </div>
+    </section>
+    }
 
-                <!-- Representante legal: quien firma por la empresa. Puede no ser
-                     el usuario que está abriendo la cuenta. -->
-                <p class="text-sm font-bold text-muted-color uppercase tracking-wide m-0 mt-7 mb-4 flex items-center gap-2">
-                    <i class="pi pi-user-edit text-primary"></i> Representante legal
-                </p>
-                <form [formGroup]="legalRepForm" class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
-                    <div class="flex flex-col gap-1 md:col-span-2">
-                        <p-floatlabel variant="on">
-                            <input pInputText id="legalRepName" formControlName="name" class="w-full"
-                                [invalid]="legalRepForm.controls.name.invalid && legalRepForm.controls.name.touched" />
-                            <label for="legalRepName">Nombre completo *</label>
-                        </p-floatlabel>
-                    </div>
-                    <div class="flex flex-col gap-1">
-                        <p-floatlabel variant="on">
-                            <p-select inputId="legalRepIdentificationType" formControlName="identificationType"
-                                [options]="identificationTypesResource.value() ?? []" optionLabel="label" styleClass="w-full"
-                                [invalid]="legalRepForm.controls.identificationType.invalid && legalRepForm.controls.identificationType.touched" />
-                            <label for="legalRepIdentificationType">Tipo de documento *</label>
-                        </p-floatlabel>
-                    </div>
-                    <div class="flex flex-col gap-1">
-                        <p-floatlabel variant="on">
-                            <input pInputText id="legalRepIdentificationNumber" formControlName="identificationNumber" class="w-full"
-                                [invalid]="legalRepForm.controls.identificationNumber.invalid && legalRepForm.controls.identificationNumber.touched" />
-                            <label for="legalRepIdentificationNumber">Número de documento *</label>
-                        </p-floatlabel>
-                    </div>
-                    <div class="flex flex-col gap-1">
-                        <p-floatlabel variant="on">
-                            <input pInputText id="legalRepEmail" formControlName="email" class="w-full"
-                                [invalid]="legalRepForm.controls.email.invalid && legalRepForm.controls.email.touched" />
-                            <label for="legalRepEmail">Correo electrónico *</label>
-                        </p-floatlabel>
-                        @if (legalRepForm.controls.email.hasError('email') && legalRepForm.controls.email.touched) {
-                        <small class="text-red-500">Ingresa un correo válido</small>
-                        }
-                    </div>
-                    <div class="flex flex-col gap-1">
-                        <app-phone-input inputId="legalRepPhone" label="Teléfono *" variant="on" formControlName="phone" />
-                    </div>
-                </form>
-
-                <!-- Referido: es el único momento cómodo para capturarlo. Después
-                     solo puede hacerlo un administrador y por pocos días. -->
-                <p class="text-sm font-bold text-muted-color uppercase tracking-wide m-0 mt-7 mb-4 flex items-center gap-2">
-                    <i class="pi pi-users text-primary"></i> ¿Alguien te recomendó Creditia?
-                </p>
-                <form [formGroup]="referralForm" class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2">
-                    <div class="flex flex-col gap-1">
-                        <p-floatlabel variant="on">
-                            <input pInputText id="salesRepCode" formControlName="salesRepCode" class="w-full uppercase" />
-                            <label for="salesRepCode">Código del asesor (opcional)</label>
-                        </p-floatlabel>
-                    </div>
-                    <div class="flex items-center">
-                        <small class="text-muted-color">Si llegaste por recomendación, escribe aquí el código que te dieron. Puedes dejarlo vacío.</small>
-                    </div>
-                </form>
-            </div>
-
-            <!-- Atajo: la mayoría factura a nombre de la empresa que acaba de
-                 registrar, así que copiamos los campos equivalentes y los
-                 bloqueamos mientras el interruptor esté activo. -->
-            <div class="flex items-start gap-3 rounded-xl border border-surface bg-surface-50 dark:bg-surface-800/40 p-4">
-                <p-toggleswitch inputId="sameBillingAsCompany" [(ngModel)]="sameBillingAsCompany" />
-                <label for="sameBillingAsCompany" class="flex-1 cursor-pointer select-none">
-                    <span class="block font-semibold text-color">Usar los mismos datos de la empresa en los datos de facturación</span>
-                    <span class="block text-muted-color text-m mt-1">Copiamos razón social, NIT, dirección y ciudad, junto al correo y teléfono del representante legal. Solo tendrás que completar el perfil fiscal.</span>
-                </label>
-            </div>
-
-            <!-- Datos de facturación -->
+    <!-- ─────────────── Paso 2: Paquete y facturación ─────────────── -->
+    @if (step() === 1) {
+    <section class="relative" [attr.aria-busy]="submittingOnboarding()">
+        <div
+            class="flex flex-col gap-8 transition-opacity duration-200"
+            [class.opacity-40]="submittingOnboarding()"
+            [class.pointer-events-none]="submittingOnboarding()"
+        >
             <div>
-                <p class="text-sm font-bold text-muted-color uppercase tracking-wide m-0 mb-4 flex items-center gap-2">
-                    <i class="pi pi-receipt text-primary"></i> Datos de facturación
+                <div class="mb-6 text-center">
+                    <h2 class="text-xl font-bold m-0 text-color">Elige tu paquete de consultas</h2>
+                    <p class="text-muted-color text-m mt-1 mb-0">Pagas solo por las consultas que necesitas, sin mensualidades.</p>
+                </div>
+
+                @if (packsResource.isLoading()) {
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                    @for (i of [1,2,3]; track i) {
+                    <p-skeleton width="100%" height="16rem" borderRadius="1rem" />
+                    }
+                </div>
+                } @else {
+                <app-card-carousel [items]="packsResource.value() ?? []">
+                    <ng-template let-pack>
+                        <app-pack-display-card
+                            [pack]="pack"
+                            [selected]="selectedPack()?.id === pack.id"
+                            [ctaLabel]="selectedPack()?.id === pack.id ? 'Seleccionado' : 'Elegir este'"
+                            (register)="onSelectPack($event)"
+                        />
+                    </ng-template>
+                </app-card-carousel>
+
+                <!-- Qué incluye cada análisis (una sola vez, aplica a todos los packs) -->
+                <app-pack-included-features class="block mt-6" />
+                }
+
+                @if (prefilled()) {
+                <p class="text-center text-muted-color text-m mt-6 mb-0">
+                    <i class="pi pi-check-circle text-primary mr-1"></i>
+                    Tus datos ya están registrados. Elige tu paquete para continuar.
                 </p>
-                <app-billing-form [formGroup]="billingForm" />
+                }
             </div>
+
+            @if (!prefilled()) {
+            <!-- Facturación: la DIAN la exige antes del cobro; es lo único que
+                 pedimos aparte del paquete. Va a todo lo ancho con los campos a
+                 3 columnas para que el bloque quede bajo, no un tubo vertical. -->
+            <div class="w-full bg-surface-0 dark:bg-surface-900 rounded-2xl border border-surface overflow-hidden">
+                <div class="flex items-start gap-4 p-6 sm:p-8 border-b border-surface bg-linear-to-r from-primary/5 to-transparent">
+                    <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                        <i class="pi pi-receipt text-primary text-xl"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-bold m-0 text-color">Datos de facturación</h2>
+                        <p class="text-muted-color text-m mt-1 mb-0">A nombre de quién emitimos la factura de tu compra.</p>
+                    </div>
+                </div>
+
+                <div class="p-6 sm:p-8 flex flex-col gap-7">
+                    <app-billing-form [formGroup]="billingForm" gridClass="grid-cols-1 md:grid-cols-2 xl:grid-cols-3" />
+
+                    <!-- Referido: es el único momento cómodo para capturarlo. Después
+                         solo puede hacerlo un administrador y por pocos días. -->
+                    <form [formGroup]="referralForm">
+                        <p class="text-sm font-bold text-muted-color uppercase tracking-wide m-0 mb-4 flex items-center gap-2">
+                            <i class="pi pi-users text-primary"></i> ¿Alguien te recomendó Creditia?
+                        </p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2">
+                            <div class="flex flex-col gap-1">
+                                <p-floatlabel variant="on">
+                                    <input pInputText id="salesRepCode" formControlName="salesRepCode" class="w-full uppercase" />
+                                    <label for="salesRepCode">Código del asesor (opcional)</label>
+                                </p-floatlabel>
+                            </div>
+                            <div class="flex items-center">
+                                <small class="text-muted-color">Si llegaste por recomendación, escribe aquí el código que te dieron. Puedes dejarlo vacío.</small>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            }
         </div>
 
-        <!-- Registro en curso. Se atenua el formulario en vez de reemplazarlo por
+        <!-- Registro en curso. Se atenua el contenido en vez de reemplazarlo por
              esqueletos: los datos siguen a la vista y, si el POST falla (por
-             ejemplo un NIT repetido), el usuario los recupera tal cual. -->
+             ejemplo un correo repetido), el usuario los recupera tal cual. -->
         @if (submittingOnboarding()) {
         <div class="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-surface-0/70 dark:bg-surface-900/70">
             <i class="pi pi-spin pi-spinner text-primary text-3xl"></i>
-            <p class="text-color font-semibold m-0">Registrando tu empresa…</p>
+            <p class="text-color font-semibold m-0">Registrando tu cuenta…</p>
             <p class="text-muted-color text-m m-0">Estamos creando tu cuenta, esto toma unos segundos.</p>
         </div>
         }
     </section>
     }
 
-    <!-- ─────────────── Paso 3: Paquete ─────────────── -->
+    <!-- ─────────────── Paso 3: Resumen ─────────────── -->
     @if (step() === 2) {
-    <section>
-        <div class="mb-6 text-center">
-            <h2 class="text-xl font-bold m-0 text-color">Elige tu paquete de consultas</h2>
-            <p class="text-muted-color text-m mt-1 mb-0">Pagas solo por las consultas que necesitas, sin mensualidades.</p>
-        </div>
-
-        @if (packsResource.isLoading()) {
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            @for (i of [1,2,3]; track i) {
-            <p-skeleton width="100%" height="16rem" borderRadius="1rem" />
-            }
-        </div>
-        } @else {
-        <app-card-carousel [items]="packsResource.value() ?? []">
-            <ng-template let-pack>
-                <app-pack-display-card
-                    [pack]="pack"
-                    [selected]="selectedPack()?.id === pack.id"
-                    [ctaLabel]="selectedPack()?.id === pack.id ? 'Seleccionado' : 'Elegir este'"
-                    (register)="onSelectPack($event)"
-                />
-            </ng-template>
-        </app-card-carousel>
-
-        <!-- Qué incluye cada análisis (una sola vez, aplica a todos los packs) -->
-        <app-pack-included-features class="block mt-6" />
-        }
-    </section>
-    }
-
-    <!-- ─────────────── Paso 4: Resumen ─────────────── -->
-    @if (step() === 3) {
     <app-purchase-summary
         #summary
         [pack]="selectedPack()"
@@ -302,15 +201,15 @@
 
     <!-- ─────────────── Navegación ─────────────── -->
     <div class="flex items-center justify-between mt-8">
-        @if (step() > (prefilled() ? 2 : 0)) {
+        @if (step() > stepFloor()) {
         <p-button label="Atrás" icon="pi pi-arrow-left" severity="secondary" [text]="true" [disabled]="submittingOnboarding()" (onClick)="back()" />
         } @else {
         <span></span>
         }
 
-        @if (step() < 3) {
+        @if (step() < 2) {
         <p-button
-            [label]="step() === 1 ? 'Registrar y continuar' : 'Continuar'"
+            [label]="step() === 1 && !companyId() ? 'Registrar y continuar' : 'Continuar'"
             icon="pi pi-arrow-right"
             iconPos="right"
             [loading]="submittingOnboarding()"
