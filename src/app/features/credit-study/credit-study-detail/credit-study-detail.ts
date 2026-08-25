@@ -211,17 +211,6 @@ export class CreditStudyDetail {
         this.step1Data()?.customer?.id ?? this.studyResult()?.customer?.id ?? undefined
     );
 
-    /** Cupo viable del resultado (con fallback al recomendado) para prellenar el pagaré. */
-    promissoryNoteAmount = computed(() => {
-        const result = this.studyResult();
-        return result?.result?.approvedCreditLine?.amount ?? result?.recommendedCreditLine ?? null;
-    });
-
-    /** Plazo solicitado en días para prellenar el pagaré. */
-    promissoryNoteTermDays = computed(() =>
-        this.studyRequest()?.requestedTerm ?? this.studyResult()?.requestedTerm ?? null
-    );
-
     /** Configuración visual (ícono + colores) según el estado del estudio. */
     studyStatusConfig = computed(() => {
         const status = this.studyStatus();

@@ -1,13 +1,12 @@
 import { Component, DestroyRef, computed, effect, inject, input, model, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
-import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextModule } from 'primeng/inputtext';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { SelectModule } from 'primeng/select';
@@ -25,22 +24,7 @@ import { DateOnlyPipe } from '@/app/shared/pipes/date-only.pipe';
 @Component({
     selector: 'app-promissory-note-modal',
     standalone: true,
-    imports: [
-        CommonModule,
-        FormsModule,
-        ReactiveFormsModule,
-        RouterLink,
-        DialogModule,
-        ButtonModule,
-        InputNumberModule,
-        InputTextModule,
-        FloatLabelModule,
-        SelectModule,
-        MessageModule,
-        SkeletonModule,
-        PhoneInput,
-        DateOnlyPipe
-    ],
+    imports: [CommonModule, ReactiveFormsModule, RouterLink, DialogModule, ButtonModule, InputTextModule, FloatLabelModule, SelectModule, MessageModule, SkeletonModule, PhoneInput, DateOnlyPipe],
     templateUrl: './promissory-note-modal.html'
 })
 export class PromissoryNoteModal {
@@ -55,15 +39,8 @@ export class PromissoryNoteModal {
     creditStudyId = input<string>();
     /** Cliente del estudio: de él se traen los datos del firmante del pagaré. */
     customerId = input<string>();
-    /** Cupo viable del resultado del estudio (valor inicial editable). */
-    defaultAmount = input<number | null>(null);
-    /** Plazo solicitado en días (valor inicial editable). */
-    defaultTermDays = input<number | null>(null);
     /** Se emite al cerrar el modal cuando el pagaré quedó generado. */
     generated = output<PromissoryNote>();
-
-    amount = signal<number | null>(null);
-    termDays = signal<number | null>(null);
 
     previewing = signal(false);
     generating = signal(false);
@@ -116,7 +93,8 @@ export class PromissoryNoteModal {
         return missing;
     });
 
-    canPreview = computed(() => (this.amount() ?? 0) > 0 && (this.termDays() ?? 0) > 0);
+    /** El pagaré va en blanco: no hay monto ni plazo que validar, solo el firmante. */
+    canPreview = computed(() => !this.loadingSigner());
 
     /** HTML completo del pagaré para el iframe de vista previa. */
     previewHtml = computed<SafeHtml | null>(() => {
@@ -125,14 +103,12 @@ export class PromissoryNoteModal {
     });
 
     constructor() {
-        // Al abrir el modal: estado limpio con los valores que trae el estudio.
+        // Al abrir el modal: estado limpio.
         effect(() => {
             if (!this.visible()) return;
 
             this.preview.set(null);
             this.note.set(null);
-            this.amount.set(this.defaultAmount());
-            this.termDays.set(this.defaultTermDays());
 
             const customerId = this.customerId();
             if (customerId) this.loadSigner(customerId);
@@ -140,20 +116,7 @@ export class PromissoryNoteModal {
 
         // Los datos del firmante viajan en el preview: al editarlos, el documento
         // mostrado deja de corresponder con lo que se enviaría.
-        this.signerForm.valueChanges.pipe(
-            takeUntilDestroyed(this.destroyRef)
-        ).subscribe(() => this.preview.set(null));
-    }
-
-    /** Cualquier cambio en los valores invalida la vista previa ya generada. */
-    onAmountChange(value: number | null): void {
-        this.amount.set(value);
-        this.preview.set(null);
-    }
-
-    onTermChange(value: number | null): void {
-        this.termDays.set(value);
-        this.preview.set(null);
+        this.signerForm.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.preview.set(null));
     }
 
     private loadSigner(customerId: string): void {
@@ -162,16 +125,19 @@ export class PromissoryNoteModal {
         this.signerForm.reset();
         this.loadingSigner.set(true);
 
-        this.customersService.getLegalRepresentative(customerId).pipe(
-            finalize(() => this.loadingSigner.set(false)),
-            takeUntilDestroyed(this.destroyRef)
-        ).subscribe({
-            next: (signer) => {
-                this.signer.set(signer);
-                this.patchSigner(signer);
-            },
-            error: () => this.signerError.set(true)
-        });
+        this.customersService
+            .getLegalRepresentative(customerId)
+            .pipe(
+                finalize(() => this.loadingSigner.set(false)),
+                takeUntilDestroyed(this.destroyRef)
+            )
+            .subscribe({
+                next: (signer) => {
+                    this.signer.set(signer);
+                    this.patchSigner(signer);
+                },
+                error: () => this.signerError.set(true)
+            });
     }
 
     /** Vuelca la respuesta en el formulario según el tipo de persona. */
@@ -226,15 +192,16 @@ export class PromissoryNoteModal {
         if (!creditStudyId || !this.canPreview()) return;
 
         this.previewing.set(true);
-        this.creditStudyService.previewPromissoryNote({
-            creditStudyId,
-            amount: this.amount()!,
-            termDays: this.termDays()!,
-            signer: this.signerPayload()
-        }).pipe(
-            finalize(() => this.previewing.set(false)),
-            takeUntilDestroyed(this.destroyRef)
-        ).subscribe((response) => this.preview.set(response));
+        this.creditStudyService
+            .previewPromissoryNote({
+                creditStudyId,
+                signer: this.signerPayload()
+            })
+            .pipe(
+                finalize(() => this.previewing.set(false)),
+                takeUntilDestroyed(this.destroyRef)
+            )
+            .subscribe((response) => this.preview.set(response));
     }
 
     onGenerate(): void {
@@ -242,18 +209,19 @@ export class PromissoryNoteModal {
         if (!creditStudyId || !this.preview()) return;
 
         this.generating.set(true);
-        this.creditStudyService.createPromissoryNote({
-            creditStudyId,
-            amount: this.amount()!,
-            termDays: this.termDays()!,
-            signer: this.signerPayload()
-        }).pipe(
-            finalize(() => this.generating.set(false)),
-            takeUntilDestroyed(this.destroyRef)
-        ).subscribe((note) => {
-            this.note.set(note);
-            this.notificationService.success('Pagaré generado y enviado a firma');
-        });
+        this.creditStudyService
+            .createPromissoryNote({
+                creditStudyId,
+                signer: this.signerPayload()
+            })
+            .pipe(
+                finalize(() => this.generating.set(false)),
+                takeUntilDestroyed(this.destroyRef)
+            )
+            .subscribe((note) => {
+                this.note.set(note);
+                this.notificationService.success('Pagaré generado y enviado a firma');
+            });
     }
 
     close(): void {

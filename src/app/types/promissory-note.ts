@@ -4,11 +4,12 @@ import { CustomerSigner } from './customer';
 
 export type PromissoryNoteSigner = Omit<CustomerSigner, 'customerId' | 'personType'>;
 
-/** Cuerpo compartido del preview y de la creación del pagaré. */
+/**
+ * Cuerpo compartido del preview y de la creación del pagaré. Monto y plazo no
+ * viajan: el pagaré se firma en blanco y el backend los deriva del estudio.
+ */
 export interface PromissoryNotePayload {
     creditStudyId: string;
-    amount: number;
-    termDays: number;
     signer?: PromissoryNoteSigner;
 }
 
