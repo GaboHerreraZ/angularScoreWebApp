@@ -349,11 +349,6 @@ export class CreditStudyDetail {
     /** true cuando el tipo de identificación seleccionado es NIT (persona jurídica). */
     isNitSelected = computed(() => isBusinessDocType(this.selectedIdentificationType()));
 
-    /** Con NIT (persona jurídica) el correo pertenece al representante legal, no al titular. */
-    titularEmailLabel = computed(() =>
-        this.isNitSelected() ? 'Correo del Representante Legal' : 'Correo del Titular'
-    );
-
     /** El mismo campo guarda el nombre completo (persona natural) o la razón social (jurídica). */
     businessNameLabel = computed(() => this.isNitSelected() ? 'Razón Social' : 'Nombre completo');
 
