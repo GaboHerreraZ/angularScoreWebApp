@@ -1,6 +1,6 @@
 import { Component, computed, DestroyRef, effect, inject, resource, signal } from '@angular/core';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { finalize, firstValueFrom } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
@@ -13,6 +13,9 @@ import { SkeletonModule } from 'primeng/skeleton';
 import { DialogModule } from 'primeng/dialog';
 import { CustomTable } from '@/app/shared/components/table/table';
 import { SectorSelect } from '@/app/shared/components/sector-select/sector-select';
+import { StateControl } from '@/app/shared/components/state-control/state-control';
+import { CityControl } from '@/app/shared/components/city-control/city-control';
+import { PhoneInput } from '@/app/shared/components/phone-input/phone-input';
 import { BillingForm } from '@/app/shared/components/billing-form/billing-form';
 import { buildBillingForm } from '@/app/shared/components/billing-form/billing-form.builder';
 import { CompanyService } from './company.service';
@@ -24,6 +27,8 @@ import { Company as CompanyModel } from '@/app/types/company';
 import { InvitationsResponse } from '@/app/types/invitation';
 import { Parameter } from '@/app/types/parameter';
 import { TableActionEvent, TableSettings } from '@/app/types/table';
+
+import type { LocationOption } from '@/app/core/services/locations.service';
 
 @Component({
     selector: 'app-company',
@@ -41,7 +46,10 @@ import { TableActionEvent, TableSettings } from '@/app/types/table';
         DialogModule,
         CustomTable,
         BillingForm,
-        SectorSelect
+        SectorSelect,
+        StateControl,
+        CityControl,
+        PhoneInput
     ],
     templateUrl: './company.html'
 })
@@ -159,17 +167,23 @@ export class Company {
 
     form = new FormGroup({
         name: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-        nit: new FormControl({ value: '', disabled: true }, { nonNullable: true }),
+        // El NIT se captura UNA sola vez (onboarding diferido): editable
+        // mientras esté vacío, deshabilitado cuando ya existe (regla del API).
+        nit: new FormControl('', { nonNullable: true }),
         state: new FormControl({value:'', disabled: true}, { nonNullable: true }),
         city: new FormControl({value:'', disabled: true}, { nonNullable: true  }),
+        // Domicilio para empresas que aún no lo registraron.
+        newState: new FormControl<LocationOption | null>(null),
+        newCity: new FormControl<LocationOption | null>(null),
+        address: new FormControl('', { nonNullable: true }),
         sectorId: new FormControl<Parameter | null>(null, { validators: [Validators.required] }),
         accountTypeId: new FormControl<number | null>(null),
         accountBankId: new FormControl<number | null>(null),
         accountNumber: new FormControl<string | null>(null, { validators: [Validators.maxLength(50)] }),
         isActive: new FormControl({ value: false, disabled: true }, { nonNullable: true }),
         createdAt: new FormControl({ value: '', disabled: true }, { nonNullable: true }),
-        // Representante legal: se registra en el onboarding y aquí solo se
-        // consulta, por eso van deshabilitados y fuera del payload de guardado.
+        // Representante legal ya registrado: solo consulta (cambiarlo pasa por
+        // soporte); el alta cuando no existe usa legalRepForm.
         legalRepName: new FormControl({ value: '', disabled: true }, { nonNullable: true }),
         legalRepDocType: new FormControl({ value: '', disabled: true }, { nonNullable: true }),
         legalRepIdentificationNumber: new FormControl({ value: '', disabled: true }, { nonNullable: true }),
@@ -177,8 +191,29 @@ export class Company {
         legalRepPhone: new FormControl({ value: '', disabled: true }, { nonNullable: true })
     });
 
+    /** Alta del representante legal cuando aún no está registrado (una sola vez). */
+    legalRepForm = new FormGroup({
+        name: new FormControl('', { nonNullable: true }),
+        identificationType: new FormControl<Parameter | null>(null),
+        identificationNumber: new FormControl('', { nonNullable: true }),
+        email: new FormControl('', { nonNullable: true, validators: [Validators.email] }),
+        phone: new FormControl('', { nonNullable: true })
+    });
+
     /** Las empresas creadas antes de pedir el representante legal no lo tienen. */
     hasLegalRep = computed(() => !!this.company()?.legalRepName);
+
+    /** True mientras la empresa no tenga NIT: se captura una única vez. */
+    canEditNit = computed(() => !!this.company() && !this.company()!.nit);
+
+    /** True si la empresa aún no registró su domicilio (ciudad DANE). */
+    needsCity = computed(() => !!this.company() && !this.company()!.cityCode);
+
+    /** Departamento elegido para el domicilio nuevo; habilita el control de ciudad. */
+    private newStateValue = toSignal(this.form.controls.newState.valueChanges, {
+        initialValue: this.form.controls.newState.value
+    });
+    regionCode = computed(() => this.newStateValue()?.code ?? null);
 
     currentLogoUrl = computed(() => this.logoPreview() ?? this.company()?.logoSignedUrl ?? null);
 
@@ -194,9 +229,10 @@ export class Company {
 
                 this.form.patchValue({
                     name: c.name,
-                    nit: c.nit,
-                    city: c.daneCity.name,
-                    state: c.daneCity.region.name,
+                    nit: c.nit ?? '',
+                    city: c.daneCity?.name ?? '',
+                    state: c.daneCity?.region.name ?? '',
+                    address: c.address ?? '',
                     // SectorSelect resolves the full Parameter from the id once its list loads.
                     sectorId: c.sectorId != null ? ({ id: c.sectorId } as Parameter) : null,
                     accountTypeId: c.accountTypeId,
@@ -211,6 +247,13 @@ export class Company {
                     legalRepEmail: c.legalRepEmail ?? '',
                     legalRepPhone: c.legalRepPhone ?? ''
                 });
+
+                // NIT inmutable una vez registrado (regla del backend).
+                if (c.nit) {
+                    this.form.controls.nit.disable({ emitEvent: false });
+                } else {
+                    this.form.controls.nit.enable({ emitEvent: false });
+                }
 
                 const docType = idTypes.find(t => t.id === c.billingDocTypeId) ?? null;
 
@@ -240,6 +283,7 @@ export class Company {
 
                 this.form.markAsPristine();
                 this.billingForm.markAsPristine();
+                this.legalRepForm.markAsPristine();
             }
         });
     }
@@ -275,17 +319,33 @@ export class Company {
     }
 
     onSave(): void {
-        if (this.form.invalid || this.billingForm.invalid) {
+        if (this.form.invalid || this.billingForm.invalid || this.legalRepForm.invalid) {
             this.form.markAllAsTouched();
             this.billingForm.markAllAsTouched();
+            this.legalRepForm.markAllAsTouched();
             return;
         }
 
         const formData = this.form.getRawValue();
         const billingData = this.billingForm.getRawValue();
+        const legalRep = this.legalRepForm.getRawValue();
         const payload = {
             name: formData.name,
             sectorId: formData.sectorId?.id ?? null,
+            // Diferidos del onboarding: solo viajan cuando hay algo que registrar.
+            // El NIT y la ciudad se escriben una única vez (regla del API).
+            ...(this.canEditNit() && formData.nit.trim() ? { nit: formData.nit.trim() } : {}),
+            ...(this.needsCity() && formData.newCity?.code ? { cityCode: formData.newCity.code } : {}),
+            ...(formData.address.trim() ? { address: formData.address.trim() } : {}),
+            ...(!this.hasLegalRep() && legalRep.name.trim()
+                ? {
+                      legalRepName: legalRep.name.trim(),
+                      legalRepIdentificationTypeId: legalRep.identificationType?.id ?? null,
+                      legalRepIdentificationNumber: legalRep.identificationNumber.trim() || null,
+                      legalRepEmail: legalRep.email.trim() || null,
+                      legalRepPhone: legalRep.phone.trim() || null
+                  }
+                : {}),
             accountTypeId: formData.accountTypeId,
             accountBankId: formData.accountBankId,
             accountNumber: formData.accountNumber,
@@ -310,7 +370,12 @@ export class Company {
             next: () => {
                 this.form.markAsPristine();
                 this.billingForm.markAsPristine();
+                this.legalRepForm.markAsPristine();
                 this.notificationService.success('Empresa actualizada correctamente');
+                // Recarga empresa y perfil: el checklist de pendientes y la
+                // inmutabilidad del NIT dependen de ambos.
+                this.companyResource.reload();
+                void this.authService.refreshProfile();
             }
         });
     }

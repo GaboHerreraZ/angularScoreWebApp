@@ -4,10 +4,12 @@ import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
 import { NotificationService } from '@/app/shared/components/notification/notification.service';
 import { SupabaseService } from '@/app/core/services/supabase.service';
+import { CompanyDataIncompleteService } from '@/app/shared/components/company-data-dialog/company-data-incomplete.service';
 
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
     const notificationService = inject(NotificationService);
     const supabaseService = inject(SupabaseService);
+    const companyDataIncomplete = inject(CompanyDataIncompleteService);
     const router = inject(Router);
 
     const silent = req.headers.has('X-Silent-Error');
@@ -15,6 +17,14 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
 
     return next(cleanReq).pipe(
         catchError((error: HttpErrorResponse) => {
+            // Datos de empresa incompletos (onboarding diferido): diálogo con el
+            // CTA a Administración → Empresa en vez del toast genérico. Aplica
+            // también a peticiones silenciosas: el aviso es la UX del gate.
+            if (error.status === 400 && error.error?.code === 'COMPANY_DATA_INCOMPLETE') {
+                companyDataIncomplete.open(error.error?.message ?? 'Completa los datos de tu empresa para continuar.');
+                return throwError(() => error);
+            }
+
             if (silent) return throwError(() => error);
 
             if (error.status === 0 && supabaseService.isAuthenticated()) {

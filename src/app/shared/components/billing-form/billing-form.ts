@@ -39,6 +39,11 @@ export class BillingForm {
     formGroup = input.required<FormGroup>();
     pendingStateName = input<string | null>(null);
     pendingCityName = input<string | null>(null);
+    /**
+     * Columnas de la grilla de campos. Un contenedor ancho (p. ej. el paso de
+     * facturación del onboarding) puede pedir 3 para que el bloque quede bajo.
+     */
+    gridClass = input<string>('grid-cols-1 md:grid-cols-2');
 
     stateRef = viewChild<StateControl>('stateRef');
     cityRef = viewChild<CityControl>('cityRef');

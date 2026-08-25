@@ -1,31 +1,25 @@
 import { Component, computed, DestroyRef, effect, inject, resource, signal, viewChild } from '@angular/core';
-import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
-import { finalize, firstValueFrom, merge } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { finalize, firstValueFrom } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import { StepsModule } from 'primeng/steps';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
-import { SelectModule } from 'primeng/select';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { SkeletonModule } from 'primeng/skeleton';
-import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { MenuItem } from 'primeng/api';
-import { PhoneInput } from '@/app/shared/components/phone-input/phone-input';
-import { SectorSelect } from '@/app/shared/components/sector-select/sector-select';
-import { StateControl } from '@/app/shared/components/state-control/state-control';
-import { CityControl } from '@/app/shared/components/city-control/city-control';
 import { PackDisplayCard } from '@/app/shared/components/pack-card/pack-display-card';
 import { PackIncludedFeatures } from '@/app/shared/components/pack-card/pack-included-features';
 import { CardCarousel } from '@/app/shared/components/card-carousel/card-carousel';
 import { BillingForm } from '@/app/shared/components/billing-form/billing-form';
-import { buildBillingForm, isBusinessDocType } from '@/app/shared/components/billing-form/billing-form.builder';
+import { buildBillingForm } from '@/app/shared/components/billing-form/billing-form.builder';
 import { EpaycoCheckout } from '@/app/shared/components/epayco-checkout/epayco-checkout';
 import { EpaycoCheckoutLoader } from '@/app/shared/components/epayco-checkout/epayco-checkout.service';
-import { ParameterService } from '@/app/core/services/parameter.service';
 import { SupabaseService } from '@/app/core/services/supabase.service';
 import { NotificationService } from '@/app/shared/components/notification/notification.service';
+import { WelcomeService } from '@/app/shared/components/welcome-dialog/welcome.service';
 import { Parameter } from '@/app/types/parameter';
 import { OnboardingService } from '../onboarding.service';
 import { PurchaseSummary, onboardingSummaries } from '../purchase-summary/purchase-summary';
@@ -34,25 +28,23 @@ import { AnalysisPacksService } from '@/app/shared/services/analysis-packs.servi
 import { OnboardingByProfile, OnboardingRequest, PackOffering } from '@/app/types/onboarding';
 import { PRESELECTED_PACK_KEY } from '@/app/core/constants/storage-keys';
 
-import type { LocationOption as StateCity } from '@/app/core/services/locations.service';
-
+/**
+ * Onboarding en 3 pasos: Perfil (mínimo: nombre + cargo + nombre de la empresa),
+ * Paquete y facturación, y Resumen. El NIT, sector, ciudad, dirección y
+ * representante legal de la empresa NO se piden aquí: se completan después en
+ * Administración → Empresa (la app muestra los pendientes y bloquea con aviso
+ * las funciones que los necesitan).
+ */
 @Component({
     selector: 'app-onboarding-wizard',
     standalone: true,
     imports: [
         ReactiveFormsModule,
-        FormsModule,
         StepsModule,
         ButtonModule,
         InputTextModule,
-        SelectModule,
         FloatLabelModule,
         SkeletonModule,
-        ToggleSwitchModule,
-        PhoneInput,
-        SectorSelect,
-        StateControl,
-        CityControl,
         PackDisplayCard,
         PackIncludedFeatures,
         CardCarousel,
@@ -68,20 +60,20 @@ export class OnboardingWizard {
     private onboardingService = inject(OnboardingService);
     private packOfferingsService = inject(PackOfferingsService);
     private analysisPacksService = inject(AnalysisPacksService);
-    private parameterService = inject(ParameterService);
     private supabaseService = inject(SupabaseService);
     private notification = inject(NotificationService);
     private checkoutLoader = inject(EpaycoCheckoutLoader);
+    private welcomeService = inject(WelcomeService);
 
     checkout = viewChild.required<EpaycoCheckout>('checkout');
-    /** Resumen de compra del paso 4; dueño del código promocional. Solo existe en ese paso. */
+    /** Resumen de compra del último paso; dueño del código promocional. Solo existe en ese paso. */
     summary = viewChild<PurchaseSummary>('summary');
 
     constructor() {
         // Precargamos el script de ePayco al llegar al resumen, para que
         // openNew() ocurra junto al click y el navegador no bloquee el popup.
         effect(() => {
-            if (this.step() === 3) {
+            if (this.step() === 2) {
                 this.checkoutLoader.load().catch(() => { /* se reintenta al pagar */ });
             }
         });
@@ -101,25 +93,13 @@ export class OnboardingWizard {
             const pack = packs.find((p) => p.id === packId);
             if (pack) this.selectedPack.set(pack);
         });
-
-
-        effect((onCleanup) => {
-            if (!this.sameBillingAsCompany()) {
-                this.lockMirroredBilling(false);
-                return;
-            }
-            this.copyCompanyIntoBilling();
-            this.lockMirroredBilling(true);
-            const sub = merge(this.companyForm.valueChanges, this.legalRepForm.valueChanges)
-                .subscribe(() => this.copyCompanyIntoBilling());
-            onCleanup(() => sub.unsubscribe());
-        });
     }
 
     /**
-     * Si el usuario ya completó perfil + empresa (GET 200), saltamos directo a
-     * elegir el paquete y bloqueamos volver atrás: esos datos ya están guardados
-     * y solo se usan para el resumen del pago. Un 404 significa empezar de cero.
+     * Si el usuario ya completó su registro (GET 200), saltamos directo a elegir
+     * el paquete y bloqueamos volver atrás: perfil, empresa y facturación ya
+     * están guardados y solo se usan para el resumen del pago. Un 404 significa
+     * empezar de cero.
      */
     private loadExistingOnboarding(): void {
         const profileId = this.supabaseService.currentUser()?.id as string | undefined;
@@ -136,7 +116,7 @@ export class OnboardingWizard {
                 this.existing.set(data);
                 this.companyId.set(data.companyId);
                 this.prefilled.set(true);
-                this.step.set(2); // saltamos a "Paquete"
+                this.step.set(1); // saltamos a "Paquete y facturación"
             },
             error: () => {
                 // 404 (u otro): no hay onboarding previo, se empieza desde el paso 1.
@@ -149,8 +129,7 @@ export class OnboardingWizard {
 
     steps: MenuItem[] = [
         { label: 'Perfil' },
-        { label: 'Empresa' },
-        { label: 'Paquete' },
+        { label: 'Paquete y facturación' },
         { label: 'Resumen' }
     ];
 
@@ -158,9 +137,8 @@ export class OnboardingWizard {
     stepTagline = computed(() => {
         switch (this.step()) {
             case 0: return 'Empecemos por conocerte. Tomará menos de un minuto.';
-            case 1: return 'Vas muy bien. Cuéntanos de tu empresa.';
-            case 2: return 'Ya casi. Elige el paquete que mejor se ajusta a ti.';
-            case 3: return '¡Último paso! Revisa todo y activa tu cuenta.';
+            case 1: return 'Elige tu paquete y dinos a nombre de quién facturamos.';
+            case 2: return '¡Último paso! Revisa todo y activa tu cuenta.';
             default: return '';
         }
     });
@@ -182,16 +160,11 @@ export class OnboardingWizard {
 
     /**
      * El código promocional del resumen cubre el 100%: no habrá pasarela de
-     * pago. El estado vive en el componente de resumen (paso 4).
+     * pago. El estado vive en el componente de resumen (último paso).
      */
     isFreePurchase = computed<boolean>(() => this.summary()?.isFreePurchase() ?? false);
 
     // ── Catálogos ─────────────────────────────────────────────────────
-    identificationTypesResource = resource<Parameter[], {}>({
-        params: () => ({}),
-        loader: () => firstValueFrom(this.parameterService.getByType('identification_type'))
-    });
-
     packsResource = resource<PackOffering[], {}>({
         params: () => ({}),
         loader: () => firstValueFrom(this.packOfferingsService.getPackCatalog())
@@ -203,28 +176,12 @@ export class OnboardingWizard {
     profileForm = new FormGroup({
         name: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
         lastName: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-        phone: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-        identificationType: new FormControl<Parameter | null>(null, { validators: [Validators.required] }),
-        identificationNumber: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-        position: new FormControl('', { nonNullable: true, validators: [Validators.required] })
+        position: new FormControl('', { nonNullable: true })
     });
 
+    /** La empresa nace solo con el nombre; el resto se completa dentro de la app. */
     companyForm = new FormGroup({
-        name: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-        nit: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-        sector: new FormControl<Parameter | null>(null, { validators: [Validators.required] }),
-        state: new FormControl<StateCity | null>(null, { validators: [Validators.required] }),
-        city: new FormControl<StateCity | null>(null, { validators: [Validators.required] }),
-        address: new FormControl('', { nonNullable: true, validators: [Validators.required] })
-    });
-
-
-    legalRepForm = new FormGroup({
-        name: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-        identificationType: new FormControl<Parameter | null>(null, { validators: [Validators.required] }),
-        identificationNumber: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-        email: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.email] }),
-        phone: new FormControl('', { nonNullable: true, validators: [Validators.required] })
+        name: new FormControl('', { nonNullable: true, validators: [Validators.required] })
     });
 
     /**
@@ -235,87 +192,46 @@ export class OnboardingWizard {
         salesRepCode: new FormControl('', { nonNullable: true, validators: [Validators.maxLength(30)] })
     });
 
-    /** Datos de facturación (los llena el usuario en el paso de Empresa). */
+    /** Datos de facturación (los llena el usuario en el paso de Paquete). */
     billingForm = buildBillingForm();
 
-    sameBillingAsCompany = signal(false);
-
-    private readonly mirroredBillingControls = [
-        'billingDocType',
-        'billingDocNumber',
-        'billingBusinessName',
-        'billingAddress',
-        'billingState',
-        'billingCity',
-        'billingEmail',
-        'billingPhone'
-    ];
-
-    private nitDocType = computed(() => (this.identificationTypesResource.value() ?? []).find(isBusinessDocType) ?? null);
-
-    private copyCompanyIntoBilling(): void {
-        const c = this.companyForm.getRawValue();
-        // El contacto de facturación sale del representante legal: es el único
-        // correo y teléfono que se piden en la sección de la empresa.
-        const l = this.legalRepForm.getRawValue();
-        const nit = this.nitDocType();
-        this.billingForm.patchValue({
-            ...(nit && { billingDocType: nit }),
-            billingDocNumber: c.nit,
-            billingBusinessName: c.name,
-            billingAddress: c.address,
-            billingState: c.state,
-            billingCity: c.city,
-            billingEmail: l.email,
-            billingPhone: l.phone
-        });
-    }
-
-    private lockMirroredBilling(locked: boolean): void {
-        for (const name of this.mirroredBillingControls) {
-            const control = this.billingForm.get(name);
-            if (!control) continue;
-            if (locked && name === 'billingDocType' && !control.value) continue;
-            if (locked) {
-                control.disable({ emitEvent: false });
-            } else {
-                control.enable({ emitEvent: false });
-            }
-        }
-    }
-
     /**
-     * Id del departamento seleccionado en la empresa. Un computed no basta:
-     * un FormControl no es un signal, así que escuchamos sus cambios de valor
-     * para que el control de ciudad se habilite al elegir departamento.
+     * Siembra la facturación con lo ya escrito en el perfil (solo campos vacíos):
+     * el caso común es que quien registra también es el titular de la factura.
      */
-    private companyState = toSignal(this.companyForm.controls.state.valueChanges, {
-        initialValue: this.companyForm.controls.state.value
-    });
-    regionCode = computed(() => this.companyState()?.code ?? null);
+    private prefillBillingFromProfile(): void {
+        const p = this.profileForm.getRawValue();
+        const patch: Record<string, string> = {};
+        if (!this.billingForm.get('billingName')?.value) patch['billingName'] = p.name;
+        if (!this.billingForm.get('billingLastName')?.value) patch['billingLastName'] = p.lastName;
+        if (!this.billingForm.get('billingEmail')?.value && this.userEmail) patch['billingEmail'] = this.userEmail;
+        this.billingForm.patchValue(patch);
+    }
 
     // ── Navegación entre pasos ────────────────────────────────────────
     next(): void {
-        if (this.step() === 0 && this.profileForm.invalid) {
-            this.profileForm.markAllAsTouched();
-            return;
+        if (this.step() === 0) {
+            if (this.profileForm.invalid || this.companyForm.invalid) {
+                this.profileForm.markAllAsTouched();
+                this.companyForm.markAllAsTouched();
+                return;
+            }
+            this.prefillBillingFromProfile();
         }
         if (this.step() === 1) {
-            if (this.companyForm.invalid || this.legalRepForm.invalid || this.billingForm.invalid) {
-                this.companyForm.markAllAsTouched();
-                this.legalRepForm.markAllAsTouched();
+            if (!this.selectedPack()) {
+                this.notification.warn('Selecciona un paquete para continuar.');
+                return;
+            }
+            if (!this.prefilled() && this.billingForm.invalid) {
                 this.billingForm.markAllAsTouched();
                 return;
             }
-            // Al salir de "Empresa", registramos onboarding si aún no está hecho.
+            // Al salir del paso, registramos el onboarding si aún no está hecho.
             if (!this.companyId()) {
                 this.submitOnboarding();
                 return;
             }
-        }
-        if (this.step() === 2 && !this.selectedPack()) {
-            this.notification.warn('Selecciona un paquete para continuar.');
-            return;
         }
         this.step.update((s) => Math.min(s + 1, this.steps.length - 1));
     }
@@ -326,13 +242,13 @@ export class OnboardingWizard {
 
     /**
      * Paso mínimo al que se puede retroceder. Con el onboarding ya precargado,
-     * perfil y empresa no se editan y el mínimo pasa a ser "Paquete".
+     * perfil y facturación no se editan y el mínimo pasa a ser "Paquete".
      */
-    private stepFloor(): number {
-        return this.prefilled() ? 2 : 0;
+    stepFloor(): number {
+        return this.prefilled() ? 1 : 0;
     }
 
-    /** True si desde el resumen se pueden corregir perfil, empresa y facturación. */
+    /** True si desde el resumen se pueden corregir perfil y facturación. */
     canEdit = computed(() => !this.prefilled());
 
     /** Vuelve a un paso anterior desde el resumen para corregir datos. */
@@ -356,11 +272,14 @@ export class OnboardingWizard {
         ).subscribe({
             next: (res) => {
                 this.companyId.set(res.companyId);
+                // Onboarding nuevo → la bienvenida debe volver a mostrarse
+                // aunque este usuario ya la haya visto con una cuenta anterior.
+                this.welcomeService.reset(res.profileId);
                 this.step.set(2);
             },
             error: (error: HttpErrorResponse) => {
                 if (error.status === 409) {
-                    this.notification.error(error.error?.message || 'Ya existe una empresa con ese NIT.');
+                    this.notification.error(error.error?.message || 'Este correo ya está asociado a otra cuenta.');
                 } else {
                     this.notification.error('No se pudo completar el registro. Revisa los datos e inténtalo de nuevo.');
                 }
@@ -368,37 +287,23 @@ export class OnboardingWizard {
         });
     }
 
-    /** Arma el payload de /onboarding con perfil, empresa, representante legal y facturación. */
+    /** Arma el payload de /onboarding con perfil mínimo, nombre de empresa y facturación. */
     private buildOnboardingPayload(): OnboardingRequest {
         const p = this.profileForm.getRawValue();
         const c = this.companyForm.getRawValue();
-        const l = this.legalRepForm.getRawValue();
         const b = this.billingForm.getRawValue();
         const referralCode = this.referralForm.getRawValue().salesRepCode.trim();
+        const position = p.position.trim();
 
         return {
             ...(referralCode && { salesRepCode: referralCode.toUpperCase() }),
             profile: {
                 name: p.name,
                 lastName: p.lastName,
-                phone: p.phone,
-                identificationTypeId: p.identificationType!.id,
-                identificationNumber: p.identificationNumber,
-                position: p.position
+                ...(position && { position })
             },
             company: {
-                name: c.name,
-                nit: c.nit,
-                sectorId: c.sector!.id,
-                cityCode: c.city!.code,
-                address: c.address
-            },
-            legalRep: {
-                legalRepName: l.name,
-                legalRepIdentificationTypeId: l.identificationType!.id,
-                legalRepIdentificationNumber: l.identificationNumber,
-                legalRepEmail: l.email,
-                legalRepPhone: l.phone
+                name: c.name
             },
             billing: {
                 billingName: b.billingName,
@@ -473,7 +378,7 @@ export class OnboardingWizard {
 
     /**
      * Datos del resumen. Si el onboarding venía precargado (GET 200) usamos esa
-     * data; si el usuario lo llenó en los pasos 1-2, lo tomamos de los forms.
+     * data; si el usuario lo llenó en los pasos anteriores, lo tomamos de los forms.
      */
     get profileSummary() {
         const ex = this.existingSummaries();
@@ -482,20 +387,21 @@ export class OnboardingWizard {
         return {
             name: `${p.name} ${p.lastName}`.trim(),
             position: p.position,
-            docNumber: p.identificationNumber,
-            phone: p.phone
+            // Ya no se piden en el onboarding; se completan dentro de la app.
+            docNumber: '',
+            phone: ''
         };
     }
 
     get companySummary() {
         const ex = this.existingSummaries();
         if (ex) return ex.company;
-        const c = this.companyForm.getRawValue();
         return {
-            name: c.name,
-            nit: c.nit,
-            address: c.address,
-            location: [c.city?.name, c.state?.name].filter(Boolean).join(', ')
+            name: this.companyForm.getRawValue().name,
+            // NIT, dirección y ciudad se completan dentro de la app.
+            nit: '',
+            address: '',
+            location: ''
         };
     }
 

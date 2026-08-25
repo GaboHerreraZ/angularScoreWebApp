@@ -3,13 +3,14 @@ import { Parameter } from './parameter';
 export interface Company {
     id: string;
     name: string;
-    nit: string;
-    sectorId: number;
+    /** Nulos hasta que se completen en la app (onboarding diferido). */
+    nit: string | null;
+    sectorId: number | null;
     /** Código DANE del municipio (domicilio). */
-    cityCode: string;
+    cityCode: string | null;
     /** Municipio y departamento ya resueltos por el API (solo lectura). */
-    daneCity: { name: string; region: { name: string } };
-    address: string;
+    daneCity: { name: string; region: { name: string } } | null;
+    address: string | null;
     accountTypeId: number | null;
     accountBankId: number | null;
     accountNumber: string | null;
@@ -37,7 +38,7 @@ export interface Company {
     isActive: boolean;
     createdAt: string;
     updatedAt: string;
-    sector: Parameter;
+    sector: Parameter | null;
     userCompanies: UserCompany[];
 }
 

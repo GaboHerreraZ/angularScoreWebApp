@@ -15,11 +15,12 @@ import { BadgeModule } from 'primeng/badge';
 import { NotificationCenterService } from '@/app/core/services/notification-center.service';
 import { SearchService } from '@/app/shared/services/search.service';
 import { CreditsIndicator } from '@/app/layout/components/credits-indicator/credits-indicator';
+import { SetupPendingIndicator } from '@/app/layout/components/setup-checklist/setup-pending-indicator';
 
 @Component({
     selector: '[app-topbar]',
     standalone: true,
-    imports: [RouterModule, CommonModule, StyleClassModule, FormsModule, Ripple, ButtonModule, AvatarModule, TooltipModule, BadgeModule, CreditsIndicator],
+    imports: [RouterModule, CommonModule, StyleClassModule, FormsModule, Ripple, ButtonModule, AvatarModule, TooltipModule, BadgeModule, CreditsIndicator, SetupPendingIndicator],
     templateUrl: './topbar.html',
     host: {
         class: 'layout-topbar'
