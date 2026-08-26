@@ -1,36 +1,25 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '@/app/core/services/auth.service';
 import { setupPendingItems } from './setup-items';
 
-const DISMISS_KEY = 'creditia.setupChecklist.dismissed';
-
 /**
  * Checklist de configuración pendiente (onboarding diferido): lista lo que
  * falta por completar (datos de empresa, representante legal, bancarios,
- * perfil) con el link directo a la pantalla donde se resuelve. Descartable por
- * sesión: mientras haya pendientes, reaparece al volver a entrar.
+ * perfil) con el link directo a la pantalla donde se resuelve. NO es
+ * descartable a propósito: desaparece solo cuando ya no falta nada — si se
+ * pudiera cerrar, el usuario perdería la única lista de qué le falta.
  */
 @Component({
     selector: 'app-setup-checklist',
     standalone: true,
     imports: [RouterModule],
     template: `
-        @if (visible()) {
+        @if (items().length > 0) {
             <div class="rounded-2xl border border-amber-300/70 dark:border-amber-500/30 bg-amber-50/70 dark:bg-amber-500/10 p-4 sm:p-5 mb-6">
-                <div class="flex items-start justify-between gap-3 mb-3">
-                    <div class="flex items-center gap-2">
-                        <i class="pi pi-list-check text-amber-600 dark:text-amber-400"></i>
-                        <span class="font-bold text-color">Termina de configurar tu cuenta</span>
-                    </div>
-                    <button
-                        type="button"
-                        class="text-muted-color hover:text-color bg-transparent border-0 p-0 cursor-pointer"
-                        aria-label="Ocultar por ahora"
-                        (click)="dismiss()"
-                    >
-                        <i class="pi pi-times"></i>
-                    </button>
+                <div class="flex items-center gap-2 mb-3">
+                    <i class="pi pi-list-check text-amber-600 dark:text-amber-400"></i>
+                    <span class="font-bold text-color">Termina de configurar tu cuenta</span>
                 </div>
                 <ul class="list-none m-0 p-0 grid grid-cols-1 lg:grid-cols-2 gap-2">
                     @for (item of items(); track item.title) {
@@ -58,14 +47,5 @@ const DISMISS_KEY = 'creditia.setupChecklist.dismissed';
 export class SetupChecklist {
     private authService = inject(AuthService);
 
-    private dismissed = signal(sessionStorage.getItem(DISMISS_KEY) === '1');
-
     items = computed(() => setupPendingItems(this.authService.currentProfile()));
-
-    visible = computed(() => !this.dismissed() && this.items().length > 0);
-
-    dismiss(): void {
-        sessionStorage.setItem(DISMISS_KEY, '1');
-        this.dismissed.set(true);
-    }
 }
