@@ -1,0 +1,55 @@
+<section class="landing-aurora px-6 sm:px-12 lg:px-20 py-16 lg:py-24 bg-surface-0 dark:bg-surface-950">
+    <div class="max-w-screen-xl mx-auto">
+        <div class="text-center mb-12" appScrollAnimate="fade-up">
+            <span class="bg-primary/10 text-primary font-bold text-m uppercase tracking-widest px-4 py-1.5 rounded-full">Dos formas de evaluar</span>
+            <h2 class="font-extrabold text-3xl sm:text-4xl lg:text-5xl mt-6 mb-4 text-color leading-tight">
+                Evalúa empresas <span class="text-primary">y personas naturales</span>
+            </h2>
+            <p class="text-lg text-muted-color m-0 max-w-2xl mx-auto">
+                ¿Tu cliente tiene estados financieros? Perfecto. ¿Es un independiente que solo tiene
+                su cuenta bancaria? También. Cada uno con el estudio que le corresponde.
+            </p>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+            @for (type of types; track type.title) {
+            <div
+                class="landing-card flex flex-col gap-4 rounded-2xl border border-surface bg-surface-50 dark:bg-surface-900 p-6 sm:p-7 transition-colors duration-300 hover:border-primary/40"
+                appScrollAnimate="fade-up"
+                [animateDelay]="150 + $index * 150"
+            >
+                <div class="flex items-center gap-3">
+                    <span class="inline-flex items-center justify-center w-12 h-12 rounded-xl shrink-0 {{ type.iconClasses }}">
+                        <i class="pi {{ type.icon }} text-xl"></i>
+                    </span>
+                    <div class="flex flex-col min-w-0">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="font-bold text-lg text-color">{{ type.title }}</span>
+                            @if (type.badge) {
+                            <span class="text-[0.65rem] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-500">{{ type.badge }}</span>
+                            }
+                        </div>
+                        <span class="text-m text-muted-color">{{ type.subtitle }}</span>
+                    </div>
+                </div>
+
+                <p class="text-muted-color leading-relaxed m-0">{{ type.description }}</p>
+
+                <ul class="list-none p-0 m-0 flex flex-col gap-2.5 mt-auto">
+                    @for (bullet of type.bullets; track bullet) {
+                    <li class="flex items-start gap-2.5 text-m text-color">
+                        <i class="pi pi-check text-primary text-sm mt-1 shrink-0"></i>
+                        <span>{{ bullet }}</span>
+                    </li>
+                    }
+                </ul>
+            </div>
+            }
+        </div>
+
+        <p class="text-center text-m text-muted-color mt-8 m-0" appScrollAnimate="fade-up" [animateDelay]="400">
+            Los dos incluyen la consulta a <span class="font-semibold text-color">Datacrédito Experian</span>
+            y descuentan un análisis de tu bolsa. Mismo precio, misma plataforma.
+        </p>
+    </div>
+</section>
