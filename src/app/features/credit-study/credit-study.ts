@@ -7,11 +7,18 @@ import { CustomTable } from '@/app/shared/components/table/table';
 import { TableColumn, TableSettings, TablePageChangeEvent, TableSearchEvent, TableActionEvent } from '@/app/types/table';
 import { CreditStudyService } from './credit-study.service';
 import { AuthService } from '@/app/core/services/auth.service';
+import { StudyTypeSelector } from './payment-capacity/study-type-selector/study-type-selector';
+import { StudyTypeCode } from '@/app/types/payment-capacity';
+
+/** Estados compartidos que en el estudio de capacidad significan otra cosa. */
+const CAPACITY_STATUS_LABEL: Record<string, string> = {
+    pendingFinancialStatements: 'Pendiente Documentos'
+};
 
 @Component({
     selector: 'app-credit-study',
     standalone: true,
-    imports: [CommonModule, CustomTable],
+    imports: [CommonModule, CustomTable, StudyTypeSelector],
     templateUrl: './credit-study.html'
 })
 export class CreditStudy implements OnInit {
@@ -19,6 +26,22 @@ export class CreditStudy implements OnInit {
     private authService = inject(AuthService);
 
     exporting = signal(false);
+
+    /** Diálogo de elección del tipo de estudio, previo a crear uno nuevo. */
+    studyTypeSelectorVisible = signal(false);
+
+    /**
+     * Filas de la tabla. Ambos tipos de estudio comparten la máquina de estados,
+     * así que en los de capacidad se remapea el label: sus documentos no son
+     * estados financieros y el estado del backend diría lo contrario.
+     */
+    rows = computed(() =>
+        this.creditStudyService.creditStudies().map((study) => {
+            if (study.studyType?.code !== 'paymentCapacity' || !study.status) return study;
+            const label = CAPACITY_STATUS_LABEL[study.status.code];
+            return label ? { ...study, status: { ...study.status, label } } : study;
+        })
+    );
 
     private canAddCreditStudy = computed(() => {
         const perms = this.authService.currentProfile()?.permissions;
@@ -64,6 +87,21 @@ export class CreditStudy implements OnInit {
                 field: 'customer.businessName',
                 type: 'text',
                 minWidth: '14rem'
+            },
+            {
+                header: 'Tipo',
+                field: 'studyType.label',
+                type: 'status',
+                minWidth: '11rem',
+                severityMap: {
+                    'Estudio empresarial': 'info',
+                    'Estudio de capacidad de pago': 'success'
+                },
+                defaultSeverity: 'secondary',
+                filterOptions: [
+                    { label: 'Estudio empresarial', value: 'Estudio empresarial' },
+                    { label: 'Estudio de capacidad de pago', value: 'Estudio de capacidad de pago' }
+                ]
             },
             {
                 header: 'Cupo Solicitado',
@@ -147,12 +185,23 @@ export class CreditStudy implements OnInit {
 
     onActionClick(event: TableActionEvent): void {
         if (event.action === 'view') {
-            this.router.navigate(['/app/estudio-credito/detalle-estudio', event.row.id]);
+            this.router.navigate([this.detailRoute(event.row['studyType']?.code), event.row.id]);
         }
     }
 
     onAdd(): void {
-        this.router.navigate(['/app/estudio-credito/detalle-estudio']);
+        this.studyTypeSelectorVisible.set(true);
+    }
+
+    /** El tipo elegido en el diálogo decide a qué formulario de creación se va. */
+    onStudyTypeSelected(studyType: StudyTypeCode): void {
+        this.router.navigate([this.detailRoute(studyType)]);
+    }
+
+    private detailRoute(studyType?: string): string {
+        return studyType === 'paymentCapacity'
+            ? '/app/estudio-credito/estudio-capacidad'
+            : '/app/estudio-credito/detalle-estudio';
     }
 
     onExport(): void {

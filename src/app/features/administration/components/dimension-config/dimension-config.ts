@@ -21,8 +21,10 @@ import {
     REQUIRED_DIMENSION_CODES,
     ScoringConfiguration,
     ScoringDimension,
+    STUDY_TYPE_TABS,
     TOTAL_WEIGHT
 } from '@/app/types/scoring-configuration';
+import { StudyTypeCode } from '@/app/types/payment-capacity';
 import { TableSettings } from '@/app/types/table';
 
 /** Fila del editor: una dimensión del catálogo con su estado editable. */
@@ -40,6 +42,12 @@ export interface DimensionRow {
 interface ConfigBundle {
     dimensions: ScoringDimension[];
     active: ScoringConfiguration;
+}
+
+/** Ejes de la configuración: cada combinación tiene su propia versión vigente. */
+interface ConfigScope {
+    personType: PersonTypeCode;
+    studyType: StudyTypeCode;
 }
 
 @Component({
@@ -63,27 +71,40 @@ export class DimensionConfig {
     private notification = inject(NotificationService);
 
     readonly personTypeTabs = PERSON_TYPE_TABS;
+    readonly studyTypeTabs = STUDY_TYPE_TABS;
     readonly minWeight = MIN_DIMENSION_WEIGHT;
     readonly totalWeight = TOTAL_WEIGHT;
 
     /** Tipo de persona activo. Por defecto, Persona Jurídica. */
     personType = signal<PersonTypeCode>('legalEntity');
 
-    // ── Catálogo + config activa (por tipo de persona) ────────────────
-    bundleResource = resource<ConfigBundle, PersonTypeCode>({
-        params: () => this.personType(),
-        loader: ({ params: personType }) => firstValueFrom(
+    /** Tipo de estudio activo. Por defecto, el empresarial (con EEFF). */
+    studyType = signal<StudyTypeCode>('financialStatements');
+
+    /** El estudio de capacidad de pago solo existe para persona natural. */
+    personTypeLocked = computed(() => this.studyType() === 'paymentCapacity');
+
+    private scope = computed<ConfigScope>(() => ({
+        personType: this.personType(),
+        studyType: this.studyType()
+    }));
+
+    // ── Catálogo + config activa (por tipo de persona y de estudio) ────
+    bundleResource = resource<ConfigBundle, ConfigScope>({
+        params: () => this.scope(),
+        loader: ({ params: { personType, studyType } }) => firstValueFrom(
             forkJoin({
-                dimensions: this.service.getDimensions(),
-                active: this.service.getActive(personType)
+                dimensions: this.service.getDimensions(studyType),
+                active: this.service.getActive(personType, studyType)
             })
         )
     });
 
-    // ── Historial de versiones (por tipo de persona) ──────────────────
-    historyResource = resource<ScoringConfiguration[], PersonTypeCode>({
-        params: () => this.personType(),
-        loader: ({ params: personType }) => firstValueFrom(this.service.getHistory(personType))
+    // ── Historial de versiones (por tipo de persona y de estudio) ──────
+    historyResource = resource<ScoringConfiguration[], ConfigScope>({
+        params: () => this.scope(),
+        loader: ({ params: { personType, studyType } }) =>
+            firstValueFrom(this.service.getHistory(personType, studyType))
     });
 
     active = computed(() => this.bundleResource.value()?.active ?? null);
@@ -110,13 +131,16 @@ export class DimensionConfig {
         this.enabledRows().some(r => (r.weight ?? 0) < this.minWeight)
     );
 
-    /** Todas las obligatorias están habilitadas. */
+    /**
+     * Todas las obligatorias están habilitadas. Cuáles lo son depende del tipo de
+     * estudio, así que manda el catálogo del backend; la constante local solo
+     * cubre el caso de que una fila llegue sin la marca.
+     */
     private requiredEnabled = computed<boolean>(() =>
-        REQUIRED_DIMENSION_CODES.every(code => {
-            const row = this.rows().find(r => r.code === code);
-            // Si una obligatoria no está en el catálogo aplicable, no la exigimos.
-            return !row || row.enabled;
-        })
+        this.rows().every(row =>
+            !(row.required || REQUIRED_DIMENSION_CODES.includes(row.code as typeof REQUIRED_DIMENSION_CODES[number]))
+            || row.enabled
+        )
     );
 
     /** Al menos una dimensión habilitada. */
@@ -148,6 +172,16 @@ export class DimensionConfig {
         });
     }
 
+    /** Al pasar a capacidad de pago, el tipo de persona queda fijo en natural. */
+    onStudyTypeChange(value: string | number | undefined): void {
+        if (value == null) return;
+        const studyType = value as StudyTypeCode;
+        if (studyType === 'paymentCapacity') {
+            this.personType.set('naturalPerson');
+        }
+        this.studyType.set(studyType);
+    }
+
     // ── Historial (tabla) ─────────────────────────────────────────────
     historyData = computed(() => {
         const rows = this.historyResource.value() ?? [];
@@ -156,6 +190,7 @@ export class DimensionConfig {
             createdAt: cfg.createdAt ? new Date(cfg.createdAt).toLocaleString('es-CO') : '—',
             createdBy: cfg.createdByName ?? '—',
             personType: cfg.personType?.label ?? '—',
+            studyType: cfg.studyType?.label ?? '—',
             status: cfg.isActive ? 'Vigente' : 'Histórica',
             dimensions: cfg.weights.length,
             detail: cfg.weights
@@ -172,6 +207,7 @@ export class DimensionConfig {
         columns: [
             { header: 'Fecha', field: 'createdAt', type: 'text' },
             { header: 'Modificado por', field: 'createdBy', type: 'text' },
+            { header: 'Tipo de estudio', field: 'studyType', type: 'text' },
             { header: 'Tipo de persona', field: 'personType', type: 'text' },
             { header: 'Estado', field: 'status', type: 'status', severityMap: { 'Vigente': 'success', 'Histórica': 'secondary' }, defaultSeverity: 'secondary' },
             { header: 'Dim.', field: 'dimensions', type: 'text', filterable: false },
@@ -187,7 +223,7 @@ export class DimensionConfig {
 
     // ── Acciones ──────────────────────────────────────────────────────
     onPersonTypeChange(value: string | number | undefined): void {
-        if (value == null) return;
+        if (value == null || this.personTypeLocked()) return;
         this.personType.set(value as PersonTypeCode);
     }
 
@@ -225,7 +261,7 @@ export class DimensionConfig {
         };
 
         this.saving.set(true);
-        this.service.create(this.personType(), dto).pipe(
+        this.service.create(this.personType(), dto, this.studyType()).pipe(
             finalize(() => this.saving.set(false)),
             takeUntilDestroyed(this.destroyRef)
         ).subscribe({
@@ -244,7 +280,7 @@ export class DimensionConfig {
         if (this.resetting() || this.saving()) return;
 
         this.resetting.set(true);
-        this.service.reset(this.personType()).pipe(
+        this.service.reset(this.personType(), this.studyType()).pipe(
             finalize(() => this.resetting.set(false)),
             takeUntilDestroyed(this.destroyRef)
         ).subscribe({

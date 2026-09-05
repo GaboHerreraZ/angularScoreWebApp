@@ -1,0 +1,56 @@
+<p-dialog
+    [(visible)]="visible"
+    [modal]="true"
+    [draggable]="false"
+    [dismissableMask]="true"
+    [style]="{ width: '92vw', maxWidth: '760px' }">
+
+    <ng-template #header>
+        <div class="flex items-center gap-3">
+            <div class="flex items-center justify-center rounded-full bg-primary-50 text-primary-500 dark:bg-primary-500/10 dark:text-primary-400 shrink-0" style="width: 2.5rem; height: 2.5rem;">
+                <i class="pi pi-th-large text-base"></i>
+            </div>
+            <div class="flex flex-col">
+                <span class="text-base font-semibold">¿Qué tipo de estudio necesita?</span>
+                <span class="text-sm text-muted-color">Elija según la información que tenga del cliente</span>
+            </div>
+        </div>
+    </ng-template>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1" data-tour="study-type-selector">
+        @for (option of options; track option.code) {
+        <button
+            type="button"
+            class="flex flex-col gap-3 text-left rounded-xl border border-surface p-4 sm:p-5 h-full transition-all hover:border-primary-400 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary-400"
+            (click)="onSelect(option.code)">
+            <div class="flex items-center gap-3">
+                <div class="flex items-center justify-center rounded-xl shrink-0" [ngClass]="option.iconClasses" style="width: 2.75rem; height: 2.75rem;">
+                    <i [ngClass]="option.icon" class="text-lg"></i>
+                </div>
+                <div class="flex flex-col min-w-0">
+                    <span class="text-base font-semibold">{{ option.title }}</span>
+                    <span class="text-sm text-muted-color">{{ option.subtitle }}</span>
+                </div>
+            </div>
+            <ul class="flex flex-col gap-2 m-0 p-0 list-none">
+                @for (bullet of option.bullets; track bullet) {
+                <li class="flex items-start gap-2 text-m text-muted-color">
+                    <i class="pi pi-check text-primary-500 text-sm mt-1 shrink-0"></i>
+                    <span>{{ bullet }}</span>
+                </li>
+                }
+            </ul>
+            <span class="inline-flex items-center gap-1.5 text-m font-semibold text-primary-600 dark:text-primary-400 mt-auto pt-1">
+                Continuar <i class="pi pi-arrow-right text-sm"></i>
+            </span>
+        </button>
+        }
+    </div>
+
+    <div class="flex items-start gap-2.5 p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 mt-4">
+        <i class="pi pi-info-circle text-blue-600 dark:text-blue-400 text-m mt-0.5 shrink-0"></i>
+        <span class="text-m text-blue-800 dark:text-blue-300">
+            Ambos consultan al titular en las centrales de riesgo y <span class="font-semibold">descuentan un estudio de su bolsa</span>.
+        </span>
+    </div>
+</p-dialog>

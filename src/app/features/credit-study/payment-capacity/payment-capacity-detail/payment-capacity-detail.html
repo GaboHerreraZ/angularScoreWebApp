@@ -1,0 +1,666 @@
+<p-confirmDialog [style]="{ width: '90vw', maxWidth: '440px' }" />
+
+<!-- ═══════════ Modal de firma del pagaré ═══════════ -->
+<app-promissory-note-modal
+    [(visible)]="promissoryNoteVisible"
+    [creditStudyId]="creditStudyId()"
+    [customerId]="studyCustomerId()"
+    (generated)="onPromissoryNoteGenerated()" />
+
+<!-- ═══════════ Modal de resumen previo a crear el estudio ═══════════ -->
+<p-dialog
+    [(visible)]="summaryVisible"
+    [modal]="true"
+    [closable]="!creatingStudy()"
+    [dismissableMask]="false"
+    [draggable]="false"
+    [style]="{ width: '90vw', maxWidth: '480px' }">
+
+    @if (creatingStudy()) {
+    <div class="flex flex-col items-center gap-5 py-6">
+        <div class="relative w-20 h-20">
+            <div class="absolute inset-0 rounded-full border-4 border-primary-100 dark:border-primary-900/40"></div>
+            <div class="absolute inset-0 rounded-full border-4 border-transparent border-t-primary-500 animate-spin"></div>
+            <div class="absolute inset-2.5 rounded-full bg-linear-to-br from-primary-500 to-primary-600 flex items-center justify-center shadow-lg shadow-primary-500/25">
+                <i class="pi pi-search text-white text-xl ai-sparkle-spin"></i>
+            </div>
+        </div>
+        <div class="text-center min-h-12">
+            <h6 class="font-bold text-base m-0">Creando el estudio de capacidad...</h6>
+            @for (msg of [loaderMessage()]; track msg) {
+            <p class="text-m text-muted-color m-0 mt-1 loader-message-fade">{{ msg }}</p>
+            }
+        </div>
+        <div class="flex gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-primary-400 loader-dot"></span>
+            <span class="w-2 h-2 rounded-full bg-primary-400 loader-dot" style="animation-delay: 0.2s"></span>
+            <span class="w-2 h-2 rounded-full bg-primary-400 loader-dot" style="animation-delay: 0.4s"></span>
+        </div>
+    </div>
+    } @else {
+    <ng-template #header>
+        <div class="flex items-center gap-3">
+            <div class="flex items-center justify-center rounded-full bg-primary-50 text-primary-500 dark:bg-primary-500/10 dark:text-primary-400 shrink-0" style="width: 2.5rem; height: 2.5rem;">
+                <i class="pi pi-file-plus text-base"></i>
+            </div>
+            <div class="flex flex-col">
+                <span class="text-base font-semibold">Confirmar creación del estudio</span>
+                <span class="text-sm text-muted-color">Revise los datos antes de continuar</span>
+            </div>
+        </div>
+    </ng-template>
+
+    <div class="flex flex-col gap-4">
+        <div class="flex flex-col gap-2">
+            <span class="text-xs font-semibold uppercase tracking-wide text-muted-color">Datos del Titular</span>
+            <div class="flex flex-col divide-y divide-surface rounded-lg border border-surface">
+                <div class="flex justify-between items-center gap-4 px-4 py-2.5">
+                    <span class="text-m text-muted-color">Tipo de identificación</span>
+                    <span class="text-m font-medium text-right">{{ summary().identificationType }}</span>
+                </div>
+                <div class="flex justify-between items-center gap-4 px-4 py-2.5">
+                    <span class="text-m text-muted-color">Número de identificación</span>
+                    <span class="text-m font-medium text-right">{{ summary().identificationNumber }}</span>
+                </div>
+                <div class="flex justify-between items-center gap-4 px-4 py-2.5">
+                    <span class="text-m text-muted-color">Nombre completo</span>
+                    <span class="text-m font-medium text-right">{{ summary().businessName }}</span>
+                </div>
+                <div class="flex justify-between items-center gap-4 px-4 py-2.5">
+                    <span class="text-m text-muted-color">Correo del Titular</span>
+                    <span class="text-m font-medium text-right">{{ summary().titularEmail }}</span>
+                </div>
+                <div class="flex justify-between items-center gap-4 px-4 py-2.5">
+                    <span class="text-m text-muted-color">Ciudad</span>
+                    <span class="text-m font-medium text-right">{{ summary().titularCity }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex flex-col gap-2">
+            <span class="text-xs font-semibold uppercase tracking-wide text-muted-color">Perfil Laboral</span>
+            <div class="flex flex-col divide-y divide-surface rounded-lg border border-surface">
+                <div class="flex justify-between items-center gap-4 px-4 py-2.5">
+                    <span class="text-m text-muted-color">Perfil</span>
+                    <span class="text-m font-medium text-right">{{ summary().employmentType }}</span>
+                </div>
+                <div class="flex justify-between items-center gap-4 px-4 py-2.5">
+                    <span class="text-m text-muted-color">Inicio de la actividad</span>
+                    <span class="text-m font-medium text-right">{{ (summary().declaredEmploymentStartDate | date:'MMMM \'de\' yyyy':'':'es-CO') || 'No declarado' }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex flex-col gap-2">
+            <span class="text-xs font-semibold uppercase tracking-wide text-muted-color">Datos del Crédito</span>
+            <div class="flex flex-col divide-y divide-surface rounded-lg border border-surface">
+                <div class="flex justify-between items-center gap-4 px-4 py-2.5">
+                    <span class="text-m text-muted-color">Monto solicitado</span>
+                    <span class="text-m font-medium text-right">{{ (summary().requestedCreditLine | currency:'COP':'symbol-narrow':'1.0-0':'es-CO') || '—' }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex items-start gap-2.5 p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
+            <i class="pi pi-info-circle text-blue-600 dark:text-blue-400 text-m mt-0.5 shrink-0"></i>
+            <span class="text-m text-blue-800 dark:text-blue-300">
+                Se consultará al titular en las centrales de riesgo. Esto <span class="font-semibold">descuenta un estudio de su bolsa disponible</span> y no se puede deshacer.
+            </span>
+        </div>
+    </div>
+
+    <ng-template #footer>
+        <div class="flex justify-end gap-2">
+            <p-button label="Cancelar" severity="secondary" [text]="true" (onClick)="summaryVisible.set(false)" />
+            <p-button label="Confirmar y crear" icon="pi pi-check" (onClick)="onConfirmCreateStudy()" />
+        </div>
+    </ng-template>
+    }
+</p-dialog>
+
+<!-- ═══════════ Modal de firma de autorización (habeas data) ═══════════ -->
+<p-dialog
+    [(visible)]="authVisible"
+    [modal]="true"
+    [closable]="!checkingAuth() && !finalizingStudy()"
+    [showHeader]="!finalizingStudy()"
+    [dismissableMask]="false"
+    [draggable]="false"
+    [style]="{ width: '90vw', maxWidth: '480px' }">
+
+    @if (finalizingStudy()) {
+    <div class="flex flex-col items-center gap-5 py-6">
+        <div class="relative w-20 h-20">
+            <div class="absolute inset-0 rounded-full border-4 border-primary-100 dark:border-primary-900/40"></div>
+            <div class="absolute inset-0 rounded-full border-4 border-transparent border-t-primary-500 animate-spin"></div>
+            <div class="absolute inset-2.5 rounded-full bg-linear-to-br from-primary-500 to-primary-600 flex items-center justify-center shadow-lg shadow-primary-500/25">
+                <i class="pi pi-file-check text-white text-xl ai-sparkle-spin"></i>
+            </div>
+        </div>
+        <div class="text-center min-h-12">
+            <h6 class="font-bold text-base m-0">Creando el estudio de capacidad...</h6>
+            @for (msg of [loaderMessage()]; track msg) {
+            <p class="text-m text-muted-color m-0 mt-1 loader-message-fade">{{ msg }}</p>
+            }
+        </div>
+        <div class="flex gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-primary-400 loader-dot"></span>
+            <span class="w-2 h-2 rounded-full bg-primary-400 loader-dot" style="animation-delay: 0.2s"></span>
+            <span class="w-2 h-2 rounded-full bg-primary-400 loader-dot" style="animation-delay: 0.4s"></span>
+        </div>
+    </div>
+    } @else {
+    <ng-template #header>
+        <div class="flex items-center gap-3">
+            <div class="flex items-center justify-center rounded-full bg-amber-50 text-amber-500 dark:bg-amber-500/10 dark:text-amber-400 shrink-0" style="width: 2.5rem; height: 2.5rem;">
+                <i class="pi pi-file-edit text-base"></i>
+            </div>
+            <div class="flex flex-col">
+                <span class="text-base font-semibold">Autorización pendiente de firma</span>
+                <span class="text-sm text-muted-color">El titular debe autorizar el tratamiento de sus datos</span>
+            </div>
+        </div>
+    </ng-template>
+
+    <div class="flex flex-col gap-4">
+        <div class="flex items-start gap-2.5 p-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800">
+            <i class="pi pi-info-circle text-amber-600 dark:text-amber-400 text-m mt-0.5 shrink-0"></i>
+            <span class="text-m text-amber-800 dark:text-amber-300">
+                Se envió al correo <span class="font-semibold">{{ summary().titularEmail }}</span> un documento de autorización de tratamiento de datos.
+                El estudio no se puede crear hasta que el titular lo <span class="font-semibold">firme</span>.
+            </span>
+        </div>
+
+        @if (authInfo()?.status === 'refused') {
+        <div class="flex items-start gap-2.5 p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
+            <i class="pi pi-times-circle text-red-600 dark:text-red-400 text-m mt-0.5 shrink-0"></i>
+            <span class="text-m text-red-800 dark:text-red-300">
+                El titular rechazó la autorización.{{ authInfo()?.refusedReason ? ' Motivo: ' + authInfo()?.refusedReason : '' }}
+            </span>
+        </div>
+        }
+    </div>
+
+    <ng-template #footer>
+        <div class="flex justify-end gap-2">
+            <p-button label="Cerrar" severity="secondary" [text]="true" [disabled]="checkingAuth()" (onClick)="authVisible.set(false)" />
+            <p-button label="Ya firmó, verificar" icon="pi pi-refresh" [loading]="checkingAuth()" (onClick)="onCheckAuthorization()" />
+        </div>
+    </ng-template>
+    }
+</p-dialog>
+
+<div class="study-detail flex flex-col gap-4 sm:gap-6">
+    <!-- ═══════════ Header ═══════════ -->
+    @if (loading()) {
+    <p-card>
+        <div class="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+            <div class="flex items-center gap-3 shrink-0">
+                <p-skeleton shape="circle" size="2.5rem" />
+                <div class="flex flex-col gap-1">
+                    <p-skeleton width="15rem" height="1.75rem" />
+                    <p-skeleton width="10rem" height="1rem" />
+                </div>
+            </div>
+            <div class="flex gap-2 sm:ml-auto ml-12">
+                <p-skeleton width="8rem" height="2.5rem" borderRadius="6px" />
+                <p-skeleton width="8rem" height="2.5rem" borderRadius="6px" />
+            </div>
+        </div>
+    </p-card>
+    } @else {
+    <p-card>
+        <div class="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+            <div class="flex items-center gap-3 flex-1 min-w-0">
+                <p-button icon="pi pi-arrow-left" [rounded]="true" [text]="true" severity="secondary" (onClick)="onCancel()" />
+                <div class="flex items-center justify-center rounded-full shrink-0"
+                     [ngClass]="isDetailMode() ? 'bg-emerald-50 text-emerald-500 dark:bg-emerald-500/10 dark:text-emerald-400' : 'bg-green-50 text-green-500 dark:bg-green-500/10 dark:text-green-400'"
+                     style="width: 2.75rem; height: 2.75rem;">
+                    <i class="pi text-lg" [ngClass]="isDetailMode() ? 'pi-wallet' : 'pi-file-plus'"></i>
+                </div>
+                <div class="flex flex-col min-w-0">
+                    <h2 class="text-xl sm:text-2xl font-semibold m-0 truncate">
+                        {{ isDetailMode() ? 'Estudio de Capacidad de Pago' : 'Nuevo Estudio de Capacidad de Pago' }}
+                    </h2>
+                    <span class="text-muted-color text-m">
+                        {{ isDetailMode()
+                            ? 'Análisis del flujo de caja del titular sobre sus extractos y soportes de ingreso'
+                            : 'Ingrese los datos del titular para consultarlo en las centrales de riesgo' }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row sm:flex-wrap gap-2 shrink-0 sm:items-center">
+                @if (isDetailMode() && studyStatusConfig(); as st) {
+                <div class="inline-flex items-center gap-2 pl-3 pr-3.5 py-1.5 rounded-full border text-base font-medium self-start sm:self-auto" [ngClass]="st.classes">
+                    <span class="relative flex items-center justify-center">
+                        <span class="absolute inline-flex h-2.5 w-2.5 rounded-full opacity-60 animate-ping" [ngClass]="st.dot"></span>
+                        <span class="relative inline-flex h-2.5 w-2.5 rounded-full" [ngClass]="st.dot"></span>
+                    </span>
+                    <i [ngClass]="st.icon" class="text-m"></i>
+                    <span>{{ st.label }}</span>
+                </div>
+                }
+                @if (isDetailMode() && studyCompleted()) {
+                    @if (canSignPromissoryNote()) {
+                    <p-button label="Firmar Pagaré" icon="pi pi-pen-to-square" severity="success" (onClick)="promissoryNoteVisible.set(true)" styleClass="w-full sm:w-auto" />
+                    }
+                <p-button label="Descargar PDF" icon="pi pi-file-pdf" severity="info" [outlined]="true" (onClick)="onDownloadPdf()" [loading]="downloadingPdf()" [disabled]="downloadingPdf()" styleClass="w-full sm:w-auto" />
+                }
+                @if (!isDetailMode()) {
+                <p-button label="Crear Estudio" icon="pi pi-check" severity="success" (onClick)="onCreateStudy()" [loading]="creatingStudy()" [disabled]="creatingStudy()" styleClass="w-full sm:w-auto" />
+                }
+            </div>
+        </div>
+    </p-card>
+    }
+
+    <!-- ═══════════ Pagaré del estudio ═══════════ -->
+    @if (!loading() && promissoryNote(); as note) {
+    <p-card class="mt-2 block">
+        <div class="flex flex-col lg:flex-row lg:items-center gap-4">
+            <div class="flex items-center gap-3 flex-1 min-w-0">
+                <div class="flex items-center justify-center rounded-full bg-emerald-50 text-emerald-500 dark:bg-emerald-500/10 dark:text-emerald-400 shrink-0" style="width: 2.75rem; height: 2.75rem;">
+                    <i class="pi pi-pen-to-square text-lg"></i>
+                </div>
+                <div class="flex flex-col min-w-0 gap-0.5">
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <span class="font-semibold text-lg">Pagaré No. {{ note.noteNumber }}</span>
+                        @if (promissoryNoteStatusConfig(); as pn) {
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border text-sm font-semibold" [ngClass]="pn.classes">
+                            <i [ngClass]="pn.icon" class="text-sm"></i>
+                            {{ pn.label }}
+                        </span>
+                        }
+                    </div>
+                    <span class="text-m text-muted-color">
+                        {{ note.amount | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}
+                        ({{ note.amountInWords }} pesos) · {{ note.termDays }} días · vence el {{ note.dueDate | dateOnly }}
+                    </span>
+                    @if (note.refusedReason) {
+                    <span class="text-m text-red-600 dark:text-red-400">Motivo del rechazo: {{ note.refusedReason }}</span>
+                    }
+                </div>
+            </div>
+
+            <div class="flex flex-wrap gap-x-6 gap-y-1 text-m lg:justify-end">
+                @if (note.signCity) {
+                <div class="flex flex-col">
+                    <span class="text-sm text-muted-color">Ciudad de firma</span>
+                    <span class="font-medium">{{ note.signCity }}</span>
+                </div>
+                }
+                @if (note.sentAt) {
+                <div class="flex flex-col">
+                    <span class="text-sm text-muted-color">Enviado a firma</span>
+                    <span class="font-medium">{{ note.sentAt | date:'dd/MM/yyyy HH:mm' }}</span>
+                </div>
+                }
+                @if (note.signedAt) {
+                <div class="flex flex-col">
+                    <span class="text-sm text-muted-color">Firmado</span>
+                    <span class="font-medium">{{ note.signedAt | date:'dd/MM/yyyy HH:mm' }}</span>
+                </div>
+                }
+            </div>
+
+            <div class="flex gap-2 shrink-0">
+                @if (note.hasSignedDocument && note.documentUrl) {
+                <p-button label="Descargar Pagaré" icon="pi pi-download" severity="success" (onClick)="openPromissoryNoteDocument()" styleClass="w-full lg:w-auto" />
+                } @else if (note.signingUrl) {
+                <p-button label="Enlace de firma" icon="pi pi-external-link" severity="info" [outlined]="true" (onClick)="openPromissoryNoteSigningUrl()" styleClass="w-full lg:w-auto" />
+                }
+            </div>
+        </div>
+    </p-card>
+    }
+
+    <!-- ═══════════ Main Card ═══════════ -->
+    @if (loading()) {
+    <p-card class="mt-2">
+        <div class="flex flex-col gap-6">
+            <div class="flex items-center gap-4 pb-4 border-b border-surface">
+                <p-skeleton shape="circle" size="2rem" />
+                <p-skeleton width="12rem" height="1.5rem" />
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-5">
+                @for (i of [1,2,3,4,5]; track i) {
+                <div class="flex flex-col gap-2">
+                    <p-skeleton width="10rem" height="1rem" />
+                    <p-skeleton width="100%" height="3rem" borderRadius="6px" />
+                </div>
+                }
+            </div>
+        </div>
+    </p-card>
+    } @else {
+    <p-card class="mt-2">
+        <p-stepper data-tour="capacity-stepper" [value]="activeStep">
+            <!-- ─────────── STEP 1: Datos de la Solicitud ─────────── -->
+            <p-step-item [value]="1">
+                <p-step>
+                    <span>{{ isDetailMode() ? 'Información del Titular' : 'Datos de la Solicitud' }}</span>
+                    @if (!isDetailMode() && isStepInvalid()) {
+                    <p-badge [value]="getInvalidCount().toString()" severity="danger" class="ml-2" />
+                    }
+                </p-step>
+                <p-step-panel>
+                    <ng-template #content let-activateCallback="activateCallback">
+                        @if (isDetailMode()) {
+                            @if (step1Data(); as s1) {
+                            <app-bureau-profile [step1]="s1" />
+                            } @else {
+                            <p-message severity="warn" text="No se encontró información del titular para este estudio." />
+                            }
+
+                            <!-- Perfil laboral declarado al crear el estudio -->
+                            <div class="rounded-xl border border-surface p-4 sm:p-5 mt-4">
+                                <div class="flex items-center gap-2 mb-4">
+                                    <i class="pi pi-briefcase text-primary-500"></i>
+                                    <h4 class="text-m font-semibold m-0">Perfil Laboral Declarado</h4>
+                                </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                    <div class="flex flex-col gap-0.5">
+                                        <span class="text-sm text-muted-color">Perfil</span>
+                                        <span class="text-m font-medium">{{ studyRequestSummary().employmentLabel }}</span>
+                                    </div>
+                                    <div class="flex flex-col gap-0.5">
+                                        <span class="text-sm text-muted-color">Inicio de la actividad (declarado)</span>
+                                        <span class="text-m font-medium">{{ (studyRequestSummary().declaredEmploymentStartDate | dateOnly:'MMMM \'de\' yyyy') || 'No declarado' }}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex py-6">
+                                <p-button label="Siguiente" icon="pi pi-arrow-right" iconPos="right" (onClick)="activateCallback(2)" />
+                            </div>
+                        } @else {
+                            <p-message severity="info" text="El estudio de capacidad de pago aplica solo a personas naturales. Con estos datos se consultará al titular en las centrales de riesgo y se creará el estudio." styleClass="mb-4" />
+                            <form [formGroup]="step1Form">
+                                <p-fluid>
+                                    <div class="flex flex-col gap-7 mt-2" data-tour="capacity-form">
+                                        <!-- ── Datos del Titular ── -->
+                                        <div class="flex flex-col gap-4">
+                                            <div class="flex items-center gap-2">
+                                                <i class="pi pi-user text-primary-500"></i>
+                                                <h4 class="text-base font-semibold m-0">Datos del Titular</h4>
+                                            </div>
+                                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-5">
+                                                <div class="flex flex-col gap-1">
+                                                    <p-floatlabel variant="on">
+                                                        <p-select id="identificationTypeId" [options]="identificationTypes()" optionLabel="label" formControlName="identificationTypeId" [invalid]="isInvalid('identificationTypeId')" styleClass="w-full" />
+                                                        <label for="identificationTypeId">Tipo de Identificación *</label>
+                                                    </p-floatlabel>
+                                                    @if (isInvalid('identificationTypeId')) {
+                                                    <small class="text-red-500">{{ getErrorMessage('identificationTypeId') }}</small>
+                                                    }
+                                                </div>
+
+                                                <div class="flex flex-col gap-1">
+                                                    <p-floatlabel variant="on">
+                                                        <input pInputText id="identificationNumber" formControlName="identificationNumber" [invalid]="isInvalid('identificationNumber')" class="w-full" />
+                                                        <label for="identificationNumber">Número de Identificación *</label>
+                                                    </p-floatlabel>
+                                                    @if (isInvalid('identificationNumber')) {
+                                                    <small class="text-red-500">{{ getErrorMessage('identificationNumber') }}</small>
+                                                    }
+                                                </div>
+
+                                                <div class="flex flex-col gap-1">
+                                                    <p-floatlabel variant="on">
+                                                        <input pInputText id="businessName" formControlName="businessName" [invalid]="isInvalid('businessName')" class="w-full" />
+                                                        <label for="businessName">Nombre completo *</label>
+                                                    </p-floatlabel>
+                                                    @if (isInvalid('businessName')) {
+                                                    <small class="text-red-500">{{ getErrorMessage('businessName') }}</small>
+                                                    }
+                                                </div>
+
+                                                <div class="flex flex-col gap-1">
+                                                    <p-floatlabel variant="on">
+                                                        <input pInputText id="titularEmail" type="email" formControlName="titularEmail" [invalid]="isInvalid('titularEmail')" class="w-full" />
+                                                        <label for="titularEmail">Correo del Titular *</label>
+                                                    </p-floatlabel>
+                                                    @if (isInvalid('titularEmail')) {
+                                                    <small class="text-red-500">{{ getErrorMessage('titularEmail') }}</small>
+                                                    }
+                                                </div>
+
+                                                <div class="flex flex-col gap-1">
+                                                    <app-state-control inputId="titularState" label="Departamento *" variant="on" formControlName="titularState" [invalid]="isInvalid('titularState')" />
+                                                    @if (isInvalid('titularState')) {
+                                                    <small class="text-red-500">{{ getErrorMessage('titularState') }}</small>
+                                                    }
+                                                </div>
+
+                                                <div class="flex flex-col gap-1">
+                                                    <app-city-control inputId="titularCity" label="Ciudad *" variant="on" [regionCode]="titularRegionCode()" formControlName="titularCity" [invalid]="isInvalid('titularCity')" />
+                                                    @if (isInvalid('titularCity')) {
+                                                    <small class="text-red-500">{{ getErrorMessage('titularCity') }}</small>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- ── Perfil Laboral ── -->
+                                        <div class="flex flex-col gap-4" data-tour="capacity-employment">
+                                            <div class="flex items-center gap-2">
+                                                <i class="pi pi-briefcase text-primary-500"></i>
+                                                <h4 class="text-base font-semibold m-0">Perfil Laboral</h4>
+                                            </div>
+                                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-5">
+                                                <div class="flex flex-col gap-1">
+                                                    <p-floatlabel variant="on">
+                                                        <p-select id="employmentTypeId" [options]="employmentTypes()" optionLabel="label" formControlName="employmentTypeId" [invalid]="isInvalid('employmentTypeId')" styleClass="w-full" />
+                                                        <label for="employmentTypeId">¿Cómo recibe sus ingresos? *</label>
+                                                    </p-floatlabel>
+                                                    @if (isInvalid('employmentTypeId')) {
+                                                    <small class="text-red-500">{{ getErrorMessage('employmentTypeId') }}</small>
+                                                    }
+                                                </div>
+
+                                                <div class="flex flex-col gap-1">
+                                                    <p-floatlabel variant="on">
+                                                        <p-datepicker
+                                                            inputId="declaredEmploymentStartDate"
+                                                            formControlName="declaredEmploymentStartDate"
+                                                            [maxDate]="today"
+                                                            [showIcon]="true"
+                                                            dateFormat="mm/yy"
+                                                            view="month"
+                                                            appendTo="body" />
+                                                        <label for="declaredEmploymentStartDate">Inicio de la actividad (mes y año)</label>
+                                                    </p-floatlabel>
+                                                    <small class="text-muted-color">Si no lo recuerda con exactitud, déjelo en blanco.</small>
+                                                </div>
+                                            </div>
+                                            <div class="flex items-start gap-2.5 p-3 rounded-lg bg-surface-50 dark:bg-surface-800/50 border border-surface">
+                                                <i class="pi pi-info-circle text-muted-color text-m mt-0.5 shrink-0"></i>
+                                                <span class="text-m text-muted-color">{{ employmentHint() }}</span>
+                                            </div>
+                                        </div>
+
+                                        <!-- ── Datos del Crédito ── -->
+                                        <div class="flex flex-col gap-4">
+                                            <div class="flex items-center gap-2">
+                                                <i class="pi pi-wallet text-primary-500"></i>
+                                                <h4 class="text-base font-semibold m-0">Datos del Crédito</h4>
+                                            </div>
+                                            <!-- Sin plazo: el estudio calcula la cuota mensual que el
+                                                 titular sostiene y quien otorga el crédito decide en
+                                                 cuántas cuotas y con qué tasa. -->
+                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+                                                <div class="flex flex-col gap-1">
+                                                    <p-floatlabel variant="on">
+                                                        <p-inputnumber
+                                                            id="requestedCreditLine"
+                                                            formControlName="requestedCreditLine"
+                                                            [invalid]="isInvalid('requestedCreditLine')"
+                                                            mode="currency"
+                                                            currency="COP"
+                                                            locale="es-CO"
+                                                            [minFractionDigits]="0"
+                                                            [maxFractionDigits]="0"
+                                                        />
+                                                        <label for="requestedCreditLine">Monto Solicitado *</label>
+                                                    </p-floatlabel>
+                                                    @if (isInvalid('requestedCreditLine')) {
+                                                    <small class="text-red-500">{{ getErrorMessage('requestedCreditLine') }}</small>
+                                                    }
+                                                    <span class="text-sm text-muted-color">
+                                                        El estudio no pide plazo: calcula la cuota mensual que el titular puede sostener y contrasta contra este monto.
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </p-fluid>
+                            </form>
+                            <div class="flex py-6">
+                                <p-button label="Crear Estudio" icon="pi pi-check" severity="success" (onClick)="onCreateStudy()" [loading]="creatingStudy()" [disabled]="creatingStudy()" />
+                            </div>
+                        }
+                    </ng-template>
+                </p-step-panel>
+            </p-step-item>
+
+            <!-- ─────────── STEP 2: Documentos ─────────── -->
+            <p-step-item [value]="2">
+                <p-step [disabled]="!step2Enabled()">
+                    <span>Documentos</span>
+                </p-step>
+                <p-step-panel>
+                    <ng-template #content let-activateCallback="activateCallback">
+                        <div class="flex flex-col gap-1 mb-6">
+                            <h3 class="text-base font-semibold m-0">Soportes de Ingreso del Titular</h3>
+                            <span class="text-m text-muted-color">
+                                Cargue los extractos y comprobantes con los que se verificará su ingreso, sus obligaciones y su capacidad de pago.
+                            </span>
+                        </div>
+
+                        <app-payment-capacity-documents
+                            [creditStudyId]="creditStudyId()"
+                            [step2]="step2Data()"
+                            [employmentType]="employmentType()"
+                            [readOnly]="studyCompleted() || isStudyClosed()"
+                            (changed)="onDocumentsChanged()" />
+
+                        <div class="flex flex-wrap py-6 gap-2 mt-2">
+                            <p-button label="Volver" icon="pi pi-arrow-left" severity="secondary" (onClick)="activateCallback(1)" />
+                            @if (step3Enabled()) {
+                            <p-button label="Siguiente" icon="pi pi-arrow-right" iconPos="right" (onClick)="activateCallback(3)" />
+                            }
+                        </div>
+                    </ng-template>
+                </p-step-panel>
+            </p-step-item>
+
+            <!-- ─────────── STEP 3: Resultado ─────────── -->
+            <p-step-item [value]="3">
+                <p-step [disabled]="!step3Enabled()">
+                    <span>Capacidad de Pago</span>
+                </p-step>
+                <p-step-panel>
+                    <ng-template #content let-activateCallback="activateCallback">
+                        @if (performingStudy()) {
+                        <div class="flex flex-col items-center gap-5 py-16">
+                            <div class="relative w-20 h-20">
+                                <div class="absolute inset-0 rounded-full border-4 border-primary-100 dark:border-primary-900/40"></div>
+                                <div class="absolute inset-0 rounded-full border-4 border-transparent border-t-primary-500 animate-spin"></div>
+                                <div class="absolute inset-2.5 rounded-full bg-linear-to-br from-primary-500 to-primary-600 flex items-center justify-center shadow-lg shadow-primary-500/25">
+                                    <i class="pi pi-bolt text-white text-xl ai-sparkle-spin"></i>
+                                </div>
+                            </div>
+                            <div class="text-center">
+                                <h5 class="font-bold text-lg m-0">Analizando la capacidad de pago...</h5>
+                                <p class="text-m text-muted-color m-0 mt-1 ai-typing">Verificando el ingreso, detectando obligaciones y calculando la cuota máxima</p>
+                            </div>
+                        </div>
+                        } @else if (studyCompleted() && studyResult()) {
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6" data-tour="capacity-result">
+                            <div class="flex flex-col gap-1">
+                                <h3 class="text-base font-semibold m-0">Resultado del Estudio de Capacidad de Pago</h3>
+                                <span class="text-m text-muted-color">
+                                    Ingreso verificado, cuota máxima y condiciones de crédito calculados sobre el flujo de caja del titular.
+                                </span>
+                            </div>
+                            <p-button label="Descargar PDF" icon="pi pi-file-pdf" severity="info" [outlined]="true" (onClick)="onDownloadPdf()" [loading]="downloadingPdf()" [disabled]="downloadingPdf()" styleClass="w-full sm:w-auto shrink-0" />
+                        </div>
+
+                        <app-payment-capacity-result
+                            [study]="studyResult()!"
+                            [creditStudyId]="creditStudyId()"
+                            [customer]="resultCustomer()"
+                            [companyInfo]="company()"
+                            [centralRisk]="step1Data()?.centralRisk ?? null"
+                            [documentsStep]="step2Data()"
+                            [employmentType]="employmentType()"
+                            [readOnly]="isStudyClosed()"
+                        />
+                        <div class="flex flex-wrap py-6 gap-2 mt-2">
+                            <p-button label="Volver" icon="pi pi-arrow-left" severity="secondary" (onClick)="activateCallback(2)" />
+                        </div>
+                        } @else {
+                        <p-message severity="info" styleClass="mb-4">
+                            <span class="text-m">
+                                Al realizar el estudio, el sistema lee los documentos cargados para determinar el
+                                <span class="font-semibold">ingreso realmente verificado</span>, las
+                                <span class="font-semibold">obligaciones que ya paga</span> y la
+                                <span class="font-semibold">cuota máxima</span> que puede asumir, contrastándolo todo con las centrales de riesgo.
+                            </span>
+                        </p-message>
+
+                        <div class="rounded-xl border border-surface p-4 sm:p-5 mt-4">
+                            <div class="flex items-center gap-2 mb-4">
+                                <i class="pi pi-file-check text-primary-500"></i>
+                                <h4 class="text-m font-semibold m-0">Resumen de la Solicitud</h4>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                <div class="flex flex-col gap-0.5">
+                                    <span class="text-sm text-muted-color">Titular</span>
+                                    <span class="text-m font-medium">{{ studyRequestSummary().businessName }}</span>
+                                </div>
+                                <div class="flex flex-col gap-0.5">
+                                    <span class="text-sm text-muted-color">Identificación</span>
+                                    <span class="text-m font-medium">{{ studyRequestSummary().identification }}</span>
+                                </div>
+                                <div class="flex flex-col gap-0.5">
+                                    <span class="text-sm text-muted-color">Perfil laboral</span>
+                                    <span class="text-m font-medium">{{ studyRequestSummary().employmentLabel }}</span>
+                                </div>
+                                <div class="flex flex-col gap-0.5">
+                                    <span class="text-sm text-muted-color">Fecha del Estudio</span>
+                                    <span class="text-m font-medium">{{ (studyRequestSummary().studyDate | dateOnly:'d \'de\' MMMM \'de\' yyyy') || '—' }}</span>
+                                </div>
+                                <div class="flex flex-col gap-0.5">
+                                    <span class="text-sm text-muted-color">Monto Solicitado</span>
+                                    <span class="text-m font-medium">{{ (studyRequestSummary().requestedCreditLine | currency:'COP':'symbol-narrow':'1.0-0':'es-CO') || '—' }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        @if (!canPerformStudy()) {
+                        <p-message severity="warn" styleClass="mt-4 w-full">
+                            <span class="text-m">
+                                Faltan documentos por cargar. Complete la documentación del paso anterior para poder analizar la solicitud.
+                            </span>
+                        </p-message>
+                        }
+
+                        <div class="flex flex-wrap py-6 gap-2 mt-2">
+                            <p-button label="Volver" icon="pi pi-arrow-left" severity="secondary" (onClick)="activateCallback(2)" />
+                            <p-button data-tour="capacity-perform" label="Realizar Estudio" icon="pi pi-bolt" severity="success" (onClick)="onPerformStudy(activateCallback)" [loading]="performingStudy()" [disabled]="performingStudy() || !canPerformStudy()" />
+                        </div>
+                        }
+                    </ng-template>
+                </p-step-panel>
+            </p-step-item>
+        </p-stepper>
+    </p-card>
+    }
+</div>
+
+<!-- Soporte sobre este estudio -->
+@if (creditStudyId(); as id) {
+<app-support-fab area="credit_study" [recordId]="id" [label]="supportRecordLabel()" />
+}

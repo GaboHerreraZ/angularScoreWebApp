@@ -1,4 +1,5 @@
 import { Injectable, signal } from '@angular/core';
+import { StudyTypeCode } from '@/app/types/payment-capacity';
 
 export interface RecentItem {
     id: string;
@@ -31,9 +32,11 @@ export class RecentItemsService {
         this.persist();
     }
 
-    setCreditStudy(id: string, label: string): void {
+    /** Cada tipo de estudio tiene su propio detalle: la ruta depende del tipo. */
+    setCreditStudy(id: string, label: string, studyType: StudyTypeCode = 'financialStatements'): void {
         if (!id || !label) return;
-        const item: RecentItem = { id, label, route: `/app/estudio-credito/detalle-estudio/${id}`, visitedAt: Date.now() };
+        const path = studyType === 'paymentCapacity' ? 'estudio-capacidad' : 'detalle-estudio';
+        const item: RecentItem = { id, label, route: `/app/estudio-credito/${path}/${id}`, visitedAt: Date.now() };
         this.state.update((s) => ({ ...s, creditStudy: item }));
         this.persist();
     }

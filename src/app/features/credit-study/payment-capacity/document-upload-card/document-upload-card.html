@@ -1,0 +1,97 @@
+<div class="flex flex-col gap-4 rounded-xl border border-surface p-4 sm:p-5 h-full">
+    <!-- Encabezado del tipo de documento -->
+    <div class="flex items-start gap-3">
+        <div class="flex items-center justify-center rounded-xl shrink-0"
+             [ngClass]="satisfied()
+                ? 'bg-green-50 text-green-500 dark:bg-green-500/10 dark:text-green-400'
+                : 'bg-primary-50 text-primary-500 dark:bg-primary-500/10 dark:text-primary-400'"
+             style="width: 2.75rem; height: 2.75rem;">
+            <i [ngClass]="satisfied() ? 'pi pi-check' : icon()" class="text-lg"></i>
+        </div>
+        <div class="flex flex-col min-w-0 flex-1">
+            <div class="flex items-center gap-2 flex-wrap">
+                <h4 class="text-base font-semibold m-0">{{ title() }}</h4>
+                @if (requirementHint(); as hint) {
+                <span class="text-[0.7rem] font-semibold px-2 py-0.5 rounded-full bg-surface-100 dark:bg-surface-800 text-muted-color">
+                    {{ hint }}
+                </span>
+                }
+            </div>
+            <span class="text-m text-muted-color">{{ description() }}</span>
+        </div>
+    </div>
+
+    <!-- Documentos cargados -->
+    @if (documents().length) {
+    <div class="flex flex-col gap-2">
+        @for (doc of documents(); track doc.id) {
+        <div class="flex flex-col gap-2 rounded-lg border border-surface p-3">
+            <div class="flex items-start gap-3">
+                <i class="pi pi-file-pdf text-red-500 text-base mt-0.5 shrink-0"></i>
+                <div class="flex flex-col min-w-0 flex-1">
+                    <span class="text-m font-medium truncate">{{ doc.fileName }}</span>
+                    <span class="text-sm text-muted-color">{{ documentDetail(doc) }}</span>
+                </div>
+                <div class="flex items-center gap-1 shrink-0">
+                    <span class="text-[0.7rem] font-semibold px-2 py-0.5 rounded-full inline-flex items-center gap-1" [ngClass]="statusConfig(doc).classes">
+                        <i [ngClass]="statusConfig(doc).icon" class="text-[0.65rem]"></i>
+                        {{ statusConfig(doc).label }}
+                    </span>
+                    <p-button icon="pi pi-eye" [rounded]="true" [text]="true" severity="secondary" size="small"
+                              pTooltip="Ver documento" (onClick)="viewDocument.emit(doc.id)" />
+                    @if (!readOnly()) {
+                    <p-button icon="pi pi-trash" [rounded]="true" [text]="true" severity="danger" size="small"
+                              pTooltip="Eliminar" (onClick)="removeDocument.emit(doc.id)" />
+                    }
+                </div>
+            </div>
+
+            @if (doc.extractionStatus === 'error' && doc.extractionError) {
+            <div class="flex items-start gap-2 px-3 py-2 rounded-lg bg-red-50 dark:bg-red-900/20">
+                <i class="pi pi-exclamation-circle text-red-600 dark:text-red-400 text-sm mt-0.5 shrink-0"></i>
+                <span class="text-sm text-red-700 dark:text-red-400">{{ doc.extractionError }}</span>
+            </div>
+            }
+
+            @for (validation of failedValidations(doc); track validation.code) {
+            <div class="flex items-start gap-2 px-3 py-2 rounded-lg"
+                 [ngClass]="validation.severity === 'danger'
+                    ? 'bg-red-50 dark:bg-red-900/20'
+                    : 'bg-amber-50 dark:bg-amber-900/20'">
+                <i class="pi pi-exclamation-triangle text-sm mt-0.5 shrink-0"
+                   [ngClass]="validation.severity === 'danger' ? 'text-red-600 dark:text-red-400' : 'text-amber-600 dark:text-amber-400'"></i>
+                <div class="flex flex-col min-w-0">
+                    <span class="text-sm font-semibold"
+                          [ngClass]="validation.severity === 'danger' ? 'text-red-700 dark:text-red-400' : 'text-amber-700 dark:text-amber-400'">
+                        {{ validation.label }}
+                    </span>
+                    <span class="text-sm text-muted-color">{{ validation.detail }}</span>
+                </div>
+            </div>
+            }
+        </div>
+        }
+    </div>
+    }
+
+    <!-- Acción de carga -->
+    <div class="mt-auto pt-1">
+        @if (canUpload()) {
+        <p-button
+            [label]="documents().length ? 'Agregar otro' : 'Cargar documento'"
+            icon="pi pi-upload"
+            [outlined]="true"
+            [loading]="uploading()"
+            [disabled]="uploading()"
+            (onClick)="openFileSelector()"
+            styleClass="w-full" />
+        <span class="block text-sm text-muted-color text-center mt-2">
+            PDF original del emisor, máximo 10 MB ({{ documents().length }} de {{ maxDocuments() }})
+        </span>
+        } @else if (!readOnly()) {
+        <span class="block text-sm text-muted-color text-center">
+            Alcanzó el máximo de {{ maxDocuments() }} documento(s). Elimine uno para cargar otro.
+        </span>
+        }
+    </div>
+</div>

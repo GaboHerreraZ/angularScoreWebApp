@@ -1,6 +1,26 @@
 <div class="flex flex-col gap-6">
 
+    <!-- ─────────────── Selector de tipo de estudio ─────────────── -->
+    <p-tabs [value]="studyType()" (valueChange)="onStudyTypeChange($event)">
+        <p-tablist data-tour="dimensions-study-type">
+            @for (tab of studyTypeTabs; track tab.code) {
+            <p-tab [value]="tab.code">
+                <i [class]="tab.icon + ' mr-2'"></i>
+                <span>{{ tab.label }}</span>
+            </p-tab>
+            }
+        </p-tablist>
+    </p-tabs>
+
     <!-- ─────────────── Selector de tipo de persona ─────────────── -->
+    @if (personTypeLocked()) {
+    <div class="flex items-start gap-2.5 p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
+        <i class="pi pi-info-circle text-blue-600 dark:text-blue-400 text-m mt-0.5 shrink-0"></i>
+        <span class="text-m text-blue-800 dark:text-blue-300">
+            El estudio de capacidad de pago aplica <span class="font-semibold">solo a persona natural</span>: esta configuración rige para todos los estudios de ese tipo.
+        </span>
+    </div>
+    } @else {
     <p-tabs [value]="personType()" (valueChange)="onPersonTypeChange($event)">
         <p-tablist data-tour="dimensions-person-type">
             @for (tab of personTypeTabs; track tab.code) {
@@ -11,6 +31,7 @@
             }
         </p-tablist>
     </p-tabs>
+    }
 
     <!-- ─────────────── Config activa / Editor ─────────────── -->
     @if (bundleResource.isLoading() || saving() || resetting()) {

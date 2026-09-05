@@ -39,7 +39,8 @@ export class SearchService {
         { id: 'page-profile', title: 'Perfil', description: 'Información personal y preferencias', route: '/app/administracion/perfil', icon: 'pi pi-user', category: 'page', keywords: ['cuenta', 'usuario'] },
         { id: 'page-company', title: 'Empresa', description: 'Configuración de la empresa', route: '/app/administracion/empresa', icon: 'pi pi-building', category: 'page', keywords: ['organizacion', 'compañia'] },
 
-        { id: 'action-new-credit-study', title: 'Nuevo estudio de crédito', description: 'Iniciar un estudio de crédito', route: '/app/estudio-credito/detalle-estudio', icon: 'pi pi-plus-circle', category: 'action', keywords: ['nuevo', 'crear', 'analisis'] }
+        { id: 'action-new-credit-study', title: 'Nuevo estudio empresarial', description: 'Estudio de crédito con estados financieros', route: '/app/estudio-credito/detalle-estudio', icon: 'pi pi-plus-circle', category: 'action', keywords: ['nuevo', 'crear', 'analisis', 'financieros', 'eeff'] },
+        { id: 'action-new-payment-capacity', title: 'Nuevo estudio de capacidad de pago', description: 'Persona natural, con extractos y soportes de ingreso', route: '/app/estudio-credito/estudio-capacidad', icon: 'pi pi-wallet', category: 'action', keywords: ['nuevo', 'crear', 'capacidad', 'extractos', 'nomina', 'natural', 'empleado', 'independiente'] }
     ];
 
     private dynamicGroups = signal<Record<string, SearchItem[]>>({});

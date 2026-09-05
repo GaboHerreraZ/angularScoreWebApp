@@ -89,3 +89,29 @@ export function formatLongDate(dateStr: string | null | undefined, fallback = 'â
 export function formatNumber(value: number): string {
     return new Intl.NumberFormat(LOCALE).format(value);
 }
+
+/**
+ * Etiqueta de mes en es-CO a partir de 'YYYY-MM' o una fecha ISO completa.
+ *
+ * @example
+ * formatMonth('2026-04')              // 'abril de 2026'
+ * formatMonth('2026-04', 'short')     // 'abr 2026'
+ * formatMonth('2026-04', 'monthOnly') // 'abr'
+ */
+export function formatMonth(
+    value: string | null | undefined,
+    style: 'long' | 'short' | 'monthOnly' = 'long',
+    fallback = 'â€”'
+): string {
+    if (!value) return fallback;
+    const iso = /^\d{4}-\d{2}$/.test(value) ? `${value}-01T00:00:00Z` : value;
+    const date = new Date(iso);
+    if (isNaN(date.getTime())) return value;
+    const options: Intl.DateTimeFormatOptions =
+        style === 'long'
+            ? { month: 'long', year: 'numeric', timeZone: 'UTC' }
+            : style === 'short'
+              ? { month: 'short', year: 'numeric', timeZone: 'UTC' }
+              : { month: 'short', timeZone: 'UTC' };
+    return new Intl.DateTimeFormat(LOCALE, options).format(date).replace(/\./g, '');
+}

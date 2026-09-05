@@ -75,8 +75,8 @@ export class AnalyticsService {
         this.trackEvent('calculator_interact');
     }
 
-    /** Clic en el botón flotante de WhatsApp. */
-    whatsappClick(): void {
-        this.trackEvent('whatsapp_click');
+    /** El visitante abrió una conversación en el chat del sitio (Chatwoot). */
+    chatConversationStarted(): void {
+        this.trackEvent('chat_start');
     }
 }

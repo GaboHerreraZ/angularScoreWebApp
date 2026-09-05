@@ -1,12 +1,12 @@
 import { Component, inject } from '@angular/core';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { filter, take } from 'rxjs';
-import { WhatsappFab } from '@/app/features/landing/components/whatsapp-fab/whatsapp-fab';
+import { ChatwootWidget } from '@/app/features/landing/components/chatwoot-widget/chatwoot-widget';
 
 @Component({
     standalone: true,
     selector: 'footer-widget',
-    imports: [RouterModule, WhatsappFab],
+    imports: [RouterModule, ChatwootWidget],
     templateUrl: './footer-widget.html',
     styles: [
         `

@@ -26,9 +26,21 @@
         <!-- Metricas principales -->
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-x-3 gap-y-4 w-full mt-4 pt-4 border-t" [ngClass]="statusConfig().border">
             <div class="flex flex-col items-center gap-1 text-center">
-                <span class="text-sm font-bold text-muted-color">Cupo Solicitado</span>
+                <span class="text-sm font-bold text-muted-color">{{ isCapacityStudy() ? 'Monto Solicitado' : 'Cupo Solicitado' }}</span>
                 <span class="font-semibold text-base">{{ requestedAmount() | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</span>
             </div>
+            <!-- En capacidad no se avala un cupo: manda la cuota que el titular
+                 sostiene, y el plazo lo decide quien otorga el crédito. -->
+            @if (capacityFigures(); as cf) {
+            <div class="flex flex-col items-center gap-1 text-center">
+                <span class="text-sm font-bold text-muted-color">Cuota Máxima</span>
+                <span class="font-semibold text-base" [ngClass]="statusConfig().titleColor">{{ cf.maxSuggestedInstallment | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}/mes</span>
+            </div>
+            <div class="flex flex-col items-center gap-1 text-center">
+                <span class="text-sm font-bold text-muted-color">Cuotas Mínimas</span>
+                <span class="font-semibold text-base">{{ cf.minInstallmentsForRequested ?? '—' }}</span>
+            </div>
+            } @else {
             <div class="flex flex-col items-center gap-1 text-center">
                 <span class="text-sm font-bold text-muted-color">Cupo Viable</span>
                 <span class="font-semibold text-base" [ngClass]="statusConfig().titleColor">{{ approvedAmount() | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</span>
@@ -37,6 +49,7 @@
                 <span class="text-sm font-bold text-muted-color">Plazo Solicitado</span>
                 <span class="font-semibold text-base">{{ requestedTermValue() ?? study().recommendedTerm }} días</span>
             </div>
+            }
             @if (bureauSuggestedAmount() != null) {
             <div class="flex flex-col items-center gap-1 text-center">
                 <span class="text-sm font-bold text-muted-color">Sugerido por la Central</span>
@@ -45,7 +58,7 @@
             }
             <div class="flex flex-col items-center gap-1 text-center">
                 <span class="text-sm font-bold text-muted-color">Score</span>
-                <span class="font-bold text-base" [ngClass]="statusConfig().titleColor">{{ scorePercentage() }} / {{ maxScore() }}</span>
+                <span class="font-bold text-base" [ngClass]="statusConfig().titleColor">{{ scorePercentage() | number:'1.0-1' }} / {{ maxScore() }}</span>
             </div>
         </div>
 
@@ -66,7 +79,7 @@
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
             <div class="flex items-center gap-2">
                 <i class="pi pi-chart-bar text-primary-500"></i>
-                <h6 class="font-bold text-base m-0">Cifras Financieras Clave</h6>
+                <h6 class="font-bold text-base m-0">{{ isCapacityStudy() ? 'Cifras Clave del Flujo de Caja' : 'Cifras Financieras Clave' }}</h6>
             </div>
             @if (calculationSourceConfig(); as source) {
             <div class="flex flex-wrap items-center gap-2">
@@ -99,8 +112,12 @@
                             <i class="pi pi-flag-fill text-white text-m"></i>
                         </div>
                         <div class="flex-1 text-left">
-                            <h6 class="font-bold text-m m-0 text-red-800 dark:text-red-300">Fiabilidad del Documento</h6>
-                            <span class="text-sm text-muted-color">Señales detectadas en los estados financieros cargados (el documento contra sí mismo).</span>
+                            <h6 class="font-bold text-m m-0 text-red-800 dark:text-red-300">{{ isCapacityStudy() ? 'Fiabilidad de los Documentos' : 'Fiabilidad del Documento' }}</h6>
+                            <span class="text-sm text-muted-color">
+                                {{ isCapacityStudy()
+                                    ? 'Señales detectadas en los extractos y soportes de ingreso aportados por el titular.'
+                                    : 'Señales detectadas en los estados financieros cargados (el documento contra sí mismo).' }}
+                            </span>
                         </div>
                         <span class="text-sm font-semibold px-2 py-0.5 rounded-full bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 mr-2">
                             {{ pdfReliabilityCount() }}
@@ -311,7 +328,8 @@
                     <div class="flex-1 h-2 rounded-full bg-surface-200 dark:bg-surface-700 overflow-hidden">
                         <div class="h-full rounded-full transition-all duration-500" [ngClass]="getDimensionBarColor(dim)" [style.width.%]="getDimensionBarWidth(dim)"></div>
                     </div>
-                    <span class="text-m font-semibold text-muted-color whitespace-nowrap">{{ dim.contribution | number:'1.0-1' }} / {{ dim.weight }} pts</span>
+                    <!-- 1 decimal: el motor ya redondea igual, así la suma de las dimensiones cuadra con el score. -->
+                    <span class="text-m font-semibold text-muted-color whitespace-nowrap">{{ dim.contribution | number:'1.0-1' }} / {{ dim.weight | number:'1.0-1' }} pts</span>
                 </div>
                 @if (dimensionTooltips[dim.key]) {
                 <p class="text-sm text-muted-color leading-relaxed m-0 pt-1 border-t border-surface">{{ dimensionTooltips[dim.key] }}</p>
@@ -326,7 +344,7 @@
     <p-card>
         <h6 class="font-bold text-base mb-4 m-0">Score Crediticio</h6>
         <div class="text-center mb-2">
-            <span class="text-4xl font-bold" [ngClass]="statusConfig().titleColor">{{ scorePercentage() }}</span>
+            <span class="text-4xl font-bold" [ngClass]="statusConfig().titleColor">{{ scorePercentage() | number:'1.0-1' }}</span>
             <span class="text-muted-color text-lg"> / {{ maxScore() }}</span>
         </div>
         <div class="h-3 rounded-md bg-surface-200 overflow-hidden my-3">
@@ -368,7 +386,7 @@
 
     <!-- Resumen del Cupo -->
     <p-card>
-        <h6 class="font-bold text-base mb-4 m-0">Resumen del Cupo</h6>
+        <h6 class="font-bold text-base mb-4 m-0">{{ isCapacityStudy() ? 'Resumen de la Capacidad' : 'Resumen del Cupo' }}</h6>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3">
             <div class="flex flex-col gap-3">
                 <div class="flex justify-between items-start gap-3 py-2 border-b border-surface-200">
@@ -380,23 +398,37 @@
                     <span class="text-m font-semibold text-right min-w-0 wrap-break-word">{{ customer()?.identificationNumber ?? study().customer?.identificationNumber ?? companyInfo()?.nit ?? '-' }}</span>
                 </div>
                 <div class="flex justify-between items-start gap-3 py-2 border-b border-surface-200">
-                    <span class="text-m text-muted-color shrink-0">Cupo Solicitado:</span>
+                    <span class="text-m text-muted-color shrink-0">{{ isCapacityStudy() ? 'Monto Solicitado:' : 'Cupo Solicitado:' }}</span>
                     <span class="text-m font-semibold text-right">{{ requestedAmount() | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</span>
                 </div>
+                @if (capacityFigures(); as cf) {
+                <div class="flex justify-between items-start gap-3 py-2">
+                    <span class="text-m text-muted-color shrink-0">Cuota Máxima Sostenible:</span>
+                    <span class="text-m font-semibold text-right" [ngClass]="statusConfig().titleColor">{{ cf.maxSuggestedInstallment | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}/mes</span>
+                </div>
+                } @else {
                 <div class="flex justify-between items-start gap-3 py-2">
                     <span class="text-m text-muted-color shrink-0">Cupo Viable:</span>
                     <span class="text-m font-semibold text-right" [ngClass]="statusConfig().titleColor">{{ approvedAmount() | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</span>
                 </div>
+                }
             </div>
             <div class="flex flex-col gap-3">
                 <div class="flex justify-between items-start gap-3 py-2 border-b border-surface-200">
                     <span class="text-m text-muted-color shrink-0">Fecha de Resolución:</span>
                     <span class="text-m font-semibold text-right min-w-0">{{ study().resolutionDate | dateOnly:'d \'de\' MMMM \'de\' yyyy' }}</span>
                 </div>
+                @if (capacityFigures(); as cf) {
+                <div class="flex justify-between items-start gap-3 py-2 border-b border-surface-200">
+                    <span class="text-m text-muted-color shrink-0">Cuotas Mínimas para lo Solicitado:</span>
+                    <span class="text-m font-semibold text-right">{{ cf.minInstallmentsForRequested ? cf.minInstallmentsForRequested + ' (sin intereses)' : 'No pagable' }}</span>
+                </div>
+                } @else {
                 <div class="flex justify-between items-start gap-3 py-2 border-b border-surface-200">
                     <span class="text-m text-muted-color shrink-0">Plazo Solicitado:</span>
                     <span class="text-m font-semibold text-right">{{ (requestedTermValue() ?? study().recommendedTerm) }} días</span>
                 </div>
+                }
                 @if (calculationSourceLabel(); as sourceLabel) {
                 <div class="flex justify-between items-start gap-3 py-2 border-b border-surface-200">
                     <span class="text-m text-muted-color shrink-0">Fuente del Cálculo:</span>
