@@ -9,6 +9,7 @@ import { CreditStudyService } from './credit-study.service';
 import { AuthService } from '@/app/core/services/auth.service';
 import { StudyTypeSelector } from './payment-capacity/study-type-selector/study-type-selector';
 import { StudyTypeCode } from '@/app/types/payment-capacity';
+import { FeatureFlagsService } from '@/app/core/services/feature-flags.service';
 
 /** Estados compartidos que en el estudio de capacidad significan otra cosa. */
 const CAPACITY_STATUS_LABEL: Record<string, string> = {
@@ -24,6 +25,7 @@ const CAPACITY_STATUS_LABEL: Record<string, string> = {
 export class CreditStudy implements OnInit {
     private destroyRef = inject(DestroyRef);
     private authService = inject(AuthService);
+    private featureFlags = inject(FeatureFlagsService);
 
     exporting = signal(false);
 
@@ -190,6 +192,11 @@ export class CreditStudy implements OnInit {
     }
 
     onAdd(): void {
+        // Sin capacidad habilitada no hay elección que hacer: directo al empresarial.
+        if (!this.featureFlags.isEnabled('paymentCapacity')) {
+            this.router.navigate([this.detailRoute('financialStatements')]);
+            return;
+        }
         this.studyTypeSelectorVisible.set(true);
     }
 

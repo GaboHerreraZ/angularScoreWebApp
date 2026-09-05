@@ -18,7 +18,7 @@
     </ng-template>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1" data-tour="study-type-selector">
-        @for (option of options; track option.code) {
+        @for (option of options(); track option.code) {
         <button
             type="button"
             class="flex flex-col gap-3 text-left rounded-xl border border-surface p-4 sm:p-5 h-full transition-all hover:border-primary-400 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary-400"
