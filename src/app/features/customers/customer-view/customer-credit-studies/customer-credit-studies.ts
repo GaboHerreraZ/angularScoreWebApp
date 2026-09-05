@@ -6,12 +6,14 @@ import { finalize, map } from 'rxjs';
 import { CustomTable } from '@/app/shared/components/table/table';
 import { TableSettings, TableActionEvent } from '@/app/types/table';
 import { CustomerCreditStudyResponse } from '@/app/types/credit-study';
+import { StudyTypeSelector } from '@/app/features/credit-study/payment-capacity/study-type-selector/study-type-selector';
+import { StudyTypeCode } from '@/app/types/payment-capacity';
 import { CustomersService } from '../../customers.service';
 
 @Component({
     selector: 'app-customer-credit-studies',
     standalone: true,
-    imports: [CommonModule, CustomTable],
+    imports: [CommonModule, CustomTable, StudyTypeSelector],
     templateUrl: './customer-credit-studies.html'
 })
 export class CustomerCreditStudies implements OnInit {
@@ -26,6 +28,8 @@ export class CustomerCreditStudies implements OnInit {
 
     creditStudies = signal<CustomerCreditStudyResponse[]>([]);
     loading = signal(false);
+    studyTypeSelectorVisible = signal(false);
+    private personTypeCode = signal<string | null>(null);
 
     tableSettings: TableSettings = {
         title: 'Estudios de Crédito del Cliente',
@@ -90,6 +94,16 @@ export class CustomerCreditStudies implements OnInit {
 
     ngOnInit(): void {
         this.loadCreditStudies();
+        this.loadPersonType();
+    }
+
+    /** El tipo de persona decide si hay elección de estudio (capacidad es solo PN). */
+    private loadPersonType(): void {
+        const id = this.customerId();
+        if (!id) return;
+        this.customersService.getCustomerById(id).pipe(
+            takeUntilDestroyed(this.destroyRef)
+        ).subscribe(customer => this.personTypeCode.set(customer.personType?.code ?? null));
     }
 
     loadCreditStudies(): void {
@@ -106,12 +120,24 @@ export class CustomerCreditStudies implements OnInit {
     }
 
     onAddClick(): void {
-        const id = this.customerId();
-        if (!id) return;
+        if (!this.customerId()) return;
+        if (this.personTypeCode() === 'naturalPerson') {
+            this.studyTypeSelectorVisible.set(true);
+            return;
+        }
+        // PJ (o tipo aún no cargado): solo aplica el empresarial, sin diálogo.
+        this.navigateToCreate('financialStatements');
+    }
 
-        // El detalle del estudio carga el cliente por su id y precarga los datos del step 1.
-        this.router.navigate(['/app/estudio-credito/detalle-estudio'], {
-            queryParams: { customerId: id }
+    onStudyTypeSelected(studyType: StudyTypeCode): void {
+        this.navigateToCreate(studyType);
+    }
+
+    /** El formulario de creación carga el cliente por customerId y precarga el step 1. */
+    private navigateToCreate(studyType: StudyTypeCode): void {
+        const path = studyType === 'paymentCapacity' ? 'estudio-capacidad' : 'detalle-estudio';
+        this.router.navigate([`/app/estudio-credito/${path}`], {
+            queryParams: { customerId: this.customerId() }
         });
     }
 

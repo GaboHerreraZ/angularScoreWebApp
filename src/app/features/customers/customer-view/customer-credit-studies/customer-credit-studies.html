@@ -5,3 +5,8 @@
     (addClick)="onAddClick()"
     (actionClick)="onActionClick($event)"
 />
+
+<app-study-type-selector
+    [(visible)]="studyTypeSelectorVisible"
+    (selected)="onStudyTypeSelected($event)"
+/>
