@@ -1,6 +1,8 @@
+<app-study-type-selector [(visible)]="studyTypeSelectorVisible" (selected)="onStudyTypeSelected($event)" />
+
 <app-custom-table
     [tableSettings]="tableSettings()"
-    [data]="creditStudyService.creditStudies()"
+    [data]="rows()"
     [totalRecords]="creditStudyService.totalRecords()"
     [loading]="creditStudyService.loading()"
     (pageChange)="onPageChange($event)"

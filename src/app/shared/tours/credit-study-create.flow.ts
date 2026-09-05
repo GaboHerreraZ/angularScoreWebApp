@@ -31,9 +31,17 @@ export const CREDIT_STUDY_CREATE_FLOW: FlowDefinition = {
             route: LIST_ROUTE,
             element: '[data-tour="table-add"]',
             title: 'Abre un estudio nuevo',
-            description: 'Haz click en este botón para iniciar el formulario del estudio.',
+            description: 'Haz click en este botón para elegir el tipo de estudio que necesitas.',
             side: 'bottom',
             align: 'end',
+            advance: { on: 'appear', element: '[data-tour="study-type-selector"]' }
+        },
+        {
+            route: LIST_ROUTE,
+            element: '[data-tour="study-type-selector"]',
+            title: 'Elige el tipo de estudio',
+            description: 'El <b>empresarial</b> evalúa con estados financieros (persona natural o jurídica). El de <b>capacidad de pago</b> evalúa a una persona natural con sus extractos y soportes de ingreso. Esta guía continúa con el empresarial: selecciónalo.',
+            side: 'bottom',
             advance: { on: 'route', pattern: NEW_ROUTE }
         },
         {

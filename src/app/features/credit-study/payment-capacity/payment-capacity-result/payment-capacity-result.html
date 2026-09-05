@@ -1,0 +1,168 @@
+<div class="flex flex-col gap-6">
+    <!-- ══════════ Evidencia del flujo de caja verificado ══════════ -->
+    @if (hasCashFlowEvidence()) {
+    <div class="rounded-xl border border-surface p-4 sm:p-5">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+            <div class="flex items-center gap-2">
+                <i class="pi pi-chart-line text-primary-500"></i>
+                <h6 class="font-bold text-base m-0">Flujo de Caja Verificado</h6>
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+                <span class="text-sm font-semibold px-2.5 py-1 rounded-full bg-surface-100 dark:bg-surface-800 text-muted-color">
+                    <i class="pi pi-briefcase mr-1"></i>{{ employmentLabel() }}
+                </span>
+                @if (paysOwnSocialSecurity()) {
+                <span class="text-sm font-semibold px-2.5 py-1 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400">
+                    <i class="pi pi-heart mr-1"></i>Paga su seguridad social
+                </span>
+                }
+            </div>
+        </div>
+
+        @if (coverageLine(); as coverage) {
+        <p class="text-m text-muted-color m-0 mb-4">Documentación analizada: {{ coverage }}</p>
+        }
+
+        <!-- Serie de ingreso mes a mes -->
+        @if (incomeSeries().length) {
+        <div class="flex flex-col gap-2 mb-5">
+            <span class="text-m font-semibold">Ingreso identificado por mes</span>
+            @for (row of incomeSeries(); track row.month) {
+            <div class="flex flex-col sm:flex-row sm:items-center gap-2">
+                <span class="text-m text-muted-color capitalize sm:w-40 shrink-0">{{ row.label }}</span>
+                <div class="flex-1 h-6 rounded-lg bg-surface-100 dark:bg-surface-800 overflow-hidden min-w-0">
+                    <div class="h-full rounded-lg bg-primary-500/80 transition-all duration-500" [style.width.%]="row.fillPercent"></div>
+                </div>
+                <span class="text-m font-semibold sm:w-40 sm:text-right shrink-0">
+                    {{ row.income | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}
+                </span>
+            </div>
+            }
+            <span class="text-sm text-muted-color mt-1">
+                Solo cuenta lo que se identificó como ingreso: los traslados entre cuentas propias y los avances de tarjeta quedan por fuera.
+            </span>
+        </div>
+        }
+
+        <!-- Salidas recurrentes, agrupadas por naturaleza: no todas son deuda -->
+        @if (obligationGroups().length) {
+        <div class="flex flex-col gap-4 mb-5">
+            <div class="flex items-start justify-between gap-3">
+                <span class="text-m font-semibold">Salidas recurrentes detectadas en la cuenta</span>
+                <div class="flex flex-col items-end shrink-0">
+                    <span class="text-m font-semibold">
+                        {{ obligationsPeriodTotal() | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}
+                    </span>
+                    <span class="text-sm text-muted-color">
+                        {{ obligationsTotal() | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}/mes
+                    </span>
+                </div>
+            </div>
+
+            @if (windowMonths()) {
+            <span class="text-sm text-muted-color leading-relaxed -mt-2">
+                Cada concepto muestra el <span class="font-semibold">total pagado</span> en el período —esa es la cifra
+                que aparece en el extracto— y su promedio mensual, que es ese total dividido entre los
+                {{ windowMonths() }} mes(es) del extracto.
+            </span>
+            }
+
+            @for (group of obligationGroups(); track group.kind) {
+            <div class="flex flex-col gap-2">
+                <div class="flex items-start justify-between gap-3 flex-wrap">
+                    <div class="flex items-center gap-2">
+                        <span class="text-m font-medium">{{ group.title }}</span>
+                        <span class="text-[0.7rem] font-semibold px-2 py-0.5 rounded-full" [ngClass]="group.tagClasses">
+                            {{ group.tagLabel }}
+                        </span>
+                    </div>
+                    <div class="flex flex-col items-end shrink-0">
+                        <span class="text-m font-semibold">
+                            {{ group.periodTotal | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}
+                        </span>
+                        <span class="text-sm text-muted-color">
+                            {{ group.total | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}/mes
+                        </span>
+                    </div>
+                </div>
+                <span class="text-sm text-muted-color leading-relaxed">{{ group.hint }}</span>
+                <div class="flex flex-col divide-y divide-surface rounded-lg border border-surface">
+                    @for (row of group.rows; track row.counterparty + row.monthlyAverage) {
+                    <div class="flex items-start justify-between gap-3 px-4 py-2.5">
+                        <div class="flex flex-col min-w-0 gap-1">
+                            <span class="text-m font-medium truncate">{{ row.counterparty }}</span>
+                            @if (row.fromStub) {
+                            <span class="text-sm text-muted-color">
+                                Descuento de nómina: no pasa por la cuenta, ya viene mensual
+                            </span>
+                            } @else if (row.monthlyCells.length) {
+                            <div class="flex flex-wrap items-center gap-x-3 gap-y-0.5">
+                                @for (cell of row.monthlyCells; track cell.label) {
+                                <span class="text-sm" [class.text-muted-color]="!cell.amount">
+                                    {{ cell.label }}
+                                    <span [class.font-medium]="cell.amount">
+                                        {{ cell.amount | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}
+                                    </span>
+                                </span>
+                                }
+                            </div>
+                            <span class="text-sm text-muted-color">
+                                {{ row.paymentCount }} pago(s) en {{ row.months }} de {{ row.monthlyCells.length }} mes(es)
+                            </span>
+                            }
+                        </div>
+                        <div class="flex flex-col items-end shrink-0">
+                            <span class="text-m font-semibold">
+                                {{ row.total | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}
+                            </span>
+                            <span class="text-sm text-muted-color">
+                                {{ row.monthlyAverage | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}/mes
+                            </span>
+                        </div>
+                    </div>
+                    }
+                </div>
+            </div>
+            }
+
+            <span class="text-sm text-muted-color leading-relaxed">
+                Todas restan del ingreso disponible, porque la plata sale de la cuenta. Lo que cambia entre grupos es
+                si cuentan como <span class="font-semibold">deuda</span> para medir el endeudamiento del titular.
+            </span>
+        </div>
+        }
+
+        <!-- Comportamiento del titular en la cuenta -->
+        @if (behaviorRows().length) {
+        <div class="flex flex-col gap-2">
+            <span class="text-m font-semibold">Manejo de la cuenta</span>
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-x-4 gap-y-4">
+                @for (row of behaviorRows(); track row.label) {
+                <div class="flex flex-col gap-0.5">
+                    <span class="text-sm text-muted-color">{{ row.label }}</span>
+                    <span class="text-m font-semibold">{{ row.value }}</span>
+                    <span class="text-[0.7rem] text-muted-color leading-snug">{{ row.hint }}</span>
+                </div>
+                }
+            </div>
+        </div>
+        }
+    </div>
+    }
+
+    <!-- ══════════ Simulador de plan de pagos (guía, no parte del estudio) ══════════ -->
+    @if (maxInstallment() > 0) {
+    <app-amortization-simulator
+        [maxInstallment]="maxInstallment()"
+        [requestedAmount]="requestedAmount()" />
+    }
+
+    <!-- ══════════ Veredicto, dimensiones, alertas, central e IA ══════════ -->
+    <app-study-result
+        [study]="study()"
+        [creditStudyId]="creditStudyId()"
+        [customer]="customer()"
+        [companyInfo]="companyInfo()"
+        [centralRisk]="centralRisk()"
+        [readOnly]="readOnly()" />
+</div>

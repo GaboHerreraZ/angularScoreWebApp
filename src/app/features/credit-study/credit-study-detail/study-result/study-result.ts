@@ -85,6 +85,14 @@ export class StudyResult {
     financialsVerified = computed(() => this.summary()?.financialsVerified ?? false);
 
     /**
+     * Cifras del estudio de capacidad de pago. Su presencia distingue los dos
+     * productos: el resto de la pantalla (veredicto, dimensiones, alertas,
+     * central, IA) es idéntico, solo cambian las cifras y los textos de fuente.
+     */
+    capacityFigures = computed(() => this.scoring()?.capacityFigures ?? null);
+    isCapacityStudy = computed(() => !!this.capacityFigures());
+
+    /**
      * Badge de verificación mostrado junto al veredicto: recuerda que un "Viable"
      * calculado sobre cifras sin verificar no equivale a uno sobre DataCrédito.
      */
@@ -97,6 +105,9 @@ export class StudyResult {
 
     /** Badge de la fuente del cálculo, resaltado en la sección de cifras clave. */
     calculationSourceConfig = computed(() => {
+        if (this.isCapacityStudy()) {
+            return { label: 'Extractos y soportes de ingreso', icon: 'pi pi-building-columns', bg: 'bg-green-100 dark:bg-green-900/30', color: 'text-green-700 dark:text-green-400' };
+        }
         switch (this.summary()?.calculationSource) {
             case 'datacredito':
                 return { label: 'Central de riesgo', icon: 'pi pi-verified', bg: 'bg-green-100 dark:bg-green-900/30', color: 'text-green-700 dark:text-green-400' };
@@ -125,12 +136,62 @@ export class StudyResult {
     ];
 
     keyFigures = computed(() => {
+        if (this.isCapacityStudy()) return this.capacityKeyFigures();
+
         const figures = this.scoring()?.keyFigures;
         if (!figures) return [];
         return this.keyFigureRows
             .filter(row => figures[row.key] != null)
             .map(row => ({ label: row.label, value: this.formatKeyFigure(figures[row.key]!, row.format) }));
     });
+
+    /**
+     * Cifras del estudio de capacidad. No se reutilizan las del flujo con EEFF
+     * porque allí no hay EBITDA ni rotaciones: el motor las devuelve en cero y
+     * mostrarlas confundiría al analista.
+     */
+    private capacityKeyFigures(): { label: string; value: string }[] {
+        const cf = this.capacityFigures();
+        if (!cf) return [];
+
+        const money = (v: number | null) => v == null ? '—' : this.formatKeyFigure(v, 'currency');
+        const percent = (v: number | null) => v == null ? '—' : `${Math.round(v * 100)}%`;
+
+        const rows: { label: string; value: string }[] = [
+            { label: 'Ingreso mensual verificado', value: money(cf.verifiedMonthlyIncome) }
+        ];
+        if (cf.payrollNetIncome != null) {
+            rows.push({ label: 'Neto de nómina (desprendible)', value: money(cf.payrollNetIncome) });
+        }
+        rows.push({ label: 'Ingreso según extractos', value: money(cf.bankStatementIncome) });
+        if (cf.incomeVerificationIndex != null) {
+            rows.push({ label: 'Verificación nómina vs. cuenta', value: percent(cf.incomeVerificationIndex) });
+        }
+        rows.push(
+            { label: 'Compromisos fijos mensuales', value: `${money(cf.recurringFixedExpenses)}/mes` },
+            { label: 'Cuotas de crédito', value: `${money(cf.debtServicePayments)}/mes` },
+            { label: 'Pago de tarjetas', value: `${money(cf.cardPayments)}/mes` },
+            { label: 'Total obligaciones', value: `${money(cf.existingDebtPayments)}/mes` },
+            { label: 'Ingreso disponible', value: `${money(cf.availableIncome)}/mes` },
+            { label: 'Costo de vida observado', value: `${money(cf.livingCost)}/mes` },
+            { label: 'Cuota máxima sostenible', value: `${money(cf.maxSuggestedInstallment)}/mes` }
+        );
+        if (cf.minInstallmentsForRequested != null) {
+            rows.push({
+                label: 'Cuotas mínimas para lo solicitado',
+                value: `${cf.minInstallmentsForRequested} (sin intereses)`
+            });
+        }
+        rows.push({ label: 'Endeudamiento actual (sin tarjetas)', value: percent(cf.currentDti) });
+        if (cf.payrollLoanCapacity != null) {
+            rows.push({ label: 'Cupo de libranza (Ley 1527)', value: money(cf.payrollLoanCapacity) });
+        }
+        rows.push(
+            { label: 'Variación del ingreso', value: percent(cf.incomeCv) },
+            { label: 'Meses con ingreso', value: `${cf.monthsWithIncome} de ${cf.coveredMonths}` }
+        );
+        return rows;
+    }
 
     private formatKeyFigure(value: number, format: 'currency' | 'days' | 'ratio'): string {
         switch (format) {
@@ -200,6 +261,7 @@ export class StudyResult {
 
     /** Etiqueta legible de la fuente del cálculo para el resumen. */
     calculationSourceLabel = computed(() => {
+        if (this.isCapacityStudy()) return 'Extractos y soportes de ingreso';
         switch (this.summary()?.calculationSource) {
             case 'datacredito': return 'Central de riesgo';
             case 'pdf': return 'Documento cargado';
@@ -321,7 +383,12 @@ export class StudyResult {
         creditLineAdequacy: 'Verifica que el cupo solicitado sea proporcional a la capacidad financiera real de la empresa e incluye el techo avalado por la central.',
         capitalExposure: 'Evalúa qué tan eficientemente la empresa usa su capital frente a la exposición del cupo solicitado.',
         veracity: 'Contrasta las cifras del documento cargado contra las reportadas en la central de riesgo para el mismo periodo.',
-        centralRisk: 'Refleja el nivel de riesgo del cliente según la información de la central de riesgo.'
+        centralRisk: 'Refleja el nivel de riesgo del cliente según la información de la central de riesgo.',
+        // Dimensiones propias del estudio de capacidad de pago.
+        incomeStability: 'Mide qué tan constante es el ingreso mes a mes, cuántos meses de historia se pudieron verificar y la antigüedad laboral del titular.',
+        indebtedness: 'Compara las cuotas que ya paga —más la del crédito solicitado— contra su ingreso verificado.',
+        financialBehavior: 'Evalúa cómo maneja la cuenta: saldos promedio, días en negativo, retiros inmediatos tras recibir el ingreso y gastos de riesgo.',
+        docVeracity: 'Resume el resultado de las verificaciones automáticas sobre los documentos aportados (saldos, totales, identidad del titular y cuenta de consignación).'
     };
 
     getDimensionStatusConfig(dim: DimensionView): { label: string; bg: string; color: string } {

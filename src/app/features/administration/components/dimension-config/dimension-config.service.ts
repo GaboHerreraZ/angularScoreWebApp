@@ -8,6 +8,7 @@ import {
     ScoringConfiguration,
     ScoringDimension
 } from '@/app/types/scoring-configuration';
+import { StudyTypeCode } from '@/app/types/payment-capacity';
 
 /**
  * Configuraciones de ponderación (scoring) de la empresa: el catálogo de dimensiones,
@@ -25,23 +26,27 @@ export class DimensionConfigService {
         return `companies/${this.companyId()}/scoring-configurations`;
     }
 
-    /** Catálogo completo de dimensiones del sistema (global, no por empresa). */
-    getDimensions(): Observable<ScoringDimension[]> {
-        return this.apiService.get<ScoringDimension[]>('scoring-dimensions');
+    /**
+     * Catálogo de dimensiones del sistema (global, no por empresa). El tipo de
+     * estudio cambia qué dimensiones soporta el motor y cuáles son obligatorias:
+     * el estudio de capacidad tiene las suyas (ingreso, endeudamiento…).
+     */
+    getDimensions(studyType: StudyTypeCode = 'financialStatements'): Observable<ScoringDimension[]> {
+        return this.apiService.get<ScoringDimension[]>('scoring-dimensions', { params: { studyType } });
     }
 
     /**
-     * Config activa del tipo de persona indicado. Si la empresa no tiene ninguna, el
-     * backend devuelve los defaults del sistema con isDefault=true e id=null: el front
-     * los muestra y al guardar crea la primera versión.
+     * Config activa del tipo de persona y estudio indicados. Si la empresa no tiene
+     * ninguna, el backend devuelve los defaults del sistema con isDefault=true e
+     * id=null: el front los muestra y al guardar crea la primera versión.
      */
-    getActive(personType: PersonTypeCode): Observable<ScoringConfiguration> {
-        return this.apiService.get<ScoringConfiguration>(`${this.basePath}/active`, { params: { personType } });
+    getActive(personType: PersonTypeCode, studyType: StudyTypeCode = 'financialStatements'): Observable<ScoringConfiguration> {
+        return this.apiService.get<ScoringConfiguration>(`${this.basePath}/active`, { params: { personType, studyType } });
     }
 
-    /** Todas las configuraciones del tipo de persona (reciente primero) para el historial. */
-    getHistory(personType: PersonTypeCode): Observable<ScoringConfiguration[]> {
-        return this.apiService.get<ScoringConfiguration[]>(this.basePath, { params: { personType } });
+    /** Todas las configuraciones del tipo de persona y estudio (reciente primero). */
+    getHistory(personType: PersonTypeCode, studyType: StudyTypeCode = 'financialStatements'): Observable<ScoringConfiguration[]> {
+        return this.apiService.get<ScoringConfiguration[]>(this.basePath, { params: { personType, studyType } });
     }
 
     /**
@@ -49,8 +54,12 @@ export class DimensionConfigService {
      * persona indicado; queda vigente y la anterior pasa al historial. El backend responde
      * 400 si faltan las obligatorias, alguna no aplica al tipo, un peso es < 5 o no suman 100.
      */
-    create(personType: PersonTypeCode, dto: CreateScoringConfigurationDto): Observable<ScoringConfiguration> {
-        return this.apiService.post<ScoringConfiguration>(this.basePath, dto, { params: { personType } });
+    create(
+        personType: PersonTypeCode,
+        dto: CreateScoringConfigurationDto,
+        studyType: StudyTypeCode = 'financialStatements'
+    ): Observable<ScoringConfiguration> {
+        return this.apiService.post<ScoringConfiguration>(this.basePath, dto, { params: { personType, studyType } });
     }
 
     /**
@@ -58,7 +67,7 @@ export class DimensionConfigService {
      * crea una versión nueva con las dimensiones y pesos predeterminados, que queda vigente
      * y desplaza la anterior al historial. Responde igual que {@link create}.
      */
-    reset(personType: PersonTypeCode): Observable<ScoringConfiguration> {
-        return this.apiService.post<ScoringConfiguration>(`${this.basePath}/reset`, null, { params: { personType } });
+    reset(personType: PersonTypeCode, studyType: StudyTypeCode = 'financialStatements'): Observable<ScoringConfiguration> {
+        return this.apiService.post<ScoringConfiguration>(`${this.basePath}/reset`, null, { params: { personType, studyType } });
     }
 }

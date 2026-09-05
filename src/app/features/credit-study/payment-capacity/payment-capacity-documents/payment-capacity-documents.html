@@ -1,0 +1,125 @@
+<p-confirmDialog [style]="{ width: '90vw', maxWidth: '440px' }" />
+
+<div class="flex flex-col gap-5">
+    <!-- ══════════ Medidor de cobertura ══════════ -->
+    <div class="rounded-xl border p-4 sm:p-5"
+         [ngClass]="coverageComplete()
+            ? 'border-green-200 dark:border-green-800 bg-green-50/50 dark:bg-green-900/10'
+            : 'border-surface'">
+        <div class="flex flex-col sm:flex-row sm:items-center gap-3 mb-3">
+            <div class="flex items-center gap-3 flex-1 min-w-0">
+                <div class="flex items-center justify-center rounded-xl shrink-0"
+                     [ngClass]="coverageComplete()
+                        ? 'bg-green-100 text-green-600 dark:bg-green-500/10 dark:text-green-400'
+                        : 'bg-amber-100 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400'"
+                     style="width: 2.75rem; height: 2.75rem;">
+                    <i [ngClass]="coverageComplete() ? 'pi pi-check-circle' : 'pi pi-clock'" class="text-lg"></i>
+                </div>
+                <div class="flex flex-col min-w-0">
+                    <h4 class="text-base font-semibold m-0">
+                        {{ coverageComplete() ? 'Documentación completa' : 'Documentación incompleta' }}
+                    </h4>
+                    <span class="text-m text-muted-color">
+                        {{ coverageComplete()
+                            ? 'Ya puede realizar el estudio de capacidad de pago.'
+                            : 'Cargue los soportes faltantes para poder analizar la solicitud.' }}
+                    </span>
+                </div>
+            </div>
+            <span class="text-m font-semibold shrink-0"
+                  [ngClass]="coverageComplete() ? 'text-green-700 dark:text-green-400' : 'text-muted-color'">
+                {{ coverage()?.coveredMonths ?? 0 }} de {{ requiredMonths() }} meses
+            </span>
+        </div>
+
+        <div class="h-2 rounded-full bg-surface-200 dark:bg-surface-700 overflow-hidden">
+            <div class="h-full rounded-full transition-all duration-500"
+                 [ngClass]="coverageComplete() ? 'bg-green-500' : 'bg-amber-500'"
+                 [style.width.%]="coveragePercent()"></div>
+        </div>
+
+        @if (coveredMonthLabels().length) {
+        <div class="flex flex-wrap gap-1.5 mt-3">
+            @for (month of coveredMonthLabels(); track month) {
+            <span class="text-[0.7rem] font-medium px-2 py-0.5 rounded-full bg-surface-100 dark:bg-surface-800 text-muted-color">
+                {{ month }}
+            </span>
+            }
+        </div>
+        }
+    </div>
+
+    <!-- ══════════ Avisos ══════════ -->
+    @if (staleStatements()) {
+    <p-message severity="warn" styleClass="w-full">
+        <span class="text-m">
+            El extracto más reciente tiene un corte antiguo. El análisis se realizará igual, pero el resultado señalará que la información no es actual.
+        </span>
+    </p-message>
+    }
+    @if (singleStubWarning()) {
+    <p-message severity="info" styleClass="w-full">
+        <span class="text-m">
+            Con un solo desprendible el estudio se puede realizar, pero cargar un segundo mes permite verificar mejor la estabilidad del ingreso.
+        </span>
+    </p-message>
+    }
+
+    <!-- ══════════ Tarjetas por tipo de documento ══════════ -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 items-stretch" data-tour="capacity-documents">
+        <app-document-upload-card
+            title="Extractos bancarios"
+            [description]="isIndependent()
+                ? 'Extractos de los últimos ' + requiredMonths() + ' meses de la cuenta donde recibe sus ingresos. Un mismo PDF puede cubrir varios meses.'
+                : 'Extractos de los últimos ' + requiredMonths() + ' meses de la cuenta donde le consignan la nómina.'"
+            icon="pi pi-building-columns"
+            [requirementHint]="requiredMonths() + ' meses'"
+            [documents]="statements()"
+            [maxDocuments]="maxByType.bankStatement"
+            [uploading]="uploadingType() === 'bankStatement'"
+            [readOnly]="readOnly()"
+            [satisfied]="(coverage()?.coveredMonths ?? 0) >= requiredMonths()"
+            (fileSelected)="onFileSelected($event, 'bankStatement')"
+            (removeDocument)="onRemoveDocument($event)"
+            (viewDocument)="onViewDocument($event)" />
+
+        @if (isIndependent()) {
+        <app-document-upload-card
+            title="Facturas o cuentas de cobro"
+            description="Las que el titular emite a sus clientes, idealmente de los mismos meses de los extractos: así el pago facturado se puede cruzar contra los abonos de la cuenta. No suman ingreso."
+            icon="pi pi-receipt"
+            requirementHint="Opcional"
+            [documents]="contractorInvoices()"
+            [maxDocuments]="maxByType.contractorInvoice"
+            [uploading]="uploadingType() === 'contractorInvoice'"
+            [readOnly]="readOnly()"
+            [satisfied]="contractorInvoices().length > 0"
+            (fileSelected)="onFileSelected($event, 'contractorInvoice')"
+            (removeDocument)="onRemoveDocument($event)"
+            (viewDocument)="onViewDocument($event)" />
+        } @else {
+        <app-document-upload-card
+            title="Desprendibles de nómina"
+            description="Comprobantes de pago de su empleador. Se usan para verificar el ingreso declarado contra lo que efectivamente le consignan."
+            icon="pi pi-id-card"
+            requirementHint="Mínimo 1, ideal 2"
+            [documents]="payrollStubs()"
+            [maxDocuments]="maxByType.payrollStub"
+            [uploading]="uploadingType() === 'payrollStub'"
+            [readOnly]="readOnly()"
+            [satisfied]="(coverage()?.payrollStubs ?? 0) >= 1"
+            (fileSelected)="onFileSelected($event, 'payrollStub')"
+            (removeDocument)="onRemoveDocument($event)"
+            (viewDocument)="onViewDocument($event)" />
+        }
+    </div>
+
+    <!-- Nota sobre el procesamiento -->
+    <div class="flex items-start gap-2.5 p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
+        <i class="pi pi-info-circle text-blue-600 dark:text-blue-400 text-m mt-0.5 shrink-0"></i>
+        <span class="text-m text-blue-800 dark:text-blue-300">
+            Cada documento se lee al cargarlo y se verifica contra sí mismo y contra los demás (saldos, totales, identidad del titular y cuenta de consignación).
+            Cargue el <span class="font-semibold">PDF original del banco o del empleador</span>: no se aceptan escaneos, fotografías ni capturas de pantalla.
+        </span>
+    </div>
+</div>

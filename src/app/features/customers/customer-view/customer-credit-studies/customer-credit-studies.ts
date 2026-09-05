@@ -49,6 +49,17 @@ export class CustomerCreditStudies implements OnInit {
                 minWidth: '10rem'
             },
             {
+                header: 'Tipo',
+                field: 'studyType.label',
+                type: 'status',
+                minWidth: '11rem',
+                severityMap: {
+                    'Estudio empresarial': 'info',
+                    'Estudio de capacidad de pago': 'success'
+                },
+                defaultSeverity: 'secondary'
+            },
+            {
                 header: 'Cupo Solicitado',
                 field: 'requestedCreditLine',
                 type: 'currency',
@@ -106,7 +117,11 @@ export class CustomerCreditStudies implements OnInit {
 
     onActionClick(event: TableActionEvent): void {
         if (event.action === 'view') {
-            this.router.navigate(['/app/estudio-credito/detalle-estudio', event.row.id]);
+            // Cada tipo de estudio tiene su propio detalle.
+            const path = event.row['studyType']?.code === 'paymentCapacity'
+                ? 'estudio-capacidad'
+                : 'detalle-estudio';
+            this.router.navigate([`/app/estudio-credito/${path}`, event.row.id]);
         }
     }
 }

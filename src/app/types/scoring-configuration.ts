@@ -11,6 +11,8 @@
  * - POST companies/:companyId/scoring-configurations?personType=  → crea versión nueva; la anterior pasa a histórica
  */
 
+import { StudyTypeCode } from './payment-capacity';
+
 /** Peso mínimo permitido por dimensión habilitada. */
 export const MIN_DIMENSION_WEIGHT = 5;
 
@@ -36,6 +38,22 @@ export interface PersonTypeTab {
 export const PERSON_TYPE_TABS: PersonTypeTab[] = [
     { code: 'legalEntity', label: 'Persona Jurídica', icon: 'pi pi-building' },
     { code: 'naturalPerson', label: 'Persona Natural', icon: 'pi pi-user' }
+];
+
+/**
+ * Cada tipo de estudio pondera dimensiones distintas (el empresarial evalúa
+ * estados financieros; el de capacidad, el flujo de caja del titular), así que
+ * cada uno tiene su propia configuración vigente.
+ */
+export interface StudyTypeTab {
+    code: StudyTypeCode;
+    label: string;
+    icon: string;
+}
+
+export const STUDY_TYPE_TABS: StudyTypeTab[] = [
+    { code: 'financialStatements', label: 'Estudio Empresarial', icon: 'pi pi-briefcase' },
+    { code: 'paymentCapacity', label: 'Capacidad de Pago', icon: 'pi pi-wallet' }
 ];
 
 /** Tipo de persona expandido que devuelve el backend en la configuración. */
@@ -99,6 +117,9 @@ export interface ScoringConfiguration {
     personTypeId?: number;
     /** Tipo de persona al que aplica esta configuración (expandido por el backend). */
     personType?: PersonType;
+    studyTypeId?: number;
+    /** Tipo de estudio al que aplica esta configuración (expandido por el backend). */
+    studyType?: { id: number; code: StudyTypeCode; label: string };
     isActive: boolean;
     /** true cuando son los defaults del sistema (empresa sin config propia todavía). */
     isDefault?: boolean;
@@ -132,7 +153,12 @@ const DIMENSION_ICONS: Record<string, string> = {
     creditLineAdequacy: 'pi pi-sliders-h',
     capitalExposure: 'pi pi-shield',
     veracity: 'pi pi-verified',
-    centralRisk: 'pi pi-chart-line'
+    centralRisk: 'pi pi-chart-line',
+    // Estudio de capacidad de pago
+    incomeStability: 'pi pi-chart-bar',
+    indebtedness: 'pi pi-percentage',
+    financialBehavior: 'pi pi-building-columns',
+    docVeracity: 'pi pi-file-check'
 };
 
 /** Ícono de una dimensión por su code, con fallback genérico para codes nuevos. */

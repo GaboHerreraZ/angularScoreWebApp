@@ -1,4 +1,10 @@
 import { PromissoryNoteSummary } from './promissory-note';
+import {
+    CapacityFigures,
+    CreditStudyDocumentsStep,
+    EmploymentTypeCode,
+    StudyTypeCode
+} from './payment-capacity';
 
 export interface ViabilityAlert {
     type: 'success' | 'warning' | 'danger' | 'info';
@@ -117,6 +123,12 @@ export interface CreateCreditStudy {
         label: string;
         code: string;
     };
+    /** Tipo de estudio: define a qué detalle rutea el listado. */
+    studyType?: {
+        id: number;
+        label: string;
+        code: StudyTypeCode;
+    } | null;
     /** Resumen del resultado del estudio; ausente mientras no se haya analizado. */
     result?: {
         score: number;
@@ -234,11 +246,17 @@ export interface CreateFromBureauPayload {
     apellidoRazonSocial: string;
     titularEmail: string;
     titularCity: string;
-    requestedTerm: number;
+    /** Solo estudio con EEFF (plazo en días). El de capacidad no pide plazo. */
+    requestedTerm?: number;
     requestedCreditLine: number;
     legalRepName?: string;
     legalRepIdentificationTypeCode?: string;
     legalRepIdentificationNumber?: string;
+    /** Ausente = estudio con estados financieros (comportamiento histórico). */
+    studyTypeCode?: StudyTypeCode;
+    /** Requeridos solo en el estudio de capacidad de pago. */
+    employmentTypeCode?: EmploymentTypeCode;
+    declaredEmploymentStartDate?: string;
 }
 
 /**
@@ -484,6 +502,9 @@ export interface CreditStudyStep1 {
 export interface CreditStudyRequest {
     requestedTerm: number | null;
     requestedCreditLine: number | null;
+    /** Declarados del estudio de capacidad (null en estudios con EEFF). */
+    employmentType?: { id: number; code: EmploymentTypeCode; label: string } | null;
+    declaredEmploymentStartDate?: string | null;
 }
 
 // ─── Step 2: estados financieros (por fuente y periodo) ──────────────────────
@@ -590,12 +611,15 @@ export interface CreditStudyStepsResponse {
         parentId: number | null;
         isActive: boolean;
     };
+    /** Discrimina el step2: estados financieros o documentos de capacidad. */
+    studyType?: { id: number; code: StudyTypeCode; label: string } | null;
     studyDate: string | null;
     request: CreditStudyRequest | null;
     /** Pagaré del estudio (si ya se generó). */
     promissoryNote?: PromissoryNoteSummary | null;
     step1: CreditStudyStep1 | null;
-    step2: CreditStudyStep2 | null;
+    /** EEFF: fuentes financieras. Capacidad: documentos + cobertura + análisis. */
+    step2: CreditStudyStep2 | CreditStudyDocumentsStep | null;
     step3: PerformStudyResponse | null;
 }
 
@@ -664,6 +688,8 @@ export interface ScoringResult {
     reference: ScoringReference;
     alerts: ScoringAlert[];
     keyFigures?: ScoringKeyFigures | null;
+    /** Solo en el estudio de capacidad de pago: cifras del flujo de caja. */
+    capacityFigures?: CapacityFigures | null;
     /** Capa 1: fiabilidad del documento (PDF contra sí mismo). */
     pdfReliabilityFlags: ReliabilityFlag[];
     /** Capa 2: señales de la central de riesgo. */

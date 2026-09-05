@@ -1,0 +1,127 @@
+<div class="rounded-xl border border-surface p-4 sm:p-5">
+    <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-4">
+        <div class="flex flex-col gap-1">
+            <div class="flex items-center gap-2">
+                <i class="pi pi-calculator text-primary-500"></i>
+                <h4 class="text-m font-semibold m-0">Simulador de Plan de Pagos</h4>
+            </div>
+            <span class="text-sm text-muted-color">
+                Traduce la cuota máxima del titular a un plan de cuotas. Es una guía: no hace parte del estudio ni queda registrada en él.
+            </span>
+        </div>
+        <div class="flex flex-col items-start sm:items-end shrink-0">
+            <span class="text-sm text-muted-color">Cuota máxima sostenible</span>
+            <span class="text-base font-bold text-primary-500">{{ maxInstallment() | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}/mes</span>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 mb-4">
+        <p-floatlabel variant="on">
+            <p-inputnumber
+                inputId="simAmount"
+                [ngModel]="amount()"
+                (ngModelChange)="amount.set($event)"
+                mode="currency"
+                currency="COP"
+                locale="es-CO"
+                [minFractionDigits]="0"
+                [maxFractionDigits]="0"
+                [min]="0"
+                styleClass="w-full" />
+            <label for="simAmount">Monto a financiar</label>
+        </p-floatlabel>
+
+        <p-floatlabel variant="on">
+            <p-inputnumber
+                inputId="simRate"
+                [ngModel]="annualRate()"
+                (ngModelChange)="annualRate.set($event ?? 0)"
+                suffix=" % E.A."
+                locale="es-CO"
+                [minFractionDigits]="0"
+                [maxFractionDigits]="2"
+                [min]="0"
+                [max]="200"
+                styleClass="w-full" />
+            <label for="simRate">Tasa efectiva anual</label>
+        </p-floatlabel>
+    </div>
+
+    @if (neverAmortizes()) {
+    <p-message severity="error" styleClass="w-full">
+        <span class="text-m">
+            Con el {{ annualRate() }} % E.A. los intereses del primer mes son
+            <span class="font-semibold">{{ firstMonthInterest() | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</span>,
+            más de lo que el titular puede pagar al mes. La deuda no se amortiza en ningún plazo:
+            hay que bajar el monto o la tasa.
+        </span>
+    </p-message>
+    } @else if (!installments()) {
+    <p-message severity="info" styleClass="w-full">
+        <span class="text-m">Ingrese un monto para simular el plan de pagos.</span>
+    </p-message>
+    } @else {
+    <!-- Resumen de la simulación -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-4 rounded-lg bg-surface-50 dark:bg-surface-800/40 p-4 mb-4">
+        <div class="flex flex-col gap-0.5">
+            <span class="text-sm text-muted-color">Número de cuotas</span>
+            <span class="text-base font-bold">{{ installments() }}</span>
+        </div>
+        <div class="flex flex-col gap-0.5">
+            <span class="text-sm text-muted-color">Cuota mensual</span>
+            <span class="text-base font-bold">{{ levelPayment() | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</span>
+            @if (headroomPct(); as headroom) {
+            <span class="text-[0.7rem] text-muted-color">Deja {{ headroom | percent:'1.0-0' }} de margen</span>
+            }
+        </div>
+        <div class="flex flex-col gap-0.5">
+            <span class="text-sm text-muted-color">Total intereses</span>
+            <span class="text-base font-bold">{{ totalInterest() | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</span>
+        </div>
+        <div class="flex flex-col gap-0.5">
+            <span class="text-sm text-muted-color">Total a pagar</span>
+            <span class="text-base font-bold">{{ totalPaid() | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</span>
+        </div>
+    </div>
+
+    @if (exceedsMaxTerm()) {
+    <p-message severity="warn" styleClass="w-full mb-4">
+        <span class="text-m">
+            Con esta cuota el monto necesitaría más de 120 cuotas. La tabla se corta ahí: un plazo así
+            deja de ser un crédito de consumo razonable.
+        </span>
+    </p-message>
+    }
+
+    <!-- Tabla de amortización -->
+    <div class="overflow-x-auto rounded-lg border border-surface">
+        <table class="w-full text-m border-collapse">
+            <thead>
+                <tr class="bg-surface-50 dark:bg-surface-800/60 text-sm text-muted-color">
+                    <th class="text-left font-semibold px-3 py-2">#</th>
+                    <th class="text-right font-semibold px-3 py-2">Cuota</th>
+                    <th class="text-right font-semibold px-3 py-2">Interés</th>
+                    <th class="text-right font-semibold px-3 py-2">Abono a capital</th>
+                    <th class="text-right font-semibold px-3 py-2">Saldo</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (row of schedule(); track row.installment) {
+                <tr class="border-t border-surface">
+                    <td class="px-3 py-2 text-muted-color">{{ row.installment }}</td>
+                    <td class="px-3 py-2 text-right font-medium">{{ row.payment | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</td>
+                    <td class="px-3 py-2 text-right text-muted-color">{{ row.interest | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</td>
+                    <td class="px-3 py-2 text-right">{{ row.principal | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</td>
+                    <td class="px-3 py-2 text-right">{{ row.balance | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <p class="text-sm text-muted-color mt-3 m-0">
+        Cuota fija (sistema francés), solo capital e intereses: no incluye seguros, avales ni cuota de manejo.
+        Verifique que la tasa no supere el tope de usura vigente.
+    </p>
+    }
+</div>

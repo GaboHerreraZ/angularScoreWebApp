@@ -25,9 +25,14 @@ export class QuickActions {
 
         if (perms?.canAddCreditStudy && perms?.hasCredits) {
             list.push({
-                label: 'Nuevo estudio',
+                label: 'Nuevo estudio empresarial',
                 icon: 'pi pi-credit-card',
                 command: () => this.router.navigate(['/app/estudio-credito/detalle-estudio'])
+            });
+            list.push({
+                label: 'Nuevo estudio de capacidad',
+                icon: 'pi pi-wallet',
+                command: () => this.router.navigate(['/app/estudio-credito/estudio-capacidad'])
             });
         }
 
