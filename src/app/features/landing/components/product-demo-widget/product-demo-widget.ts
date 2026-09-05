@@ -113,7 +113,7 @@ export class ProductDemoWidget implements OnDestroy {
 
     readonly steps: DemoStep[] = [
         { icon: 'pi-id-card', title: 'Identifica a tu cliente', description: 'Elige el tipo de documento e ingresa el número.' },
-        { icon: 'pi-file-pdf', title: 'Sube los estados financieros', description: 'Un PDF basta. La IA lee las cifras.' },
+        { icon: 'pi-file-pdf', title: 'Sube los soportes', description: 'Estados financieros (empresa) o extractos bancarios (persona). La IA lee las cifras.' },
         { icon: 'pi-shield', title: 'Cruzamos los datos', description: 'Datacrédito Experian, listas restrictivas e indicadores financieros con IA.' },
         { icon: 'pi-chart-bar', title: 'Recibe el score de riesgo', description: 'Un número claro para decidir.' },
         { icon: 'pi-pen-to-square', title: 'Cierra con pagaré digital', description: 'Se genera solo y queda listo para firma electrónica.' }
