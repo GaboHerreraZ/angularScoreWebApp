@@ -18,7 +18,7 @@ if (missing.length === 0) {
     process.exit(0);
 }
 
-const { SUPABASE_URL, SUPABASE_KEY, API_URL, EPAYCO_TEST, GA_MEASUREMENT_ID } = process.env;
+const { SUPABASE_URL, SUPABASE_KEY, API_URL, EPAYCO_TEST, GA_MEASUREMENT_ID, CHATWOOT_BASE_URL, CHATWOOT_WEBSITE_TOKEN } = process.env;
 if (!SUPABASE_URL || !SUPABASE_KEY || !API_URL) {
     console.error('[generate-env] Missing env vars. Required: SUPABASE_URL, SUPABASE_KEY, API_URL');
     process.exit(1);
@@ -42,6 +42,17 @@ console.log(
         : '[generate-env] EPAYCO_TEST=false -> checkout en modo PRODUCCION (cobra de verdad)'
 );
 
+// Chatwoot: el widget de chat de las paginas publicas necesita las dos variables.
+// Se configuran como variable de rama en Amplify (solo main), asi las pruebas de
+// staging no entran al inbox real. Si falta alguna, el widget queda apagado.
+const chatwootBaseUrl = CHATWOOT_BASE_URL ?? '';
+const chatwootWebsiteToken = CHATWOOT_WEBSITE_TOKEN ?? '';
+console.log(
+    chatwootBaseUrl && chatwootWebsiteToken
+        ? `[generate-env] CHATWOOT_BASE_URL=${chatwootBaseUrl} -> chat ACTIVO`
+        : '[generate-env] CHATWOOT_BASE_URL/CHATWOOT_WEBSITE_TOKEN vacios -> chat apagado'
+);
+
 mkdirSync(envDir, { recursive: true });
 for (const t of missing) {
     const content = `export const environment = {
@@ -51,6 +62,8 @@ for (const t of missing) {
     apiUrl: '${API_URL}',
     epaycoTest: ${epaycoTest},
     gaMeasurementId: '${gaMeasurementId}',
+    chatwootBaseUrl: '${chatwootBaseUrl}',
+    chatwootWebsiteToken: '${chatwootWebsiteToken}',
 };
 `;
     writeFileSync(resolve(envDir, t.file), content);
