@@ -1,8 +1,9 @@
-import { Component, model, output } from '@angular/core';
+import { Component, computed, inject, model, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
 import { StudyTypeCode } from '@/app/types/payment-capacity';
+import { FeatureFlagsService } from '@/app/core/services/feature-flags.service';
 
 interface StudyTypeOption {
     code: StudyTypeCode;
@@ -26,10 +27,19 @@ interface StudyTypeOption {
     templateUrl: './study-type-selector.html'
 })
 export class StudyTypeSelector {
+    private featureFlags = inject(FeatureFlagsService);
+
     visible = model<boolean>(false);
     selected = output<StudyTypeCode>();
 
-    readonly options: StudyTypeOption[] = [
+    /** El empresarial siempre; los demás solo con su feature flag encendido. */
+    options = computed(() =>
+        this.allOptions.filter(
+            o => o.code === 'financialStatements' || this.featureFlags.isEnabled(o.code)
+        )
+    );
+
+    private readonly allOptions: StudyTypeOption[] = [
         {
             code: 'financialStatements',
             title: 'Estudio empresarial',

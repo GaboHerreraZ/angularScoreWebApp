@@ -8,6 +8,7 @@ import { TableSettings, TableActionEvent } from '@/app/types/table';
 import { CustomerCreditStudyResponse } from '@/app/types/credit-study';
 import { StudyTypeSelector } from '@/app/features/credit-study/payment-capacity/study-type-selector/study-type-selector';
 import { StudyTypeCode } from '@/app/types/payment-capacity';
+import { FeatureFlagsService } from '@/app/core/services/feature-flags.service';
 import { CustomersService } from '../../customers.service';
 
 @Component({
@@ -21,6 +22,7 @@ export class CustomerCreditStudies implements OnInit {
     private route = inject(ActivatedRoute);
     private router = inject(Router);
     private customersService = inject(CustomersService);
+    private featureFlags = inject(FeatureFlagsService);
 
     customerId = toSignal(
         this.route.parent!.params.pipe(map(params => params['id']))
@@ -121,11 +123,14 @@ export class CustomerCreditStudies implements OnInit {
 
     onAddClick(): void {
         if (!this.customerId()) return;
-        if (this.personTypeCode() === 'naturalPerson') {
+        if (
+            this.personTypeCode() === 'naturalPerson' &&
+            this.featureFlags.isEnabled('paymentCapacity')
+        ) {
             this.studyTypeSelectorVisible.set(true);
             return;
         }
-        // PJ (o tipo aún no cargado): solo aplica el empresarial, sin diálogo.
+        // PJ, capacidad apagada o tipo aún no cargado: solo aplica el empresarial.
         this.navigateToCreate('financialStatements');
     }
 
