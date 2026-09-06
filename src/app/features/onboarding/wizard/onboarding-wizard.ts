@@ -1,4 +1,5 @@
 import { Component, computed, DestroyRef, effect, inject, resource, signal, viewChild } from '@angular/core';
+import { NgClass } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -18,6 +19,7 @@ import { buildBillingForm } from '@/app/shared/components/billing-form/billing-f
 import { EpaycoCheckout } from '@/app/shared/components/epayco-checkout/epayco-checkout';
 import { EpaycoCheckoutLoader } from '@/app/shared/components/epayco-checkout/epayco-checkout.service';
 import { SupabaseService } from '@/app/core/services/supabase.service';
+import { FeatureFlagsService } from '@/app/core/services/feature-flags.service';
 import { NotificationService } from '@/app/shared/components/notification/notification.service';
 import { WelcomeService } from '@/app/shared/components/welcome-dialog/welcome.service';
 import { Parameter } from '@/app/types/parameter';
@@ -39,6 +41,7 @@ import { PRESELECTED_PACK_KEY } from '@/app/core/constants/storage-keys';
     selector: 'app-onboarding-wizard',
     standalone: true,
     imports: [
+        NgClass,
         ReactiveFormsModule,
         StepsModule,
         ButtonModule,
@@ -61,6 +64,7 @@ export class OnboardingWizard {
     private packOfferingsService = inject(PackOfferingsService);
     private analysisPacksService = inject(AnalysisPacksService);
     private supabaseService = inject(SupabaseService);
+    private featureFlags = inject(FeatureFlagsService);
     private notification = inject(NotificationService);
     private checkoutLoader = inject(EpaycoCheckoutLoader);
     private welcomeService = inject(WelcomeService);
@@ -91,7 +95,10 @@ export class OnboardingWizard {
             if (!packId) return;
             sessionStorage.removeItem(PRESELECTED_PACK_KEY);
             const pack = packs.find((p) => p.id === packId);
-            if (pack) this.selectedPack.set(pack);
+            if (!pack) return;
+            this.selectedPack.set(pack);
+            // El carrusel debe abrir en el tab del pack elegido en /precios.
+            if (pack.product?.code === 'bureauCheck') this.activeTab.set('bureauCheck');
         });
     }
 
@@ -170,16 +177,52 @@ export class OnboardingWizard {
         loader: () => firstValueFrom(this.packOfferingsService.getPackCatalog())
     });
 
-    /**
-     * El carrusel del onboarding ofrece solo bolsas de ESTUDIOS (el funnel de
-     * entrada). Un pack de consultas preseleccionado desde /precios sí se
-     * respeta: el effect de preselección busca en el catálogo completo.
-     */
+    /** Un tab por producto: estudios y consultas no comparten precio ni unidad. */
+    activeTab = signal<'creditStudy' | 'bureauCheck'>('creditStudy');
+
     studyPacks = computed<PackOffering[]>(() =>
         (this.packsResource.value() ?? []).filter(
             (p) => (p.product?.code ?? 'creditStudy') !== 'bureauCheck'
         )
     );
+
+    bureauPacks = computed<PackOffering[]>(() =>
+        (this.packsResource.value() ?? []).filter((p) => p.product?.code === 'bureauCheck')
+    );
+
+    /** El tab de consultas solo existe con ofertas cotizables Y el flag encendido. */
+    showBureauTab = computed<boolean>(
+        () => this.bureauPacks().length > 0 && this.featureFlags.isEnabled('bureauCheck')
+    );
+
+    /** Sin tab visible el producto activo es siempre estudios, pase lo que pase. */
+    isBureauTab = computed<boolean>(() => this.showBureauTab() && this.activeTab() === 'bureauCheck');
+
+    /** Packs del tab activo. */
+    packs = computed<PackOffering[]>(() =>
+        this.isBureauTab() ? this.bureauPacks() : this.studyPacks()
+    );
+
+    /**
+     * Cambiar de producto descarta la selección del otro: se compra UN pack, y
+     * dejarla viva mostraría el resumen de una tarjeta que ya no está a la vista.
+     */
+    selectTab(tab: 'creditStudy' | 'bureauCheck'): void {
+        if (this.activeTab() === tab) return;
+        this.activeTab.set(tab);
+        const selected = this.selectedPack();
+        if (selected && (selected.product?.code ?? 'creditStudy') !== tab) {
+            this.selectedPack.set(null);
+        }
+    }
+
+    /** Franja "qué incluye" del producto de consultas. */
+    readonly bureauIncludedFeatures = [
+        { icon: 'pi-shield', label: 'Consulta en centrales de riesgo' },
+        { icon: 'pi-file-edit', label: 'Autorización del titular gestionada en la plataforma' },
+        { icon: 'pi-sparkles', label: 'Análisis IA con red flags y señales a favor' },
+        { icon: 'pi-file-export', label: 'Informe PDF descargable' }
+    ];
 
     selectedPack = signal<PackOffering | null>(null);
 
