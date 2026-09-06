@@ -28,6 +28,33 @@
                 <p-button label="Registrarme" icon="pi pi-arrow-right" iconPos="right" (onClick)="goToRegister()" />
             </div>
         } @else {
+            <!-- Un tab por producto: estudios completos vs consultas de riesgo -->
+            @if (showBureauTab()) {
+            <div class="flex justify-center mb-8" appScrollAnimate="fade-up">
+                <div class="inline-flex rounded-full border border-surface bg-surface-50 dark:bg-surface-900 p-1">
+                    <button
+                        type="button"
+                        class="px-5 py-2 rounded-full text-m font-semibold transition-colors"
+                        [ngClass]="activeTab() === 'creditStudy' ? 'bg-primary text-primary-contrast shadow' : 'text-muted-color hover:text-color'"
+                        (click)="activeTab.set('creditStudy')">
+                        Estudios de crédito
+                    </button>
+                    <button
+                        type="button"
+                        class="px-5 py-2 rounded-full text-m font-semibold transition-colors"
+                        [ngClass]="activeTab() === 'bureauCheck' ? 'bg-primary text-primary-contrast shadow' : 'text-muted-color hover:text-color'"
+                        (click)="activeTab.set('bureauCheck')">
+                        Consultas de riesgo
+                    </button>
+                </div>
+            </div>
+            @if (activeTab() === 'bureauCheck') {
+            <p class="text-center text-m text-muted-color -mt-4 mb-8">
+                Análisis IA del perfil crediticio en centrales de riesgo: red flags, señales a favor e informe, en minutos y a menor costo.
+            </p>
+            }
+            }
+
             <div appScrollAnimate="fade-up">
                 <app-card-carousel [items]="packs()">
                     <ng-template let-pack>
@@ -40,8 +67,12 @@
                 </app-card-carousel>
             </div>
 
-            <!-- Qué incluye cada análisis (una sola vez, aplica a todos los packs) -->
+            <!-- Qué incluye cada unidad del producto activo -->
+            @if (activeTab() === 'bureauCheck') {
+            <app-pack-included-features class="block mt-8" [features]="bureauIncludedFeatures" />
+            } @else {
             <app-pack-included-features class="block mt-8" appScrollAnimate="fade-up" />
+            }
         }
     </div>
 </section>

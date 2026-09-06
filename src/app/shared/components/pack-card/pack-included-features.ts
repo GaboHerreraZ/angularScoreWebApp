@@ -33,10 +33,11 @@ export interface IncludedFeature {
                     <span class="hidden sm:block h-px w-16 bg-linear-to-l from-transparent to-primary/40"></span>
                 </div>
 
-                <!-- Capacidades -->
-                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-x-4 gap-y-8">
+                <!-- Capacidades: flex con wrap en vez de grilla fija para que
+                     cualquier cantidad de items (6, 4, ...) quede centrada. -->
+                <div class="flex flex-wrap justify-center gap-x-4 gap-y-8">
                     @for (feature of features(); track feature.label) {
-                        <div class="feature group flex flex-col items-center text-center gap-4">
+                        <div class="feature group flex flex-col items-center text-center gap-4 w-36 sm:w-40">
                             <!-- Alto fijo aunque el icono no lleve recuadro: mantiene alineadas
                                  las etiquetas entre columnas y fija el centro del halo. -->
                             <div class="glyph h-16 flex items-center justify-center text-primary">
@@ -133,7 +134,7 @@ export interface IncludedFeature {
 export class PackIncludedFeatures {
     /** Capacidades incluidas en cada análisis. */
     features = input<IncludedFeature[]>([
-        { icon: 'pi-shield', label: 'Consulta en Datacrédito Experian' },
+        { icon: 'pi-shield', label: 'Consulta en centrales de riesgo' },
         { icon: 'pi-verified', label: 'Verificación en listas restrictivas (SARLAFT)' },
         { icon: 'pi-file-pdf', label: 'Lectura de estados financieros en PDF' },
         { icon: 'pi-sparkles', label: 'Score y análisis de riesgo con IA' },

@@ -7,43 +7,46 @@
     <button #menubutton class="topbar-menubutton p-link cursor-pointer" type="button" (click)="onMenuButtonClick()">
         <span></span>
     </button>
-    <ul class="topbar-menu">
-        @for (item of tabs(); track item.routerLink; let i = $index) {
-        <li>
-            <a
-                [routerLink]="item.routerLink"
-                routerLinkActive="active-route"
-                [routerLinkActiveOptions]="item.routerLinkActiveOptions || { paths: 'exact', queryParams: 'ignored', fragment: 'ignored', matrixParams: 'ignored' }"
-                [fragment]="item.fragment"
-                [queryParamsHandling]="item.queryParamsHandling"
-                [preserveFragment]="item.preserveFragment!"
-                [skipLocationChange]="item.skipLocationChange!"
-                [replaceUrl]="item.replaceUrl!"
-                [state]="item.state"
-                [queryParams]="item.queryParams"
-            >
-                <span>{{ item.label }}</span>
-            </a>
-            <i class="pi pi-times" (click)="removeTab($event, i)"></i>
-        </li>
-        }
-    </ul>
+    <!-- Zona central: pestañas y buscador. Al no ser absoluta nunca se solapa con las acciones. -->
+    <div class="topbar-center">
+        <ul class="topbar-menu">
+            @for (item of tabs(); track item.routerLink; let i = $index) {
+            <li>
+                <a
+                    [routerLink]="item.routerLink"
+                    routerLinkActive="active-route"
+                    [routerLinkActiveOptions]="item.routerLinkActiveOptions || { paths: 'exact', queryParams: 'ignored', fragment: 'ignored', matrixParams: 'ignored' }"
+                    [fragment]="item.fragment"
+                    [queryParamsHandling]="item.queryParamsHandling"
+                    [preserveFragment]="item.preserveFragment!"
+                    [skipLocationChange]="item.skipLocationChange!"
+                    [replaceUrl]="item.replaceUrl!"
+                    [state]="item.state"
+                    [queryParams]="item.queryParams"
+                >
+                    <span>{{ item.label }}</span>
+                </a>
+                <i class="pi pi-times" (click)="removeTab($event, i)"></i>
+            </li>
+            }
+        </ul>
 
-    <button
-        type="button"
-        data-tour="topbar-search"
-        class="topbar-search-trigger hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-100 dark:bg-surface-800 hover:bg-surface-200 dark:hover:bg-surface-700 text-m text-surface-500 transition-colors cursor-pointer w-72 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10"
-        (click)="searchService.open()"
-        pTooltip="Buscar (Ctrl+K)"
-        tooltipPosition="bottom"
-    >
-        <i class="pi pi-search text-sm"></i>
-        <span class="flex-1 text-left">Buscar...</span>
-        <kbd class="inline-flex items-center px-1.5 py-0.5 text-[10px] rounded border border-surface-300 dark:border-surface-600">Ctrl K</kbd>
-    </button>
+        <button
+            type="button"
+            data-tour="topbar-search"
+            class="topbar-search-trigger hidden xl:flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-100 dark:bg-surface-800 hover:bg-surface-200 dark:hover:bg-surface-700 text-m text-surface-500 transition-colors cursor-pointer overflow-hidden"
+            (click)="searchService.open()"
+            pTooltip="Buscar (Ctrl+K)"
+            tooltipPosition="bottom"
+        >
+            <i class="pi pi-search text-sm shrink-0"></i>
+            <span class="flex-1 text-left truncate">Buscar...</span>
+            <kbd class="hidden 2xl:inline-flex items-center px-1.5 py-0.5 text-[10px] rounded border border-surface-300 dark:border-surface-600 shrink-0">Ctrl K</kbd>
+        </button>
+    </div>
 
     <div class="topbar-actions">
-        <p-button class="lg:hidden" icon="pi pi-search" rounded severity="secondary" [text]="true" (onClick)="searchService.open()" pTooltip="Buscar" tooltipPosition="bottom" size="small" styleClass="!text-base"></p-button>
+        <p-button class="xl:hidden" icon="pi pi-search" rounded severity="secondary" [text]="true" (onClick)="searchService.open()" pTooltip="Buscar" tooltipPosition="bottom" size="small" styleClass="!text-base"></p-button>
         <app-setup-pending-indicator></app-setup-pending-indicator>
         <app-credits-indicator data-tour="topbar-credits"></app-credits-indicator>
         <p-button data-tour="topbar-help" icon="pi pi-question-circle" rounded severity="help" (onClick)="onHelpButtonClick()" pTooltip="Centro de Ayuda" tooltipPosition="bottom" size="small" styleClass="!text-base"></p-button>

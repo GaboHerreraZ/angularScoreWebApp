@@ -61,7 +61,8 @@ export class CustomerCreditStudies implements OnInit {
                 minWidth: '11rem',
                 severityMap: {
                     'Estudio empresarial': 'info',
-                    'Estudio de capacidad de pago': 'success'
+                    'Estudio de capacidad de pago': 'success',
+                    'Consulta de riesgo crediticio': 'warn'
                 },
                 defaultSeverity: 'secondary'
             },
@@ -123,14 +124,14 @@ export class CustomerCreditStudies implements OnInit {
 
     onAddClick(): void {
         if (!this.customerId()) return;
-        if (
-            this.personTypeCode() === 'naturalPerson' &&
-            this.featureFlags.isEnabled('paymentCapacity')
-        ) {
+        // Los tipos alternos (capacidad, consulta de riesgo) son solo PN.
+        const hasOptionalTypes =
+            this.featureFlags.isEnabled('paymentCapacity') || this.featureFlags.isEnabled('bureauCheck');
+        if (this.personTypeCode() === 'naturalPerson' && hasOptionalTypes) {
             this.studyTypeSelectorVisible.set(true);
             return;
         }
-        // PJ, capacidad apagada o tipo aún no cargado: solo aplica el empresarial.
+        // PJ, flags apagados o tipo aún no cargado: solo aplica el empresarial.
         this.navigateToCreate('financialStatements');
     }
 
@@ -138,10 +139,17 @@ export class CustomerCreditStudies implements OnInit {
         this.navigateToCreate(studyType);
     }
 
+    private studyPath(studyType?: string): string {
+        const paths: Record<string, string> = {
+            paymentCapacity: 'estudio-capacidad',
+            bureauCheck: 'consulta-riesgo'
+        };
+        return paths[studyType ?? ''] ?? 'detalle-estudio';
+    }
+
     /** El formulario de creación carga el cliente por customerId y precarga el step 1. */
     private navigateToCreate(studyType: StudyTypeCode): void {
-        const path = studyType === 'paymentCapacity' ? 'estudio-capacidad' : 'detalle-estudio';
-        this.router.navigate([`/app/estudio-credito/${path}`], {
+        this.router.navigate([`/app/estudio-credito/${this.studyPath(studyType)}`], {
             queryParams: { customerId: this.customerId() }
         });
     }
@@ -149,10 +157,10 @@ export class CustomerCreditStudies implements OnInit {
     onActionClick(event: TableActionEvent): void {
         if (event.action === 'view') {
             // Cada tipo de estudio tiene su propio detalle.
-            const path = event.row['studyType']?.code === 'paymentCapacity'
-                ? 'estudio-capacidad'
-                : 'detalle-estudio';
-            this.router.navigate([`/app/estudio-credito/${path}`, event.row.id]);
+            this.router.navigate([
+                `/app/estudio-credito/${this.studyPath(event.row['studyType']?.code)}`,
+                event.row.id
+            ]);
         }
     }
 }

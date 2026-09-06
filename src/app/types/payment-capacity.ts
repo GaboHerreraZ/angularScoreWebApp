@@ -8,7 +8,7 @@
 
 import { ReliabilityFlag } from './credit-study';
 
-export type StudyTypeCode = 'financialStatements' | 'paymentCapacity';
+export type StudyTypeCode = 'financialStatements' | 'paymentCapacity' | 'bureauCheck';
 export type EmploymentTypeCode = 'salaried' | 'independent';
 export type StudyDocumentTypeCode = 'bankStatement' | 'payrollStub' | 'contractorInvoice';
 export type ExtractionStatus = 'pending' | 'success' | 'error';

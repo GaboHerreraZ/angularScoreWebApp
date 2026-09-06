@@ -299,6 +299,55 @@
         }
     </p-card>
 
+    <!-- ── Autorización del titular (habeas data) ──────────────────────── -->
+    <p-card styleClass="section-card">
+        <ng-template #title>
+            <div class="flex items-center gap-2">
+                <i class="pi pi-shield text-primary"></i>
+                <span>Autorización de tratamiento de datos</span>
+                <app-help-tooltip
+                    text="Documento firmado por el titular que autoriza el tratamiento de sus datos, la consulta en centrales de riesgo y su custodia." />
+                <p-tag [value]="authorizationTag().label" [severity]="authorizationTag().severity" />
+            </div>
+        </ng-template>
+
+        @if (authorization(); as a) {
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-5">
+            @for (f of authorizationFields(); track f.label) {
+            <div class="flex items-start gap-3 min-w-0" [class.md:col-span-2]="f.span">
+                @if (f.icon) {
+                <div class="flex items-center justify-center w-9 h-9 rounded-lg bg-surface-100 dark:bg-surface-800 shrink-0">
+                    <i [class]="f.icon + ' text-muted-color'"></i>
+                </div>
+                }
+                <div class="flex flex-col gap-0.5 min-w-0">
+                    <span class="text-xs font-medium text-muted-color uppercase tracking-wider">{{ f.label }}</span>
+                    <span class="text-m text-surface-800 dark:text-surface-100 font-medium wrap-break-word">{{ f.value || '—' }}</span>
+                </div>
+            </div>
+            }
+        </div>
+
+        @if (a.documentUrl || (a.signUrl && !a.isSigned)) {
+        <div class="flex items-center gap-2 mt-5 flex-wrap">
+            @if (a.documentUrl) {
+            <p-button label="Ver documento firmado" icon="pi pi-file-pdf" [outlined]="true" size="small"
+                (onClick)="openUrl(a.documentUrl)" />
+            }
+            @if (a.signUrl && !a.isSigned) {
+            <p-button label="Abrir página de firma" icon="pi pi-external-link" severity="secondary" [outlined]="true"
+                size="small" (onClick)="openUrl(a.signUrl)" />
+            }
+        </div>
+        }
+        } @else {
+        <p class="text-muted-color m-0">
+            Este cliente aún no tiene una autorización registrada. Se solicita automáticamente al consultarlo en la
+            central de riesgo.
+        </p>
+        }
+    </p-card>
+
     <!-- ── Persona jurídica: perfil de Datacredito ────────────────────────────── -->
     @if (isJuridica()) {
     @if (bureau(); as b) {

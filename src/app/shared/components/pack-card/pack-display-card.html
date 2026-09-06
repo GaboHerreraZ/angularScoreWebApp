@@ -58,7 +58,7 @@
             [class.bg-clip-text]="featured()"
             [class.text-transparent]="featured()"
         >{{ p.quantity }}</span>
-        <span class="text-muted-color font-medium mt-1">Análisis de Crédito</span>
+        <span class="text-muted-color font-medium mt-1">{{ unitLabel() }}</span>
     </div>
 
     @if (p.description) {
@@ -84,7 +84,7 @@
             }
         </span>
         <span class="inline-flex items-center whitespace-nowrap rounded-full bg-primary/10 text-primary text-m font-semibold px-3 py-1 mt-2">
-            {{ formatCurrency(effectiveUnitPrice(), p.currency) }} {{ taxSuffix() }} / análisis
+            {{ formatCurrency(effectiveUnitPrice(), p.currency) }} {{ taxSuffix() }} / {{ unitSuffix() }}
         </span>
         @if (taxDisclaimer()) {
             <span class="text-sm text-muted-color leading-none mt-2">{{ taxDisclaimer() }}</span>

@@ -120,6 +120,8 @@ export interface PackOffering {
     quantity: number;
     validityDays: number;
     sortOrder: number;
+    /** Producto de la bolsa: creditStudy (estudios) | bureauCheck (consultas). */
+    product: { code: string; label: string } | null;
     currency: string;
     unitPrice: number;
     subtotal: number;

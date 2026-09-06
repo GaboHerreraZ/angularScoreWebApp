@@ -10,6 +10,7 @@ import { SkeletonModule } from 'primeng/skeleton';
 import { TagModule } from 'primeng/tag';
 import { CustomersService } from '../customers.service';
 import { CustomerDetail } from '@/app/types/customer';
+import { formatShortDate } from '@/app/shared/utils/format.util';
 import { RecentItemsService } from '@/app/shared/services/recent-items.service';
 import { SupportFab } from '@/app/shared/components/support-fab/support-fab';
 
@@ -51,6 +52,35 @@ export class CustomerView {
         return segments[segments.length - 1] || 'informacion';
     });
 
+    // ── Autorización de habeas data (resumen en el header) ─────────────────
+    authorization = computed(() => this.customer()?.authorization ?? null);
+
+    /** Mismo criterio que la pestaña de información: revocada gana sobre firmada. */
+    authorizationTag = computed<{ label: string; severity: 'success' | 'warn' | 'danger' | 'secondary'; icon: string }>(() => {
+        const a = this.authorization();
+        if (!a) return { label: 'No solicitada', severity: 'secondary', icon: 'pi pi-shield' };
+        if (a.revokedAt) return { label: 'Revocada', severity: 'danger', icon: 'pi pi-ban' };
+        if (a.isSigned) return { label: 'Firmada', severity: 'success', icon: 'pi pi-verified' };
+        if (a.refusedAt) return { label: 'Rechazada', severity: 'danger', icon: 'pi pi-times-circle' };
+        return { label: 'Pendiente de firma', severity: 'warn', icon: 'pi pi-clock' };
+    });
+
+    /** Línea de apoyo bajo el tag: la fecha (o el motivo) que explica el estado actual. */
+    authorizationDetail = computed<string | null>(() => {
+        const a = this.authorization();
+        if (!a) return null;
+        if (a.revokedAt) return `Revocada el ${formatShortDate(a.revokedAt)}`;
+        if (a.isSigned) return a.signedAt ? `Firmada el ${formatShortDate(a.signedAt)}` : null;
+        if (a.refusedAt) return a.refusedReason ? `Motivo: ${a.refusedReason}` : `Rechazada el ${formatShortDate(a.refusedAt)}`;
+        return a.sentAt ? `Enviada el ${formatShortDate(a.sentAt)}` : null;
+    });
+
+    /** Solo mientras sigue viva la firma: rechazada o revocada ya no se pueden firmar. */
+    canSign = computed(() => {
+        const a = this.authorization();
+        return !!a && !a.isSigned && !a.refusedAt && !a.revokedAt && !!a.signUrl;
+    });
+
     constructor() {
         effect(() => {
             const id = this.customerId();
@@ -84,6 +114,10 @@ export class CustomerView {
     onTabChange(value: string | number | undefined): void {
         if (value == null) return;
         this.router.navigate([value], { relativeTo: this.route });
+    }
+
+    openUrl(url: string | null): void {
+        if (url) window.open(url, '_blank', 'noopener');
     }
 
     onBack(): void {
