@@ -170,6 +170,17 @@ export class OnboardingWizard {
         loader: () => firstValueFrom(this.packOfferingsService.getPackCatalog())
     });
 
+    /**
+     * El carrusel del onboarding ofrece solo bolsas de ESTUDIOS (el funnel de
+     * entrada). Un pack de consultas preseleccionado desde /precios sí se
+     * respeta: el effect de preselección busca en el catálogo completo.
+     */
+    studyPacks = computed<PackOffering[]>(() =>
+        (this.packsResource.value() ?? []).filter(
+            (p) => (p.product?.code ?? 'creditStudy') !== 'bureauCheck'
+        )
+    );
+
     selectedPack = signal<PackOffering | null>(null);
 
     // ── Formularios ───────────────────────────────────────────────────

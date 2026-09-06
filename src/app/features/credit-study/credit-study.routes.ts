@@ -8,5 +8,7 @@ export default [
     { path: 'detalle-estudio/:id', title: 'Detalle del estudio', loadComponent: () => import('./credit-study-detail/credit-study-detail').then((c) => c.CreditStudyDetail) },
     // Crear exige el flag; el detalle /:id no (lo existente sigue visible).
     { path: 'estudio-capacidad', title: 'Nuevo estudio de capacidad de pago', canMatch: [featureFlagGuard('paymentCapacity')], loadComponent: () => import('./payment-capacity/payment-capacity-detail/payment-capacity-detail').then((c) => c.PaymentCapacityDetail) },
-    { path: 'estudio-capacidad/:id', title: 'Detalle del estudio de capacidad', loadComponent: () => import('./payment-capacity/payment-capacity-detail/payment-capacity-detail').then((c) => c.PaymentCapacityDetail) }
+    { path: 'estudio-capacidad/:id', title: 'Detalle del estudio de capacidad', loadComponent: () => import('./payment-capacity/payment-capacity-detail/payment-capacity-detail').then((c) => c.PaymentCapacityDetail) },
+    { path: 'consulta-riesgo', title: 'Nueva consulta de riesgo crediticio', canMatch: [featureFlagGuard('bureauCheck')], loadComponent: () => import('./bureau-check/bureau-check-detail/bureau-check-detail').then((c) => c.BureauCheckDetail) },
+    { path: 'consulta-riesgo/:id', title: 'Detalle de la consulta de riesgo', loadComponent: () => import('./bureau-check/bureau-check-detail/bureau-check-detail').then((c) => c.BureauCheckDetail) }
 ] as Routes;

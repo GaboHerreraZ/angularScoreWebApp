@@ -79,6 +79,30 @@ export class CustomerDetail {
 
     isJuridica = computed(() => this.customer()?.personType?.code === 'legalEntity');
     bureau = computed(() => this.customer()?.bureauProfile ?? null);
+    authorization = computed(() => this.customer()?.authorization ?? null);
+
+    // Estado de la firma para el Tag: revocada gana sobre firmada (el PDF sigue
+    // descargable, pero ya no habilita consultas).
+    authorizationTag = computed<{ label: string; severity: 'success' | 'warn' | 'danger' | 'secondary' }>(() => {
+        const a = this.authorization();
+        if (!a) return { label: 'No solicitada', severity: 'secondary' };
+        if (a.revokedAt) return { label: 'Revocada', severity: 'danger' };
+        if (a.isSigned) return { label: 'Firmada', severity: 'success' };
+        if (a.refusedAt) return { label: 'Rechazada', severity: 'danger' };
+        return { label: 'Pendiente de firma', severity: 'warn' };
+    });
+
+    authorizationFields = computed<InfoField[]>(() => {
+        const a = this.authorization();
+        if (!a) return [];
+        return [
+            { label: 'Enviada el', value: formatShortDate(a.sentAt), icon: 'pi pi-send' },
+            { label: 'Firmada el', value: formatShortDate(a.signedAt), icon: 'pi pi-check-circle' },
+            ...(a.refusedAt ? [{ label: 'Rechazada el', value: formatShortDate(a.refusedAt), icon: 'pi pi-times-circle' }] : []),
+            ...(a.refusedReason ? [{ label: 'Motivo del rechazo', value: a.refusedReason, icon: 'pi pi-info-circle', span: true }] : []),
+            ...(a.revokedAt ? [{ label: 'Revocada el', value: formatShortDate(a.revokedAt), icon: 'pi pi-ban' }] : [])
+        ];
+    });
 
     // ── Edición de datos de contacto y actividad económica ────────────────
     editing = signal(false);
@@ -332,6 +356,10 @@ export class CustomerDetail {
             },
             error: () => this.notificationService.error('No se pudo actualizar la información del cliente. Intenta de nuevo.')
         });
+    }
+
+    openUrl(url: string | null): void {
+        if (url) window.open(url, '_blank', 'noopener');
     }
 
     isInvalid(controlName: string): boolean {

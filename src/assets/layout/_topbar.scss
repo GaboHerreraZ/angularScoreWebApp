@@ -83,13 +83,31 @@
         }
     }
 
+    /* Ocupa el espacio libre entre el logo y las acciones: el buscador se centra
+       ahí dentro, así que nunca puede montarse sobre las píldoras de la derecha. */
+    .topbar-center {
+        flex: 1 1 auto;
+        min-width: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        margin: 0 2rem;
+    }
+
+    .topbar-search-trigger {
+        flex: 1 1 auto;
+        min-width: 2.5rem;
+        max-width: 18rem;
+    }
+
     .topbar-menu {
         list-style-type: none;
         padding: 0;
-        margin: 0 3rem;
+        margin: 0;
         display: flex;
         gap: 0.5rem;
-        flex: 1 1 auto;
+        flex: 0 1 auto;
         overflow: auto;
 
         > li {
@@ -149,6 +167,7 @@
         flex-shrink: 0;
         gap: 0.5rem;
         margin-left: auto;
+        padding-left: 0.5rem;
     }
 
     .topbar-search {

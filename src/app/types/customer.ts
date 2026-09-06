@@ -121,6 +121,23 @@ export interface CustomerLegalRep {
     phone: string | null;
 }
 
+/** Autorización de habeas data firmada por el titular (documento único). */
+export interface CustomerAuthorization {
+    id: string;
+    /** 'pending' | 'signed' | 'refused' */
+    status: string | null;
+    statusLabel: string | null;
+    isSigned: boolean;
+    signUrl: string | null;
+    sentAt: string | null;
+    signedAt: string | null;
+    refusedAt: string | null;
+    refusedReason: string | null;
+    revokedAt: string | null;
+    /** Enlace de descarga del PDF firmado; vigencia 1 hora. */
+    documentUrl: string | null;
+}
+
 /** Detalle completo de un cliente (GET /customers/:id). */
 export interface CustomerDetail {
     id: string;
@@ -142,6 +159,7 @@ export interface CustomerDetail {
     legalRep?: CustomerLegalRep | null;
     demographics: CustomerDemographics | null;
     bureauProfile: BureauProfile | null;
+    authorization: CustomerAuthorization | null;
     bureauCreated: boolean;
     lastConsultedAt: string | null;
     createdAt: string;

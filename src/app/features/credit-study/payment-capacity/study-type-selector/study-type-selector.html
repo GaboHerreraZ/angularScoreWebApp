@@ -3,7 +3,7 @@
     [modal]="true"
     [draggable]="false"
     [dismissableMask]="true"
-    [style]="{ width: '92vw', maxWidth: '760px' }">
+    [style]="{ width: '92vw', maxWidth: options().length >= 3 ? '1024px' : '760px' }">
 
     <ng-template #header>
         <div class="flex items-center gap-3">
@@ -17,13 +17,16 @@
         </div>
     </ng-template>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1" data-tour="study-type-selector">
+    <div class="grid grid-cols-1 gap-4 pt-1" [ngClass]="options().length >= 3 ? 'md:grid-cols-3' : 'md:grid-cols-2'" data-tour="study-type-selector">
         @for (option of options(); track option.code) {
         <button
             type="button"
-            class="flex flex-col gap-3 text-left rounded-xl border border-surface p-4 sm:p-5 h-full transition-all hover:border-primary-400 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary-400"
-            (click)="onSelect(option.code)">
-            <div class="flex items-center gap-3">
+            class="flex flex-col gap-3 text-left rounded-xl border border-surface p-4 sm:p-5 h-full transition-all focus:outline-none"
+            [ngClass]="option.available
+                ? 'hover:border-primary-400 hover:shadow-md focus:ring-2 focus:ring-primary-400'
+                : 'cursor-default bg-surface-50 dark:bg-surface-800/40'"
+            (click)="option.available && onSelect(option.code)">
+            <div class="flex items-center gap-3" [class.opacity-50]="!option.available">
                 <div class="flex items-center justify-center rounded-xl shrink-0" [ngClass]="option.iconClasses" style="width: 2.75rem; height: 2.75rem;">
                     <i [ngClass]="option.icon" class="text-lg"></i>
                 </div>
@@ -32,7 +35,7 @@
                     <span class="text-sm text-muted-color">{{ option.subtitle }}</span>
                 </div>
             </div>
-            <ul class="flex flex-col gap-2 m-0 p-0 list-none">
+            <ul class="flex flex-col gap-2 m-0 p-0 list-none" [class.opacity-50]="!option.available">
                 @for (bullet of option.bullets; track bullet) {
                 <li class="flex items-start gap-2 text-m text-muted-color">
                     <i class="pi pi-check text-primary-500 text-sm mt-1 shrink-0"></i>
@@ -40,9 +43,21 @@
                 </li>
                 }
             </ul>
+            @if (option.available) {
             <span class="inline-flex items-center gap-1.5 text-m font-semibold text-primary-600 dark:text-primary-400 mt-auto pt-1">
                 Continuar <i class="pi pi-arrow-right text-sm"></i>
             </span>
+            } @else {
+            <span class="inline-flex items-center flex-wrap gap-x-1.5 gap-y-1 text-m mt-auto pt-1">
+                <i class="pi pi-lock text-sm text-muted-color"></i>
+                <span class="text-muted-color">Sin saldo disponible.</span>
+                <span
+                    class="font-semibold text-primary-600 dark:text-primary-400 cursor-pointer hover:underline"
+                    (click)="goToBuy(option.pool, $event)">
+                    Comprar paquete
+                </span>
+            </span>
+            }
         </button>
         }
     </div>
@@ -50,7 +65,7 @@
     <div class="flex items-start gap-2.5 p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 mt-4">
         <i class="pi pi-info-circle text-blue-600 dark:text-blue-400 text-m mt-0.5 shrink-0"></i>
         <span class="text-m text-blue-800 dark:text-blue-300">
-            Ambos consultan al titular en las centrales de riesgo y <span class="font-semibold">descuentan un estudio de su bolsa</span>.
+            Todos consultan al titular en las centrales de riesgo. Los estudios <span class="font-semibold">descuentan de su bolsa de estudios</span>; la consulta de riesgo, <span class="font-semibold">de su bolsa de consultas</span>.
         </span>
     </div>
 </p-dialog>

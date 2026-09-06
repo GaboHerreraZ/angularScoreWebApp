@@ -107,7 +107,7 @@
                     }
                 </div>
                 } @else {
-                <app-card-carousel [items]="packsResource.value() ?? []">
+                <app-card-carousel [items]="studyPacks()">
                     <ng-template let-pack>
                         <app-pack-display-card
                             [pack]="pack"

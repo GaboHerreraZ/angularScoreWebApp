@@ -1,0 +1,689 @@
+<!-- ═══════════ Modal de resumen previo a crear la consulta ═══════════ -->
+<p-dialog
+    [(visible)]="summaryVisible"
+    [modal]="true"
+    [closable]="!creating()"
+    [dismissableMask]="false"
+    [draggable]="false"
+    [style]="{ width: '90vw', maxWidth: '480px' }">
+
+    @if (creating()) {
+    <div class="flex flex-col items-center gap-5 py-6">
+        <div class="relative w-20 h-20">
+            <div class="absolute inset-0 rounded-full border-4 border-primary-100 dark:border-primary-900/40"></div>
+            <div class="absolute inset-0 rounded-full border-4 border-transparent border-t-primary-500 animate-spin"></div>
+            <div class="absolute inset-2.5 rounded-full bg-linear-to-br from-primary-500 to-primary-600 flex items-center justify-center shadow-lg shadow-primary-500/25">
+                <i class="pi pi-search text-white text-xl ai-sparkle-spin"></i>
+            </div>
+        </div>
+        <div class="text-center min-h-12">
+            <h6 class="font-bold text-base m-0">Creando la consulta de riesgo...</h6>
+            @for (msg of [loaderMessage()]; track msg) {
+            <p class="text-m text-muted-color m-0 mt-1 loader-message-fade">{{ msg }}</p>
+            }
+        </div>
+        <div class="flex gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-primary-400 loader-dot"></span>
+            <span class="w-2 h-2 rounded-full bg-primary-400 loader-dot" style="animation-delay: 0.2s"></span>
+            <span class="w-2 h-2 rounded-full bg-primary-400 loader-dot" style="animation-delay: 0.4s"></span>
+        </div>
+    </div>
+    } @else {
+    <ng-template #header>
+        <div class="flex items-center gap-3">
+            <div class="flex items-center justify-center rounded-full bg-primary-50 text-primary-500 dark:bg-primary-500/10 dark:text-primary-400 shrink-0" style="width: 2.5rem; height: 2.5rem;">
+                <i class="pi pi-file-plus text-base"></i>
+            </div>
+            <div class="flex flex-col">
+                <span class="text-base font-semibold">Confirmar la consulta</span>
+                <span class="text-sm text-muted-color">Revise los datos antes de continuar</span>
+            </div>
+        </div>
+    </ng-template>
+
+    <div class="flex flex-col gap-4">
+        <div class="flex flex-col gap-2">
+            <span class="text-xs font-semibold uppercase tracking-wide text-muted-color">Datos del Titular</span>
+            <div class="flex flex-col divide-y divide-surface rounded-lg border border-surface">
+                <div class="flex justify-between items-center gap-4 px-4 py-2.5">
+                    <span class="text-m text-muted-color">Tipo de identificación</span>
+                    <span class="text-m font-medium text-right">{{ summary().identificationType }}</span>
+                </div>
+                <div class="flex justify-between items-center gap-4 px-4 py-2.5">
+                    <span class="text-m text-muted-color">Número de identificación</span>
+                    <span class="text-m font-medium text-right">{{ summary().identificationNumber }}</span>
+                </div>
+                <div class="flex justify-between items-center gap-4 px-4 py-2.5">
+                    <span class="text-m text-muted-color">Nombre completo</span>
+                    <span class="text-m font-medium text-right">{{ summary().businessName }}</span>
+                </div>
+                <div class="flex justify-between items-center gap-4 px-4 py-2.5">
+                    <span class="text-m text-muted-color">Correo del Titular</span>
+                    <span class="text-m font-medium text-right">{{ summary().titularEmail }}</span>
+                </div>
+                <div class="flex justify-between items-center gap-4 px-4 py-2.5">
+                    <span class="text-m text-muted-color">Ciudad</span>
+                    <span class="text-m font-medium text-right">{{ summary().titularCity }}</span>
+                </div>
+                <div class="flex justify-between items-center gap-4 px-4 py-2.5">
+                    <span class="text-m text-muted-color">Monto solicitado</span>
+                    <span class="text-m font-medium text-right">{{ (summary().requestedCreditLine | currency:'COP':'symbol-narrow':'1.0-0':'es-CO') || '—' }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex items-start gap-2.5 p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
+            <i class="pi pi-info-circle text-blue-600 dark:text-blue-400 text-m mt-0.5 shrink-0"></i>
+            <span class="text-m text-blue-800 dark:text-blue-300">
+                Se consultará al titular en las centrales de riesgo. Esto <span class="font-semibold">descuenta una consulta de riesgo de su bolsa</span> y no se puede deshacer.
+            </span>
+        </div>
+    </div>
+
+    <ng-template #footer>
+        <div class="flex justify-end gap-2">
+            <p-button label="Cancelar" severity="secondary" [text]="true" (onClick)="summaryVisible.set(false)" />
+            <p-button label="Confirmar y consultar" icon="pi pi-check" (onClick)="onConfirmCreate()" />
+        </div>
+    </ng-template>
+    }
+</p-dialog>
+
+<!-- ═══════════ Modal de firma de autorización (habeas data) ═══════════ -->
+<p-dialog
+    [(visible)]="authVisible"
+    [modal]="true"
+    [closable]="!checkingAuth() && !finalizing()"
+    [showHeader]="!finalizing()"
+    [dismissableMask]="false"
+    [draggable]="false"
+    [style]="{ width: '90vw', maxWidth: '480px' }">
+
+    @if (finalizing()) {
+    <div class="flex flex-col items-center gap-5 py-6">
+        <div class="relative w-20 h-20">
+            <div class="absolute inset-0 rounded-full border-4 border-primary-100 dark:border-primary-900/40"></div>
+            <div class="absolute inset-0 rounded-full border-4 border-transparent border-t-primary-500 animate-spin"></div>
+            <div class="absolute inset-2.5 rounded-full bg-linear-to-br from-primary-500 to-primary-600 flex items-center justify-center shadow-lg shadow-primary-500/25">
+                <i class="pi pi-file-check text-white text-xl ai-sparkle-spin"></i>
+            </div>
+        </div>
+        <div class="text-center min-h-12">
+            <h6 class="font-bold text-base m-0">Creando la consulta de riesgo...</h6>
+            @for (msg of [loaderMessage()]; track msg) {
+            <p class="text-m text-muted-color m-0 mt-1 loader-message-fade">{{ msg }}</p>
+            }
+        </div>
+        <div class="flex gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-primary-400 loader-dot"></span>
+            <span class="w-2 h-2 rounded-full bg-primary-400 loader-dot" style="animation-delay: 0.2s"></span>
+            <span class="w-2 h-2 rounded-full bg-primary-400 loader-dot" style="animation-delay: 0.4s"></span>
+        </div>
+    </div>
+    } @else {
+    <ng-template #header>
+        <div class="flex items-center gap-3">
+            <div class="flex items-center justify-center rounded-full bg-amber-50 text-amber-500 dark:bg-amber-500/10 dark:text-amber-400 shrink-0" style="width: 2.5rem; height: 2.5rem;">
+                <i class="pi pi-file-edit text-base"></i>
+            </div>
+            <div class="flex flex-col">
+                <span class="text-base font-semibold">Autorización pendiente de firma</span>
+                <span class="text-sm text-muted-color">El titular debe autorizar el tratamiento de sus datos</span>
+            </div>
+        </div>
+    </ng-template>
+
+    <div class="flex flex-col gap-4">
+        <div class="flex items-start gap-2.5 p-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800">
+            <i class="pi pi-info-circle text-amber-600 dark:text-amber-400 text-m mt-0.5 shrink-0"></i>
+            <span class="text-m text-amber-800 dark:text-amber-300">
+                Se envió al correo <span class="font-semibold">{{ summary().titularEmail }}</span> un documento de autorización de tratamiento de datos.
+                La consulta no se puede crear hasta que el titular lo <span class="font-semibold">firme</span>.
+            </span>
+        </div>
+
+        @if (authInfo()?.status === 'refused') {
+        <div class="flex items-start gap-2.5 p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
+            <i class="pi pi-times-circle text-red-600 dark:text-red-400 text-m mt-0.5 shrink-0"></i>
+            <span class="text-m text-red-800 dark:text-red-300">
+                El titular rechazó la autorización.{{ authInfo()?.refusedReason ? ' Motivo: ' + authInfo()?.refusedReason : '' }}
+            </span>
+        </div>
+        }
+    </div>
+
+    <ng-template #footer>
+        <div class="flex justify-end gap-2">
+            <p-button label="Cerrar" severity="secondary" [text]="true" [disabled]="checkingAuth()" (onClick)="authVisible.set(false)" />
+            <p-button label="Ya firmó, verificar" icon="pi pi-refresh" [loading]="checkingAuth()" (onClick)="onCheckAuthorization()" />
+        </div>
+    </ng-template>
+    }
+</p-dialog>
+
+<div class="flex flex-col gap-4 sm:gap-6">
+    <!-- ═══════════ Header ═══════════ -->
+    @if (loading()) {
+    <p-card>
+        <div class="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+            <div class="flex items-center gap-3 shrink-0">
+                <p-skeleton shape="circle" size="2.5rem" />
+                <div class="flex flex-col gap-1">
+                    <p-skeleton width="15rem" height="1.75rem" />
+                    <p-skeleton width="10rem" height="1rem" />
+                </div>
+            </div>
+            <div class="flex gap-2 sm:ml-auto ml-12">
+                <p-skeleton width="8rem" height="2.5rem" borderRadius="6px" />
+            </div>
+        </div>
+    </p-card>
+    } @else {
+    <p-card>
+        <div class="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+            <div class="flex items-center gap-3 flex-1 min-w-0">
+                <p-button icon="pi pi-arrow-left" [rounded]="true" [text]="true" severity="secondary" (onClick)="onCancel()" />
+                <div class="flex items-center justify-center rounded-full bg-violet-50 text-violet-500 dark:bg-violet-500/10 dark:text-violet-400 shrink-0" style="width: 2.75rem; height: 2.75rem;">
+                    <i class="pi pi-id-card text-lg"></i>
+                </div>
+                <div class="flex flex-col min-w-0">
+                    <h2 class="text-xl sm:text-2xl font-semibold m-0 truncate">
+                        {{ isDetailMode() ? 'Consulta de Riesgo Crediticio' : 'Nueva Consulta de Riesgo Crediticio' }}
+                    </h2>
+                    <span class="text-muted-color text-m">
+                        {{ isDetailMode()
+                            ? 'Análisis del perfil del titular en las centrales de riesgo'
+                            : 'Ingrese los datos del titular para consultarlo y analizar su perfil' }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row sm:flex-wrap gap-2 shrink-0 sm:items-center">
+                @if (isDetailMode() && statusConfig(); as st) {
+                <div class="inline-flex items-center gap-2 pl-3 pr-3.5 py-1.5 rounded-full border text-base font-medium self-start sm:self-auto" [ngClass]="st.classes">
+                    <span class="relative flex items-center justify-center">
+                        <span class="absolute inline-flex h-2.5 w-2.5 rounded-full opacity-60 animate-ping" [ngClass]="st.dot"></span>
+                        <span class="relative inline-flex h-2.5 w-2.5 rounded-full" [ngClass]="st.dot"></span>
+                    </span>
+                    <i [ngClass]="st.icon" class="text-m"></i>
+                    <span>{{ st.label }}</span>
+                </div>
+                }
+                @if (isDetailMode() && analysis()) {
+                <p-button label="Descargar Informe" icon="pi pi-file-pdf" severity="info" [outlined]="true" (onClick)="onDownloadPdf()" [loading]="downloadingPdf()" [disabled]="downloadingPdf()" styleClass="w-full sm:w-auto" />
+                }
+                @if (!isDetailMode()) {
+                <p-button label="Consultar" icon="pi pi-check" severity="success" (onClick)="onCreate()" [loading]="creating()" [disabled]="creating()" styleClass="w-full sm:w-auto" />
+                }
+            </div>
+        </div>
+    </p-card>
+    }
+
+    @if (!loading()) {
+        @if (!isDetailMode()) {
+        <!-- ═══════════ Creación ═══════════ -->
+        <p-card class="mt-2">
+            <p-message severity="info" styleClass="mb-4">
+                <span class="text-m">
+                    La consulta aplica solo a <span class="font-semibold">personas naturales</span>. Con la autorización firmada del titular,
+                    el sistema lo consulta en las centrales de riesgo y la IA analiza su perfil: señales de alerta, señales a favor y cifras clave, con informe descargable.
+                </span>
+            </p-message>
+            <form [formGroup]="form">
+                <p-fluid>
+                    <div class="flex flex-col gap-7 mt-2">
+                        <div class="flex flex-col gap-4">
+                            <div class="flex items-center gap-2">
+                                <i class="pi pi-user text-primary-500"></i>
+                                <h4 class="text-base font-semibold m-0">Datos del Titular</h4>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-5">
+                                <div class="flex flex-col gap-1">
+                                    <p-floatlabel variant="on">
+                                        <p-select id="identificationTypeId" [options]="identificationTypes()" optionLabel="label" formControlName="identificationTypeId" [invalid]="isInvalid('identificationTypeId')" styleClass="w-full" />
+                                        <label for="identificationTypeId">Tipo de Identificación *</label>
+                                    </p-floatlabel>
+                                    @if (isInvalid('identificationTypeId')) {
+                                    <small class="text-red-500">{{ getErrorMessage('identificationTypeId') }}</small>
+                                    }
+                                </div>
+
+                                <div class="flex flex-col gap-1">
+                                    <p-floatlabel variant="on">
+                                        <input pInputText id="identificationNumber" formControlName="identificationNumber" [invalid]="isInvalid('identificationNumber')" class="w-full" />
+                                        <label for="identificationNumber">Número de Identificación *</label>
+                                    </p-floatlabel>
+                                    @if (isInvalid('identificationNumber')) {
+                                    <small class="text-red-500">{{ getErrorMessage('identificationNumber') }}</small>
+                                    }
+                                </div>
+
+                                <div class="flex flex-col gap-1">
+                                    <p-floatlabel variant="on">
+                                        <input pInputText id="businessName" formControlName="businessName" [invalid]="isInvalid('businessName')" class="w-full" />
+                                        <label for="businessName">Nombre completo *</label>
+                                    </p-floatlabel>
+                                    @if (isInvalid('businessName')) {
+                                    <small class="text-red-500">{{ getErrorMessage('businessName') }}</small>
+                                    }
+                                </div>
+
+                                <div class="flex flex-col gap-1">
+                                    <p-floatlabel variant="on">
+                                        <input pInputText id="titularEmail" type="email" formControlName="titularEmail" [invalid]="isInvalid('titularEmail')" class="w-full" />
+                                        <label for="titularEmail">Correo del Titular *</label>
+                                    </p-floatlabel>
+                                    @if (isInvalid('titularEmail')) {
+                                    <small class="text-red-500">{{ getErrorMessage('titularEmail') }}</small>
+                                    }
+                                </div>
+
+                                <div class="flex flex-col gap-1">
+                                    <app-state-control inputId="titularState" label="Departamento *" variant="on" formControlName="titularState" [invalid]="isInvalid('titularState')" />
+                                    @if (isInvalid('titularState')) {
+                                    <small class="text-red-500">{{ getErrorMessage('titularState') }}</small>
+                                    }
+                                </div>
+
+                                <div class="flex flex-col gap-1">
+                                    <app-city-control inputId="titularCity" label="Ciudad *" variant="on" [regionCode]="titularRegionCode()" formControlName="titularCity" [invalid]="isInvalid('titularCity')" />
+                                    @if (isInvalid('titularCity')) {
+                                    <small class="text-red-500">{{ getErrorMessage('titularCity') }}</small>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col gap-4">
+                            <div class="flex items-center gap-2">
+                                <i class="pi pi-wallet text-primary-500"></i>
+                                <h4 class="text-base font-semibold m-0">Monto de Referencia</h4>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+                                <div class="flex flex-col gap-1">
+                                    <p-floatlabel variant="on">
+                                        <p-inputnumber
+                                            id="requestedCreditLine"
+                                            formControlName="requestedCreditLine"
+                                            [invalid]="isInvalid('requestedCreditLine')"
+                                            mode="currency"
+                                            currency="COP"
+                                            locale="es-CO"
+                                            [minFractionDigits]="0"
+                                            [maxFractionDigits]="0"
+                                        />
+                                        <label for="requestedCreditLine">Monto Solicitado *</label>
+                                    </p-floatlabel>
+                                    @if (isInvalid('requestedCreditLine')) {
+                                    <small class="text-red-500">{{ getErrorMessage('requestedCreditLine') }}</small>
+                                    }
+                                    <span class="text-sm text-muted-color">
+                                        Se contrasta contra el monto de referencia que sugieren las centrales; no es una aprobación de cupo.
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </p-fluid>
+            </form>
+            <div class="flex py-6">
+                <p-button label="Consultar" icon="pi pi-check" severity="success" (onClick)="onCreate()" [loading]="creating()" [disabled]="creating()" />
+            </div>
+        </p-card>
+        } @else {
+        <!-- ═══════════ Detalle ═══════════ -->
+
+        <!-- Identidad del titular -->
+        @if (titular(); as t) {
+        <p-card class="mt-2 block">
+            <div class="flex items-center gap-2 mb-4">
+                <i class="pi pi-user text-primary-500"></i>
+                <h4 class="text-m font-semibold m-0">Titular Consultado</h4>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div class="flex flex-col gap-0.5">
+                    <span class="text-sm text-muted-color">Nombre</span>
+                    <span class="text-m font-medium">{{ t.businessName || '—' }}</span>
+                </div>
+                <div class="flex flex-col gap-0.5">
+                    <span class="text-sm text-muted-color">Identificación</span>
+                    <span class="text-m font-medium">{{ t.identificationType?.label ? t.identificationType?.label + ' · ' : '' }}{{ t.identificationNumber || '—' }}</span>
+                </div>
+                <div class="flex flex-col gap-0.5">
+                    <span class="text-sm text-muted-color">Estado del documento</span>
+                    <span class="text-m font-medium">{{ t.documentStatus || '—' }}</span>
+                </div>
+                <div class="flex flex-col gap-0.5">
+                    <span class="text-sm text-muted-color">Rango de edad</span>
+                    <span class="text-m font-medium">{{ t.ageRange || '—' }}</span>
+                </div>
+                <div class="flex flex-col gap-0.5">
+                    <span class="text-sm text-muted-color">Ciudad</span>
+                    <span class="text-m font-medium">{{ t.city || '—' }}{{ t.state ? ' — ' + t.state : '' }}</span>
+                </div>
+                @if (t.nationality) {
+                <div class="flex flex-col gap-0.5">
+                    <span class="text-sm text-muted-color">Nacionalidad</span>
+                    <span class="text-m font-medium">{{ t.nationality }}</span>
+                </div>
+                }
+                <div class="flex flex-col gap-0.5">
+                    <span class="text-sm text-muted-color">Correo</span>
+                    <span class="text-m font-medium">{{ t.email || '—' }}</span>
+                </div>
+                <div class="flex flex-col gap-0.5">
+                    <span class="text-sm text-muted-color">Consultado el</span>
+                    <span class="text-m font-medium">{{ (t.lastConsultedAt | date:'d \'de\' MMMM \'de\' yyyy':'':'es-CO') || '—' }}</span>
+                </div>
+            </div>
+            @if (identity(); as idn) {
+            <div class="flex items-start gap-2 mt-4 p-3 rounded-lg text-m"
+                 [ngClass]="idn.matches
+                    ? 'bg-green-50 text-green-800 dark:bg-green-900/20 dark:text-green-300'
+                    : 'bg-amber-50 text-amber-800 dark:bg-amber-900/20 dark:text-amber-300'">
+                <i class="pi mt-0.5 shrink-0" [ngClass]="idn.matches ? 'pi-verified' : 'pi-exclamation-triangle'"></i>
+                <span>
+                    @if (idn.matches) {
+                    El nombre digitado coincide con el registrado en la central.
+                    } @else {
+                    Revisar identidad: se digitó "{{ idn.typedName }}" y la central registra "{{ idn.centralName }}".
+                    }
+                </span>
+            </div>
+            }
+        </p-card>
+        }
+
+        <!-- Análisis en curso / fallido / resultado -->
+        @if (performing()) {
+        <p-card class="mt-2 block">
+            <div class="flex flex-col items-center gap-5 py-16">
+                <div class="relative w-20 h-20">
+                    <div class="absolute inset-0 rounded-full border-4 border-primary-100 dark:border-primary-900/40"></div>
+                    <div class="absolute inset-0 rounded-full border-4 border-transparent border-t-primary-500 animate-spin"></div>
+                    <div class="absolute inset-2.5 rounded-full bg-linear-to-br from-primary-500 to-primary-600 flex items-center justify-center shadow-lg shadow-primary-500/25">
+                        <i class="pi pi-sparkles text-white text-xl ai-sparkle-spin"></i>
+                    </div>
+                </div>
+                <div class="text-center min-h-12">
+                    <h5 class="font-bold text-lg m-0">Analizando el perfil crediticio...</h5>
+                    @for (msg of [loaderMessage()]; track msg) {
+                    <p class="text-m text-muted-color m-0 mt-1 loader-message-fade">{{ msg }}</p>
+                    }
+                </div>
+            </div>
+        </p-card>
+        } @else if (!analysis()) {
+        <p-card class="mt-2 block">
+            <div class="flex flex-col items-center gap-4 py-10 text-center">
+                <div class="flex items-center justify-center rounded-full bg-amber-50 text-amber-500 dark:bg-amber-500/10 dark:text-amber-400" style="width: 3.5rem; height: 3.5rem;">
+                    <i class="pi pi-exclamation-triangle text-2xl"></i>
+                </div>
+                <div class="flex flex-col gap-1 max-w-xl">
+                    <h5 class="font-semibold text-lg m-0">El análisis aún no se ha generado</h5>
+                    <p class="text-m text-muted-color m-0">
+                        {{ performError() || 'La consulta a la central ya quedó registrada. Genere el análisis para ver el informe; no tiene costo adicional.' }}
+                    </p>
+                </div>
+                <p-button label="Generar análisis" icon="pi pi-sparkles" severity="success" (onClick)="onPerform()" />
+            </div>
+        </p-card>
+        } @else {
+            @if (analysis(); as a) {
+
+        <!-- Veredicto + resumen -->
+        <div class="rounded-xl border p-4 sm:p-5 flex flex-col gap-2" [ngClass]="riskConfig()?.classes">
+            <div class="flex items-center gap-2.5">
+                <i [ngClass]="riskConfig()?.icon" class="text-xl"></i>
+                <span class="text-lg font-bold">{{ riskConfig()?.label }}</span>
+            </div>
+            <p class="text-m m-0 whitespace-pre-line">{{ a.summary }}</p>
+            @if (probabilityText()) {
+            <p class="text-m m-0 opacity-80">{{ probabilityText() }} <span class="text-sm">(fuente: la central de riesgo)</span></p>
+            }
+        </div>
+
+        <!-- Cifras clave -->
+        <p-card class="mt-2 block">
+            <div class="flex items-center justify-between gap-2 mb-4 flex-wrap">
+                <div class="flex items-center gap-2">
+                    <i class="pi pi-chart-bar text-primary-500"></i>
+                    <h4 class="text-m font-semibold m-0">Cifras Clave</h4>
+                </div>
+                <span class="text-xs text-muted-color">Fuente: consulta en centrales de riesgo</span>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                @for (tile of keyFigureTiles(); track tile.label) {
+                <div class="rounded-lg border border-surface bg-surface-50 dark:bg-surface-800/50 p-3">
+                    <span class="text-xs text-muted-color uppercase block">{{ tile.label }}</span>
+                    <span class="text-lg font-bold">{{ tile.value }}</span>
+                </div>
+                }
+            </div>
+        </p-card>
+
+        <!-- Contraste de monto -->
+        @if (a.amountComparison.verdict !== 'not_comparable') {
+        <p-card class="mt-2 block">
+            <div class="flex items-center gap-2 mb-4">
+                <i class="pi pi-arrow-right-arrow-left text-primary-500"></i>
+                <h4 class="text-m font-semibold m-0">Monto Solicitado vs Referencia de la Central</h4>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-center">
+                <div class="flex flex-col gap-0.5">
+                    <span class="text-sm text-muted-color">Monto solicitado</span>
+                    <span class="text-lg font-bold">{{ a.amountComparison.requested | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</span>
+                </div>
+                <div class="flex flex-col gap-0.5">
+                    <span class="text-sm text-muted-color">Monto sugerido por la central</span>
+                    <span class="text-lg font-bold">{{ a.amountComparison.suggested | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}</span>
+                </div>
+                <div class="flex items-start gap-2 p-3 rounded-lg text-m"
+                     [ngClass]="a.amountComparison.verdict === 'within'
+                        ? 'bg-green-50 text-green-800 dark:bg-green-900/20 dark:text-green-300'
+                        : (a.amountComparison.verdict === 'above'
+                            ? 'bg-amber-50 text-amber-800 dark:bg-amber-900/20 dark:text-amber-300'
+                            : 'bg-red-50 text-red-800 dark:bg-red-900/20 dark:text-red-300')">
+                    <i class="pi pi-info-circle mt-0.5 shrink-0"></i>
+                    <span>{{ a.amountComparison.verdictLabel }}</span>
+                </div>
+            </div>
+        </p-card>
+        }
+
+        <!-- Actividad por sector (formato propio, solo sectores con actividad) -->
+        @if (sectorActivity().length) {
+        <p-card class="mt-2 block">
+            <div class="flex items-center gap-2 mb-4">
+                <i class="pi pi-building-columns text-primary-500"></i>
+                <h4 class="text-m font-semibold m-0">Actividad por Sector</h4>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                @for (s of sectorActivity(); track s.sector) {
+                <div class="rounded-xl border border-surface p-4 flex flex-col gap-2">
+                    <div class="flex items-center justify-between gap-2 flex-wrap">
+                        <span class="text-m font-semibold">{{ s.sector || 'Sector' }}</span>
+                        <span class="text-xs text-muted-color">{{ s.vigentes }} vigente(s) · {{ s.cerrados }} cerrado(s)</span>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2 text-m">
+                        <div class="flex flex-col">
+                            <span class="text-xs text-muted-color">Saldo</span>
+                            <span class="font-medium">{{ (s.saldoActual | currency:'COP':'symbol-narrow':'1.0-0':'es-CO') || '—' }}</span>
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="text-xs text-muted-color">En mora</span>
+                            <span class="font-medium" [class.text-red-600]="(s.saldoMora ?? 0) > 0">{{ (s.saldoMora | currency:'COP':'symbol-narrow':'1.0-0':'es-CO') || '—' }}</span>
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="text-xs text-muted-color">Cuota mensual</span>
+                            <span class="font-medium">{{ (s.valorCuota | currency:'COP':'symbol-narrow':'1.0-0':'es-CO') || '—' }}</span>
+                        </div>
+                    </div>
+                </div>
+                }
+            </div>
+            @if (balanceTrend(); as trend) {
+            <div class="flex items-center gap-2 mt-4 text-m"
+                 [ngClass]="trend.direction === 'up' ? 'text-amber-700 dark:text-amber-400' : 'text-muted-color'">
+                <i class="pi" [ngClass]="trend.direction === 'down' ? 'pi-arrow-down-right' : (trend.direction === 'up' ? 'pi-arrow-up-right' : 'pi-minus')"></i>
+                <span>{{ trend.label }}</span>
+            </div>
+            }
+        </p-card>
+        }
+
+        <!-- Hábito de pago mes a mes (visual propio) -->
+        @if (paymentTimeline().length) {
+        <p-card class="mt-2 block">
+            <div class="flex items-center gap-2 mb-4">
+                <i class="pi pi-calendar text-primary-500"></i>
+                <h4 class="text-m font-semibold m-0">Hábito de Pago Mes a Mes</h4>
+            </div>
+            <div class="flex flex-wrap gap-1.5 items-end">
+                @for (p of paymentTimeline(); track p.month) {
+                <div class="flex flex-col items-center gap-1" [title]="(p.month || '') + (p.label ? ' · ' + p.label : '')">
+                    <div class="w-5 h-4 rounded" [ngClass]="timelineDotClasses[p.status]"></div>
+                    <span class="text-[8px] text-muted-color leading-none">{{ p.month?.slice(2) }}</span>
+                </div>
+                }
+            </div>
+            <div class="flex flex-wrap gap-x-4 gap-y-1 mt-3 text-xs text-muted-color">
+                <span class="inline-flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded bg-green-500 inline-block"></span>Al día</span>
+                <span class="inline-flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded bg-amber-400 inline-block"></span>Mora temprana (30–60 días)</span>
+                <span class="inline-flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded bg-red-500 inline-block"></span>Mora seria / castigo</span>
+                <span class="inline-flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded bg-surface-300 dark:bg-surface-600 inline-block"></span>Sin información</span>
+            </div>
+            @if (paymentStats(); as stats) {
+            <div class="text-m text-color mt-3">
+                <span class="font-semibold">{{ stats.onTimePct ?? '—' }}%</span> de los {{ stats.monthsWithData }} meses con dato estuvo al día
+                · {{ stats.delayMonths }} mes(es) con mora
+                @if (stats.worstLabel) { · peor comportamiento: {{ stats.worstLabel }} }
+                @if (stats.lastDelayMonth) { · mora más reciente: {{ stats.lastDelayMonth }} }
+            </div>
+            }
+        </p-card>
+        }
+
+        <!-- Alertas reportadas por la central -->
+        @if (alertsDetail().length) {
+        <p-card class="mt-2 block">
+            <div class="flex items-center gap-2 mb-4">
+                <i class="pi pi-bell text-amber-500"></i>
+                <h4 class="text-m font-semibold m-0">Alertas Reportadas por la Central</h4>
+            </div>
+            <div class="flex flex-col gap-2">
+                @for (al of alertsDetail(); track al.message) {
+                <div class="flex items-start gap-2 text-m">
+                    <i class="pi pi-circle-fill text-amber-500 mt-1.5" style="font-size: 6px;"></i>
+                    <span>{{ al.message }} @if (al.date) { <span class="text-muted-color text-sm">({{ al.date }})</span> }</span>
+                </div>
+                }
+            </div>
+        </p-card>
+        }
+
+        <!-- Red flags y señales -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-2">
+            <p-card class="block">
+                <div class="flex items-center gap-2 mb-4">
+                    <i class="pi pi-flag text-red-500"></i>
+                    <h4 class="text-m font-semibold m-0">Señales de Alerta</h4>
+                </div>
+                <div class="flex flex-col gap-2.5">
+                    @for (flag of a.redFlags; track flag.title) {
+                    <div class="rounded-lg border-l-4 p-3"
+                         [ngClass]="flag.severity === 'danger'
+                            ? 'border-red-500 bg-red-50 dark:bg-red-900/15'
+                            : 'border-amber-500 bg-amber-50 dark:bg-amber-900/15'">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="text-m font-semibold">{{ flag.title }}</span>
+                            <span class="text-xs font-semibold uppercase px-1.5 py-0.5 rounded"
+                                  [ngClass]="flag.severity === 'danger'
+                                    ? 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300'
+                                    : 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300'">
+                                {{ flag.severity === 'danger' ? 'Seria' : 'A vigilar' }}
+                            </span>
+                        </div>
+                        <p class="text-m text-muted-color m-0 mt-1">{{ flag.detail }}</p>
+                    </div>
+                    } @empty {
+                    <div class="text-m text-muted-color italic py-3">El análisis no encontró señales de alerta relevantes.</div>
+                    }
+                </div>
+            </p-card>
+
+            <p-card class="block">
+                <div class="flex items-center gap-2 mb-4">
+                    <i class="pi pi-thumbs-up text-green-500"></i>
+                    <h4 class="text-m font-semibold m-0">Señales a Favor</h4>
+                </div>
+                <div class="flex flex-col gap-2.5">
+                    @for (signal of a.positiveSignals; track signal.title) {
+                    <div class="rounded-lg border-l-4 border-green-500 bg-green-50 dark:bg-green-900/15 p-3">
+                        <span class="text-m font-semibold">{{ signal.title }}</span>
+                        <p class="text-m text-muted-color m-0 mt-1">{{ signal.detail }}</p>
+                    </div>
+                    } @empty {
+                    <div class="text-m text-muted-color italic py-3">El análisis no destacó señales positivas.</div>
+                    }
+                </div>
+            </p-card>
+        </div>
+
+        <!-- Análisis por área -->
+        @if (sectionBlocks().length) {
+        <p-card class="mt-2 block">
+            <div class="flex items-center gap-2 mb-4">
+                <i class="pi pi-list text-primary-500"></i>
+                <h4 class="text-m font-semibold m-0">Análisis por Área</h4>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                @for (block of sectionBlocks(); track block.title) {
+                <div class="rounded-xl border border-surface p-4">
+                    <div class="flex items-center gap-2 mb-2">
+                        <i [ngClass]="block.icon" class="text-primary-500"></i>
+                        <span class="text-m font-semibold">{{ block.title }}</span>
+                    </div>
+                    <p class="text-m text-muted-color m-0">{{ block.text }}</p>
+                </div>
+                }
+            </div>
+        </p-card>
+        }
+
+        <!-- Próximos pasos recomendados -->
+        @if (recommendations().length) {
+        <p-card class="mt-2 block">
+            <div class="flex items-center gap-2 mb-4">
+                <i class="pi pi-directions text-primary-500"></i>
+                <h4 class="text-m font-semibold m-0">Próximos Pasos Recomendados</h4>
+            </div>
+            <div class="flex flex-col gap-2.5">
+                @for (reco of recommendations(); track reco.title; let i = $index) {
+                <div class="flex items-start gap-3 rounded-lg border-l-4 border-primary-400 bg-primary-50/50 dark:bg-primary-900/10 p-3">
+                    <span class="flex items-center justify-center rounded-full bg-primary-500 text-white text-xs font-bold shrink-0 mt-0.5" style="width: 1.4rem; height: 1.4rem;">{{ i + 1 }}</span>
+                    <div class="flex flex-col gap-0.5">
+                        <span class="text-m font-semibold">{{ reco.title }}</span>
+                        <span class="text-m text-muted-color">{{ reco.detail }}</span>
+                    </div>
+                </div>
+                }
+            </div>
+        </p-card>
+        }
+
+        <div class="text-xs text-muted-color mt-1">
+            Informe elaborado por Creditia sobre información de las centrales de riesgo,
+            con autorización del titular. El análisis es una interpretación de referencia; la decisión de crédito es de quien otorga.
+        </div>
+            }
+        }
+        }
+    }
+</div>
+
+<!-- Soporte sobre esta consulta -->
+@if (bureauCheckId(); as id) {
+<app-support-fab area="credit_study" [recordId]="id" [label]="titular()?.businessName ?? null" />
+}

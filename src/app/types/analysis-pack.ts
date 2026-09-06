@@ -5,6 +5,8 @@ export interface AnalysisPackConsumption {
     statusLabel: string;
     studyDate: string;
     createdBy: string;
+    /** Ruta del detalle según el tipo (estudio EEFF, capacidad o consulta). */
+    studyTypeCode: string | null;
 }
 
 export interface AnalysisPackPaymentEvent {

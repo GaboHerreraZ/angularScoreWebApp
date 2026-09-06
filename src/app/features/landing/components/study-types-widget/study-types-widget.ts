@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { ScrollAnimateDirective } from '@/app/shared/directives/scroll-animate.directive';
 
-/** Los dos productos de análisis: empresarial (EEFF) y capacidad de pago (PN). */
+/** Los productos de análisis: empresarial (EEFF), capacidad de pago (PN) y consulta de riesgo. */
 @Component({
     standalone: true,
     selector: 'study-types-widget',
@@ -36,6 +36,20 @@ export class StudyTypesWidget {
                 'Ingreso verificado contra la cuenta, no declarado',
                 'Análisis complementado con Datacrédito Experian',
                 'Cuota máxima sostenible y comportamiento financiero'
+            ]
+        },
+        {
+            icon: 'pi-id-card',
+            iconClasses: 'bg-violet-500/10 text-violet-500',
+            badge: 'Nuevo',
+            title: 'Consulta de riesgo crediticio',
+            subtitle: 'Sin documentos, en minutos',
+            description:
+                'El servicio exprés para persona natural: con la autorización del titular, la IA analiza su perfil en las centrales de riesgo y entrega un informe claro con señales de alerta y señales a favor. A menor costo, con su propio paquete de consultas.',
+            bullets: [
+                'Red flags y señales a favor interpretadas por IA',
+                'Contraste del monto solicitado con la referencia de la central',
+                'Informe descargable con habeas data gestionado'
             ]
         }
     ];

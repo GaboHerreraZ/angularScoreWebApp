@@ -51,4 +51,6 @@ export interface Permissions {
   canExtractPdf: boolean;
   hasCredits: boolean;
   availableCredits: number;
+  hasBureauCredits: boolean;
+  availableBureauChecks: number;
 }

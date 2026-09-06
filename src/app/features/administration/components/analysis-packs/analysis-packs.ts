@@ -1,6 +1,6 @@
 import { Component, computed, DestroyRef, inject, resource, signal, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize, firstValueFrom } from 'rxjs';
@@ -19,6 +19,7 @@ import { PackIncludedFeatures } from '@/app/shared/components/pack-card/pack-inc
 import { CardCarousel } from '@/app/shared/components/card-carousel/card-carousel';
 import { EpaycoCheckout } from '@/app/shared/components/epayco-checkout/epayco-checkout';
 import { AuthService } from '@/app/core/services/auth.service';
+import { FeatureFlagsService } from '@/app/core/services/feature-flags.service';
 import { NotificationService } from '@/app/shared/components/notification/notification.service';
 import { AnalysisPack, AnalysisPackConsumption } from '@/app/types/analysis-pack';
 import { PackOffering, PromoCodeValidation } from '@/app/types/onboarding';
@@ -40,8 +41,10 @@ export class AnalysisPacks {
     private service = inject(AnalysisPacksService);
     private packOfferingsService = inject(PackOfferingsService);
     private authService = inject(AuthService);
+    private featureFlags = inject(FeatureFlagsService);
     private notification = inject(NotificationService);
     private router = inject(Router);
+    private route = inject(ActivatedRoute);
 
     readonly rows = 5;
 
@@ -69,8 +72,15 @@ export class AnalysisPacks {
     /** Análisis disponibles hoy (suma de los activos no consumidos), según el perfil. */
     currentAvailable = computed<number>(() => this.authService.currentProfile()?.permissions?.availableCredits ?? 0);
 
-    /** Total de análisis tras la compra: los disponibles actuales más los del nuevo pack. */
-    totalAfterPurchase = computed<number>(() => this.currentAvailable() + (this.selectedPack()?.quantity ?? 0));
+    /** Consultas de riesgo disponibles hoy (bolsa aparte). */
+    currentAvailableBureau = computed<number>(() => this.authService.currentProfile()?.permissions?.availableBureauChecks ?? 0);
+
+    /** Total tras la compra: el saldo actual DE LA BOLSA del pack elegido más el pack. */
+    totalAfterPurchase = computed<number>(() => {
+        const pack = this.selectedPack();
+        const base = pack?.product?.code === 'bureauCheck' ? this.currentAvailableBureau() : this.currentAvailable();
+        return base + (pack?.quantity ?? 0);
+    });
 
     /** Porcentaje de descuento del código aplicado (0 si no hay). */
     promoDiscountPercent = computed<number>(() => this.appliedPromo()?.discountPercent ?? 0);
@@ -97,6 +107,37 @@ export class AnalysisPacks {
     catalog = computed<PackOffering[]>(() =>
         [...(this.packsCatalogResource.value() ?? [])].sort((a, b) => a.sortOrder - b.sortOrder)
     );
+
+    // ── Un tab por producto: estudios y consultas no comparten carrusel ──
+    // `?producto=bureauCheck` llega desde los CTAs de compra de otros flujos.
+    activeCatalogTab = signal<'creditStudy' | 'bureauCheck'>(
+        this.route.snapshot.queryParamMap.get('producto') === 'bureauCheck' ? 'bureauCheck' : 'creditStudy'
+    );
+
+    studyCatalog = computed<PackOffering[]>(() =>
+        this.catalog().filter(o => (o.product?.code ?? 'creditStudy') !== 'bureauCheck')
+    );
+
+    bureauCatalog = computed<PackOffering[]>(() =>
+        this.catalog().filter(o => o.product?.code === 'bureauCheck')
+    );
+
+    /** El tab de consultas solo existe con ofertas cotizables Y el flag encendido. */
+    showBureauTab = computed<boolean>(
+        () => this.bureauCatalog().length > 0 && this.featureFlags.isEnabled('bureauCheck')
+    );
+
+    activeCatalog = computed<PackOffering[]>(() =>
+        this.activeCatalogTab() === 'bureauCheck' ? this.bureauCatalog() : this.studyCatalog()
+    );
+
+    /** Franja "qué incluye" por producto. */
+    readonly bureauIncludedFeatures = [
+        { icon: 'pi-shield', label: 'Consulta en centrales de riesgo' },
+        { icon: 'pi-file-edit', label: 'Autorización del titular gestionada en la plataforma' },
+        { icon: 'pi-sparkles', label: 'Análisis IA con red flags y señales a favor' },
+        { icon: 'pi-file-export', label: 'Informe PDF descargable' }
+    ];
 
     onLazyLoad(event: TableLazyLoadEvent): void {
         const first = event.first ?? 0;
@@ -176,7 +217,12 @@ export class AnalysisPacks {
     }
 
     viewCreditStudy(consumption: AnalysisPackConsumption): void {
-        this.router.navigate(['/app/estudio-credito/detalle-estudio', consumption.creditStudyId]);
+        const paths: Record<string, string> = {
+            paymentCapacity: 'estudio-capacidad',
+            bureauCheck: 'consulta-riesgo'
+        };
+        const path = paths[consumption.studyTypeCode ?? ''] ?? 'detalle-estudio';
+        this.router.navigate([`/app/estudio-credito/${path}`, consumption.creditStudyId]);
     }
 
     viewCustomer(consumption: AnalysisPackConsumption): void {

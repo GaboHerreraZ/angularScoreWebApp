@@ -70,6 +70,15 @@ export class PackDisplayCard {
 
     taxDisclaimer = computed(() => packTaxDisclaimer(this.pack()));
 
+    /** Etiqueta de la unidad según el producto del pack. */
+    unitLabel = computed(() =>
+        this.pack().product?.code === 'bureauCheck' ? 'Consultas de Riesgo' : 'Análisis de Crédito'
+    );
+
+    unitSuffix = computed(() =>
+        this.pack().product?.code === 'bureauCheck' ? 'consulta' : 'análisis'
+    );
+
     /** El borde resaltado lo activa tanto la tarjeta destacada como la elegida. */
     highlighted = computed(() => this.featured() || this.selected());
 

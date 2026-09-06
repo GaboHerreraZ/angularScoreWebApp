@@ -81,11 +81,11 @@ export class PricingPage {
         },
         {
             question: '¿Qué incluye cada análisis?',
-            answer: 'Todos los packs incluyen lo mismo: consulta en <strong>Datacrédito Experian</strong>, verificación en <strong>listas restrictivas SARLAFT</strong>, lectura con IA de los soportes en PDF (<strong>estados financieros o extractos bancarios</strong>, según el tipo de estudio), score de riesgo, reporte del estudio y pagaré digital con firma electrónica. Solo cambia el precio por volumen.'
+            answer: 'Los packs de <strong>estudios de crédito</strong> incluyen: consulta en <strong>Datacrédito Experian</strong>, verificación en <strong>listas restrictivas SARLAFT</strong>, lectura con IA de los soportes en PDF (<strong>estados financieros o extractos bancarios</strong>, según el tipo de estudio), score de riesgo, reporte del estudio y pagaré digital con firma electrónica. Los packs de <strong>consultas de riesgo</strong> son un producto aparte, más económico: consulta en centrales + análisis IA del perfil con red flags e informe descargable, sin documentos. Dentro de cada producto, solo cambia el precio por volumen.'
         },
         {
             question: '¿Puedo evaluar personas naturales sin estados financieros?',
-            answer: 'Sí. El <strong>estudio de capacidad de pago</strong> evalúa a independientes y empleados: la IA analiza sus extractos bancarios y desprendibles de nómina, verifica el ingreso que realmente entra a la cuenta, complementa el análisis con la consulta a las centrales de riesgo y emite un reporte con la <strong>cuota máxima que la persona puede sostener</strong>. Usa la misma consulta de tu paquete, al mismo precio.'
+            answer: 'Sí, de dos formas. El <strong>estudio de capacidad de pago</strong> evalúa a independientes y empleados: la IA analiza sus extractos bancarios y desprendibles de nómina, verifica el ingreso que realmente entra a la cuenta, complementa el análisis con la consulta a las centrales de riesgo y emite un reporte con la <strong>cuota máxima que la persona puede sostener</strong> (usa la misma consulta de tu paquete de estudios). Y la <strong>consulta de riesgo crediticio</strong>, más rápida y económica: sin documentos, la IA analiza el perfil del titular en las centrales y entrega red flags, señales a favor e informe en minutos (usa su propio paquete de consultas).'
         },
         {
             question: '¿Qué pasa si mi cliente no paga?',

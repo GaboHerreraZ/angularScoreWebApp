@@ -16,6 +16,11 @@
                     <p-skeleton width="8rem" height="1.5rem" borderRadius="1rem" />
                 </div>
             </div>
+            <div class="hidden sm:flex flex-col items-end gap-2 shrink-0">
+                <p-skeleton width="9rem" height="1.5rem" borderRadius="1rem" />
+                <p-skeleton width="7rem" height="0.75rem" />
+                <p-skeleton width="11rem" height="2rem" />
+            </div>
         </div>
         } @else if (customer(); as c) {
         <div class="flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-4">
@@ -79,6 +84,34 @@
                     }
                 </div>
             </div>
+
+            <!-- Autorización de habeas data: estado y acceso al documento firmado -->
+            @if (authorization(); as a) {
+            <div class="flex flex-col gap-2 sm:items-end shrink-0 pt-3 border-t sm:pt-0 sm:border-t-0 sm:border-l sm:pl-4 border-surface-200 dark:border-surface-700">
+                <div class="flex items-center gap-2">
+                    <span class="text-xs font-medium text-muted-color uppercase tracking-wider">Autorización</span>
+                    <p-tag [value]="authorizationTag().label" [severity]="authorizationTag().severity" [rounded]="true"
+                           [icon]="authorizationTag().icon" />
+                </div>
+
+                @if (authorizationDetail(); as detail) {
+                <span class="text-xs text-muted-color sm:text-right">{{ detail }}</span>
+                }
+
+                @if (a.documentUrl || canSign()) {
+                <div class="flex items-center gap-2 flex-wrap sm:justify-end">
+                    @if (a.documentUrl) {
+                    <p-button label="Ver documento firmado" icon="pi pi-file-pdf" [outlined]="true" size="small"
+                              (onClick)="openUrl(a.documentUrl)" />
+                    }
+                    @if (canSign()) {
+                    <p-button label="Abrir página de firma" icon="pi pi-external-link" severity="secondary"
+                              [outlined]="true" size="small" (onClick)="openUrl(a.signUrl)" />
+                    }
+                </div>
+                }
+            </div>
+            }
         </div>
         }
     </p-card>

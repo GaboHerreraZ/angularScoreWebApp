@@ -11,9 +11,10 @@ import { StudyTypeSelector } from './payment-capacity/study-type-selector/study-
 import { StudyTypeCode } from '@/app/types/payment-capacity';
 import { FeatureFlagsService } from '@/app/core/services/feature-flags.service';
 
-/** Estados compartidos que en el estudio de capacidad significan otra cosa. */
-const CAPACITY_STATUS_LABEL: Record<string, string> = {
-    pendingFinancialStatements: 'Pendiente Documentos'
+/** Estados compartidos que según el tipo de estudio significan otra cosa. */
+const STATUS_LABEL_BY_TYPE: Record<string, Record<string, string>> = {
+    paymentCapacity: { pendingFinancialStatements: 'Pendiente Documentos' },
+    bureauCheck: { pendingStudyAnalysis: 'Analizando', studyCompleted: 'Completada' }
 };
 
 @Component({
@@ -39,15 +40,19 @@ export class CreditStudy implements OnInit {
      */
     rows = computed(() =>
         this.creditStudyService.creditStudies().map((study) => {
-            if (study.studyType?.code !== 'paymentCapacity' || !study.status) return study;
-            const label = CAPACITY_STATUS_LABEL[study.status.code];
+            const typeMap = STATUS_LABEL_BY_TYPE[study.studyType?.code ?? ''];
+            if (!typeMap || !study.status) return study;
+            const label = typeMap[study.status.code];
             return label ? { ...study, status: { ...study.status, label } } : study;
         })
     );
 
+    /** Puede crear si tiene saldo en ALGUNA bolsa (estudios o consultas). */
     private canAddCreditStudy = computed(() => {
         const perms = this.authService.currentProfile()?.permissions;
-        return (perms?.canAddCreditStudy ?? false) && (perms?.hasCredits ?? false);
+        const canStudies = (perms?.canAddCreditStudy ?? false) && (perms?.hasCredits ?? false);
+        const canBureau = this.featureFlags.isEnabled('bureauCheck') && (perms?.hasBureauCredits ?? false);
+        return canStudies || canBureau;
     });
 
     tableSettings = computed<TableSettings>(() => ({
@@ -97,12 +102,14 @@ export class CreditStudy implements OnInit {
                 minWidth: '11rem',
                 severityMap: {
                     'Estudio empresarial': 'info',
-                    'Estudio de capacidad de pago': 'success'
+                    'Estudio de capacidad de pago': 'success',
+                    'Consulta de riesgo crediticio': 'warn'
                 },
                 defaultSeverity: 'secondary',
                 filterOptions: [
                     { label: 'Estudio empresarial', value: 'Estudio empresarial' },
-                    { label: 'Estudio de capacidad de pago', value: 'Estudio de capacidad de pago' }
+                    { label: 'Estudio de capacidad de pago', value: 'Estudio de capacidad de pago' },
+                    { label: 'Consulta de riesgo crediticio', value: 'Consulta de riesgo crediticio' }
                 ]
             },
             {
@@ -192,8 +199,10 @@ export class CreditStudy implements OnInit {
     }
 
     onAdd(): void {
-        // Sin capacidad habilitada no hay elección que hacer: directo al empresarial.
-        if (!this.featureFlags.isEnabled('paymentCapacity')) {
+        // Con un solo tipo habilitado no hay elección que hacer: directo al empresarial.
+        const hasOptionalTypes =
+            this.featureFlags.isEnabled('paymentCapacity') || this.featureFlags.isEnabled('bureauCheck');
+        if (!hasOptionalTypes) {
             this.router.navigate([this.detailRoute('financialStatements')]);
             return;
         }
@@ -206,9 +215,11 @@ export class CreditStudy implements OnInit {
     }
 
     private detailRoute(studyType?: string): string {
-        return studyType === 'paymentCapacity'
-            ? '/app/estudio-credito/estudio-capacidad'
-            : '/app/estudio-credito/detalle-estudio';
+        const routes: Record<string, string> = {
+            paymentCapacity: '/app/estudio-credito/estudio-capacidad',
+            bureauCheck: '/app/estudio-credito/consulta-riesgo'
+        };
+        return routes[studyType ?? ''] ?? '/app/estudio-credito/detalle-estudio';
     }
 
     onExport(): void {
