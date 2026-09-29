@@ -18,7 +18,7 @@ if (missing.length === 0) {
     process.exit(0);
 }
 
-const { SUPABASE_URL, SUPABASE_KEY, API_URL, EPAYCO_TEST, GA_MEASUREMENT_ID, CHATWOOT_BASE_URL, CHATWOOT_WEBSITE_TOKEN } = process.env;
+const { SUPABASE_URL, SUPABASE_KEY, API_URL, EPAYCO_TEST, GA_MEASUREMENT_ID, GOOGLE_ADS_ID, GOOGLE_ADS_SIGNUP_LABEL, CHATWOOT_BASE_URL, CHATWOOT_WEBSITE_TOKEN } = process.env;
 if (!SUPABASE_URL || !SUPABASE_KEY || !API_URL) {
     console.error('[generate-env] Missing env vars. Required: SUPABASE_URL, SUPABASE_KEY, API_URL');
     process.exit(1);
@@ -35,6 +35,16 @@ console.log(
     gaMeasurementId
         ? `[generate-env] GA_MEASUREMENT_ID=${gaMeasurementId} -> analytics ACTIVO`
         : '[generate-env] GA_MEASUREMENT_ID vacio -> analytics apagado'
+);
+// Google Ads: el tag AW-... comparte gtag.js con GA4 y solo se configura si el
+// ambiente define el ID (variable de rama en Amplify, solo main). La etiqueta
+// es la de la conversion "Sign-up"; sin ella no se reporta la conversion.
+const googleAdsId = GOOGLE_ADS_ID ?? '';
+const googleAdsSignUpLabel = GOOGLE_ADS_SIGNUP_LABEL ?? '';
+console.log(
+    googleAdsId
+        ? `[generate-env] GOOGLE_ADS_ID=${googleAdsId} -> conversiones de Ads ACTIVAS`
+        : '[generate-env] GOOGLE_ADS_ID vacio -> conversiones de Ads apagadas'
 );
 console.log(
     epaycoTest
@@ -62,6 +72,8 @@ for (const t of missing) {
     apiUrl: '${API_URL}',
     epaycoTest: ${epaycoTest},
     gaMeasurementId: '${gaMeasurementId}',
+    googleAdsId: '${googleAdsId}',
+    googleAdsSignUpLabel: '${googleAdsSignUpLabel}',
     chatwootBaseUrl: '${chatwootBaseUrl}',
     chatwootWebsiteToken: '${chatwootWebsiteToken}',
 };
