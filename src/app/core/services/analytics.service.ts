@@ -9,9 +9,12 @@ declare global {
 }
 
 /**
- * Google Analytics 4 (gtag.js), cargado dinámicamente solo cuando el
- * environment define un measurement ID. En desarrollo queda vacío y todos
+ * Google Analytics 4 y Google Ads (gtag.js), cargado dinámicamente solo cuando
+ * el environment define un measurement ID. En desarrollo queda vacío y todos
  * los métodos son no-op, así el tráfico local no contamina las métricas.
+ *
+ * Ads comparte la misma librería: si el environment trae el ID AW-... se
+ * configura junto a GA4 y el registro reporta la conversión "Sign-up".
  *
  * Las vistas de página en cambios de ruta las registra la medición mejorada
  * de GA4 (eventos de historial del navegador); aquí solo van los eventos
@@ -20,6 +23,8 @@ declare global {
 @Injectable({ providedIn: 'root' })
 export class AnalyticsService {
     private readonly measurementId = environment.gaMeasurementId;
+    private readonly adsId = environment.googleAdsId;
+    private readonly adsSignUpLabel = environment.googleAdsSignUpLabel;
     private loaded = false;
 
     /** Inyecta gtag.js una sola vez al arrancar la app (ver app.config.ts). */
@@ -33,6 +38,9 @@ export class AnalyticsService {
         };
         window.gtag('js', new Date());
         window.gtag('config', this.measurementId);
+        if (this.adsId) {
+            window.gtag('config', this.adsId);
+        }
 
         const script = document.createElement('script');
         script.async = true;
@@ -53,6 +61,7 @@ export class AnalyticsService {
     /** Cuenta creada en el onboarding. */
     signUp(method: 'email' | 'google'): void {
         this.trackEvent('sign_up', { method });
+        this.adsConversion(this.adsSignUpLabel);
     }
 
     /** Formulario comercial enviado (demo, precios, volumen…). */
@@ -67,6 +76,19 @@ export class AnalyticsService {
             currency: 'COP',
             value: total,
             items: [{ item_name: packName }]
+        });
+    }
+
+    /**
+     * Conversión de Google Ads. El registro con Google redirige de inmediato,
+     * por eso se pide transporte beacon: el navegador termina el envío aunque
+     * la página se descargue.
+     */
+    private adsConversion(label: string): void {
+        if (!this.adsId || !label) return;
+        this.trackEvent('conversion', {
+            send_to: `${this.adsId}/${label}`,
+            transport_type: 'beacon'
         });
     }
 
