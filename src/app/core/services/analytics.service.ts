@@ -10,11 +10,11 @@ declare global {
 
 /**
  * Google Analytics 4 y Google Ads (gtag.js), cargado dinámicamente solo cuando
- * el environment define un measurement ID. En desarrollo queda vacío y todos
+ * el environment define al menos un ID. En desarrollo quedan vacíos y todos
  * los métodos son no-op, así el tráfico local no contamina las métricas.
  *
  * Ads comparte la misma librería: si el environment trae el ID AW-... se
- * configura junto a GA4 y el registro reporta la conversión "Sign-up".
+ * configura (con o sin GA4) y el registro reporta la conversión "Sign-up".
  *
  * Las vistas de página en cambios de ruta las registra la medición mejorada
  * de GA4 (eventos de historial del navegador); aquí solo van los eventos
@@ -27,9 +27,14 @@ export class AnalyticsService {
     private readonly adsSignUpLabel = environment.googleAdsSignUpLabel;
     private loaded = false;
 
-    /** Inyecta gtag.js una sola vez al arrancar la app (ver app.config.ts). */
+    /**
+     * Inyecta gtag.js una sola vez al arrancar la app (ver app.config.ts).
+     * Basta con que exista alguno de los dos IDs (GA4 o Ads): la librería es
+     * la misma y cada ID presente se configura por separado.
+     */
     init(): void {
-        if (!this.measurementId || this.loaded) return;
+        const ids = [this.measurementId, this.adsId].filter((id): id is string => !!id);
+        if (ids.length === 0 || this.loaded) return;
         this.loaded = true;
 
         window.dataLayer = window.dataLayer ?? [];
@@ -37,14 +42,13 @@ export class AnalyticsService {
             window.dataLayer!.push(args);
         };
         window.gtag('js', new Date());
-        window.gtag('config', this.measurementId);
-        if (this.adsId) {
-            window.gtag('config', this.adsId);
+        for (const id of ids) {
+            window.gtag('config', id);
         }
 
         const script = document.createElement('script');
         script.async = true;
-        script.src = `https://www.googletagmanager.com/gtag/js?id=${this.measurementId}`;
+        script.src = `https://www.googletagmanager.com/gtag/js?id=${ids[0]}`;
         document.head.appendChild(script);
     }
 
