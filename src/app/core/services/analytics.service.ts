@@ -38,8 +38,12 @@ export class AnalyticsService {
         this.loaded = true;
 
         window.dataLayer = window.dataLayer ?? [];
-        window.gtag = function gtag(...args: unknown[]) {
-            window.dataLayer!.push(args);
+        // gtag.js solo procesa entradas que sean objetos `arguments` (como en
+        // el snippet oficial). Un Array con rest params lo ignora en silencio
+        // y no envía ningún ping, ni de GA4 ni de Ads.
+        // eslint-disable-next-line prefer-rest-params
+        window.gtag = function gtag() {
+            window.dataLayer!.push(arguments);
         };
         window.gtag('js', new Date());
         for (const id of ids) {
