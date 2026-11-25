@@ -38,6 +38,7 @@ import { FinancialStatements } from './financial-statements/financial-statements
 import { StudyResult } from './study-result/study-result';
 import { PromissoryNoteModal } from './promissory-note-modal/promissory-note-modal';
 import { SupportFab } from '@/app/shared/components/support-fab/support-fab';
+import { AuthorizationDialog } from '@/app/shared/components/authorization-dialog/authorization-dialog';
 import { DateOnlyPipe } from '@/app/shared/pipes/date-only.pipe';
 
 @Component({
@@ -66,6 +67,7 @@ import { DateOnlyPipe } from '@/app/shared/pipes/date-only.pipe';
         StudyResult,
         PromissoryNoteModal,
         SupportFab,
+        AuthorizationDialog,
         DateOnlyPipe
     ],
     providers: [provideConfirm()],
@@ -306,13 +308,13 @@ export class CreditStudyDetail {
      * responde `authorization_pending` porque el titular aún no ha firmado.
      */
     authVisible = signal(false);
-    /** true mientras se consulta el estado de la firma. */
-    checkingAuth = signal(false);
     /** true mientras, tras confirmar la firma, se crea el estudio en el bureau. */
     finalizingStudy = signal(false);
     authInfo = signal<CustomerAuthorization | null>(null);
     /** Payload de la última consulta a bureau, para reintentar tras la firma. */
-    private lastBureauPayload: CreateFromBureauPayload | null = null;
+    private lastBureauPayload = signal<CreateFromBureauPayload | null>(null);
+    /** Identificación del titular, para el modal compartido de autorización. */
+    authIdentificationNumber = computed(() => this.lastBureauPayload()?.numeroIdentificacion ?? '');
 
     identificationTypes = toSignal(this.parameterService.getByType('identification_type'));
 
@@ -614,7 +616,7 @@ export class CreditStudyDetail {
             payload.legalRepIdentificationTypeCode = v.legalRepIdentificationTypeId?.code ?? '';
             payload.legalRepIdentificationNumber = v.legalRepIdentificationNumber;
         }
-        this.lastBureauPayload = payload;
+        this.lastBureauPayload.set(payload);
 
         this.creatingStudy.set(true);
         this.startLoaderMessages(this.createStudyMessages);
@@ -650,36 +652,14 @@ export class CreditStudyDetail {
         this.router.navigate(['/app/estudio-credito/detalle-estudio', creditStudyId]);
     }
 
+
     /**
-     * Botón "Verificar firma" del modal de autorización: consulta si el titular
-     * ya firmó. Si firmó, relanza `from-bureau` (que esta vez crea el estudio).
+     * Relanza la consulta al bureau una vez resuelta la autorización (firmada en
+     * línea o cargada por la empresa), para crear el estudio. La invoca el output
+     * `authorized` del modal compartido.
      */
-    onCheckAuthorization(): void {
-        const identificationNumber = this.lastBureauPayload?.numeroIdentificacion;
-        if (!identificationNumber) return;
-
-        this.checkingAuth.set(true);
-        this.creditStudyService.getCustomerAuthorization(identificationNumber).pipe(
-            takeUntilDestroyed(this.destroyRef)
-        ).subscribe({
-            next: (auth) => {
-                this.authInfo.set(auth);
-                if (auth.isSigned) {
-                    // Transiciona el modal de "verificando" a "creando estudio".
-                    this.checkingAuth.set(false);
-                    this.createAfterSignature();
-                } else {
-                    this.checkingAuth.set(false);
-                    this.notificationService.info('El titular aún no ha firmado la autorización. Inténtelo de nuevo en unos minutos.', 'Firma pendiente');
-                }
-            },
-            error: () => this.checkingAuth.set(false)
-        });
-    }
-
-    /** Relanza la consulta al bureau una vez el titular firmó, para crear el estudio. */
-    private createAfterSignature(): void {
-        const payload = this.lastBureauPayload;
+    createAfterSignature(): void {
+        const payload = this.lastBureauPayload();
         if (!payload) return;
 
         // Muestra el loader "Creando estudio..." dentro del modal de firma.

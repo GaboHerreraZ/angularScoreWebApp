@@ -95,9 +95,18 @@ export class CustomerDetail {
     authorizationFields = computed<InfoField[]>(() => {
         const a = this.authorization();
         if (!a) return [];
+        // La empresa pudo adjuntar una autorización ya firmada en vez de pedir la
+        // firma en línea: ahí `signedAt` es el momento de la carga, no de la firma.
+        const uploaded = a.signatureSource === 'manual_upload';
         return [
             { label: 'Enviada el', value: formatShortDate(a.sentAt), icon: 'pi pi-send' },
-            { label: 'Firmada el', value: formatShortDate(a.signedAt), icon: 'pi pi-check-circle' },
+            { label: uploaded ? 'Cargada el' : 'Firmada el', value: formatShortDate(a.signedAt), icon: 'pi pi-check-circle' },
+            ...(a.isSigned ? [{
+                label: 'Origen',
+                value: uploaded ? 'Cargada por la empresa' : 'Firmada en línea',
+                icon: uploaded ? 'pi pi-upload' : 'pi pi-pen-to-square'
+            }] : []),
+            ...(uploaded && a.signedFileName ? [{ label: 'Archivo', value: a.signedFileName, icon: 'pi pi-file-pdf', span: true }] : []),
             ...(a.refusedAt ? [{ label: 'Rechazada el', value: formatShortDate(a.refusedAt), icon: 'pi pi-times-circle' }] : []),
             ...(a.refusedReason ? [{ label: 'Motivo del rechazo', value: a.refusedReason, icon: 'pi pi-info-circle', span: true }] : []),
             ...(a.revokedAt ? [{ label: 'Revocada el', value: formatShortDate(a.revokedAt), icon: 'pi pi-ban' }] : [])
