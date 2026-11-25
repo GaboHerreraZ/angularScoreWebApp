@@ -16,7 +16,6 @@ import { SelectModule } from 'primeng/select';
 import { SkeletonModule } from 'primeng/skeleton';
 import { DialogModule } from 'primeng/dialog';
 import { BureauCheckService } from '../bureau-check.service';
-import { CreditStudyService } from '../../credit-study.service';
 import { CustomersService } from '@/app/features/customers/customers.service';
 import { CustomerDetail as CustomerDetailModel } from '@/app/types/customer';
 import { CustomerAuthorization } from '@/app/types/credit-study';
@@ -34,6 +33,7 @@ import { isBusinessDocType } from '@/app/shared/components/billing-form/billing-
 import { StateControl } from '@/app/shared/components/state-control/state-control';
 import { CityControl } from '@/app/shared/components/city-control/city-control';
 import { SupportFab } from '@/app/shared/components/support-fab/support-fab';
+import { AuthorizationDialog } from '@/app/shared/components/authorization-dialog/authorization-dialog';
 
 /**
  * Consulta de riesgo crediticio: creación y detalle. Un solo flujo sin stepper:
@@ -60,7 +60,8 @@ import { SupportFab } from '@/app/shared/components/support-fab/support-fab';
         DialogModule,
         StateControl,
         CityControl,
-        SupportFab
+        SupportFab,
+        AuthorizationDialog
     ],
     templateUrl: './bureau-check-detail.html'
 })
@@ -69,7 +70,6 @@ export class BureauCheckDetail {
     private route = inject(ActivatedRoute);
     private router = inject(Router);
     private bureauCheckService = inject(BureauCheckService);
-    private creditStudyService = inject(CreditStudyService);
     private customersService = inject(CustomersService);
     private notificationService = inject(NotificationService);
     private parameterService = inject(ParameterService);
@@ -233,10 +233,11 @@ export class BureauCheckDetail {
 
     summaryVisible = signal(false);
     authVisible = signal(false);
-    checkingAuth = signal(false);
     finalizing = signal(false);
     authInfo = signal<CustomerAuthorization | null>(null);
-    private lastPayload: CreateBureauCheckPayload | null = null;
+    private lastPayload = signal<CreateBureauCheckPayload | null>(null);
+    /** Identificación del titular, para el modal compartido de autorización. */
+    authIdentificationNumber = computed(() => this.lastPayload()?.numeroIdentificacion ?? '');
 
     /** Solo persona natural: sin NIT. */
     identificationTypes = toSignal(
@@ -438,7 +439,7 @@ export class BureauCheckDetail {
             titularCity: v.titularCity?.name ?? '',
             requestedCreditLine: v.requestedCreditLine ?? undefined
         };
-        this.lastPayload = payload;
+        this.lastPayload.set(payload);
 
         this.creating.set(true);
         this.startLoaderMessages(this.createMessages);
@@ -468,29 +469,10 @@ export class BureauCheckDetail {
         void this.router.navigate(['/app/estudio-credito/consulta-riesgo', creditStudyId]);
     }
 
-    onCheckAuthorization(): void {
-        const identificationNumber = this.lastPayload?.numeroIdentificacion;
-        if (!identificationNumber) return;
 
-        this.checkingAuth.set(true);
-        this.creditStudyService.getCustomerAuthorization(identificationNumber).pipe(
-            takeUntilDestroyed(this.destroyRef)
-        ).subscribe({
-            next: (auth) => {
-                this.authInfo.set(auth);
-                this.checkingAuth.set(false);
-                if (auth.isSigned) {
-                    this.createAfterSignature();
-                } else {
-                    this.notificationService.info('El titular aún no ha firmado la autorización. Inténtelo de nuevo en unos minutos.', 'Firma pendiente');
-                }
-            },
-            error: () => this.checkingAuth.set(false)
-        });
-    }
-
-    private createAfterSignature(): void {
-        const payload = this.lastPayload;
+    /** La invoca el output `authorized` del modal compartido de autorización. */
+    createAfterSignature(): void {
+        const payload = this.lastPayload();
         if (!payload) return;
 
         this.finalizing.set(true);

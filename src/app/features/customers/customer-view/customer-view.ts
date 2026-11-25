@@ -70,6 +70,10 @@ export class CustomerView {
         const a = this.authorization();
         if (!a) return null;
         if (a.revokedAt) return `Revocada el ${formatShortDate(a.revokedAt)}`;
+        // Una autorización cargada a mano no se firmó en línea: la fecha es la de la carga.
+        if (a.isSigned && a.signatureSource === 'manual_upload') {
+            return a.signedAt ? `Cargada el ${formatShortDate(a.signedAt)}` : 'Cargada por la empresa';
+        }
         if (a.isSigned) return a.signedAt ? `Firmada el ${formatShortDate(a.signedAt)}` : null;
         if (a.refusedAt) return a.refusedReason ? `Motivo: ${a.refusedReason}` : `Rechazada el ${formatShortDate(a.refusedAt)}`;
         return a.sentAt ? `Enviada el ${formatShortDate(a.sentAt)}` : null;

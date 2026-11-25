@@ -1,3 +1,4 @@
+import type { CustomerAuthorization } from './customer-authorization';
 import { PromissoryNoteSummary } from './promissory-note';
 import {
     CapacityFigures,
@@ -260,22 +261,16 @@ export interface CreateFromBureauPayload {
 }
 
 /**
- * Estado de la autorización de tratamiento de datos (habeas data) del titular,
- * firmada vía ZapSign. Cuando el cliente no existe/no ha firmado, `from-bureau`
- * devuelve esta info en vez de crear el estudio.
+ * Estado de la autorización del titular. Cuando el cliente no existe/no ha
+ * firmado, `from-bureau` devuelve esta info en vez de crear el estudio.
+ * Definición canónica en `types/customer-authorization.ts`; se re-exporta aquí
+ * porque los tres productos y `types/bureau-check.ts` la importan de este módulo.
  */
-export interface CustomerAuthorization {
-    id?: string;
-    status: string; // 'pending' | 'signed' | 'refused' | 'revoked' | 'not_requested'
-    statusLabel?: string;
-    isSigned: boolean;
-    signUrl: string | null;
-    sentAt: string | null;
-    signedAt: string | null;
-    refusedAt: string | null;
-    refusedReason: string | null;
-    revokedAt: string | null;
-}
+export type {
+    CustomerAuthorization,
+    CustomerAuthorizationStatus,
+    CustomerAuthorizationSignatureSource
+} from './customer-authorization';
 
 export interface CreateFromBureauResponse {
     /** 'created' → estudio creado; 'authorization_pending' → falta firma del titular. */

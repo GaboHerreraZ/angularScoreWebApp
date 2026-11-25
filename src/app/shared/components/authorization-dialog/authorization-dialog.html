@@ -1,0 +1,186 @@
+<!-- ═══════════ Modal del gate de autorización (habeas data) ═══════════ -->
+<p-dialog
+    [(visible)]="visible"
+    [modal]="true"
+    [closable]="!busy()"
+    [showHeader]="!finalizing()"
+    [dismissableMask]="false"
+    [draggable]="false"
+    [style]="{ width: '90vw', maxWidth: mode() === 'choose' ? '760px' : '480px' }">
+
+    @if (finalizing()) {
+    <!-- Estado de carga: creando el recurso una vez resuelta la autorización -->
+    <div class="flex flex-col items-center gap-5 py-6">
+        <div class="relative w-20 h-20">
+            <div class="absolute inset-0 rounded-full border-4 border-primary-100 dark:border-primary-900/40"></div>
+            <div class="absolute inset-0 rounded-full border-4 border-transparent border-t-primary-500 animate-spin"></div>
+            <div class="absolute inset-2.5 rounded-full bg-linear-to-br from-primary-500 to-primary-600 flex items-center justify-center shadow-lg shadow-primary-500/25">
+                <i class="pi pi-file-check text-white text-xl ai-sparkle-spin"></i>
+            </div>
+        </div>
+        <div class="text-center min-h-12">
+            <h6 class="font-bold text-base m-0">{{ finalizingTitle() }}</h6>
+            @for (msg of [loaderMessage()]; track msg) {
+            <p class="text-m text-muted-color m-0 mt-1 loader-message-fade">{{ msg }}</p>
+            }
+        </div>
+        <div class="flex gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-primary-400 loader-dot"></span>
+            <span class="w-2 h-2 rounded-full bg-primary-400 loader-dot" style="animation-delay: 0.2s"></span>
+            <span class="w-2 h-2 rounded-full bg-primary-400 loader-dot" style="animation-delay: 0.4s"></span>
+        </div>
+    </div>
+    } @else {
+    <ng-template #header>
+        <div class="flex items-center gap-3">
+            <div class="flex items-center justify-center rounded-full bg-amber-50 text-amber-500 dark:bg-amber-500/10 dark:text-amber-400 shrink-0" style="width: 2.5rem; height: 2.5rem;">
+                <i class="pi pi-file-edit text-base"></i>
+            </div>
+            <div class="flex flex-col">
+                <span class="text-base font-semibold">Autorización pendiente de firma</span>
+                <span class="text-sm text-muted-color">El titular debe autorizar el tratamiento de sus datos</span>
+            </div>
+        </div>
+    </ng-template>
+
+    <!-- ─────────── Paso 1: elegir cómo resolver la autorización ─────────── -->
+    @if (mode() === 'choose') {
+    <div class="flex flex-col gap-4">
+        <!-- El rechazo se muestra aquí: la carga manual es la salida natural -->
+        @if (authInfo()?.status === 'refused') {
+        <div class="flex items-start gap-2.5 p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
+            <i class="pi pi-times-circle text-red-600 dark:text-red-400 text-m mt-0.5 shrink-0"></i>
+            <span class="text-m text-red-800 dark:text-red-300">
+                El titular rechazó la autorización.{{ authInfo()?.refusedReason ? ' Motivo: ' + authInfo()?.refusedReason : '' }}
+            </span>
+        </div>
+        }
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <button
+                type="button"
+                class="flex flex-col gap-3 text-left rounded-xl border border-surface p-4 sm:p-5 h-full transition-all focus:outline-none hover:border-primary-400 hover:shadow-md focus:ring-2 focus:ring-primary-400"
+                (click)="mode.set('wait')">
+                <div class="flex items-center gap-3">
+                    <div class="flex items-center justify-center rounded-xl shrink-0 bg-amber-50 text-amber-500 dark:bg-amber-500/10 dark:text-amber-400" style="width: 2.75rem; height: 2.75rem;">
+                        <i class="pi pi-send text-lg"></i>
+                    </div>
+                    <div class="flex flex-col min-w-0">
+                        <span class="text-base font-semibold">Esperar la firma del titular</span>
+                        <span class="text-sm text-muted-color">Firma en línea</span>
+                    </div>
+                </div>
+                <span class="text-m text-muted-color">
+                    Ya enviamos la autorización a <span class="font-semibold">{{ titularEmail() }}</span>.
+                    El titular debe firmarla para poder consultarlo.
+                </span>
+                <span class="inline-flex items-center gap-1.5 text-m font-semibold text-primary-600 dark:text-primary-400 mt-auto pt-1">
+                    Verificar firma <i class="pi pi-arrow-right text-sm"></i>
+                </span>
+            </button>
+
+            <button
+                type="button"
+                class="flex flex-col gap-3 text-left rounded-xl border border-surface p-4 sm:p-5 h-full transition-all focus:outline-none hover:border-primary-400 hover:shadow-md focus:ring-2 focus:ring-primary-400"
+                (click)="mode.set('upload')">
+                <div class="flex items-center gap-3">
+                    <div class="flex items-center justify-center rounded-xl shrink-0 bg-blue-50 text-blue-500 dark:bg-blue-500/10 dark:text-blue-400" style="width: 2.75rem; height: 2.75rem;">
+                        <i class="pi pi-upload text-lg"></i>
+                    </div>
+                    <div class="flex flex-col min-w-0">
+                        <span class="text-base font-semibold">Adjuntar autorización firmada</span>
+                        <span class="text-sm text-muted-color">Ya la tengo</span>
+                    </div>
+                </div>
+                <span class="text-m text-muted-color">
+                    Si su empresa ya cuenta con la autorización firmada por el titular,
+                    cárguela en PDF y continúe de inmediato.
+                </span>
+                <span class="inline-flex items-center gap-1.5 text-m font-semibold text-primary-600 dark:text-primary-400 mt-auto pt-1">
+                    Cargar documento <i class="pi pi-arrow-right text-sm"></i>
+                </span>
+            </button>
+        </div>
+    </div>
+
+    <ng-template #footer>
+        <div class="flex justify-end gap-2">
+            <p-button label="Cerrar" severity="secondary" [text]="true" (onClick)="onClose()" />
+        </div>
+    </ng-template>
+    }
+
+    <!-- ─────────── Opción 1: esperar y verificar la firma en línea ─────────── -->
+    @if (mode() === 'wait') {
+    <div class="flex flex-col gap-4">
+        <div class="flex items-start gap-2.5 p-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800">
+            <i class="pi pi-info-circle text-amber-600 dark:text-amber-400 text-m mt-0.5 shrink-0"></i>
+            <span class="text-m text-amber-800 dark:text-amber-300">
+                Se envió al correo <span class="font-semibold">{{ titularEmail() }}</span> un documento de autorización de tratamiento de datos.
+                {{ subjectLabel() }} no se puede crear hasta que el titular lo <span class="font-semibold">firme</span>.
+            </span>
+        </div>
+
+        @if (authInfo()?.status === 'refused') {
+        <div class="flex items-start gap-2.5 p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
+            <i class="pi pi-times-circle text-red-600 dark:text-red-400 text-m mt-0.5 shrink-0"></i>
+            <span class="text-m text-red-800 dark:text-red-300">
+                El titular rechazó la autorización.{{ authInfo()?.refusedReason ? ' Motivo: ' + authInfo()?.refusedReason : '' }}
+            </span>
+        </div>
+        }
+    </div>
+
+    <ng-template #footer>
+        <div class="flex justify-end gap-2">
+            <p-button label="Volver" severity="secondary" [text]="true" [disabled]="busy()" (onClick)="back()" />
+            <p-button label="Ya firmó, verificar" icon="pi pi-refresh" [loading]="checking()" (onClick)="onCheckAuthorization()" />
+        </div>
+    </ng-template>
+    }
+
+    <!-- ─────────── Opción 2: adjuntar la autorización ya firmada ─────────── -->
+    @if (mode() === 'upload') {
+    <div class="flex flex-col gap-4">
+        <div class="flex items-start gap-2.5 p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
+            <i class="pi pi-info-circle text-blue-600 dark:text-blue-400 text-m mt-0.5 shrink-0"></i>
+            <span class="text-m text-blue-800 dark:text-blue-300">
+                El documento debe ser la autorización de consulta en centrales de riesgo
+                <span class="font-semibold">firmada por el titular</span>. Su empresa es responsable
+                de conservarla y de su validez.
+            </span>
+        </div>
+
+        @if (selectedFile(); as file) {
+        <div class="flex items-center gap-3 p-3 rounded-lg border border-surface">
+            <i class="pi pi-file-pdf text-red-500 text-lg shrink-0"></i>
+            <div class="flex flex-col min-w-0 flex-1">
+                <span class="text-m font-medium truncate">{{ file.name }}</span>
+                <span class="text-sm text-muted-color">{{ fileSizeMb(file) }}</span>
+            </div>
+            <p-button icon="pi pi-times" severity="secondary" [text]="true" [rounded]="true"
+                      [disabled]="busy()" (onClick)="clearFile()" />
+        </div>
+        } @else {
+        <button
+            type="button"
+            class="flex flex-col items-center justify-center gap-2 p-6 rounded-lg border border-dashed border-surface transition-all focus:outline-none hover:border-primary-400 focus:ring-2 focus:ring-primary-400"
+            (click)="openFileSelector()">
+            <i class="pi pi-upload text-primary-500 text-xl"></i>
+            <span class="text-m font-semibold">Seleccionar archivo</span>
+            <span class="text-sm text-muted-color">PDF firmado, máximo {{ maxPdfSizeMb }} MB</span>
+        </button>
+        }
+    </div>
+
+    <ng-template #footer>
+        <div class="flex justify-end gap-2">
+            <p-button label="Volver" severity="secondary" [text]="true" [disabled]="busy()" (onClick)="back()" />
+            <p-button label="Cargar y continuar" icon="pi pi-check"
+                      [disabled]="!selectedFile()" [loading]="uploading()"
+                      (onClick)="onUploadSignedDocument()" />
+        </div>
+    </ng-template>
+    }
+    }
+</p-dialog>

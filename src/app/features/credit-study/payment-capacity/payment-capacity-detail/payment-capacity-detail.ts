@@ -46,6 +46,7 @@ import { PromissoryNoteModal } from '../../credit-study-detail/promissory-note-m
 import { PaymentCapacityDocuments } from '../payment-capacity-documents/payment-capacity-documents';
 import { PaymentCapacityResult } from '../payment-capacity-result/payment-capacity-result';
 import { SupportFab } from '@/app/shared/components/support-fab/support-fab';
+import { AuthorizationDialog } from '@/app/shared/components/authorization-dialog/authorization-dialog';
 import { DateOnlyPipe } from '@/app/shared/pipes/date-only.pipe';
 
 /**
@@ -82,6 +83,7 @@ import { DateOnlyPipe } from '@/app/shared/pipes/date-only.pipe';
         PaymentCapacityDocuments,
         PaymentCapacityResult,
         SupportFab,
+        AuthorizationDialog,
         DateOnlyPipe
     ],
     providers: [provideConfirm()],
@@ -268,10 +270,11 @@ export class PaymentCapacityDetail {
 
     summaryVisible = signal(false);
     authVisible = signal(false);
-    checkingAuth = signal(false);
     finalizingStudy = signal(false);
     authInfo = signal<CustomerAuthorization | null>(null);
-    private lastBureauPayload: CreateFromBureauPayload | null = null;
+    private lastBureauPayload = signal<CreateFromBureauPayload | null>(null);
+    /** Identificación del titular, para el modal compartido de autorización. */
+    authIdentificationNumber = computed(() => this.lastBureauPayload()?.numeroIdentificacion ?? '');
 
     /** El estudio de capacidad es solo para persona natural: sin NIT. */
     identificationTypes = toSignal(
@@ -536,7 +539,7 @@ export class PaymentCapacityDetail {
             employmentTypeCode: (v.employmentTypeId?.code ?? 'salaried') as EmploymentTypeCode,
             declaredEmploymentStartDate: this.toIsoDate(v.declaredEmploymentStartDate)
         };
-        this.lastBureauPayload = payload;
+        this.lastBureauPayload.set(payload);
 
         this.creatingStudy.set(true);
         this.startLoaderMessages(this.createStudyMessages);
@@ -569,29 +572,10 @@ export class PaymentCapacityDetail {
         this.router.navigate(['/app/estudio-credito/estudio-capacidad', creditStudyId]);
     }
 
-    onCheckAuthorization(): void {
-        const identificationNumber = this.lastBureauPayload?.numeroIdentificacion;
-        if (!identificationNumber) return;
 
-        this.checkingAuth.set(true);
-        this.creditStudyService.getCustomerAuthorization(identificationNumber).pipe(
-            takeUntilDestroyed(this.destroyRef)
-        ).subscribe({
-            next: (auth) => {
-                this.authInfo.set(auth);
-                this.checkingAuth.set(false);
-                if (auth.isSigned) {
-                    this.createAfterSignature();
-                } else {
-                    this.notificationService.info('El titular aún no ha firmado la autorización. Inténtelo de nuevo en unos minutos.', 'Firma pendiente');
-                }
-            },
-            error: () => this.checkingAuth.set(false)
-        });
-    }
-
-    private createAfterSignature(): void {
-        const payload = this.lastBureauPayload;
+    /** La invoca el output `authorized` del modal compartido de autorización. */
+    createAfterSignature(): void {
+        const payload = this.lastBureauPayload();
         if (!payload) return;
 
         this.finalizingStudy.set(true);

@@ -1,3 +1,5 @@
+import type { CustomerAuthorization } from './customer-authorization';
+
 export interface Country {
     name?: string;
     code?: string;
@@ -121,22 +123,11 @@ export interface CustomerLegalRep {
     phone: string | null;
 }
 
-/** Autorización de habeas data firmada por el titular (documento único). */
-export interface CustomerAuthorization {
-    id: string;
-    /** 'pending' | 'signed' | 'refused' */
-    status: string | null;
-    statusLabel: string | null;
-    isSigned: boolean;
-    signUrl: string | null;
-    sentAt: string | null;
-    signedAt: string | null;
-    refusedAt: string | null;
-    refusedReason: string | null;
-    revokedAt: string | null;
-    /** Enlace de descarga del PDF firmado; vigencia 1 hora. */
-    documentUrl: string | null;
-}
+/**
+ * Autorización de habeas data firmada por el titular (documento único).
+ * Definición canónica en `types/customer-authorization.ts`.
+ */
+export type { CustomerAuthorization } from './customer-authorization';
 
 /** Detalle completo de un cliente (GET /customers/:id). */
 export interface CustomerDetail {
