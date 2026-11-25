@@ -102,12 +102,6 @@
             </button>
         </div>
     </div>
-
-    <ng-template #footer>
-        <div class="flex justify-end gap-2">
-            <p-button label="Cerrar" severity="secondary" [text]="true" (onClick)="onClose()" />
-        </div>
-    </ng-template>
     }
 
     <!-- ─────────── Opción 1: esperar y verificar la firma en línea ─────────── -->
@@ -130,13 +124,6 @@
         </div>
         }
     </div>
-
-    <ng-template #footer>
-        <div class="flex justify-end gap-2">
-            <p-button label="Volver" severity="secondary" [text]="true" [disabled]="busy()" (onClick)="back()" />
-            <p-button label="Ya firmó, verificar" icon="pi pi-refresh" [loading]="checking()" (onClick)="onCheckAuthorization()" />
-        </div>
-    </ng-template>
     }
 
     <!-- ─────────── Opción 2: adjuntar la autorización ya firmada ─────────── -->
@@ -172,15 +159,25 @@
         </button>
         }
     </div>
+    }
 
+    <!-- Un solo #footer para las tres vistas: la content query de PrimeNG no
+         entra en las vistas embebidas de los @if, asi que no puede haber uno
+         por vista (se quedaria pegado al primero). -->
     <ng-template #footer>
         <div class="flex justify-end gap-2">
+            @if (mode() === 'choose') {
+            <p-button label="Cerrar" severity="secondary" [text]="true" (onClick)="onClose()" />
+            } @else if (mode() === 'wait') {
+            <p-button label="Volver" severity="secondary" [text]="true" [disabled]="busy()" (onClick)="back()" />
+            <p-button label="Ya firmó, verificar" icon="pi pi-refresh" [loading]="checking()" (onClick)="onCheckAuthorization()" />
+            } @else {
             <p-button label="Volver" severity="secondary" [text]="true" [disabled]="busy()" (onClick)="back()" />
             <p-button label="Cargar y continuar" icon="pi pi-check"
                       [disabled]="!selectedFile()" [loading]="uploading()"
                       (onClick)="onUploadSignedDocument()" />
+            }
         </div>
     </ng-template>
-    }
     }
 </p-dialog>
